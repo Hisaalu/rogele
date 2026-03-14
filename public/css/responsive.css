@@ -1,0 +1,118 @@
+/* File: /public/css/responsive.css */
+/* Extra Large Devices (Desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+/* Large Devices (Desktops, 992px to 1199px) */
+@media (max-width: 1199px) {
+    .container {
+        max-width: 960px;
+    }
+}
+
+/* Medium Devices (Tablets, 768px to 991px) */
+@media (max-width: 991px) {
+    .container {
+        max-width: 720px;
+    }
+    
+    .auth-card {
+        max-width: 450px;
+    }
+}
+
+/* Small Devices (Landscape Phones, 576px to 767px) */
+@media (max-width: 767px) {
+    .container {
+        max-width: 540px;
+    }
+    
+    .auth-card {
+        padding: 2rem;
+    }
+    
+    .auth-header h2 {
+        font-size: 2rem;
+    }
+    
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+
+/* Extra Small Devices (Portrait Phones, less than 576px) */
+@media (max-width: 575px) {
+    .auth-card {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .auth-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .auth-header p {
+        font-size: 0.9rem;
+    }
+    
+    .form-group input {
+        padding: 0.9rem 1rem;
+    }
+    
+    .btn-primary {
+        padding: 0.9rem;
+    }
+    
+    .footer-section {
+        text-align: center;
+    }
+    
+    .footer-section h4::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .social-links {
+        justify-content: center;
+    }
+}
+
+/* Handle very small devices */
+@media (max-width: 360px) {
+    .auth-card {
+        padding: 1rem;
+    }
+    
+    .auth-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .nav-brand a span {
+        display: none;
+    }
+    
+    .btn-login, .btn-register {
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .navbar,
+    .footer,
+    .btn-primary,
+    .btn-secondary {
+        display: none;
+    }
+    
+    .auth-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}

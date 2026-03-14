@@ -1,0 +1,38 @@
+/* File: /public/css/dark-mode.css */
+.dark-mode {
+    --primary-color: #6d8cff;
+    --secondary-color: #5a4fcf;
+    --dark-color: #f8f9fa;
+    --light-color: #1e1e2f;
+    --gray-color: #a0a0a0;
+    --border-color: #2d2d3a;
+    --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.dark-mode body {
+    background-color: #121212;
+}
+
+.dark-mode .navbar,
+.dark-mode .dropdown-content,
+.dark-mode .auth-card,
+.dark-mode .stat-card,
+.dark-mode .chart-card,
+.dark-mode .lesson-card,
+.dark-mode .quizzes-list,
+.dark-mode .quiz-item {
+    background-color: #1e1e2f;
+    color: #f8f9fa;
+}
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+    background-color: #2d2d3a;
+    color: #f8f9fa;
+    border-color: #3d3d4a;
+}
+
+.dark-mode .dropdown-content a:hover {
+    background-color: #2d2d3a;
+}
