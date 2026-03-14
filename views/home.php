@@ -774,7 +774,7 @@ body {
             <div class="cta-content">
                 <h2>Ready to Start Learning?</h2>
                 <p>Join thousands of students already learning on our platform</p>
-                <a href="/register" class="btn-primary">
+                <a href="/rays-of-grace/register" class="btn-primary">
                     Create Free Account
                     <i class="fas fa-arrow-right"></i>
                 </a>

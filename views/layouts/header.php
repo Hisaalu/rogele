@@ -160,7 +160,7 @@
             color: #F97316;
         }
 
-        /* Auth Buttons - Properly Aligned */
+        /* Auth Buttons */
         .nav-auth {
             display: flex;
             align-items: center;
@@ -219,12 +219,16 @@
             box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
         }
 
-        /* User Menu */
+        /* ===== FIXED USER DROPDOWN MENU - MATCHING YOUR HTML STRUCTURE ===== */
         .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            position: relative;
+            display: inline-block;
             margin-left: 20px;
+        }
+
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
         }
 
         .user-initials {
@@ -249,23 +253,67 @@
             border-color: white;
         }
 
-        .user-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
+        /* Dropdown Content - Hidden by default */
         .dropdown-content {
-            display: none;
             position: absolute;
             right: 0;
             top: 55px;
             background: white;
-            min-width: 220px;
+            min-width: 260px;
             border-radius: 15px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             z-index: 1000;
             overflow: hidden;
             border: 1px solid #E2E8F0;
+            display: none; /* Hidden by default */
+        }
+
+        /* Show dropdown when hovering over user-dropdown */
+        .user-dropdown:hover .dropdown-content {
+            display: block; /* Show on hover */
+        }
+
+        /* Keep dropdown visible when hovering over the dropdown itself */
+        .dropdown-content:hover {
+            display: block;
+        }
+
+        /* Optional: Add a small triangle/arrow */
+        .dropdown-content::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            transform: rotate(45deg);
+            border-left: 1px solid #E2E8F0;
+            border-top: 1px solid #E2E8F0;
+            z-index: -1;
+        }
+
+        .dropdown-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #F8FAFC, #FFFFFF);
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .dropdown-header p {
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 3px;
+        }
+
+        .dropdown-header small {
+            color: #64748B;
+            font-size: 0.8rem;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #E2E8F0;
+            margin: 5px 0;
         }
 
         .dropdown-content a {
@@ -291,16 +339,11 @@
         }
 
         .dropdown-content a.logout {
-            border-top: 1px solid #E2E8F0;
             color: #EF4444;
         }
 
         .dropdown-content a.logout i {
             color: #EF4444;
-        }
-
-        .user-dropdown:hover .dropdown-content {
-            display: block;
         }
 
         /* Mobile Menu Button */
@@ -653,7 +696,7 @@
                             </a></li>
                         </ul>
                         
-                        <!-- User Menu with Initials -->
+                        <!-- ===== FIXED USER MENU WITH DROPDOWN - MATCHING YOUR HTML ===== -->
                         <div class="user-menu">
                             <div class="user-dropdown">
                                 <div class="user-initials">
@@ -670,12 +713,17 @@
                                     ?>
                                 </div>
                                 <div class="dropdown-content">
+                                    <div class="dropdown-header">
+                                        <p><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></p>
+                                        <small><?php echo htmlspecialchars($_SESSION['user_email'] ?? ''); ?></small>
+                                    </div>
                                     <a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/profile">
                                         <i class="fas fa-user"></i> My Profile
                                     </a>
                                     <a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/settings">
                                         <i class="fas fa-cog"></i> Settings
                                     </a>
+                                    <div class="dropdown-divider"></div>
                                     <a href="<?php echo BASE_URL; ?>/logout" class="logout">
                                         <i class="fas fa-sign-out-alt"></i> Logout
                                     </a>
@@ -684,7 +732,7 @@
                         </div>
                     </div>
                 <?php else: ?>
-                    <!-- Desktop Navigation for Guests - Properly Aligned -->
+                    <!-- Desktop Navigation for Guests -->
                     <div class="nav-menu">
                         <ul class="nav-links">
                             <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
@@ -692,7 +740,6 @@
                             <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
                         </ul>
                         
-                        <!-- Auth Buttons - Properly Aligned -->
                         <div class="nav-auth">
                             <a href="<?php echo BASE_URL; ?>/login" class="btn-login">
                                 <i class="fas fa-sign-in-alt"></i> Login

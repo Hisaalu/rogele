@@ -24,10 +24,10 @@
                             Providing quality education through innovative e-learning solutions since 2010.
                         </p>
                         <div class="footer-social">
-                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fab fa-youtube"></i></a>
+                            <a href="https://www.facebook.com/profile.php?id=100057146993995" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://x.com/raysofgracejr" target="_blank"><i class="fab fa-twitter"></i></a>
+                            <a href="https://www.linkedin.com/company/raysofgracejr" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="https://www.youtube.com/@raysofgraceacademy" target="_blank"><i class="fab fa-youtube"></i></a>
                         </div>
                     </div>
 
@@ -46,8 +46,8 @@
                     <div class="footer-col">
                         <h4>Contact Us</h4>
                         <ul class="contact-info">
-                            <li><i class="fas fa-phone"></i> +256 123 456 789</li>
-                            <li><i class="fas fa-envelope"></i> info@raysofgrace.com</li>
+                            <li><i class="fas fa-phone"></i> +256 778 086 883</li>
+                            <li><i class="fas fa-envelope"></i> info@raysofgrace.cac.ug</li>
                             <li><i class="fas fa-map-marker"></i> Kampala, Uganda</li>
                         </ul>
                     </div>
@@ -56,7 +56,7 @@
         </div>
         <div class="footer-bottom">
             <div class="container">
-                <p>&copy; <?php echo date('Y'); ?> Rays of Grace Junior School. All rights reserved.</p>
+                <p>&copy; <?php echo date('Y'); ?> Rays of Grace Junior School | All rights reserved.</p>
             </div>
         </div>
     </footer>
