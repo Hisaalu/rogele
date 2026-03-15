@@ -445,5 +445,53 @@ class Quiz {
             return ['success' => false, 'error' => 'Failed to delete quiz'];
         }
     }
+
+    /**
+     * Get total number of quizzes
+     */
+    public function getTotalQuizzes() {
+        try {
+            $query = "SELECT COUNT(*) as count FROM quizzes";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            return $result['count'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get total quizzes error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get total quiz attempts
+     */
+    public function getTotalAttempts() {
+        try {
+            $query = "SELECT COUNT(*) as count FROM quiz_attempts WHERE status = 'completed'";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            return $result['count'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get total attempts error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get average score across all quizzes
+     */
+    public function getAverageScore() {
+        try {
+            $query = "SELECT AVG(score) as avg_score FROM quiz_attempts WHERE status = 'completed'";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            return round($result['avg_score'] ?? 0, 1);
+        } catch (PDOException $e) {
+            error_log("Get average score error: " . $e->getMessage());
+            return 0;
+        }
+    }
 }
 ?>

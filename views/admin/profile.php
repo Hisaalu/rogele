@@ -1,0 +1,634 @@
+<?php
+// File: /views/admin/profile.php
+$pageTitle = 'Admin Profile - Rays of Grace';
+require_once __DIR__ . '/../layouts/header.php';
+?>
+
+<div class="profile-container">
+    <!-- Header Section -->
+    <div class="profile-header">
+        <h1 class="page-title">
+            <i class="fas fa-user-shield"></i>
+            Admin Profile
+        </h1>
+        <p class="page-subtitle">Manage your personal information and account settings</p>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="profile-grid">
+        <!-- Profile Card Left -->
+        <div class="profile-card profile-card-left">
+            <div class="profile-photo-section">
+                <div class="profile-photo-wrapper">
+                    <?php if (!empty($profile['profile_photo'])): ?>
+                        <img src="/rays-of-grace/<?php echo $profile['profile_photo']; ?>" alt="Profile Photo" class="profile-photo">
+                    <?php else: ?>
+                        <div class="profile-photo-placeholder">
+                            <?php 
+                            $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Admin');
+                            $initials = '';
+                            foreach ($nameParts as $part) {
+                                if (!empty($part)) {
+                                    $initials .= strtoupper(substr($part, 0, 1));
+                                }
+                            }
+                            echo substr($initials, 0, 2);
+                            ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Admin'); ?></h2>
+                <p class="profile-role">System Administrator</p>
+                
+                <form method="POST" action="/rays-of-grace/admin/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
+                    <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" style="display: none;" onchange="document.getElementById('photoUploadForm').submit()">
+                </form>
+                
+                <div class="photo-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>JPG, PNG or GIF (Max 2MB)</span>
+                </div>
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <i class="fas fa-calendar-alt stat-icon"></i>
+                    <div class="stat-content">
+                        <span class="stat-label">Admin Since</span>
+                        <span class="stat-value"><?php echo isset($profile['created_at']) ? date('M Y', strtotime($profile['created_at'])) : date('M Y'); ?></span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-clock stat-icon"></i>
+                    <div class="stat-content">
+                        <span class="stat-label">Last Login</span>
+                        <span class="stat-value"><?php echo isset($profile['last_login']) ? date('M d, Y', strtotime($profile['last_login'])) : 'Today'; ?></span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-shield-alt stat-icon"></i>
+                    <div class="stat-content">
+                        <span class="stat-label">Account Status</span>
+                        <span class="stat-value">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Card Right - Edit Form -->
+        <div class="profile-card profile-card-right">
+            <h3 class="card-title">
+                <i class="fas fa-edit"></i>
+                Edit Personal Information
+            </h3>
+            
+            <form method="POST" action="/rays-of-grace/admin/update-profile" class="profile-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">
+                            <i class="fas fa-user"></i>
+                            First Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="first_name" 
+                            name="first_name" 
+                            value="<?php echo htmlspecialchars($profile['first_name'] ?? ''); ?>" 
+                            required
+                            placeholder="Enter your first name"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_name">
+                            <i class="fas fa-user"></i>
+                            Last Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="last_name" 
+                            name="last_name" 
+                            value="<?php echo htmlspecialchars($profile['last_name'] ?? ''); ?>" 
+                            required
+                            placeholder="Enter your last name"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        Email Address
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        value="<?php echo htmlspecialchars($profile['email'] ?? $_SESSION['user_email'] ?? ''); ?>" 
+                        required
+                        placeholder="Enter your email address"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">
+                        <i class="fas fa-phone"></i>
+                        Phone Number
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        value="<?php echo htmlspecialchars($profile['phone'] ?? ''); ?>" 
+                        placeholder="Enter your phone number"
+                    >
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                    <a href="/rays-of-grace/admin/dashboard" class="btn-cancel">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.page-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-subtitle {
+    color: #64748B;
+    font-size: 1rem;
+    margin-bottom: 30px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(139, 92, 246, 0.15);
+}
+
+.profile-card-left {
+    padding: 30px;
+}
+
+.profile-photo-section {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.profile-photo-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+.profile-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 600;
+    color: white;
+    border: 4px solid white;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+.photo-upload-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8B5CF6;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.photo-upload-btn:hover {
+    background: #8B5CF6;
+    color: white;
+    transform: scale(1.1);
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1E293B;
+    margin-bottom: 5px;
+}
+
+.profile-role {
+    color: #8B5CF6;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.photo-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #64748B;
+    font-size: 0.85rem;
+    background: #F8FAFC;
+    padding: 8px 15px;
+    border-radius: 50px;
+    margin-top: 15px;
+}
+
+.photo-info i {
+    color: #F97316;
+}
+
+.profile-stats {
+    border-top: 2px solid #F1F5F9;
+    padding-top: 25px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border-radius: 12px;
+    transition: background 0.3s ease;
+    margin-bottom: 5px;
+}
+
+.stat-item:hover {
+    background: #F8FAFC;
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(249, 115, 22, 0.1));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8B5CF6;
+    font-size: 1.2rem;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #64748B;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #1E293B;
+}
+
+.profile-card-right {
+    padding: 40px;
+}
+
+.card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #1E293B;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #F1F5F9;
+}
+
+.card-title i {
+    color: #F97316;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1E293B;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group label i {
+    color: #8B5CF6;
+    font-size: 1rem;
+}
+
+.form-group input {
+    padding: 12px 16px;
+    border: 2px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+}
+
+.form-group input:hover {
+    border-color: #8B5CF6;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-save {
+    flex: 1;
+    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+}
+
+.btn-cancel {
+    padding: 14px 30px;
+    background: white;
+    color: #64748B;
+    border: 2px solid #E2E8F0;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-cancel:hover {
+    background: #F1F5F9;
+    border-color: #94A3B8;
+    color: #1E293B;
+}
+
+/* Alert Styles */
+.alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.3s ease;
+}
+
+.alert-success {
+    background: #F0FDF4;
+    color: #166534;
+    border: 1px solid #BBF7D0;
+}
+
+.alert-error {
+    background: #FEF2F2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .profile-card-left {
+        padding: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 20px 15px;
+    }
+    
+    .page-title {
+        font-size: 1.8rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .profile-card-right {
+        padding: 25px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn-save, .btn-cancel {
+        width: 100%;
+    }
+    
+    .profile-photo-wrapper {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .profile-name {
+        font-size: 1.3rem;
+    }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+    .profile-card {
+        background: #1E293B;
+    }
+    
+    .profile-name {
+        color: #F1F5F9;
+    }
+    
+    .card-title {
+        color: #F1F5F9;
+        border-bottom-color: #334155;
+    }
+    
+    .form-group label {
+        color: #F1F5F9;
+    }
+    
+    .form-group input {
+        background: #0F172A;
+        border-color: #334155;
+        color: #F1F5F9;
+    }
+    
+    .stat-value {
+        color: #F1F5F9;
+    }
+    
+    .stat-item:hover {
+        background: #334155;
+    }
+    
+    .btn-cancel {
+        background: #334155;
+        color: #F1F5F9;
+        border-color: #475569;
+    }
+    
+    .btn-cancel:hover {
+        background: #475569;
+    }
+}
+</style>
+
+<script>
+document.getElementById('profilePhotoInput')?.addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+        const file = this.files[0];
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File size must be less than 2MB');
+            this.value = '';
+            return;
+        }
+        document.getElementById('photoUploadForm').submit();
+    }
+});
+</script>
+
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>

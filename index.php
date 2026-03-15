@@ -59,11 +59,19 @@ $routes = [
     
     // Admin routes
     '/admin/dashboard' => 'AdminController@dashboard',
+    '/admin/profile' => 'AdminController@profile',
     '/admin/users' => 'AdminController@users',
     '/admin/users/create' => 'AdminController@createUser',
+    '/admin/users/edit/{id}' => 'AdminController@editUser',
+    '/admin/users/suspend/{id}' => 'AdminController@suspendUser',
+    '/admin/users/activate/{id}' => 'AdminController@activateUser',
+    '/admin/users/delete/{id}' => 'AdminController@deleteUser',
     '/admin/reports' => 'AdminController@reports',
     '/admin/reports/export' => 'AdminController@exportReport',
     '/admin/settings' => 'AdminController@settings',
+    '/admin/api/chart-data' => 'ChartApiController@chartData',
+    '/admin/update-profile' => 'AdminController@updateProfile',
+    '/admin/update-profile-photo' => 'AdminController@updateProfilePhoto',
     
     // Teacher routes
     '/teacher/dashboard' => 'TeacherController@dashboard',

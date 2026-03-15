@@ -236,5 +236,66 @@ class Subscription {
             return [];
         }
     }
+
+    /**
+     * Get total revenue from all completed payments
+     */
+    public function getTotalRevenue() {
+        try {
+            $query = "SELECT SUM(amount) as total FROM payments WHERE status = 'completed'";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            return $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get total revenue error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get total number of active subscriptions
+     */
+    public function getTotalSubscriptions() {
+        try {
+            $query = "SELECT COUNT(*) as count FROM subscriptions WHERE status = 'active'";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            return $result['count'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get total subscriptions error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get subscription statistics for a date range
+     */
+    public function getSubscriptionStats($start_date, $end_date) {
+        try {
+            $query = "SELECT 
+                        DATE(created_at) as date,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN plan_type = 'monthly' THEN 1 ELSE 0 END) as monthly,
+                        SUM(CASE WHEN plan_type = 'termly' THEN 1 ELSE 0 END) as termly,
+                        SUM(CASE WHEN plan_type = 'yearly' THEN 1 ELSE 0 END) as yearly
+                    FROM subscriptions
+                    WHERE DATE(created_at) BETWEEN :start_date AND :end_date
+                    GROUP BY DATE(created_at)
+                    ORDER BY date DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':start_date' => $start_date,
+                ':end_date' => $end_date
+            ]);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get subscription stats error: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

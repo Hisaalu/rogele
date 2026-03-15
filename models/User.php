@@ -581,6 +581,97 @@ class User {
     }
     
     /**
+     * Save reset token
+     */
+    public function saveResetToken($userId, $token, $expires) {
+        try {
+            $query = "UPDATE users SET 
+                      reset_token = :token, 
+                      reset_expires = :expires 
+                      WHERE id = :id";
+            
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute([
+                ':token' => $token,
+                ':expires' => $expires,
+                ':id' => $userId
+            ]);
+        } catch (PDOException $e) {
+            error_log("Save reset token error: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get user by reset token
+     */
+    public function getUserByResetToken($token) {
+        try {
+            $query = "SELECT * FROM users 
+                      WHERE reset_token = :token 
+                      AND reset_expires > NOW() 
+                      LIMIT 1";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':token' => $token]);
+            
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Get user by token error: " . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Clear reset token
+     */
+    public function clearResetToken($userId) {
+        try {
+            $query = "UPDATE users SET 
+                      reset_token = NULL, 
+                      reset_expires = NULL 
+                      WHERE id = :id";
+            
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute([':id' => $userId]);
+        } catch (PDOException $e) {
+            error_log("Clear reset token error: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Update password (without current password verification)
+     */
+    public function updatePassword($userId, $newPassword) {
+        try {
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            
+            $query = "UPDATE users SET 
+                      password = :password,
+                      updated_at = NOW()
+                      WHERE id = :id";
+            
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([
+                ':password' => $hashedPassword,
+                ':id' => $userId
+            ]);
+            
+            if ($result) {
+                $this->logActivity($userId, 'PASSWORD_RESET', 'User reset password via email');
+                return ['success' => true, 'message' => 'Password updated successfully'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to update password'];
+            
+        } catch (PDOException $e) {
+            error_log("Update password error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error occurred'];
+        }
+    }
+    
+    /**
      * Log activity
      */
     private function logActivity($userId, $action, $description) {
@@ -620,12 +711,19 @@ class User {
     }
     
     /**
-     * Admin: Get all users
+     * =====================================================
+     * ADMIN METHODS
+     * =====================================================
+     */
+    
+    /**
+     * Get all users (for admin) - SINGLE VERSION
      */
     public function getAllUsers($role = null, $limit = 20, $offset = 0) {
         try {
-            $query = "SELECT u.*, c.name as class_name FROM users u 
-                    LEFT JOIN classes c ON u.class_id = c.id";
+            $query = "SELECT u.*, c.name as class_name 
+                      FROM users u 
+                      LEFT JOIN classes c ON u.class_id = c.id";
             
             $params = [];
             
@@ -634,14 +732,21 @@ class User {
                 $params[':role'] = $role;
             }
             
-            $query .= " ORDER BY u.created_at DESC LIMIT :limit OFFSET :offset";
+            $query .= " ORDER BY u.created_at DESC";
+            
+            if ($limit > 0) {
+                $query .= " LIMIT :limit OFFSET :offset";
+            }
             
             $stmt = $this->conn->prepare($query);
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             
             if ($role) {
                 $stmt->bindValue(':role', $role);
+            }
+            
+            if ($limit > 0) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
             
             $stmt->execute();
@@ -654,7 +759,32 @@ class User {
     }
     
     /**
-     * Admin: Suspend user
+     * Search users by name or email
+     */
+    public function searchUsers($keyword) {
+        try {
+            $query = "SELECT u.*, c.name as class_name 
+                      FROM users u 
+                      LEFT JOIN classes c ON u.class_id = c.id 
+                      WHERE u.first_name LIKE :keyword 
+                         OR u.last_name LIKE :keyword 
+                         OR u.email LIKE :keyword
+                         OR CONCAT(u.first_name, ' ', u.last_name) LIKE :keyword
+                      ORDER BY u.created_at DESC
+                      LIMIT 50";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':keyword' => '%' . $keyword . '%']);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Search users error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Suspend user
      */
     public function suspendUser($userId) {
         try {
@@ -676,7 +806,7 @@ class User {
     }
     
     /**
-     * Admin: Activate user
+     * Activate user
      */
     public function activateUser($userId) {
         try {
@@ -698,114 +828,109 @@ class User {
     }
     
     /**
-     * Admin: Delete user
+     * Delete user (admin version)
      */
     public function deleteUser($userId) {
         try {
-            $query = "DELETE FROM users WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $userId]);
-            
-            if ($stmt->rowCount() > 0) {
-                return ['success' => true, 'message' => 'User deleted successfully'];
+            // Check if user exists
+            $user = $this->getById($userId);
+            if (!$user) {
+                return ['success' => false, 'error' => 'User not found'];
             }
             
-            return ['success' => false, 'error' => 'User not found'];
+            // Start transaction
+            $this->conn->beginTransaction();
+            
+            // Delete related records
+            $tables = ['subscriptions', 'free_trials', 'payments', 'activity_logs', 'bookmarks', 'quiz_attempts'];
+            
+            foreach ($tables as $table) {
+                $deleteQuery = "DELETE FROM $table WHERE user_id = :user_id";
+                $deleteStmt = $this->conn->prepare($deleteQuery);
+                $deleteStmt->execute([':user_id' => $userId]);
+            }
+            
+            // Finally delete user
+            $deleteUser = "DELETE FROM users WHERE id = :id";
+            $deleteUserStmt = $this->conn->prepare($deleteUser);
+            $deleteUserStmt->execute([':id' => $userId]);
+            
+            $this->conn->commit();
+            
+            $this->logActivity($userId, 'DELETE', 'User account deleted by admin');
+            
+            return ['success' => true, 'message' => 'User deleted successfully'];
             
         } catch (PDOException $e) {
+            $this->conn->rollBack();
             error_log("Delete user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to delete user'];
         }
     }
 
-        /**
-     * Save password reset token
+    /**
+     * Get count of active users today
      */
-    public function saveResetToken($userId, $token, $expires) {
+    public function getActiveToday() {
         try {
-            $query = "UPDATE users SET 
-                    reset_token = :token, 
-                    reset_expires = :expires 
-                    WHERE id = :id";
-            
+            $query = "SELECT COUNT(DISTINCT user_id) as count 
+                    FROM activity_logs 
+                    WHERE DATE(created_at) = CURDATE()";
             $stmt = $this->conn->prepare($query);
-            return $stmt->execute([
-                ':token' => $token,
-                ':expires' => $expires,
-                ':id' => $userId
-            ]);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Save reset token error: " . $e->getMessage());
-            return false;
+            error_log("Get active today error: " . $e->getMessage());
+            return 0;
         }
     }
 
     /**
-     * Get user by reset token
+     * Get count of new users today
      */
-    public function getUserByResetToken($token) {
+    public function getNewUsersToday() {
         try {
-            $query = "SELECT * FROM users 
-                    WHERE reset_token = :token 
-                    AND reset_expires > NOW() 
-                    LIMIT 1";
-            
+            $query = "SELECT COUNT(*) as count 
+                    FROM users 
+                    WHERE DATE(created_at) = CURDATE()";
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([':token' => $token]);
-            
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get user by token error: " . $e->getMessage());
-            return null;
+            error_log("Get new users today error: " . $e->getMessage());
+            return 0;
         }
     }
 
     /**
-     * Clear reset token
+     * Get user registration statistics for a date range
      */
-    public function clearResetToken($userId) {
+    public function getUserRegistrationStats($start_date, $end_date) {
         try {
-            $query = "UPDATE users SET 
-                    reset_token = NULL, 
-                    reset_expires = NULL 
-                    WHERE id = :id";
+            $query = "SELECT 
+                        DATE(created_at) as date,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
+                        SUM(CASE WHEN role = 'teacher' THEN 1 ELSE 0 END) as teachers,
+                        SUM(CASE WHEN role = 'learner' THEN 1 ELSE 0 END) as learners,
+                        SUM(CASE WHEN role = 'external' THEN 1 ELSE 0 END) as external
+                    FROM users
+                    WHERE DATE(created_at) BETWEEN :start_date AND :end_date
+                    GROUP BY DATE(created_at)
+                    ORDER BY date DESC";
             
             $stmt = $this->conn->prepare($query);
-            return $stmt->execute([':id' => $userId]);
-        } catch (PDOException $e) {
-            error_log("Clear reset token error: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Update user password
-     */
-    public function updatePassword($userId, $newPassword) {
-        try {
-            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-            
-            $query = "UPDATE users SET 
-                    password = :password,
-                    updated_at = NOW()
-                    WHERE id = :id";
-            
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([
-                ':password' => $hashedPassword,
-                ':id' => $userId
+            $stmt->execute([
+                ':start_date' => $start_date,
+                ':end_date' => $end_date
             ]);
             
-            if ($result) {
-                $this->logActivity($userId, 'PASSWORD_RESET', 'User reset password via email');
-                return ['success' => true, 'message' => 'Password updated successfully'];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to update password'];
-            
+            return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Update password error: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Database error occurred'];
+            error_log("Get user registration stats error: " . $e->getMessage());
+            return [];
         }
     }
 }

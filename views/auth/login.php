@@ -1,5 +1,6 @@
 <!-- File: /views/auth/login.php -->
-<?php 
+<?
+$hideHeader = true; 
 $pageTitle = 'Login - Rays of Grace';
 require_once __DIR__ . '/../layouts/header.php'; 
 ?>

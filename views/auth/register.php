@@ -1,5 +1,6 @@
 <!-- File: /views/auth/register.php -->
-<?php 
+<?
+$hideHeader = true;
 $pageTitle = 'Create Account - Rays of Grace';
 require_once __DIR__ . '/../layouts/header.php'; 
 ?>

@@ -1,5 +1,6 @@
-<?php
+<?
 // File: /views/auth/forgot-password.php
+$hideHeader = true;
 $pageTitle = 'Forgot Password - Rays of Grace';
 require_once __DIR__ . '/../layouts/header.php';
 ?>

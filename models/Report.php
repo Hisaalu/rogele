@@ -1,5 +1,5 @@
-// File: /models/Report.php
 <?php
+// File: /models/Report.php
 require_once __DIR__ . '/../config/database.php';
 
 class Report {
@@ -11,117 +11,52 @@ class Report {
         $this->conn = $this->db->getConnection();
     }
     
-    // Generate learner performance report
-    public function learnerPerformance($classId = null, $startDate = null, $endDate = null) {
+    /**
+     * Get recent activity logs
+     */
+    public function getRecentActivity($limit = 10) {
         try {
-            $query = "SELECT 
-                        u.id,
-                        u.registration_number,
-                        u.first_name,
-                        u.last_name,
-                        c.name as class_name,
-                        COUNT(DISTINCT qa.id) as quizzes_taken,
-                        AVG(qa.score) as avg_score,
-                        SUM(CASE WHEN qa.score >= q.passing_score THEN 1 ELSE 0 END) as quizzes_passed,
-                        COUNT(DISTINCT l.id) as lessons_viewed
-                      FROM users u
-                      LEFT JOIN classes c ON u.class_id = c.id
-                      LEFT JOIN quiz_attempts qa ON u.id = qa.user_id AND qa.status = 'completed'
-                      LEFT JOIN quizzes q ON qa.quiz_id = q.id
-                      LEFT JOIN lessons l ON u.id = l.teacher_id
-                      WHERE u.role = 'learner'";
-            
-            $params = [];
-            
-            if ($classId) {
-                $query .= " AND u.class_id = :class_id";
-                $params[':class_id'] = $classId;
-            }
-            
-            if ($startDate && $endDate) {
-                $query .= " AND qa.completed_at BETWEEN :start_date AND :end_date";
-                $params[':start_date'] = $startDate;
-                $params[':end_date'] = $endDate;
-            }
-            
-            $query .= " GROUP BY u.id ORDER BY avg_score DESC";
+            $query = "SELECT al.*, u.first_name, u.last_name, u.email, u.role 
+                      FROM activity_logs al
+                      JOIN users u ON al.user_id = u.id
+                      ORDER BY al.created_at DESC
+                      LIMIT :limit";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute($params);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
+            error_log("Get recent activity error: " . $e->getMessage());
             return [];
         }
     }
     
-    // Generate quiz performance report
-    public function quizPerformance($classId = null, $subjectId = null) {
+    /**
+     * Get user report data
+     */
+    public function getUserReport($startDate = null, $endDate = null) {
         try {
             $query = "SELECT 
-                        q.id,
-                        q.title,
-                        c.name as class_name,
-                        s.name as subject_name,
-                        u.first_name as teacher_name,
-                        COUNT(DISTINCT qa.id) as total_attempts,
-                        AVG(qa.score) as avg_score,
-                        MAX(qa.score) as highest_score,
-                        MIN(qa.score) as lowest_score,
-                        COUNT(DISTINCT CASE WHEN qa.score >= q.passing_score THEN qa.user_id END) as students_passed
-                      FROM quizzes q
-                      LEFT JOIN classes c ON q.class_id = c.id
-                      LEFT JOIN subjects s ON q.subject_id = s.id
-                      LEFT JOIN users u ON q.teacher_id = u.id
-                      LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id AND qa.status = 'completed'
+                        DATE(created_at) as date,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
+                        SUM(CASE WHEN role = 'teacher' THEN 1 ELSE 0 END) as teachers,
+                        SUM(CASE WHEN role = 'learner' THEN 1 ELSE 0 END) as learners,
+                        SUM(CASE WHEN role = 'external' THEN 1 ELSE 0 END) as external
+                      FROM users
                       WHERE 1=1";
             
             $params = [];
             
-            if ($classId) {
-                $query .= " AND q.class_id = :class_id";
-                $params[':class_id'] = $classId;
-            }
-            
-            if ($subjectId) {
-                $query .= " AND q.subject_id = :subject_id";
-                $params[':subject_id'] = $subjectId;
-            }
-            
-            $query .= " GROUP BY q.id ORDER BY total_attempts DESC";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute($params);
-            
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            return [];
-        }
-    }
-    
-    // Generate payment report
-    public function paymentReport($startDate = null, $endDate = null) {
-        try {
-            $query = "SELECT 
-                        DATE(p.payment_date) as date,
-                        COUNT(p.id) as transaction_count,
-                        SUM(p.amount) as total_amount,
-                        AVG(p.amount) as avg_amount,
-                        s.plan_type,
-                        COUNT(DISTINCT p.user_id) as unique_users
-                      FROM payments p
-                      JOIN subscriptions s ON p.subscription_id = s.id
-                      WHERE p.status = 'completed'";
-            
-            $params = [];
-            
             if ($startDate && $endDate) {
-                $query .= " AND DATE(p.payment_date) BETWEEN :start_date AND :end_date";
+                $query .= " AND DATE(created_at) BETWEEN :start_date AND :end_date";
                 $params[':start_date'] = $startDate;
                 $params[':end_date'] = $endDate;
             }
             
-            $query .= " GROUP BY DATE(p.payment_date), s.plan_type
+            $query .= " GROUP BY DATE(created_at)
                         ORDER BY date DESC";
             
             $stmt = $this->conn->prepare($query);
@@ -129,107 +64,290 @@ class Report {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
+            error_log("Get user report error: " . $e->getMessage());
             return [];
         }
     }
     
-    // Generate teacher activity report
-    public function teacherActivity($startDate = null, $endDate = null) {
+    /**
+     * Get quiz report data
+     */
+    public function getQuizReport($startDate = null, $endDate = null) {
         try {
             $query = "SELECT 
-                        u.id,
-                        u.first_name,
-                        u.last_name,
-                        u.email,
-                        COUNT(DISTINCT l.id) as lessons_created,
-                        COUNT(DISTINCT q.id) as quizzes_created,
-                        COUNT(DISTINCT a.id) as announcements_made,
-                        MAX(l.created_at) as last_activity
-                      FROM users u
-                      LEFT JOIN lessons l ON u.id = l.teacher_id
-                      LEFT JOIN quizzes q ON u.id = q.teacher_id
-                      LEFT JOIN announcements a ON u.id = a.created_by
-                      WHERE u.role = 'teacher'";
+                        q.id,
+                        q.title,
+                        COUNT(DISTINCT qa.id) as total_attempts,
+                        COUNT(DISTINCT qa.user_id) as unique_students,
+                        AVG(qa.score) as avg_score,
+                        MAX(qa.score) as highest_score,
+                        MIN(qa.score) as lowest_score,
+                        SUM(CASE WHEN qa.score >= q.passing_score THEN 1 ELSE 0 END) as passed_count
+                      FROM quizzes q
+                      LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id AND qa.status = 'completed'
+                      WHERE 1=1";
             
             $params = [];
             
             if ($startDate && $endDate) {
-                $query .= " AND (l.created_at BETWEEN :start_date AND :end_date
-                           OR q.created_at BETWEEN :start_date AND :end_date)";
+                $query .= " AND DATE(qa.completed_at) BETWEEN :start_date AND :end_date";
                 $params[':start_date'] = $startDate;
                 $params[':end_date'] = $endDate;
             }
             
-            $query .= " GROUP BY u.id
-                        ORDER BY lessons_created DESC";
+            $query .= " GROUP BY q.id
+                        ORDER BY total_attempts DESC";
             
             $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
+            error_log("Get quiz report error: " . $e->getMessage());
             return [];
         }
     }
     
-    // Get dashboard analytics
-    public function getAnalytics() {
+    /**
+     * Get payment report data
+     */
+    public function getPaymentReport($startDate = null, $endDate = null) {
         try {
-            $analytics = [];
+            $query = "SELECT 
+                        DATE(payment_date) as date,
+                        COUNT(*) as transaction_count,
+                        SUM(amount) as total_amount,
+                        AVG(amount) as avg_amount,
+                        payment_method,
+                        COUNT(DISTINCT user_id) as unique_users
+                      FROM payments
+                      WHERE status = 'completed'";
             
-            // Total users by role
-            $userQuery = "SELECT role, COUNT(*) as count FROM users GROUP BY role";
-            $userStmt = $this->conn->query($userQuery);
-            $analytics['users_by_role'] = $userStmt->fetchAll();
+            $params = [];
             
-            // Active subscriptions
-            $subQuery = "SELECT plan_type, COUNT(*) as count 
-                        FROM subscriptions 
-                        WHERE status = 'active' AND end_date > NOW()
-                        GROUP BY plan_type";
-            $subStmt = $this->conn->query($subQuery);
-            $analytics['active_subscriptions'] = $subStmt->fetchAll();
+            if ($startDate && $endDate) {
+                $query .= " AND DATE(payment_date) BETWEEN :start_date AND :end_date";
+                $params[':start_date'] = $startDate;
+                $params[':end_date'] = $endDate;
+            }
             
-            // Total revenue
-            $revenueQuery = "SELECT SUM(amount) as total_revenue 
-                            FROM payments 
-                            WHERE status = 'completed'";
-            $revenueStmt = $this->conn->query($revenueQuery);
-            $analytics['total_revenue'] = $revenueStmt->fetch()['total_revenue'];
+            $query .= " GROUP BY DATE(payment_date), payment_method
+                        ORDER BY date DESC";
             
-            // Monthly revenue
-            $monthlyQuery = "SELECT DATE_FORMAT(payment_date, '%Y-%m') as month,
-                            SUM(amount) as revenue
-                            FROM payments
-                            WHERE status = 'completed'
-                            GROUP BY DATE_FORMAT(payment_date, '%Y-%m')
-                            ORDER BY month DESC
-                            LIMIT 6";
-            $monthlyStmt = $this->conn->query($monthlyQuery);
-            $analytics['monthly_revenue'] = $monthlyStmt->fetchAll();
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
             
-            // Content statistics
-            $contentQuery = "SELECT 
-                            (SELECT COUNT(*) FROM lessons) as total_lessons,
-                            (SELECT COUNT(*) FROM quizzes) as total_quizzes,
-                            (SELECT COUNT(*) FROM quiz_attempts) as total_quiz_attempts,
-                            (SELECT SUM(views) FROM lessons) as total_lesson_views";
-            $contentStmt = $this->conn->query($contentQuery);
-            $analytics['content_stats'] = $contentStmt->fetch();
-            
-            // Recent activity
-            $activityQuery = "SELECT al.*, u.first_name, u.last_name, u.role
-                             FROM activity_logs al
-                             JOIN users u ON al.user_id = u.id
-                             ORDER BY al.created_at DESC
-                             LIMIT 20";
-            $activityStmt = $this->conn->query($activityQuery);
-            $analytics['recent_activity'] = $activityStmt->fetchAll();
-            
-            return $analytics;
+            return $stmt->fetchAll();
         } catch (PDOException $e) {
-            return null;
+            error_log("Get payment report error: " . $e->getMessage());
+            return [];
         }
+    }
+    
+    /**
+     * Get activity report data
+     */
+    public function getActivityReport($startDate = null, $endDate = null) {
+        try {
+            $query = "SELECT 
+                        DATE(created_at) as date,
+                        action,
+                        COUNT(*) as count
+                      FROM activity_logs
+                      WHERE 1=1";
+            
+            $params = [];
+            
+            if ($startDate && $endDate) {
+                $query .= " AND DATE(created_at) BETWEEN :start_date AND :end_date";
+                $params[':start_date'] = $startDate;
+                $params[':end_date'] = $endDate;
+            }
+            
+            $query .= " GROUP BY DATE(created_at), action
+                        ORDER BY date DESC, count DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get activity report error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get user growth chart data
+     */
+    public function getUserGrowthData($days = 30) {
+        try {
+            $query = "SELECT 
+                        DATE(created_at) as date,
+                        COUNT(*) as new_users
+                      FROM users
+                      WHERE created_at >= DATE_SUB(NOW(), INTERVAL :days DAY)
+                      GROUP BY DATE(created_at)
+                      ORDER BY date ASC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':days', $days, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $results = $stmt->fetchAll();
+        
+            // If no results, return empty array
+            if (empty($results)) {
+                return [];
+            }
+            
+            return $results;
+        } catch (PDOException $e) {
+            error_log("Get user growth data error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get quiz performance chart data
+     */
+    public function getQuizPerformanceData($days = 30) {
+        try {
+            $query = "SELECT 
+                        DATE(qa.completed_at) as date,
+                        AVG(qa.score) as avg_score,
+                        COUNT(qa.id) as attempts
+                      FROM quiz_attempts qa
+                      WHERE qa.status = 'completed'
+                        AND qa.completed_at >= DATE_SUB(NOW(), INTERVAL :days DAY)
+                      GROUP BY DATE(qa.completed_at)
+                      ORDER BY date ASC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':days', $days, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get quiz performance data error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get revenue chart data
+     */
+    public function getRevenueData($days = 30) {
+        try {
+            $query = "SELECT 
+                        DATE(payment_date) as date,
+                        SUM(amount) as revenue,
+                        COUNT(*) as transactions
+                      FROM payments
+                      WHERE status = 'completed'
+                        AND payment_date >= DATE_SUB(NOW(), INTERVAL :days DAY)
+                      GROUP BY DATE(payment_date)
+                      ORDER BY date ASC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':days', $days, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $results = $stmt->fetchAll();
+        
+            // If no results, return empty array
+            if (empty($results)) {
+                return [];
+            }
+            
+            return $results;
+        } catch (PDOException $e) {
+            error_log("Get revenue data error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get top performing students
+     */
+    public function getTopStudents($limit = 10) {
+        try {
+            $query = "SELECT 
+                        u.id,
+                        u.first_name,
+                        u.last_name,
+                        u.email,
+                        COUNT(DISTINCT qa.id) as quizzes_taken,
+                        AVG(qa.score) as avg_score,
+                        MAX(qa.score) as highest_score,
+                        c.name as class_name
+                      FROM users u
+                      LEFT JOIN quiz_attempts qa ON u.id = qa.user_id AND qa.status = 'completed'
+                      LEFT JOIN classes c ON u.class_id = c.id
+                      WHERE u.role = 'learner'
+                      GROUP BY u.id
+                      HAVING quizzes_taken > 0
+                      ORDER BY avg_score DESC
+                      LIMIT :limit";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get top students error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get subscription statistics
+     */
+    public function getSubscriptionStats() {
+        try {
+            $query = "SELECT 
+                        plan_type,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+                        SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expired,
+                        SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled
+                      FROM subscriptions
+                      GROUP BY plan_type";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get subscription stats error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Export report data to CSV
+     */
+    public function exportToCSV($data, $filename) {
+        // Set headers for download
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        
+        // Open output stream
+        $output = fopen('php://output', 'w');
+        
+        // Add headers if data exists
+        if (!empty($data)) {
+            fputcsv($output, array_keys($data[0]));
+            
+            // Add data rows
+            foreach ($data as $row) {
+                fputcsv($output, $row);
+            }
+        }
+        
+        fclose($output);
+        exit;
     }
 }
 ?>
