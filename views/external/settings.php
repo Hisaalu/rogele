@@ -271,14 +271,17 @@ $activeTab = $_GET['tab'] ?? 'password';
             </div>
 
         <?php elseif ($activeTab === 'delete'): ?>
-            <!-- Delete Account Tab -->
+            <!-- Delete Account Tab - FIXED VERSION -->
             <div class="settings-card delete-card">
-                <h3 class="card-title" style="color: #EF4444;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Delete Account
-                </h3>
-                <p class="card-description">This action is permanent and cannot be undone</p>
+                <div class="delete-header">
+                    <div class="delete-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="card-title" style="color: #EF4444;">Delete Account</h3>
+                    <p class="card-description">This action is permanent and cannot be undone</p>
+                </div>
                 
+                <!-- Warning Box -->
                 <div class="warning-box">
                     <i class="fas fa-exclamation-circle"></i>
                     <div>
@@ -287,22 +290,27 @@ $activeTab = $_GET['tab'] ?? 'password';
                             <li>Permanently remove all your personal information</li>
                             <li>Delete your quiz history and progress</li>
                             <li>Remove all bookmarked lessons</li>
-                            <li>Cancel any active subscriptions</li>
+                            <li>Cancel any active subscriptions (no refunds)</li>
                         </ul>
                     </div>
                 </div>
 
-                <form method="POST" action="/rays-of-grace/external/delete-account" class="delete-form" onsubmit="return confirmDelete()">
+                <!-- DELETE FORM - FIXED with proper action -->
+                <form method="POST" action="/rays-of-grace/external/delete-account" class="delete-form" id="deleteForm">
                     <div class="form-group">
                         <label for="delete_password">
                             <i class="fas fa-lock"></i>
                             Enter your password to confirm
                         </label>
                         <div class="password-input-wrapper">
-                            <input type="password" id="delete_password" name="password" required placeholder="Enter your password">
-                            <button type="button" class="toggle-password" onclick="togglePassword('delete_password')">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                            <input 
+                                type="password" 
+                                id="delete_password" 
+                                name="password" 
+                                required 
+                                placeholder="Enter your current password"
+                                autocomplete="off"
+                            >
                         </div>
                     </div>
 
@@ -311,7 +319,7 @@ $activeTab = $_GET['tab'] ?? 'password';
                         <span>I understand that this action is permanent and cannot be undone</span>
                     </label>
 
-                    <button type="submit" class="btn-delete">
+                    <button type="submit" class="btn-delete" id="deleteAccountBtn">
                         <i class="fas fa-trash"></i>
                         Permanently Delete My Account
                     </button>
@@ -957,6 +965,80 @@ function checkPasswordMatch() {
 function confirmDelete() {
     return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.');
 }
+
+// Enhanced delete form validation
+function validateDeleteForm() {
+    const password = document.getElementById('delete_password').value;
+    const checkboxes = document.querySelectorAll('.delete-checkboxes input[type="checkbox"]');
+    let allChecked = true;
+    
+    // Check if all checkboxes are checked
+    checkboxes.forEach(cb => {
+        if (!cb.checked) {
+            allChecked = false;
+        }
+    });
+    
+    if (!password) {
+        alert('Please enter your password to confirm account deletion.');
+        return false;
+    }
+    
+    if (!allChecked) {
+        alert('Please check all confirmation boxes to proceed with account deletion.');
+        return false;
+    }
+    
+    if (password.length < 8) {
+        alert('Please enter your correct password.');
+        return false;
+    }
+    
+    // Final confirmation
+    const userConfirmed = confirm('⚠️ FINAL WARNING: Are you absolutely sure you want to permanently delete your account?\n\nThis action CANNOT be undone and all your data will be lost forever.');
+    
+    if (userConfirmed) {
+        // Double-check with a more specific prompt
+        const typeConfirmation = prompt('To confirm, please type "DELETE" in all caps:');
+        return typeConfirmation === 'DELETE';
+    }
+    
+    return false;
+}
+
+// Enable delete button only when all checkboxes are checked
+// Make sure the delete form submits properly
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteForm = document.getElementById('deleteForm');
+    
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            const password = document.getElementById('delete_password').value;
+            const checkbox = document.querySelector('input[name="confirm_delete"]');
+            
+            if (!password) {
+                e.preventDefault();
+                alert('Please enter your password');
+                return false;
+            }
+            
+            if (!checkbox.checked) {
+                e.preventDefault();
+                alert('Please confirm that you understand this action is permanent');
+                return false;
+            }
+            
+            // Final confirmation
+            if (!confirm('⚠️ Are you absolutely sure you want to delete your account? This cannot be undone!')) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Allow the form to submit normally
+            return true;
+        });
+    }
+});
 
 // Form validation
 document.getElementById('passwordForm')?.addEventListener('submit', function(e) {

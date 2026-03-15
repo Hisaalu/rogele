@@ -384,22 +384,19 @@ class User {
     }
     
     /**
-     * Delete account
+     * Delete account (for users deleting their own account)
      */
     public function deleteAccount($userId, $password) {
         try {
-            // Verify password
-            $query = "SELECT password FROM users WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $userId]);
-            $user = $stmt->fetch();
-            
+            // First, get the user to verify they exist
+            $user = $this->getById($userId);
             if (!$user) {
                 return ['success' => false, 'error' => 'User not found'];
             }
             
+            // Verify password
             if (!password_verify($password, $user['password'])) {
-                return ['success' => false, 'error' => 'Password is incorrect'];
+                return ['success' => false, 'error' => 'Current password is incorrect'];
             }
             
             // Start transaction
@@ -409,24 +406,47 @@ class User {
             $tables = ['subscriptions', 'free_trials', 'payments', 'activity_logs', 'bookmarks', 'quiz_attempts'];
             
             foreach ($tables as $table) {
-                $deleteQuery = "DELETE FROM $table WHERE user_id = :user_id";
-                $deleteStmt = $this->conn->prepare($deleteQuery);
-                $deleteStmt->execute([':user_id' => $userId]);
+                try {
+                    // Check if table exists
+                    $checkTable = $this->conn->query("SHOW TABLES LIKE '$table'");
+                    if ($checkTable->rowCount() > 0) {
+                        $deleteQuery = "DELETE FROM $table WHERE user_id = :user_id";
+                        $deleteStmt = $this->conn->prepare($deleteQuery);
+                        $deleteStmt->execute([':user_id' => $userId]);
+                    }
+                } catch (PDOException $e) {
+                    // Table might not exist, continue
+                    error_log("Warning: Could not delete from $table: " . $e->getMessage());
+                }
             }
             
-            // Finally delete user
+            // Finally delete the user
             $deleteUser = "DELETE FROM users WHERE id = :id";
             $deleteUserStmt = $this->conn->prepare($deleteUser);
             $deleteUserStmt->execute([':id' => $userId]);
             
+            // Check if user was actually deleted
+            if ($deleteUserStmt->rowCount() === 0) {
+                throw new Exception('Failed to delete user record');
+            }
+            
+            // Commit transaction
             $this->conn->commit();
             
             return ['success' => true, 'message' => 'Account deleted successfully'];
             
         } catch (PDOException $e) {
-            $this->conn->rollBack();
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
             error_log("Delete account error: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Failed to delete account'];
+            return ['success' => false, 'error' => 'Database error occurred. Please try again later.'];
+        } catch (Exception $e) {
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
+            error_log("Delete account error: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
     

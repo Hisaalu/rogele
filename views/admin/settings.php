@@ -2,6 +2,13 @@
 // File: /views/admin/settings.php
 $pageTitle = 'Settings - Admin - Rays of Grace';
 require_once __DIR__ . '/../layouts/header.php';
+
+// Get settings from controller
+$generalSettings = $generalSettings ?? [];
+$subscriptionSettings = $subscriptionSettings ?? [];
+$emailSettings = $emailSettings ?? [];
+$securitySettings = $securitySettings ?? [];
+$appearanceSettings = $appearanceSettings ?? [];
 ?>
 
 <div class="settings-container">
@@ -15,10 +22,12 @@ require_once __DIR__ . '/../layouts/header.php';
             <p class="page-subtitle">Customize and manage your platform settings</p>
         </div>
         <div class="header-actions">
-            <button class="btn-save-all" onclick="saveAllSettings()">
-                <i class="fas fa-save"></i>
-                Save All Changes
-            </button>
+            <form method="POST" action="/rays-of-grace/admin/settings/save-all" style="display: inline;">
+                <button type="submit" class="btn-save-all">
+                    <i class="fas fa-save"></i>
+                    Save All Changes
+                </button>
+            </form>
         </div>
     </div>
 
@@ -60,7 +69,7 @@ require_once __DIR__ . '/../layouts/header.php';
             </div>
             
             <div class="card-body">
-                <form class="settings-form" id="generalSettingsForm">
+                <form method="POST" action="/rays-of-grace/admin/settings/general" class="settings-form" id="generalSettingsForm">
                     <div class="form-group">
                         <label for="site_name">
                             <i class="fas fa-tag"></i>
@@ -72,7 +81,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                 type="text" 
                                 id="site_name" 
                                 name="site_name" 
-                                value="Rays of Grace E-Learning" 
+                                value="<?php echo htmlspecialchars($generalSettings['site_name'] ?? 'Rays of Grace E-Learning'); ?>" 
                                 placeholder="Enter your site name"
                                 required
                             >
@@ -91,7 +100,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                 name="site_description" 
                                 rows="3" 
                                 placeholder="Describe your platform"
-                            >Quality education for every child, anywhere, anytime.</textarea>
+                            ><?php echo htmlspecialchars($generalSettings['site_description'] ?? 'Quality education for every child, anywhere, anytime.'); ?></textarea>
                             <span class="input-hint">Brief description for SEO and sharing</span>
                         </div>
                     </div>
@@ -107,25 +116,25 @@ require_once __DIR__ . '/../layouts/header.php';
                                 type="email" 
                                 id="contact_email" 
                                 name="contact_email" 
-                                value="info@raysofgrace.com" 
+                                value="<?php echo htmlspecialchars($generalSettings['contact_email'] ?? 'info@raysofgrace.com'); ?>" 
                                 placeholder="contact@example.com"
                                 required
                             >
                             <span class="input-hint">Primary email for system notifications</span>
                         </div>
                     </div>
+                    
+                    <div class="card-footer" style="padding: 20px 0 0 0; background: transparent; border-top: none;">
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i>
+                            Save General Settings
+                        </button>
+                        <button type="button" class="btn-reset" onclick="resetForm('general')">
+                            <i class="fas fa-undo"></i>
+                            Reset
+                        </button>
+                    </div>
                 </form>
-            </div>
-            
-            <div class="card-footer">
-                <button class="btn-save" onclick="saveSettings('general')">
-                    <i class="fas fa-save"></i>
-                    Save General Settings
-                </button>
-                <button class="btn-reset" onclick="resetForm('general')">
-                    <i class="fas fa-undo"></i>
-                    Reset
-                </button>
             </div>
         </div>
 
@@ -143,7 +152,7 @@ require_once __DIR__ . '/../layouts/header.php';
             </div>
             
             <div class="card-body">
-                <form class="settings-form" id="subscriptionForm">
+                <form method="POST" action="/rays-of-grace/admin/settings/subscription" class="settings-form" id="subscriptionForm">
                     <div class="price-inputs">
                         <div class="form-group price-group">
                             <label for="monthly_price">
@@ -156,7 +165,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                     type="number" 
                                     id="monthly_price" 
                                     name="monthly_price" 
-                                    value="15000" 
+                                    value="<?php echo htmlspecialchars($subscriptionSettings['monthly_price'] ?? 15000); ?>" 
                                     min="0" 
                                     step="1000"
                                 >
@@ -174,7 +183,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                     type="number" 
                                     id="termly_price" 
                                     name="termly_price" 
-                                    value="40000" 
+                                    value="<?php echo htmlspecialchars($subscriptionSettings['termly_price'] ?? 40000); ?>" 
                                     min="0" 
                                     step="1000"
                                 >
@@ -193,7 +202,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                     type="number" 
                                     id="yearly_price" 
                                     name="yearly_price" 
-                                    value="120000" 
+                                    value="<?php echo htmlspecialchars($subscriptionSettings['yearly_price'] ?? 120000); ?>" 
                                     min="0" 
                                     step="1000"
                                 >
@@ -212,25 +221,25 @@ require_once __DIR__ . '/../layouts/header.php';
                                 type="number" 
                                 id="trial_days" 
                                 name="trial_days" 
-                                value="60" 
+                                value="<?php echo htmlspecialchars($subscriptionSettings['trial_days'] ?? 60); ?>" 
                                 min="0" 
                                 max="365"
                             >
                             <span class="input-hint">Number of days for free trial (0 to disable)</span>
                         </div>
                     </div>
+                    
+                    <div class="card-footer" style="padding: 20px 0 0 0; background: transparent; border-top: none;">
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i>
+                            Update Plans
+                        </button>
+                        <button type="button" class="btn-reset" onclick="resetForm('subscription')">
+                            <i class="fas fa-undo"></i>
+                            Reset
+                        </button>
+                    </div>
                 </form>
-            </div>
-            
-            <div class="card-footer">
-                <button class="btn-save" onclick="saveSettings('subscription')">
-                    <i class="fas fa-save"></i>
-                    Update Plans
-                </button>
-                <button class="btn-reset" onclick="resetForm('subscription')">
-                    <i class="fas fa-undo"></i>
-                    Reset
-                </button>
             </div>
         </div>
 
@@ -248,7 +257,7 @@ require_once __DIR__ . '/../layouts/header.php';
             </div>
             
             <div class="card-body">
-                <form class="settings-form" id="emailForm">
+                <form method="POST" action="/rays-of-grace/admin/settings/email" class="settings-form" id="emailForm">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="smtp_host">
@@ -259,7 +268,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                 type="text" 
                                 id="smtp_host" 
                                 name="smtp_host" 
-                                value="smtp.gmail.com" 
+                                value="<?php echo htmlspecialchars($emailSettings['smtp_host'] ?? 'smtp.gmail.com'); ?>" 
                                 placeholder="e.g., smtp.gmail.com"
                             >
                         </div>
@@ -273,7 +282,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                 type="number" 
                                 id="smtp_port" 
                                 name="smtp_port" 
-                                value="587" 
+                                value="<?php echo htmlspecialchars($emailSettings['smtp_port'] ?? 587); ?>" 
                                 placeholder="587"
                             >
                         </div>
@@ -288,7 +297,7 @@ require_once __DIR__ . '/../layouts/header.php';
                             type="email" 
                             id="smtp_username" 
                             name="smtp_username" 
-                            value="noreply@raysofgrace.com" 
+                            value="<?php echo htmlspecialchars($emailSettings['smtp_username'] ?? 'noreply@raysofgrace.com'); ?>" 
                             placeholder="email@example.com"
                         >
                     </div>
@@ -303,7 +312,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                 type="password" 
                                 id="smtp_password" 
                                 name="smtp_password" 
-                                value="password123" 
+                                value="<?php echo htmlspecialchars($emailSettings['smtp_password'] ?? ''); ?>" 
                                 placeholder="Enter your password"
                             >
                             <button type="button" class="toggle-password" onclick="togglePassword('smtp_password')">
@@ -321,22 +330,22 @@ require_once __DIR__ . '/../layouts/header.php';
                             type="email" 
                             id="from_email" 
                             name="from_email" 
-                            value="noreply@raysofgrace.com" 
+                            value="<?php echo htmlspecialchars($emailSettings['from_email'] ?? 'noreply@raysofgrace.com'); ?>" 
                             placeholder="noreply@example.com"
                         >
                     </div>
+                    
+                    <div class="card-footer" style="padding: 20px 0 0 0; background: transparent; border-top: none;">
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i>
+                            Save Email Settings
+                        </button>
+                        <button type="button" class="btn-test" onclick="testEmailConfig()">
+                            <i class="fas fa-vial"></i>
+                            Test Connection
+                        </button>
+                    </div>
                 </form>
-            </div>
-            
-            <div class="card-footer">
-                <button class="btn-save" onclick="saveSettings('email')">
-                    <i class="fas fa-save"></i>
-                    Save Email Settings
-                </button>
-                <button class="btn-test" onclick="testEmailConfig()">
-                    <i class="fas fa-vial"></i>
-                    Test Connection
-                </button>
             </div>
         </div>
 
@@ -353,7 +362,7 @@ require_once __DIR__ . '/../layouts/header.php';
             </div>
             
             <div class="card-body">
-                <form class="settings-form" id="securityForm">
+                <form method="POST" action="/rays-of-grace/admin/settings/security" class="settings-form" id="securityForm">
                     <div class="form-group toggle-group">
                         <div class="toggle-label">
                             <i class="fas fa-lock"></i>
@@ -363,7 +372,7 @@ require_once __DIR__ . '/../layouts/header.php';
                             </div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="enable_2fa" checked>
+                            <input type="checkbox" name="enable_2fa" <?php echo ($securitySettings['enable_2fa'] ?? true) ? 'checked' : ''; ?>>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -378,10 +387,11 @@ require_once __DIR__ . '/../layouts/header.php';
                         </div>
                         <div class="select-wrapper">
                             <select name="session_timeout">
-                                <option value="30">30 minutes</option>
-                                <option value="60" selected>1 hour</option>
-                                <option value="120">2 hours</option>
-                                <option value="240">4 hours</option>
+                                <option value="60" <?php echo ($securitySettings['session_timeout'] ?? 60) == 60 ? 'selected' : ''; ?>>1 hour</option>
+                                <option value="30" <?php echo ($securitySettings['session_timeout'] ?? 60) == 30 ? 'selected' : ''; ?>>30 minutes</option>
+                                <option value="15" <?php echo ($securitySettings['session_timeout'] ?? 60) == 15 ? 'selected' : ''; ?>>15 minutes</option>
+                                <option value="10" <?php echo ($securitySettings['session_timeout'] ?? 60) == 10 ? 'selected' : ''; ?>>10 minutes</option>
+                                <option value="5" <?php echo ($securitySettings['session_timeout'] ?? 60) == 5 ? 'selected' : ''; ?>>5 minutes</option>
                             </select>
                         </div>
                     </div>
@@ -395,18 +405,18 @@ require_once __DIR__ . '/../layouts/header.php';
                             </div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="strong_passwords" checked>
+                            <input type="checkbox" name="strong_passwords" <?php echo ($securitySettings['strong_passwords'] ?? true) ? 'checked' : ''; ?>>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
+                    
+                    <div class="card-footer" style="padding: 20px 0 0 0; background: transparent; border-top: none;">
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i>
+                            Save Security Settings
+                        </button>
+                    </div>
                 </form>
-            </div>
-            
-            <div class="card-footer">
-                <button class="btn-save" onclick="saveSettings('security')">
-                    <i class="fas fa-save"></i>
-                    Save Security Settings
-                </button>
             </div>
         </div>
 
@@ -423,7 +433,7 @@ require_once __DIR__ . '/../layouts/header.php';
             </div>
             
             <div class="card-body">
-                <form class="settings-form" id="appearanceForm">
+                <form method="POST" action="/rays-of-grace/admin/settings/appearance" class="settings-form" id="appearanceForm">
                     <div class="form-group">
                         <label for="theme_color">
                             <i class="fas fa-palette"></i>
@@ -434,9 +444,9 @@ require_once __DIR__ . '/../layouts/header.php';
                                 type="color" 
                                 id="theme_color" 
                                 name="theme_color" 
-                                value="#8B5CF6"
+                                value="<?php echo htmlspecialchars($appearanceSettings['theme_color'] ?? '#8B5CF6'); ?>"
                             >
-                            <span class="color-value">#8B5CF6</span>
+                            <span class="color-value"><?php echo htmlspecialchars($appearanceSettings['theme_color'] ?? '#8B5CF6'); ?></span>
                         </div>
                     </div>
 
@@ -450,9 +460,9 @@ require_once __DIR__ . '/../layouts/header.php';
                                 type="color" 
                                 id="accent_color" 
                                 name="accent_color" 
-                                value="#F97316"
+                                value="<?php echo htmlspecialchars($appearanceSettings['accent_color'] ?? '#F97316'); ?>"
                             >
-                            <span class="color-value">#F97316</span>
+                            <span class="color-value"><?php echo htmlspecialchars($appearanceSettings['accent_color'] ?? '#F97316'); ?></span>
                         </div>
                     </div>
 
@@ -465,22 +475,22 @@ require_once __DIR__ . '/../layouts/header.php';
                             </div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="dark_mode" checked>
+                            <input type="checkbox" name="dark_mode" <?php echo ($appearanceSettings['dark_mode'] ?? true) ? 'checked' : ''; ?>>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
+                    
+                    <div class="card-footer" style="padding: 20px 0 0 0; background: transparent; border-top: none;">
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i>
+                            Save Appearance
+                        </button>
+                        <button type="button" class="btn-preview" onclick="previewChanges()">
+                            <i class="fas fa-eye"></i>
+                            Preview
+                        </button>
+                    </div>
                 </form>
-            </div>
-            
-            <div class="card-footer">
-                <button class="btn-save" onclick="saveSettings('appearance')">
-                    <i class="fas fa-save"></i>
-                    Save Appearance
-                </button>
-                <button class="btn-preview" onclick="previewChanges()">
-                    <i class="fas fa-eye"></i>
-                    Preview
-                </button>
             </div>
         </div>
     </div>
@@ -500,10 +510,10 @@ require_once __DIR__ . '/../layouts/header.php';
                         <p>Remove all cached data and temporary files</p>
                     </div>
                 </div>
-                <button class="btn-danger" onclick="clearCache()">
+                <a href="/rays-of-grace/admin/settings/clear-cache" class="btn-danger" onclick="return confirm('Are you sure you want to clear the system cache? This may temporarily affect performance.')">
                     <i class="fas fa-broom"></i>
                     Clear Cache
-                </button>
+                </a>
             </div>
             
             <div class="danger-item">
@@ -514,10 +524,10 @@ require_once __DIR__ . '/../layouts/header.php';
                         <p>Restore all settings to factory defaults</p>
                     </div>
                 </div>
-                <button class="btn-danger" onclick="resetToDefaults()">
+                <a href="/rays-of-grace/admin/settings/reset-defaults" class="btn-danger" onclick="return confirm('⚠️ WARNING: This will reset ALL settings to factory defaults. This action cannot be undone. Are you absolutely sure?')">
                     <i class="fas fa-undo-alt"></i>
                     Reset All
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -1402,42 +1412,19 @@ function togglePassword(inputId) {
     }
 }
 
-function saveSettings(type) {
-    // Simulate saving settings
-    showNotification(`${type} settings saved successfully!`, 'success');
-}
-
-function saveAllSettings() {
-    showNotification('All settings have been saved successfully!', 'success');
-}
-
 function resetForm(type) {
     if (confirm(`Are you sure you want to reset ${type} settings to default values?`)) {
-        showNotification(`${type} settings have been reset`, 'info');
+        // Reload the page to reset to database values
+        window.location.reload();
     }
 }
 
 function testEmailConfig() {
-    showNotification('Testing email configuration...', 'info');
-    setTimeout(() => {
-        showNotification('Email test successful! Check your inbox.', 'success');
-    }, 1500);
+    window.location.href = '/rays-of-grace/admin/settings/test-email';
 }
 
 function previewChanges() {
-    showNotification('Preview mode activated', 'info');
-}
-
-function clearCache() {
-    if (confirm('Are you sure you want to clear the system cache? This may temporarily affect performance.')) {
-        showNotification('Cache cleared successfully!', 'success');
-    }
-}
-
-function resetToDefaults() {
-    if (confirm('⚠️ WARNING: This will reset ALL settings to factory defaults. This action cannot be undone. Are you absolutely sure?')) {
-        showNotification('All settings have been reset to defaults', 'info');
-    }
+    showNotification('Preview mode activated. Changes will not be saved.', 'info');
 }
 
 function showNotification(message, type) {

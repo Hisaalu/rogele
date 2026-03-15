@@ -11,11 +11,6 @@ define('BASE_URL', 'http://localhost/rays-of-grace');
 define('SITE_NAME', 'Rays of Grace E-Learning Platform');
 define('ROOT_PATH', dirname(__DIR__));
 
-// Session Configuration
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', 0); // Set to 1 in production with HTTPS
-
 // File Upload Configuration
 define('MAX_FILE_SIZE', 10485760); // 10MB
 define('ALLOWED_EXTENSIONS', ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'mp4', 'jpg', 'jpeg', 'png']);
@@ -36,8 +31,14 @@ ini_set('display_errors', 1);
 // Timezone
 date_default_timezone_set('Africa/Kampala');
 
-// Start Session
-if (session_status() == PHP_SESSION_NONE) {
+// Session Configuration - Set these BEFORE session_start()
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', 0); // Set to 1 in production with HTTPS
+ini_set('session.cookie_samesite', 'Lax');
+
+// Only start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>

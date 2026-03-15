@@ -10,6 +10,7 @@ class ExternalController {
     private $lessonModel;
     private $quizModel;
     private $userModel;
+    private $settingsModel;
     
     public function __construct() {
         // Check if user is logged in
@@ -28,6 +29,7 @@ class ExternalController {
         $this->lessonModel = new Lesson();
         $this->quizModel = new Quiz();
         $this->userModel = new User();
+        $this->settingsModel = new Settings();
     }
     
     private function redirectToRoleDashboard() {
@@ -196,36 +198,100 @@ class ExternalController {
     }
     
     /**
-     * Delete account
+     * Delete Account - FIXED VERSION (no internal session_start)
      */
     public function deleteAccount() {
+        // Enable error reporting
+        error_reporting(E_ALL);
+        ini_set('display_errors', 1);
+        
         $hideFooter = true;
         
+        // DO NOT start session here - it's already started in config.php
+        
+        // Debug: Log what's happening
+        error_log("========== DELETE ACCOUNT CALLED ==========");
+        error_log("Session ID: " . session_id());
+        error_log("Session user_id: " . ($_SESSION['user_id'] ?? 'NOT SET'));
+        error_log("POST data: " . print_r($_POST, true));
+        
+        // Check if it's a POST request
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/external/settings');
+            error_log("ERROR: Not a POST request");
+            $_SESSION['error'] = 'Invalid request method';
+            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
             exit;
         }
         
+        // Check if user is logged in
+        if (!isset($_SESSION['user_id'])) {
+            error_log("ERROR: User not logged in - session user_id not set");
+            $_SESSION['error'] = 'You must be logged in to delete your account. Please login again.';
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        }
+        
+        $userId = $_SESSION['user_id'];
         $password = $_POST['password'] ?? '';
+        $confirmDelete = isset($_POST['confirm_delete']) ? true : false;
         
+        error_log("User ID from session: " . $userId);
+        error_log("Password provided: " . (empty($password) ? 'NO' : 'YES'));
+        error_log("Confirm checkbox: " . ($confirmDelete ? 'YES' : 'NO'));
+        
+        // Validate password
         if (empty($password)) {
-            $_SESSION['error'] = 'Please enter your password';
-            header('Location: ' . BASE_URL . '/external/settings');
+            error_log("ERROR: Password empty");
+            $_SESSION['error'] = 'Please enter your password to confirm account deletion';
+            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
             exit;
         }
         
-        $result = $this->userModel->deleteAccount($_SESSION['user_id'], $password);
+        // Check confirmation checkbox
+        if (!$confirmDelete) {
+            error_log("ERROR: Confirmation checkbox not checked");
+            $_SESSION['error'] = 'Please confirm that you understand this action is permanent';
+            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
+            exit;
+        }
+        
+        // Attempt to delete account
+        error_log("Calling userModel->deleteAccount for user ID: " . $userId);
+        $result = $this->userModel->deleteAccount($userId, $password);
+        error_log("Delete account result: " . print_r($result, true));
         
         if ($result['success']) {
-            // Logout the user
+            error_log("SUCCESS: Account deleted");
+            
+            // Store user info for logging before destroying session
+            $deletedUserId = $userId;
+            
+            // Clear all session data
+            $_SESSION = array();
+            
+            // Destroy the session cookie
+            if (ini_get("session.use_cookies")) {
+                $params = session_get_cookie_params();
+                setcookie(session_name(), '', time() - 42000,
+                    $params["path"], $params["domain"],
+                    $params["secure"], $params["httponly"]
+                );
+            }
+            
+            // Destroy session
             session_destroy();
+            
+            // Start a new session for the success message
             session_start();
-            $_SESSION['success'] = 'Your account has been successfully deleted.';
+            $_SESSION['success'] = 'Your account has been successfully deleted. We\'re sorry to see you go!';
+            
+            error_log("Redirecting to login with success message");
             header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
-            $_SESSION['error'] = $result['error'];
-            header('Location: ' . BASE_URL . '/external/settings');
+            error_log("ERROR: " . ($result['error'] ?? 'Unknown error'));
+            $_SESSION['error'] = $result['error'] ?? 'Failed to delete account. Please check your password and try again.';
+            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
             exit;
         }
     }
@@ -370,6 +436,9 @@ class ExternalController {
      */
     public function subscription() {
         $hideFooter = true;
+
+        // Get subscription settings from database
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
         
         $currentSubscription = $this->subscriptionModel->checkStatus($_SESSION['user_id']);
         $paymentHistory = $this->subscriptionModel->getPaymentHistory($_SESSION['user_id']);
@@ -389,6 +458,9 @@ class ExternalController {
         if (!in_array($plan, $validPlans)) {
             $plan = 'monthly';
         }
+
+        // Get subscription settings from database
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
         
         require_once __DIR__ . '/../views/external/purchase.php';
     }

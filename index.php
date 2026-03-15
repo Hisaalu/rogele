@@ -99,7 +99,27 @@ $routes = [
     '/external/update-profile' => 'ExternalController@updateProfile',
     '/external/change-password' => 'ExternalController@changePassword',
     '/external/delete-account' => 'ExternalController@deleteAccount',
+
+    // Settings routes
+    '/admin/settings' => 'AdminController@settings',
+    '/admin/settings/general' => 'AdminController@saveGeneralSettings',
+    '/admin/settings/subscription' => 'AdminController@saveSubscriptionSettings',
+    '/admin/settings/email' => 'AdminController@saveEmailSettings',
+    '/admin/settings/security' => 'AdminController@saveSecuritySettings',
+    '/admin/settings/appearance' => 'AdminController@saveAppearanceSettings',
+    '/admin/settings/save-all' => 'AdminController@saveAllSettings',
+    '/admin/settings/test-email' => 'AdminController@testEmailConfig',
+    '/admin/settings/clear-cache' => 'AdminController@clearCache',
+    '/admin/settings/reset-defaults' => 'AdminController@resetToDefaults',
 ];
+
+// Add this temporary debug code after defining $routes
+echo "<!-- Debug: Checking routes -->";
+if (!isset($routes['/external/delete-account'])) {
+    die("ERROR: Route /external/delete-account is not defined in routes array!");
+} else {
+    echo "<!-- Route exists: /external/delete-account -->";
+}
 
 // FIRST: Check for exact matches (simple routes)
 if (isset($routes[$request])) {

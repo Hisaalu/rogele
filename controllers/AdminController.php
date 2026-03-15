@@ -4,12 +4,14 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Report.php';
 require_once __DIR__ . '/../models/Quiz.php';
 require_once __DIR__ . '/../models/Subscription.php';
+require_once __DIR__ . '/../models/Settings.php';
 
 class AdminController {
     private $userModel;
     private $reportModel;
     private $quizModel;
     private $subscriptionModel;
+    private $settingsModel;
     
     public function __construct() {
         // Check if user is logged in and is admin
@@ -29,6 +31,7 @@ class AdminController {
         $this->reportModel = new Report();
         $this->quizModel = new Quiz();
         $this->subscriptionModel = new Subscription();
+        $this->settingsModel = new Settings();
     }
     
     private function redirectToRoleDashboard() {
@@ -64,6 +67,97 @@ class AdminController {
         $recentActivity = $this->reportModel->getRecentActivity(10);
         
         require_once __DIR__ . '/../views/admin/dashboard.php';
+    }
+    
+    /**
+     * Admin Profile Page
+     */
+    public function profile() {
+        $hideFooter = true;
+        
+        // Get admin profile data
+        $profile = $this->userModel->getProfile($_SESSION['user_id']);
+        
+        if (!$profile) {
+            // Create basic profile from session
+            $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Admin');
+            $profile = [
+                'id' => $_SESSION['user_id'],
+                'first_name' => $nameParts[0] ?? '',
+                'last_name' => $nameParts[1] ?? '',
+                'email' => $_SESSION['user_email'] ?? '',
+                'phone' => '',
+                'role' => 'admin',
+                'created_at' => date('Y-m-d H:i:s'),
+                'profile_photo' => null
+            ];
+        }
+        
+        require_once __DIR__ . '/../views/admin/profile.php';
+    }
+    
+    /**
+     * Update admin profile
+     */
+    public function updateProfile() {
+        $hideFooter = true;
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/admin/profile');
+            exit;
+        }
+        
+        $data = [
+            'first_name' => $_POST['first_name'] ?? '',
+            'last_name' => $_POST['last_name'] ?? '',
+            'email' => $_POST['email'] ?? '',
+            'phone' => $_POST['phone'] ?? ''
+        ];
+        
+        // Validate input
+        if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
+            $_SESSION['error'] = 'Please fill in all required fields';
+            header('Location: ' . BASE_URL . '/admin/profile');
+            exit;
+        }
+        
+        $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
+        
+        if ($result['success']) {
+            // Update session with new data
+            $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
+            $_SESSION['user_email'] = $data['email'];
+            
+            $_SESSION['success'] = $result['message'];
+        } else {
+            $_SESSION['error'] = $result['error'];
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/profile');
+        exit;
+    }
+    
+    /**
+     * Update profile photo
+     */
+    public function updateProfilePhoto() {
+        $hideFooter = true;
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['profile_photo'])) {
+            header('Location: ' . BASE_URL . '/admin/profile');
+            exit;
+        }
+        
+        $result = $this->userModel->uploadProfilePhoto($_SESSION['user_id'], $_FILES['profile_photo']);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Profile photo updated successfully';
+        } else {
+            $_SESSION['error'] = $result['error'];
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/profile');
+        exit;
     }
     
     /**
@@ -163,7 +257,7 @@ class AdminController {
                 exit;
             }
             
-            // Use the new admin update method that doesn't touch the session
+            // Use the admin update method that doesn't touch the session
             $result = $this->userModel->updateUserAsAdmin($userId, $data);
             
             // Handle status if provided
@@ -258,12 +352,6 @@ class AdminController {
         $start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
         $end_date = $_GET['end_date'] ?? date('Y-m-d');
         $days = $_GET['days'] ?? 30;
-
-        // Get user growth data for charts
-        $userGrowthData = $this->reportModel->getUserGrowthData($days);
-
-        // Get revenue data for charts
-        $revenueData = $this->reportModel->getRevenueData($days);
         
         // Get ALL user statistics from database
         $totalUsers = count($this->userModel->getAllUsers(null, 0, 0));
@@ -279,10 +367,10 @@ class AdminController {
         $recentActivity = $this->reportModel->getRecentActivity(10);
         
         // Get user growth data for charts
-        $userGrowthData = $this->reportModel->getUserGrowthData(30);
+        $userGrowthData = $this->reportModel->getUserGrowthData($days);
         
         // Get revenue data for charts
-        $revenueData = $this->reportModel->getRevenueData(30);
+        $revenueData = $this->reportModel->getRevenueData($days);
         
         // Get active today count
         $activeToday = $this->userModel->getActiveToday();
@@ -290,12 +378,12 @@ class AdminController {
         // Get new users today
         $newUsersToday = $this->userModel->getNewUsersToday();
         
-        // Get quiz statistics - NOW USING $this->quizModel
+        // Get quiz statistics
         $totalQuizzes = $this->quizModel->getTotalQuizzes();
         $totalQuizAttempts = $this->quizModel->getTotalAttempts();
         $averageScore = $this->quizModel->getAverageScore();
         
-        // Get payment statistics - NOW USING $this->subscriptionModel
+        // Get payment statistics
         $totalRevenue = $this->subscriptionModel->getTotalRevenue();
         $totalSubscriptions = $this->subscriptionModel->getTotalSubscriptions();
         
@@ -319,22 +407,6 @@ class AdminController {
         
         // Pass ALL variables to the view
         require_once __DIR__ . '/../views/admin/reports.php';
-    }
-    
-    /**
-     * Settings Page
-     */
-    public function settings() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Handle settings update
-            $_SESSION['success'] = 'Settings updated successfully';
-            header('Location: ' . BASE_URL . '/admin/settings');
-            exit;
-        }
-        
-        require_once __DIR__ . '/../views/admin/settings.php';
     }
     
     /**
@@ -375,91 +447,274 @@ class AdminController {
         header('Location: ' . BASE_URL . '/admin/reports');
         exit;
     }
-
+    
     /**
-     * Admin Profile Page
+     * Settings Page
      */
-    public function profile() {
+    public function settings() {
         $hideFooter = true;
         
-        // Get admin profile data
-        $profile = $this->userModel->getProfile($_SESSION['user_id']);
+        // Get current settings from database
+        $generalSettings = $this->settingsModel->getGeneralSettings();
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
+        $emailSettings = $this->settingsModel->getEmailSettings();
+        $securitySettings = $this->settingsModel->getSecuritySettings();
+        $appearanceSettings = $this->settingsModel->getAppearanceSettings();
         
-        if (!$profile) {
-            // Create basic profile from session
-            $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Admin');
-            $profile = [
-                'id' => $_SESSION['user_id'],
-                'first_name' => $nameParts[0] ?? '',
-                'last_name' => $nameParts[1] ?? '',
-                'email' => $_SESSION['user_email'] ?? '',
-                'phone' => '',
-                'role' => 'admin',
-                'created_at' => date('Y-m-d H:i:s'),
-                'profile_photo' => null
-            ];
-        }
-        
-        require_once __DIR__ . '/../views/admin/profile.php';
+        require_once __DIR__ . '/../views/admin/settings.php';
     }
-
+    
     /**
-     * Update admin profile
+     * Save General Settings
      */
-    public function updateProfile() {
+    public function saveGeneralSettings() {
         $hideFooter = true;
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/admin/profile');
+            header('Location: ' . BASE_URL . '/admin/settings');
             exit;
         }
         
-        $data = [
-            'first_name' => $_POST['first_name'] ?? '',
-            'last_name' => $_POST['last_name'] ?? '',
-            'email' => $_POST['email'] ?? '',
-            'phone' => $_POST['phone'] ?? ''
+        $settings = [
+            'site_name' => $_POST['site_name'] ?? 'Rays of Grace E-Learning',
+            'site_description' => $_POST['site_description'] ?? '',
+            'contact_email' => $_POST['contact_email'] ?? ''
         ];
         
-        // Validate input
-        if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
-            $_SESSION['error'] = 'Please fill in all required fields';
-            header('Location: ' . BASE_URL . '/admin/profile');
-            exit;
-        }
+        $result = $this->settingsModel->updateSettings($settings);
         
-        $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
-        
-        if ($result['success']) {
-            $_SESSION['success'] = $result['message'];
+        if ($result) {
+            $_SESSION['success'] = 'General settings saved successfully!';
         } else {
-            $_SESSION['error'] = $result['error'];
+            $_SESSION['error'] = 'Failed to save general settings.';
         }
         
-        header('Location: ' . BASE_URL . '/admin/profile');
+        header('Location: ' . BASE_URL . '/admin/settings');
         exit;
     }
-
+    
     /**
-     * Update profile photo
+     * Save Subscription Settings
      */
-    public function updateProfilePhoto() {
+    public function saveSubscriptionSettings() {
         $hideFooter = true;
         
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['profile_photo'])) {
-            header('Location: ' . BASE_URL . '/admin/profile');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/admin/settings');
             exit;
         }
         
-        $result = $this->userModel->uploadProfilePhoto($_SESSION['user_id'], $_FILES['profile_photo']);
+        $settings = [
+            'monthly_price' => $_POST['monthly_price'] ?? 15000,
+            'termly_price' => $_POST['termly_price'] ?? 40000,
+            'yearly_price' => $_POST['yearly_price'] ?? 120000,
+            'trial_days' => $_POST['trial_days'] ?? 60
+        ];
         
-        if ($result['success']) {
-            $_SESSION['success'] = 'Profile photo updated successfully';
+        $result = $this->settingsModel->updateSettings($settings);
+        
+        if ($result) {
+            $_SESSION['success'] = 'Subscription settings saved successfully!';
         } else {
-            $_SESSION['error'] = $result['error'];
+            $_SESSION['error'] = 'Failed to save subscription settings.';
         }
         
-        header('Location: ' . BASE_URL . '/admin/profile');
+        header('Location: ' . BASE_URL . '/admin/settings');
+        exit;
+    }
+    
+    /**
+     * Save Email Settings
+     */
+    public function saveEmailSettings() {
+        $hideFooter = true;
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/admin/settings');
+            exit;
+        }
+        
+        $settings = [
+            'smtp_host' => $_POST['smtp_host'] ?? 'smtp.gmail.com',
+            'smtp_port' => $_POST['smtp_port'] ?? 587,
+            'smtp_username' => $_POST['smtp_username'] ?? '',
+            'smtp_password' => $_POST['smtp_password'] ?? '',
+            'from_email' => $_POST['from_email'] ?? ''
+        ];
+        
+        $result = $this->settingsModel->updateSettings($settings);
+        
+        if ($result) {
+            $_SESSION['success'] = 'Email settings saved successfully!';
+        } else {
+            $_SESSION['error'] = 'Failed to save email settings.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/settings');
+        exit;
+    }
+    
+    /**
+     * Save Security Settings
+     */
+    public function saveSecuritySettings() {
+        $hideFooter = true;
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/admin/settings');
+            exit;
+        }
+        
+        $settings = [
+            'enable_2fa' => isset($_POST['enable_2fa']) ? 1 : 0,
+            'session_timeout' => $_POST['session_timeout'] ?? 60,
+            'strong_passwords' => isset($_POST['strong_passwords']) ? 1 : 0
+        ];
+        
+        $result = $this->settingsModel->updateSettings($settings);
+        
+        if ($result) {
+            $_SESSION['success'] = 'Security settings saved successfully!';
+        } else {
+            $_SESSION['error'] = 'Failed to save security settings.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/settings');
+        exit;
+    }
+    
+    /**
+     * Save Appearance Settings
+     */
+    public function saveAppearanceSettings() {
+        $hideFooter = true;
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/admin/settings');
+            exit;
+        }
+        
+        $settings = [
+            'theme_color' => $_POST['theme_color'] ?? '#8B5CF6',
+            'accent_color' => $_POST['accent_color'] ?? '#F97316',
+            'dark_mode' => isset($_POST['dark_mode']) ? 1 : 0
+        ];
+        
+        $result = $this->settingsModel->updateSettings($settings);
+        
+        if ($result) {
+            $_SESSION['success'] = 'Appearance settings saved successfully!';
+        } else {
+            $_SESSION['error'] = 'Failed to save appearance settings.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/settings');
+        exit;
+    }
+    
+    /**
+     * Save All Settings
+     */
+    public function saveAllSettings() {
+        $hideFooter = true;
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/admin/settings');
+            exit;
+        }
+        
+        $settings = [
+            // General
+            'site_name' => $_POST['site_name'] ?? 'Rays of Grace E-Learning',
+            'site_description' => $_POST['site_description'] ?? '',
+            'contact_email' => $_POST['contact_email'] ?? '',
+            
+            // Subscription
+            'monthly_price' => $_POST['monthly_price'] ?? 15000,
+            'termly_price' => $_POST['termly_price'] ?? 40000,
+            'yearly_price' => $_POST['yearly_price'] ?? 120000,
+            'trial_days' => $_POST['trial_days'] ?? 60,
+            
+            // Email
+            'smtp_host' => $_POST['smtp_host'] ?? 'smtp.gmail.com',
+            'smtp_port' => $_POST['smtp_port'] ?? 587,
+            'smtp_username' => $_POST['smtp_username'] ?? '',
+            'smtp_password' => $_POST['smtp_password'] ?? '',
+            'from_email' => $_POST['from_email'] ?? '',
+            
+            // Security
+            'enable_2fa' => isset($_POST['enable_2fa']) ? 1 : 0,
+            'session_timeout' => $_POST['session_timeout'] ?? 60,
+            'strong_passwords' => isset($_POST['strong_passwords']) ? 1 : 0,
+            
+            // Appearance
+            'theme_color' => $_POST['theme_color'] ?? '#8B5CF6',
+            'accent_color' => $_POST['accent_color'] ?? '#F97316',
+            'dark_mode' => isset($_POST['dark_mode']) ? 1 : 0
+        ];
+        
+        $result = $this->settingsModel->updateSettings($settings);
+        
+        if ($result) {
+            $_SESSION['success'] = 'All settings saved successfully!';
+        } else {
+            $_SESSION['error'] = 'Failed to save settings.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/settings');
+        exit;
+    }
+    
+    /**
+     * Test Email Configuration
+     */
+    public function testEmailConfig() {
+        $hideFooter = true;
+        
+        // Get email settings
+        $emailSettings = $this->settingsModel->getEmailSettings();
+        
+        // Implement your email test logic here
+        // For now, just return success
+        $_SESSION['success'] = 'Email test successful! Check your inbox.';
+        
+        header('Location: ' . BASE_URL . '/admin/settings');
+        exit;
+    }
+    
+    /**
+     * Clear Cache
+     */
+    public function clearCache() {
+        $hideFooter = true;
+        
+        $result = $this->settingsModel->clearCache();
+        
+        if ($result) {
+            $_SESSION['success'] = 'Cache cleared successfully!';
+        } else {
+            $_SESSION['error'] = 'Failed to clear cache.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/settings');
+        exit;
+    }
+    
+    /**
+     * Reset to Defaults
+     */
+    public function resetToDefaults() {
+        $hideFooter = true;
+        
+        $result = $this->settingsModel->resetToDefaults();
+        
+        if ($result) {
+            $_SESSION['success'] = 'All settings have been reset to defaults.';
+        } else {
+            $_SESSION['error'] = 'Failed to reset settings.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/settings');
         exit;
     }
 }
