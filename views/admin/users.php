@@ -3,12 +3,13 @@
 $pageTitle = 'Manage Users - Admin - Rays of Grace';
 require_once __DIR__ . '/../layouts/header.php';
 
+// Get parameters
 $page = $_GET['page'] ?? 1;
 $role = $_GET['role'] ?? '';
 $search = $_GET['search'] ?? '';
 ?>
 
-<div class="admin-container">
+<div class="users-container">
     <!-- Header -->
     <div class="page-header">
         <div>
@@ -16,7 +17,7 @@ $search = $_GET['search'] ?? '';
                 <i class="fas fa-users-cog"></i>
                 Manage Users
             </h1>
-            <p class="page-subtitle">View, edit, and manage all users on the platform</p>
+            <p class="page-subtitle">View, edit, suspend, and manage all users on the platform</p>
         </div>
         <a href="/rays-of-grace/admin/users/create" class="btn-primary">
             <i class="fas fa-user-plus"></i>
@@ -24,35 +25,44 @@ $search = $_GET['search'] ?? '';
         </a>
     </div>
 
+    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+            <div class="alert-content">
+                <strong>Success!</strong>
+                <p><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></p>
+            </div>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
         </div>
     <?php endif; ?>
     
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-error">
             <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+            <div class="alert-content">
+                <strong>Error!</strong>
+                <p><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></p>
+            </div>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
         </div>
     <?php endif; ?>
 
-    <!-- Filters -->
+    <!-- Filters and Search -->
     <div class="filters-card">
-        <form method="GET" class="filters-form">
+        <form method="GET" class="filters-form" id="filterForm">
             <div class="search-box">
                 <i class="fas fa-search"></i>
                 <input 
                     type="text" 
                     name="search" 
-                    placeholder="Search by name or email..." 
+                    placeholder="Search by name, email, or ID..." 
                     value="<?php echo htmlspecialchars($search); ?>"
                 >
             </div>
             
             <div class="filter-group">
-                <select name="role">
+                <select name="role" onchange="this.form.submit()">
                     <option value="">All Roles</option>
                     <option value="admin" <?php echo $role === 'admin' ? 'selected' : ''; ?>>Administrators</option>
                     <option value="teacher" <?php echo $role === 'teacher' ? 'selected' : ''; ?>>Teachers</option>
@@ -97,7 +107,11 @@ $search = $_GET['search'] ?? '';
                                         <img src="/rays-of-grace/<?php echo $user['profile_photo']; ?>" alt="<?php echo $user['first_name']; ?>">
                                     <?php else: ?>
                                         <div class="avatar-placeholder" style="background: linear-gradient(135deg, #8B5CF6, #F97316);">
-                                            <?php echo strtoupper(substr($user['first_name'] ?? 'U', 0, 1) . substr($user['last_name'] ?? 'S', 0, 1)); ?>
+                                            <?php 
+                                            $initial1 = strtoupper(substr($user['first_name'] ?? 'U', 0, 1));
+                                            $initial2 = strtoupper(substr($user['last_name'] ?? 'S', 0, 1));
+                                            echo $initial1 . $initial2;
+                                            ?>
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -123,20 +137,25 @@ $search = $_GET['search'] ?? '';
                             </td>
                             <td><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
                             <td class="actions-cell">
-                                <a href="/rays-of-grace/admin/users/edit/<?php echo $user['id']; ?>" class="action-btn edit" title="Edit">
+                                <!-- Edit Button -->
+                                <a href="/rays-of-grace/admin/users/edit/<?php echo $user['id']; ?>" class="action-btn edit" title="Edit User">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                
+                                <!-- Suspend/Activate Button -->
                                 <?php if ($user['is_suspended']): ?>
-                                    <a href="/rays-of-grace/admin/users/activate/<?php echo $user['id']; ?>" class="action-btn activate" title="Activate" onclick="return confirm('Activate this user?')">
+                                    <a href="/rays-of-grace/admin/users/activate/<?php echo $user['id']; ?>" class="action-btn activate" title="Activate User" onclick="return confirm('Activate this user?')">
                                         <i class="fas fa-check-circle"></i>
                                     </a>
                                 <?php else: ?>
-                                    <a href="/rays-of-grace/admin/users/suspend/<?php echo $user['id']; ?>" class="action-btn suspend" title="Suspend" onclick="return confirm('Suspend this user?')">
+                                    <a href="/rays-of-grace/admin/users/suspend/<?php echo $user['id']; ?>" class="action-btn suspend" title="Suspend User" onclick="return confirm('Suspend this user? They will not be able to log in.')">
                                         <i class="fas fa-ban"></i>
                                     </a>
                                 <?php endif; ?>
+                                
+                                <!-- Delete Button (cannot delete yourself) -->
                                 <?php if ($_SESSION['user_id'] != $user['id']): ?>
-                                    <a href="/rays-of-grace/admin/users/delete/<?php echo $user['id']; ?>" class="action-btn delete" title="Delete" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                                    <a href="/rays-of-grace/admin/users/delete/<?php echo $user['id']; ?>" class="action-btn delete" title="Delete User" onclick="return confirmDelete(<?php echo $user['id']; ?>, '<?php echo addslashes($user['first_name'] . ' ' . $user['last_name']); ?>')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 <?php endif; ?>
@@ -152,20 +171,20 @@ $search = $_GET['search'] ?? '';
         <?php if (!empty($users) && $totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-                <a href="?page=<?php echo $page - 1; ?>&role=<?php echo $role; ?>&search=<?php echo urlencode($search); ?>" class="page-link">
+                <a href="?page=<?php echo $page - 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link">
                     <i class="fas fa-chevron-left"></i>
                 </a>
             <?php endif; ?>
 
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="?page=<?php echo $i; ?>&role=<?php echo $role; ?>&search=<?php echo urlencode($search); ?>" 
+                <a href="?page=<?php echo $i; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" 
                    class="page-link <?php echo $i == $page ? 'active' : ''; ?>">
                     <?php echo $i; ?>
                 </a>
             <?php endfor; ?>
 
             <?php if ($page < $totalPages): ?>
-                <a href="?page=<?php echo $page + 1; ?>&role=<?php echo $role; ?>&search=<?php echo urlencode($search); ?>" class="page-link">
+                <a href="?page=<?php echo $page + 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link">
                     <i class="fas fa-chevron-right"></i>
                 </a>
             <?php endif; ?>
@@ -175,12 +194,14 @@ $search = $_GET['search'] ?? '';
 </div>
 
 <style>
-.admin-container {
+/* Main Container */
+.users-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 30px 20px;
 }
 
+/* Page Header */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -191,7 +212,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .page-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 700;
     background: linear-gradient(135deg, #8B5CF6, #F97316);
     -webkit-background-clip: text;
@@ -229,7 +250,71 @@ $search = $_GET['search'] ?? '';
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
 
-/* Filters */
+/* Alert Messages */
+.alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideDown 0.3s ease;
+    position: relative;
+}
+
+.alert-success {
+    background: #F0FDF4;
+    color: #166534;
+    border: 1px solid #BBF7D0;
+}
+
+.alert-error {
+    background: #FEF2F2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-content strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.alert-content p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: currentColor;
+    opacity: 0.7;
+    padding: 0 5px;
+    transition: opacity 0.3s ease;
+}
+
+.alert-close:hover {
+    opacity: 1;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Filters Card */
 .filters-card {
     background: white;
     border-radius: 16px;
@@ -313,7 +398,7 @@ $search = $_GET['search'] ?? '';
     color: #1E293B;
 }
 
-/* Table */
+/* Table Card */
 .table-card {
     background: white;
     border-radius: 20px;
@@ -360,8 +445,8 @@ $search = $_GET['search'] ?? '';
 }
 
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
@@ -459,14 +544,15 @@ $search = $_GET['search'] ?? '';
 }
 
 .action-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
     transition: all 0.3s ease;
+    font-size: 1.1rem;
 }
 
 .action-btn.edit {
@@ -477,6 +563,7 @@ $search = $_GET['search'] ?? '';
 .action-btn.edit:hover {
     background: #2563EB;
     color: white;
+    transform: translateY(-2px);
 }
 
 .action-btn.suspend {
@@ -487,6 +574,7 @@ $search = $_GET['search'] ?? '';
 .action-btn.suspend:hover {
     background: #D97706;
     color: white;
+    transform: translateY(-2px);
 }
 
 .action-btn.activate {
@@ -497,6 +585,7 @@ $search = $_GET['search'] ?? '';
 .action-btn.activate:hover {
     background: #059669;
     color: white;
+    transform: translateY(-2px);
 }
 
 .action-btn.delete {
@@ -507,6 +596,7 @@ $search = $_GET['search'] ?? '';
 .action-btn.delete:hover {
     background: #DC2626;
     color: white;
+    transform: translateY(-2px);
 }
 
 /* Empty Message */
@@ -541,7 +631,7 @@ $search = $_GET['search'] ?? '';
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 10px;
     text-decoration: none;
     color: #1E293B;
     transition: all 0.3s ease;
@@ -554,40 +644,6 @@ $search = $_GET['search'] ?? '';
 .page-link.active {
     background: #8B5CF6;
     color: white;
-}
-
-/* Alert */
-.alert {
-    padding: 16px 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    animation: slideDown 0.3s ease;
-}
-
-.alert-success {
-    background: #F0FDF4;
-    color: #166534;
-    border: 1px solid #BBF7D0;
-}
-
-.alert-error {
-    background: #FEF2F2;
-    color: #B91C1C;
-    border: 1px solid #FECACA;
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
 }
 
 /* Responsive */
@@ -609,8 +665,8 @@ $search = $_GET['search'] ?? '';
         width: 100%;
     }
     
-    .data-table td {
-        min-width: 120px;
+    .actions-cell {
+        justify-content: center;
     }
 }
 
@@ -643,7 +699,22 @@ $search = $_GET['search'] ?? '';
         background: #334155;
         color: #F1F5F9;
     }
+    
+    .btn-reset {
+        color: #94A3B8;
+    }
+    
+    .btn-reset:hover {
+        background: #334155;
+        color: #F1F5F9;
+    }
 }
 </style>
+
+<script>
+function confirmDelete(userId, userName) {
+    return confirm(`Are you sure you want to permanently delete ${userName}? This action cannot be undone.`);
+}
+</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

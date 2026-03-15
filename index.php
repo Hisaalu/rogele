@@ -101,7 +101,7 @@ $routes = [
     '/external/delete-account' => 'ExternalController@deleteAccount',
 ];
 
-// Check if route exists
+// FIRST: Check for exact matches (simple routes)
 if (isset($routes[$request])) {
     $controllerAction = $routes[$request];
     list($controllerName, $methodName) = explode('@', $controllerAction);
@@ -126,8 +126,41 @@ if (isset($routes[$request])) {
     } else {
         die("Controller file not found: $controllerFile");
     }
-} else {
-    // Route not found - show 404
+}
+
+// SECOND: Check for routes with parameters (like {id})
+$matched = false;
+foreach ($routes as $route => $controllerAction) {
+    // Convert route to regex pattern
+    $pattern = preg_replace('/\{[^\}]+\}/', '([^/]+)', $route);
+    $pattern = '#^' . $pattern . '$#';
+    
+    if (preg_match($pattern, $request, $matches)) {
+        array_shift($matches); // Remove full match
+        
+        list($controllerName, $methodName) = explode('@', $controllerAction);
+        
+        $controllerFile = __DIR__ . '/controllers/' . $controllerName . '.php';
+        
+        if (file_exists($controllerFile)) {
+            require_once $controllerFile;
+            
+            if (class_exists($controllerName)) {
+                $controller = new $controllerName();
+                
+                if (method_exists($controller, $methodName)) {
+                    call_user_func_array([$controller, $methodName], $matches);
+                    $matched = true;
+                    exit;
+                }
+            }
+        }
+        break;
+    }
+}
+
+// If still no match, show 404
+if (!$matched) {
     header("HTTP/1.0 404 Not Found");
     echo "<h1>404 - Page Not Found</h1>";
     echo "<p>The requested URL '{$request}' was not found on this server.</p>";
@@ -141,6 +174,12 @@ if (isset($routes[$request])) {
     echo "Base URL: " . BASE_URL . "\n";
     echo "Script Name: " . $_SERVER['SCRIPT_NAME'] . "\n";
     echo "Document Root: " . $_SERVER['DOCUMENT_ROOT'] . "\n";
+    echo "Available Routes with parameters:\n";
+    foreach ($routes as $route => $action) {
+        if (strpos($route, '{') !== false) {
+            echo "  - $route\n";
+        }
+    }
     echo "</pre>";
 }
 ?>

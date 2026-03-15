@@ -156,15 +156,33 @@ class AdminController {
                 'role' => $_POST['role'] ?? $user['role']
             ];
             
-            $result = $this->userModel->updateProfile($userId, $data);
+            // Validate input
+            if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
+                $_SESSION['error'] = 'Please fill in all required fields';
+                header('Location: ' . BASE_URL . '/admin/users/edit/' . $userId);
+                exit;
+            }
+            
+            // Use the new admin update method that doesn't touch the session
+            $result = $this->userModel->updateUserAsAdmin($userId, $data);
+            
+            // Handle status if provided
+            if (isset($_POST['status'])) {
+                if ($_POST['status'] === 'suspended' && !$user['is_suspended']) {
+                    $this->userModel->suspendUser($userId);
+                } elseif ($_POST['status'] === 'active' && $user['is_suspended']) {
+                    $this->userModel->activateUser($userId);
+                }
+            }
             
             if ($result['success']) {
                 $_SESSION['success'] = 'User updated successfully';
-                header('Location: ' . BASE_URL . '/admin/users');
-                exit;
             } else {
                 $_SESSION['error'] = $result['error'];
             }
+            
+            header('Location: ' . BASE_URL . '/admin/users');
+            exit;
         }
         
         require_once __DIR__ . '/../views/admin/edit_user.php';
@@ -174,6 +192,12 @@ class AdminController {
      * Suspend User
      */
     public function suspendUser($userId) {
+        if ($_SESSION['user_id'] == $userId) {
+            $_SESSION['error'] = 'You cannot suspend your own account';
+            header('Location: ' . BASE_URL . '/admin/users');
+            exit;
+        }
+        
         $result = $this->userModel->suspendUser($userId);
         
         if ($result['success']) {

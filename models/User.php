@@ -275,9 +275,8 @@ class User {
             ]);
             
             if ($result) {
-                // Update session
-                $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
-                $_SESSION['user_email'] = $data['email'];
+                // REMOVED: Session update code - this should NOT be here
+                // Session updates should be handled in the controller only for the logged-in user
                 
                 $this->logActivity($userId, 'PROFILE_UPDATE', 'User updated profile');
                 return ['success' => true, 'message' => 'Profile updated successfully'];
@@ -287,6 +286,58 @@ class User {
             
         } catch (PDOException $e) {
             error_log("Profile update error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error occurred'];
+        }
+    }
+
+    /**
+     * Update user as admin (without affecting session)
+     */
+    public function updateUserAsAdmin($userId, $data) {
+        try {
+            // Check if email is being changed and if it's already taken
+            $currentUser = $this->getById($userId);
+            if ($currentUser && $currentUser['email'] !== $data['email']) {
+                $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
+                $checkStmt = $this->conn->prepare($checkQuery);
+                $checkStmt->execute([
+                    ':email' => $data['email'],
+                    ':id' => $userId
+                ]);
+                if ($checkStmt->fetch()) {
+                    return ['success' => false, 'error' => 'Email already taken by another user'];
+                }
+            }
+            
+            $query = "UPDATE users SET 
+                    first_name = :first_name,
+                    last_name = :last_name,
+                    email = :email,
+                    phone = :phone,
+                    role = :role,
+                    updated_at = NOW()
+                    WHERE id = :id";
+            
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([
+                ':first_name' => $data['first_name'],
+                ':last_name' => $data['last_name'],
+                ':email' => $data['email'],
+                ':phone' => $data['phone'],
+                ':role' => $data['role'],
+                ':id' => $userId
+            ]);
+            
+            if ($result) {
+                // DO NOT update session - this is for admin editing another user
+                $this->logActivity($userId, 'ADMIN_UPDATE', 'User updated by admin');
+                return ['success' => true, 'message' => 'User updated successfully'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to update user'];
+            
+        } catch (PDOException $e) {
+            error_log("Admin update user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error occurred'];
         }
     }

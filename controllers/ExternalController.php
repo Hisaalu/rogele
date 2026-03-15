@@ -137,6 +137,10 @@ class ExternalController {
         $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
         
         if ($result['success']) {
+            // NOW update the session with the user's own data
+            $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
+            $_SESSION['user_email'] = $data['email'];
+            
             $_SESSION['success'] = $result['message'];
         } else {
             $_SESSION['error'] = $result['error'];
