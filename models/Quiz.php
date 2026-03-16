@@ -681,5 +681,57 @@ class Quiz {
             return ['success' => false, 'error' => 'Database error'];
         }
     }
+
+    /**
+     * Count students who have attempted quizzes for a specific teacher
+     */
+    public function countStudentsWithAttemptsByTeacher($teacherId) {
+        try {
+            $query = "SELECT COUNT(DISTINCT qa.user_id) as total
+                    FROM quiz_attempts qa
+                    JOIN quizzes q ON qa.quiz_id = q.id
+                    WHERE q.teacher_id = :teacher_id
+                    AND qa.status = 'completed'";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':teacher_id' => $teacherId]);
+            $result = $stmt->fetch();
+            
+            return $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Count students with attempts error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get daily quiz performance for teacher
+     */
+    public function getDailyPerformance($teacherId, $days = 30) {
+        try {
+            $query = "SELECT 
+                        DATE(qa.completed_at) as date,
+                        AVG(qa.score) as avg_score,
+                        COUNT(qa.id) as attempts
+                    FROM quiz_attempts qa
+                    JOIN quizzes q ON qa.quiz_id = q.id
+                    WHERE q.teacher_id = :teacher_id
+                        AND qa.status = 'completed'
+                        AND qa.completed_at >= DATE_SUB(NOW(), INTERVAL :days DAY)
+                    GROUP BY DATE(qa.completed_at)
+                    ORDER BY date ASC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':teacher_id' => $teacherId,
+                ':days' => $days
+            ]);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get daily performance error: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

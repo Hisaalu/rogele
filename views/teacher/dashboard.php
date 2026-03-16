@@ -136,40 +136,6 @@ $classPerformance = $classPerformance ?? [
         </div>
     </div>
 
-    <!-- Performance Overview -->
-    <div class="performance-section">
-        <h2 class="section-title">Class Performance Overview</h2>
-        <div class="performance-grid">
-            <div class="performance-card">
-                <div class="performance-header">
-                    <h3>Average Scores by Class</h3>
-                    <select class="performance-filter">
-                        <option>This Month</option>
-                        <option>This Term</option>
-                        <option>This Year</option>
-                    </select>
-                </div>
-                <div class="performance-body">
-                    <canvas id="scoresChart"></canvas>
-                </div>
-            </div>
-
-            <div class="performance-card">
-                <div class="performance-header">
-                    <h3>Completion Rates</h3>
-                    <select class="performance-filter">
-                        <option>This Month</option>
-                        <option>This Term</option>
-                        <option>This Year</option>
-                    </select>
-                </div>
-                <div class="performance-body">
-                    <canvas id="completionChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Recent Activity & Upcoming -->
     <div class="activity-section">
         <!-- Recent Lessons -->

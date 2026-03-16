@@ -1004,5 +1004,89 @@ class User {
             return [];
         }
     }
+
+    /**
+     * Get students by teacher (learners and external users in classes taught by this teacher)
+     */
+    public function getStudentsByTeacher($teacherId, $classId = null, $search = null) {
+        try {
+            $query = "SELECT DISTINCT u.*, c.name as class_name 
+                    FROM users u
+                    LEFT JOIN classes c ON u.class_id = c.id
+                    LEFT JOIN subjects s ON c.id = s.class_id
+                    WHERE (u.role = 'learner' OR u.role = 'external')
+                    AND u.is_active = 1";
+            
+            $params = [];
+            
+            // If teacher is specified, filter by classes they teach
+            if ($teacherId) {
+                $query .= " AND (s.teacher_id = :teacher_id OR u.class_id IS NULL)";
+                $params[':teacher_id'] = $teacherId;
+            }
+            
+            if ($classId) {
+                $query .= " AND u.class_id = :class_id";
+                $params[':class_id'] = $classId;
+            }
+            
+            if ($search) {
+                $query .= " AND (u.first_name LIKE :search 
+                            OR u.last_name LIKE :search 
+                            OR u.email LIKE :search
+                            OR CONCAT(u.first_name, ' ', u.last_name) LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            $query .= " ORDER BY 
+                        CASE u.role 
+                            WHEN 'learner' THEN 1 
+                            WHEN 'external' THEN 2 
+                            ELSE 3 
+                        END,
+                        c.level, 
+                        u.first_name, 
+                        u.last_name 
+                        LIMIT 100";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get students by teacher error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Count students by teacher (learners and external users)
+     */
+    public function countStudentsByTeacher($teacherId) {
+        try {
+            $query = "SELECT COUNT(DISTINCT u.id) as total
+                    FROM users u
+                    LEFT JOIN classes c ON u.class_id = c.id
+                    LEFT JOIN subjects s ON c.id = s.class_id
+                    WHERE (u.role = 'learner' OR u.role = 'external')
+                    AND u.is_active = 1";
+            
+            $params = [];
+            
+            if ($teacherId) {
+                $query .= " AND (s.teacher_id = :teacher_id OR u.class_id IS NULL)";
+                $params[':teacher_id'] = $teacherId;
+            }
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            $result = $stmt->fetch();
+            
+            return $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Count students by teacher error: " . $e->getMessage());
+            return 0;
+        }
+    }
 }
 ?>

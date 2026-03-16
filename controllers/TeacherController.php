@@ -75,16 +75,29 @@ class TeacherController {
     }
     
     /**
-     * Get class performance statistics
+     * Get class performance statistics including both learners and external users
      */
     private function getClassPerformance() {
-        // This method would aggregate data from quizzes and lessons
-        // For now, return sample data
+        $teacherId = $_SESSION['user_id'];
+        
+        // Get total students (learners + external) taught by this teacher
+        $totalStudents = $this->userModel->countStudentsByTeacher($teacherId);
+        
+        // Get average quiz score for students who have taken quizzes
+        $avgScore = $this->quizModel->getAverageScoreByTeacher($teacherId);
+        
+        // Get completion rate (students who have taken at least one quiz vs total students)
+        $studentsWithAttempts = $this->quizModel->countStudentsWithAttemptsByTeacher($teacherId);
+        $completionRate = $totalStudents > 0 ? round(($studentsWithAttempts / $totalStudents) * 100) : 0;
+        
+        // Get active classes count
+        $activeClasses = count($this->classModel->getByTeacher($teacherId));
+        
         return [
-            'total_students' => 45,
-            'avg_score' => 76.5,
-            'completion_rate' => 82,
-            'active_classes' => 3
+            'total_students' => $totalStudents,
+            'avg_score' => $avgScore,
+            'completion_rate' => $completionRate,
+            'active_classes' => $activeClasses
         ];
     }
     
@@ -406,8 +419,11 @@ class TeacherController {
         // Get classes taught by this teacher
         $classes = $this->classModel->getByTeacher($teacherId);
         
-        // Get students based on filters
+        // Get students based on filters (learners and external users)
         $students = $this->userModel->getStudentsByTeacher($teacherId, $classId, $search);
+        
+        // Debug: Log what we found
+        error_log("Found " . count($students) . " students for teacher ID: " . $teacherId);
         
         require_once __DIR__ . '/../views/teacher/students.php';
     }
@@ -442,6 +458,7 @@ class TeacherController {
         $hideFooter = true;
         
         $teacherId = $_SESSION['user_id'];
+        $range = $_GET['range'] ?? 30;
         
         // Get overall statistics
         $stats = [
@@ -455,7 +472,7 @@ class TeacherController {
         $quizPerformance = $this->quizModel->getPerformanceByTeacher($teacherId);
         
         // Get lesson views data
-        $lessonViews = $this->lessonModel->getViewsByTeacher($teacherId);
+        $lessonViews = $this->lessonModel->getViewsByTeacher($teacherId, $range);
         
         require_once __DIR__ . '/../views/teacher/analytics.php';
     }

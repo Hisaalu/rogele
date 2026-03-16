@@ -506,20 +506,18 @@ class Lesson {
     /**
      * Get views by teacher for analytics
      */
-    public function getViewsByTeacher($teacherId) {
+    public function getViewsByTeacher($teacherId, $limit = 10) {
         try {
-            $query = "SELECT 
-                        DATE(l.created_at) as date,
-                        SUM(l.views) as total_views,
-                        COUNT(l.id) as lesson_count
-                      FROM lessons l
-                      WHERE l.teacher_id = :teacher_id
-                      GROUP BY DATE(l.created_at)
-                      ORDER BY date DESC
-                      LIMIT 30";
+            $query = "SELECT l.id, l.title, l.views, l.created_at
+                    FROM lessons l
+                    WHERE l.teacher_id = :teacher_id
+                    ORDER BY l.views DESC
+                    LIMIT :limit";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([':teacher_id' => $teacherId]);
+            $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
@@ -558,6 +556,34 @@ class Lesson {
         } catch (PDOException $e) {
             error_log("Delete material error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error'];
+        }
+    }
+
+    /**
+     * Get daily lesson views for teacher
+     */
+    public function getDailyViews($teacherId, $days = 30) {
+        try {
+            $query = "SELECT 
+                        DATE(viewed_at) as date,
+                        COUNT(*) as views
+                    FROM lesson_views lv
+                    JOIN lessons l ON lv.lesson_id = l.id
+                    WHERE l.teacher_id = :teacher_id
+                        AND lv.viewed_at >= DATE_SUB(NOW(), INTERVAL :days DAY)
+                    GROUP BY DATE(lv.viewed_at)
+                    ORDER BY date ASC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':teacher_id' => $teacherId,
+                ':days' => $days
+            ]);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get daily views error: " . $e->getMessage());
+            return [];
         }
     }
 }
