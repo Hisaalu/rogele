@@ -889,9 +889,11 @@ input:checked + .slider:before {
 </style>
 
 <script>
+// Password visibility toggle
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
-    const icon = event.currentTarget.querySelector('i');
+    const button = event.currentTarget;
+    const icon = button.querySelector('i');
     
     if (input.type === 'password') {
         input.type = 'text';
@@ -904,10 +906,13 @@ function togglePassword(inputId) {
     }
 }
 
+// Password strength checker
 function checkPasswordStrength() {
     const password = document.getElementById('new_password').value;
     const strengthBars = document.querySelectorAll('.strength-segment');
     const strengthText = document.querySelector('.strength-text');
+    
+    if (!strengthBars.length || !strengthText) return;
     
     let strength = 0;
     if (password.length >= 8) strength++;
@@ -930,28 +935,15 @@ function checkPasswordStrength() {
     const texts = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
     strengthText.textContent = strength > 0 ? texts[strength - 1] : 'Enter a password';
     strengthText.style.color = strength <= 2 ? '#EF4444' : strength <= 3 ? '#F97316' : strength <= 4 ? '#EAB308' : '#10B981';
-    
-    // Update requirements
-    document.getElementById('req-length').className = password.length >= 8 ? 'valid' : '';
-    document.getElementById('req-uppercase').className = /[A-Z]/.test(password) ? 'valid' : '';
-    document.getElementById('req-lowercase').className = /[a-z]/.test(password) ? 'valid' : '';
-    document.getElementById('req-number').className = /[0-9]/.test(password) ? 'valid' : '';
-    document.getElementById('req-special').className = /[$@#&!]/.test(password) ? 'valid' : '';
-    
-    document.querySelectorAll('.password-requirements li').forEach(li => {
-        const icon = li.querySelector('i');
-        if (li.classList.contains('valid')) {
-            icon.className = 'fas fa-check-circle';
-        } else {
-            icon.className = 'fas fa-times-circle';
-        }
-    });
 }
 
+// Password match checker
 function checkPasswordMatch() {
     const password = document.getElementById('new_password').value;
     const confirm = document.getElementById('confirm_password').value;
     const matchDiv = document.getElementById('passwordMatch');
+    
+    if (!matchDiv) return;
     
     if (confirm === '') {
         matchDiv.innerHTML = '';
@@ -962,53 +954,9 @@ function checkPasswordMatch() {
     }
 }
 
-function confirmDelete() {
-    return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.');
-}
-
-// Enhanced delete form validation
-function validateDeleteForm() {
-    const password = document.getElementById('delete_password').value;
-    const checkboxes = document.querySelectorAll('.delete-checkboxes input[type="checkbox"]');
-    let allChecked = true;
-    
-    // Check if all checkboxes are checked
-    checkboxes.forEach(cb => {
-        if (!cb.checked) {
-            allChecked = false;
-        }
-    });
-    
-    if (!password) {
-        alert('Please enter your password to confirm account deletion.');
-        return false;
-    }
-    
-    if (!allChecked) {
-        alert('Please check all confirmation boxes to proceed with account deletion.');
-        return false;
-    }
-    
-    if (password.length < 8) {
-        alert('Please enter your correct password.');
-        return false;
-    }
-    
-    // Final confirmation
-    const userConfirmed = confirm('⚠️ FINAL WARNING: Are you absolutely sure you want to permanently delete your account?\n\nThis action CANNOT be undone and all your data will be lost forever.');
-    
-    if (userConfirmed) {
-        // Double-check with a more specific prompt
-        const typeConfirmation = prompt('To confirm, please type "DELETE" in all caps:');
-        return typeConfirmation === 'DELETE';
-    }
-    
-    return false;
-}
-
-// Enable delete button only when all checkboxes are checked
-// Make sure the delete form submits properly
+// Initialize all event listeners when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // ===== DELETE ACCOUNT FORM HANDLING =====
     const deleteForm = document.getElementById('deleteForm');
     
     if (deleteForm) {
@@ -1016,47 +964,121 @@ document.addEventListener('DOMContentLoaded', function() {
             const password = document.getElementById('delete_password').value;
             const checkbox = document.querySelector('input[name="confirm_delete"]');
             
-            if (!password) {
+            // Validate password
+            if (!password || password.trim() === '') {
                 e.preventDefault();
-                alert('Please enter your password');
+                alert('Please enter your password to confirm account deletion.');
                 return false;
             }
             
-            if (!checkbox.checked) {
+            // Validate checkbox
+            if (!checkbox || !checkbox.checked) {
                 e.preventDefault();
-                alert('Please confirm that you understand this action is permanent');
+                alert('Please confirm that you understand this action is permanent.');
                 return false;
             }
             
             // Final confirmation
-            if (!confirm('⚠️ Are you absolutely sure you want to delete your account? This cannot be undone!')) {
+            if (!confirm('⚠️ FINAL WARNING: Are you absolutely sure you want to permanently delete your account?\n\nThis action CANNOT be undone and all your data will be lost forever.')) {
                 e.preventDefault();
                 return false;
             }
             
-            // Allow the form to submit normally
+            // Double-check with "DELETE" prompt
+            const typeConfirmation = prompt('To confirm, please type "DELETE" in all caps:');
+            if (typeConfirmation !== 'DELETE') {
+                e.preventDefault();
+                alert('Account deletion cancelled.');
+                return false;
+            }
+            
+            // Allow form to submit
             return true;
+        });
+    }
+    
+    // ===== PASSWORD CHANGE FORM HANDLING =====
+    const passwordForm = document.getElementById('passwordForm');
+    
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+            const password = document.getElementById('new_password').value;
+            const confirm = document.getElementById('confirm_password').value;
+            
+            if (password !== confirm) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+            
+            if (password.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters long');
+                return false;
+            }
+            
+            return true;
+        });
+    }
+    
+    // ===== NOTIFICATION FORM HANDLING =====
+    const notificationForm = document.querySelector('form[action="/rays-of-grace/external/update-notifications"]');
+    if (notificationForm) {
+        notificationForm.addEventListener('submit', function(e) {
+            // Optional: Add any notification-specific validation
+            return true;
+        });
+    }
+    
+    // ===== PRIVACY FORM HANDLING =====
+    const privacyForm = document.querySelector('form[action="/rays-of-grace/external/update-privacy"]');
+    if (privacyForm) {
+        privacyForm.addEventListener('submit', function(e) {
+            // Optional: Add any privacy-specific validation
+            return true;
+        });
+    }
+    
+    // ===== TOGGLE SWITCHES - Update hidden inputs if needed =====
+    document.querySelectorAll('.toggle-switch input[type="checkbox"]').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            // If you need to handle toggle changes, add code here
+            console.log(this.name + ' changed to: ' + this.checked);
+        });
+    });
+    
+    // ===== PASSWORD STRENGTH CHECK ON INPUT =====
+    const newPasswordField = document.getElementById('new_password');
+    if (newPasswordField) {
+        newPasswordField.addEventListener('input', checkPasswordStrength);
+    }
+    
+    // ===== PASSWORD MATCH CHECK ON INPUT =====
+    const confirmPasswordField = document.getElementById('confirm_password');
+    if (confirmPasswordField) {
+        confirmPasswordField.addEventListener('input', checkPasswordMatch);
+    }
+    
+    // ===== ENABLE/DISABLE DELETE BUTTON BASED ON CHECKBOX =====
+    const deleteCheckbox = document.querySelector('input[name="confirm_delete"]');
+    const deleteBtn = document.getElementById('deleteAccountBtn');
+    
+    if (deleteCheckbox && deleteBtn) {
+        deleteCheckbox.addEventListener('change', function() {
+            // Visual feedback only - actual validation happens on submit
+            if (this.checked) {
+                deleteBtn.style.opacity = '1';
+            } else {
+                deleteBtn.style.opacity = '0.6';
+            }
         });
     }
 });
 
-// Form validation
-document.getElementById('passwordForm')?.addEventListener('submit', function(e) {
-    const password = document.getElementById('new_password').value;
-    const confirm = document.getElementById('confirm_password').value;
-    
-    if (password !== confirm) {
-        e.preventDefault();
-        alert('Passwords do not match!');
-        return;
-    }
-    
-    if (password.length < 8) {
-        e.preventDefault();
-        alert('Password must be at least 8 characters long');
-        return;
-    }
-});
+// For backwards compatibility, keep simple functions
+window.togglePassword = togglePassword;
+window.checkPasswordStrength = checkPasswordStrength;
+window.checkPasswordMatch = checkPasswordMatch;
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

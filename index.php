@@ -72,6 +72,7 @@ $routes = [
     '/admin/api/chart-data' => 'ChartApiController@chartData',
     '/admin/update-profile' => 'AdminController@updateProfile',
     '/admin/update-profile-photo' => 'AdminController@updateProfilePhoto',
+    '/admin/reports/export' => 'ExportController@exportReport',
     
     // Teacher routes
     '/teacher/dashboard' => 'TeacherController@dashboard',
