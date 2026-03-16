@@ -11,11 +11,18 @@ class Lesson {
         $this->conn = $this->db->getConnection();
     }
     
-    // Create lesson
-    public function create($data) {
+    // ============= MAIN METHODS =============
+    
+    /**
+     * Create lesson with files
+     */
+    public function create($data, $files = null) {
         try {
-            $query = "INSERT INTO lessons (title, content, subject_id, class_id, teacher_id, video_url, duration, is_published, is_approved, created_at) 
-                      VALUES (:title, :content, :subject_id, :class_id, :teacher_id, :video_url, :duration, :is_published, 0, NOW())";
+            $this->conn->beginTransaction();
+            
+            // Insert lesson
+            $query = "INSERT INTO lessons (title, content, subject_id, class_id, teacher_id, video_url, duration, is_published, created_at) 
+                      VALUES (:title, :content, :subject_id, :class_id, :teacher_id, :video_url, :duration, :is_published, NOW())";
             
             $stmt = $this->conn->prepare($query);
             $result = $stmt->execute([
@@ -29,106 +36,30 @@ class Lesson {
                 ':is_published' => $data['is_published'] ?? 0
             ]);
             
-            if ($result) {
-                $lessonId = $this->conn->lastInsertId();
-                
-                // Handle file uploads if any
-                if (isset($data['files']) && !empty($data['files'])) {
-                    $this->uploadMaterials($lessonId, $data['files']);
-                }
-                
-                return ['success' => true, 'lesson_id' => $lessonId];
+            if (!$result) {
+                throw new Exception('Failed to create lesson');
             }
             
-            return ['success' => false, 'error' => 'Failed to create lesson'];
-        } catch (PDOException $e) {
+            $lessonId = $this->conn->lastInsertId();
+            
+            // Handle file uploads if any
+            if ($files && !empty($files['name'][0])) {
+                $this->uploadMaterials($lessonId, $files);
+            }
+            
+            $this->conn->commit();
+            return ['success' => true, 'lesson_id' => $lessonId];
+            
+        } catch (Exception $e) {
+            $this->conn->rollBack();
             error_log("Lesson creation error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to create lesson'];
         }
     }
     
-    // Upload lesson materials
-    private function uploadMaterials($lessonId, $files) {
-        try {
-            foreach ($files['tmp_name'] as $key => $tmp_name) {
-                if ($files['error'][$key] === UPLOAD_ERR_OK) {
-                    $fileName = time() . '_' . basename($files['name'][$key]);
-                    $filePath = UPLOAD_PATH . $fileName;
-                    
-                    if (move_uploaded_file($tmp_name, $filePath)) {
-                        $query = "INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) 
-                                  VALUES (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
-                        
-                        $stmt = $this->conn->prepare($query);
-                        $stmt->execute([
-                            ':lesson_id' => $lessonId,
-                            ':file_name' => $files['name'][$key],
-                            ':file_path' => 'uploads/' . $fileName,
-                            ':file_type' => $files['type'][$key],
-                            ':file_size' => $files['size'][$key]
-                        ]);
-                    }
-                }
-            }
-        } catch (PDOException $e) {
-            error_log("Material upload error: " . $e->getMessage());
-        }
-    }
-    
-    // Get lessons by class
-    public function getByClass($classId, $limit = null) {
-        try {
-            $query = "SELECT l.*, s.name as subject_name, u.first_name as teacher_name, u.last_name as teacher_last_name,
-                     (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
-                     FROM lessons l
-                     LEFT JOIN subjects s ON l.subject_id = s.id
-                     LEFT JOIN users u ON l.teacher_id = u.id
-                     WHERE l.class_id = :class_id AND l.is_published = 1 AND l.is_approved = 1
-                     ORDER BY l.created_at DESC";
-            
-            if ($limit) {
-                $query .= " LIMIT " . intval($limit);
-            }
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':class_id' => $classId]);
-            
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log("Get by class error: " . $e->getMessage());
-            return [];
-        }
-    }
-    
-    // Get all lessons (with pagination)
-    public function getAll($page = 1, $limit = 20) {
-        try {
-            $offset = ($page - 1) * $limit;
-            
-            $query = "SELECT l.*, s.name as subject_name, c.name as class_name, 
-                     u.first_name as teacher_name, u.last_name as teacher_last_name,
-                     (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
-                     FROM lessons l
-                     LEFT JOIN subjects s ON l.subject_id = s.id
-                     LEFT JOIN classes c ON l.class_id = c.id
-                     LEFT JOIN users u ON l.teacher_id = u.id
-                     WHERE l.is_published = 1 AND l.is_approved = 1
-                     ORDER BY l.created_at DESC
-                     LIMIT :limit OFFSET :offset";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log("Get all lessons error: " . $e->getMessage());
-            return [];
-        }
-    }
-    
-    // Get single lesson with materials
+    /**
+     * Get lesson by ID with materials
+     */
     public function getById($lessonId) {
         try {
             // Increment view count
@@ -162,18 +93,103 @@ class Lesson {
         }
     }
     
-    // Increment view count
-    private function incrementViews($lessonId) {
+    /**
+     * Get lessons by class
+     */
+    public function getByClass($classId, $limit = null) {
         try {
-            $query = "UPDATE lessons SET views = views + 1 WHERE id = :id";
+            $query = "SELECT l.*, s.name as subject_name, u.first_name as teacher_name,
+                     (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                     FROM lessons l
+                     LEFT JOIN subjects s ON l.subject_id = s.id
+                     LEFT JOIN users u ON l.teacher_id = u.id
+                     WHERE l.class_id = :class_id AND l.is_published = 1 AND l.is_approved = 1
+                     ORDER BY l.created_at DESC";
+            
+            if ($limit) {
+                $query .= " LIMIT " . intval($limit);
+            }
+            
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $lessonId]);
+            $stmt->execute([':class_id' => $classId]);
+            
+            return $stmt->fetchAll();
         } catch (PDOException $e) {
-            // Silently fail
+            error_log("Get by class error: " . $e->getMessage());
+            return [];
         }
     }
     
-    // Update lesson
+    /**
+     * Get lessons by teacher
+     */
+    public function getByTeacher($teacherId, $limit = null, $offset = 0) {
+        try {
+            $query = "SELECT l.*, s.name as subject_name, c.name as class_name,
+                    (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                    FROM lessons l
+                    LEFT JOIN subjects s ON l.subject_id = s.id
+                    LEFT JOIN classes c ON l.class_id = c.id
+                    WHERE l.teacher_id = :teacher_id
+                    ORDER BY l.created_at DESC";
+            
+            if ($limit) {
+                $query .= " LIMIT :limit OFFSET :offset";
+            }
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
+            
+            if ($limit) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+            
+            $stmt->execute();
+            $results = $stmt->fetchAll();
+            
+            error_log("Lesson Model - getByTeacher for teacher $teacherId found " . count($results) . " lessons");
+            
+            return $results;
+        } catch (PDOException $e) {
+            error_log("Get lessons by teacher error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get all lessons (with pagination)
+     */
+    public function getAll($page = 1, $limit = 20) {
+        try {
+            $offset = ($page - 1) * $limit;
+            
+            $query = "SELECT l.*, s.name as subject_name, c.name as class_name, 
+                     u.first_name as teacher_name, u.last_name as teacher_last_name,
+                     (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                     FROM lessons l
+                     LEFT JOIN subjects s ON l.subject_id = s.id
+                     LEFT JOIN classes c ON l.class_id = c.id
+                     LEFT JOIN users u ON l.teacher_id = u.id
+                     WHERE l.is_published = 1 AND l.is_approved = 1
+                     ORDER BY l.created_at DESC
+                     LIMIT :limit OFFSET :offset";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get all lessons error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Update lesson
+     */
     public function update($lessonId, $data) {
         try {
             $query = "UPDATE lessons SET 
@@ -206,13 +222,21 @@ class Lesson {
             return ['success' => false, 'error' => 'Failed to update lesson'];
         } catch (PDOException $e) {
             error_log("Lesson update error: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Failed to update lesson'];
+            return ['success' => false, 'error' => 'Database error'];
         }
     }
     
-    // Delete lesson
+    /**
+     * Delete lesson
+     */
     public function delete($lessonId) {
         try {
+            // First delete related materials
+            $materialQuery = "DELETE FROM lesson_materials WHERE lesson_id = :lesson_id";
+            $materialStmt = $this->conn->prepare($materialQuery);
+            $materialStmt->execute([':lesson_id' => $lessonId]);
+            
+            // Then delete lesson
             $query = "DELETE FROM lessons WHERE id = :id";
             $stmt = $this->conn->prepare($query);
             $result = $stmt->execute([':id' => $lessonId]);
@@ -228,7 +252,9 @@ class Lesson {
         }
     }
     
-    // Search lessons
+    /**
+     * Search lessons
+     */
     public function search($keyword, $classId = null) {
         try {
             $query = "SELECT l.*, s.name as subject_name, u.first_name as teacher_name, u.last_name as teacher_last_name
@@ -257,46 +283,90 @@ class Lesson {
         }
     }
     
-    // Get lessons by teacher
-    public function getByTeacher($teacherId) {
+    /**
+     * Search lessons by teacher
+     */
+    public function searchByTeacher($teacherId, $keyword) {
         try {
             $query = "SELECT l.*, s.name as subject_name, c.name as class_name,
-                     (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
-                     FROM lessons l
-                     LEFT JOIN subjects s ON l.subject_id = s.id
-                     LEFT JOIN classes c ON l.class_id = c.id
-                     WHERE l.teacher_id = :teacher_id
-                     ORDER BY l.created_at DESC";
+                      (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                      FROM lessons l
+                      LEFT JOIN subjects s ON l.subject_id = s.id
+                      LEFT JOIN classes c ON l.class_id = c.id
+                      WHERE l.teacher_id = :teacher_id 
+                      AND (l.title LIKE :keyword OR l.content LIKE :keyword)
+                      ORDER BY l.created_at DESC
+                      LIMIT 50";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([':teacher_id' => $teacherId]);
+            $stmt->execute([
+                ':teacher_id' => $teacherId,
+                ':keyword' => '%' . $keyword . '%'
+            ]);
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get by teacher error: " . $e->getMessage());
+            error_log("Search lessons by teacher error: " . $e->getMessage());
             return [];
         }
     }
     
-    // Approve lesson (admin function)
-    public function approve($lessonId) {
+    // ============= UTILITY METHODS =============
+    
+    /**
+     * Increment view count
+     */
+    private function incrementViews($lessonId) {
         try {
-            $query = "UPDATE lessons SET is_approved = 1 WHERE id = :id";
+            $query = "UPDATE lessons SET views = views + 1 WHERE id = :id";
             $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([':id' => $lessonId]);
-            
-            if ($result) {
-                return ['success' => true, 'message' => 'Lesson approved successfully'];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to approve lesson'];
+            $stmt->execute([':id' => $lessonId]);
         } catch (PDOException $e) {
-            error_log("Approve lesson error: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Failed to approve lesson'];
+            // Silently fail
         }
     }
     
-    // Bookmark lesson
+    /**
+     * Upload lesson materials
+     */
+    private function uploadMaterials($lessonId, $files) {
+        try {
+            $targetDir = UPLOAD_PATH . 'lessons/';
+            
+            // Create directory if it doesn't exist
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0777, true);
+            }
+            
+            for ($i = 0; $i < count($files['name']); $i++) {
+                if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                    $fileName = time() . '_' . basename($files['name'][$i]);
+                    $targetFile = $targetDir . $fileName;
+                    
+                    if (move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
+                        $query = "INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) 
+                                  VALUES (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
+                        
+                        $stmt = $this->conn->prepare($query);
+                        $stmt->execute([
+                            ':lesson_id' => $lessonId,
+                            ':file_name' => $files['name'][$i],
+                            ':file_path' => 'uploads/lessons/' . $fileName,
+                            ':file_type' => $files['type'][$i],
+                            ':file_size' => $files['size'][$i]
+                        ]);
+                    }
+                }
+            }
+        } catch (PDOException $e) {
+            error_log("Material upload error: " . $e->getMessage());
+            throw $e;
+        }
+    }
+    
+    /**
+     * Bookmark lesson
+     */
     public function bookmark($userId, $lessonId) {
         try {
             // Check if already bookmarked
@@ -329,7 +399,9 @@ class Lesson {
         }
     }
     
-    // Remove bookmark
+    /**
+     * Remove bookmark
+     */
     public function removeBookmark($userId, $lessonId) {
         try {
             $query = "DELETE FROM bookmarks WHERE user_id = :user_id AND lesson_id = :lesson_id";
@@ -350,7 +422,9 @@ class Lesson {
         }
     }
     
-    // Get bookmarked lessons
+    /**
+     * Get bookmarked lessons
+     */
     public function getBookmarks($userId) {
         try {
             $query = "SELECT l.*, s.name as subject_name,
@@ -371,7 +445,9 @@ class Lesson {
         }
     }
     
-    // Get popular lessons
+    /**
+     * Get popular lessons
+     */
     public function getPopular($limit = 10) {
         try {
             $query = "SELECT l.*, s.name as subject_name,
@@ -390,6 +466,98 @@ class Lesson {
         } catch (PDOException $e) {
             error_log("Get popular error: " . $e->getMessage());
             return [];
+        }
+    }
+    
+    /**
+     * Approve lesson (admin function)
+     */
+    public function approve($lessonId) {
+        try {
+            $query = "UPDATE lessons SET is_approved = 1 WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([':id' => $lessonId]);
+            
+            if ($result) {
+                return ['success' => true, 'message' => 'Lesson approved successfully'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to approve lesson'];
+        } catch (PDOException $e) {
+            error_log("Approve lesson error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Failed to approve lesson'];
+        }
+    }
+    
+    /**
+     * Get user progress for lessons (placeholder)
+     */
+    public function getUserProgress($userId) {
+        try {
+            // This would track which lessons a user has viewed/completed
+            // For now, return empty array
+            return [];
+        } catch (PDOException $e) {
+            error_log("Get user progress error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get views by teacher for analytics
+     */
+    public function getViewsByTeacher($teacherId) {
+        try {
+            $query = "SELECT 
+                        DATE(l.created_at) as date,
+                        SUM(l.views) as total_views,
+                        COUNT(l.id) as lesson_count
+                      FROM lessons l
+                      WHERE l.teacher_id = :teacher_id
+                      GROUP BY DATE(l.created_at)
+                      ORDER BY date DESC
+                      LIMIT 30";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':teacher_id' => $teacherId]);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get views by teacher error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Delete lesson material
+     */
+    public function deleteMaterial($materialId) {
+        try {
+            // Get file path first
+            $query = "SELECT file_path FROM lesson_materials WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':id' => $materialId]);
+            $material = $stmt->fetch();
+            
+            if ($material) {
+                // Delete file from server
+                $filePath = __DIR__ . '/../public/' . $material['file_path'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+                
+                // Delete from database
+                $deleteQuery = "DELETE FROM lesson_materials WHERE id = :id";
+                $deleteStmt = $this->conn->prepare($deleteQuery);
+                $deleteStmt->execute([':id' => $materialId]);
+                
+                return ['success' => true];
+            }
+            
+            return ['success' => false, 'error' => 'Material not found'];
+        } catch (PDOException $e) {
+            error_log("Delete material error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error'];
         }
     }
 }

@@ -493,5 +493,185 @@ class Quiz {
             return 0;
         }
     }
+
+    /**
+     * Get quizzes by teacher
+     */
+    public function getByTeacher($teacherId, $limit = null, $offset = 0) {
+        try {
+            $query = "SELECT q.*, 
+                    COUNT(DISTINCT qa.id) as attempt_count,
+                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                    FROM quizzes q
+                    LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id
+                    WHERE q.teacher_id = :teacher_id
+                    GROUP BY q.id
+                    ORDER BY q.created_at DESC";
+            
+            if ($limit) {
+                $query .= " LIMIT :limit OFFSET :offset";
+            }
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':teacher_id', $teacherId);
+            
+            if ($limit) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+            
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get quizzes by teacher error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Search quizzes by teacher
+     */
+    public function searchByTeacher($teacherId, $keyword) {
+        try {
+            $query = "SELECT q.*, 
+                    COUNT(DISTINCT qa.id) as attempt_count,
+                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                    FROM quizzes q
+                    LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id
+                    WHERE q.teacher_id = :teacher_id 
+                    AND (q.title LIKE :keyword OR q.description LIKE :keyword)
+                    GROUP BY q.id
+                    ORDER BY q.created_at DESC
+                    LIMIT 50";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':teacher_id' => $teacherId,
+                ':keyword' => '%' . $keyword . '%'
+            ]);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Search quizzes by teacher error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get quiz results
+     */
+    public function getResults($quizId) {
+        try {
+            $query = "SELECT qa.*, u.first_name, u.last_name, u.email
+                    FROM quiz_attempts qa
+                    JOIN users u ON qa.user_id = u.id
+                    WHERE qa.quiz_id = :quiz_id AND qa.status = 'completed'
+                    ORDER BY qa.score DESC, qa.completed_at DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':quiz_id' => $quizId]);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get quiz results error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get average score by teacher
+     */
+    public function getAverageScoreByTeacher($teacherId) {
+        try {
+            $query = "SELECT AVG(qa.score) as avg_score
+                    FROM quiz_attempts qa
+                    JOIN quizzes q ON qa.quiz_id = q.id
+                    WHERE q.teacher_id = :teacher_id AND qa.status = 'completed'";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':teacher_id' => $teacherId]);
+            $result = $stmt->fetch();
+            
+            return round($result['avg_score'] ?? 0, 1);
+        } catch (PDOException $e) {
+            error_log("Get average score by teacher error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get performance by teacher
+     */
+    public function getPerformanceByTeacher($teacherId) {
+        try {
+            $query = "SELECT 
+                        q.id,
+                        q.title,
+                        COUNT(DISTINCT qa.id) as total_attempts,
+                        COUNT(DISTINCT qa.user_id) as unique_students,
+                        AVG(qa.score) as avg_score,
+                        MAX(qa.score) as highest_score,
+                        MIN(qa.score) as lowest_score,
+                        SUM(CASE WHEN qa.score >= q.passing_score THEN 1 ELSE 0 END) as passed_count
+                    FROM quizzes q
+                    LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id AND qa.status = 'completed'
+                    WHERE q.teacher_id = :teacher_id
+                    GROUP BY q.id
+                    ORDER BY total_attempts DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':teacher_id' => $teacherId]);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get performance by teacher error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Update quiz
+     */
+    public function update($quizId, $data) {
+        try {
+            $query = "UPDATE quizzes SET 
+                    title = :title,
+                    description = :description,
+                    subject_id = :subject_id,
+                    class_id = :class_id,
+                    time_limit = :time_limit,
+                    passing_score = :passing_score,
+                    max_attempts = :max_attempts,
+                    start_date = :start_date,
+                    end_date = :end_date,
+                    is_published = :is_published,
+                    updated_at = NOW()
+                    WHERE id = :id";
+            
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([
+                ':title' => $data['title'],
+                ':description' => $data['description'] ?? null,
+                ':subject_id' => $data['subject_id'] ?? null,
+                ':class_id' => $data['class_id'] ?? null,
+                ':time_limit' => $data['time_limit'] ?? 30,
+                ':passing_score' => $data['passing_score'] ?? 50,
+                ':max_attempts' => $data['max_attempts'] ?? 3,
+                ':start_date' => $data['start_date'] ?? date('Y-m-d H:i:s'),
+                ':end_date' => $data['end_date'] ?? null,
+                ':is_published' => $data['is_published'] ?? 0,
+                ':id' => $quizId
+            ]);
+            
+            if ($result) {
+                return ['success' => true, 'message' => 'Quiz updated successfully'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to update quiz'];
+        } catch (PDOException $e) {
+            error_log("Quiz update error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error'];
+        }
+    }
 }
 ?>

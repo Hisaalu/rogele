@@ -75,11 +75,25 @@ $routes = [
     '/admin/reports/export' => 'ExportController@exportReport',
     
     // Teacher routes
+    // Teacher routes
     '/teacher/dashboard' => 'TeacherController@dashboard',
+    '/teacher/profile' => 'TeacherController@profile',
+    '/teacher/update-profile' => 'TeacherController@updateProfile',
+    '/teacher/settings' => 'TeacherController@settings',
+    '/teacher/change-password' => 'TeacherController@changePassword',
     '/teacher/lessons' => 'TeacherController@lessons',
     '/teacher/lessons/create' => 'TeacherController@createLesson',
+    '/teacher/lessons/edit/{id}' => 'TeacherController@editLesson',
+    '/teacher/lessons/delete/{id}' => 'TeacherController@deleteLesson',
+    '/teacher/lessons/preview/{id}' => 'TeacherController@previewLesson',
     '/teacher/quizzes' => 'TeacherController@quizzes',
     '/teacher/quizzes/create' => 'TeacherController@createQuiz',
+    '/teacher/quizzes/add-questions/{id}' => 'TeacherController@addQuestions',
+    '/teacher/quizzes/edit/{id}' => 'TeacherController@editQuiz',
+    '/teacher/quizzes/delete/{id}' => 'TeacherController@deleteQuiz',
+    '/teacher/quizzes/results/{id}' => 'TeacherController@quizResults',
+    '/teacher/students' => 'TeacherController@students',
+    '/teacher/students/progress/{id}' => 'TeacherController@studentProgress',
     '/teacher/analytics' => 'TeacherController@analytics',
     
     // Learner routes

@@ -691,7 +691,7 @@
                             <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a></li>
-                            <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/materials" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'materials') !== false ? 'active' : ''; ?>">
+                            <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-book-open"></i> Lessons
                             </a></li>
                         </ul>
@@ -792,7 +792,7 @@
                 <ul class="mobile-nav-links">
                     <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/materials"><i class="fas fa-book-open"></i> Lessons</a></li>
+                    <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/lessons"><i class="fas fa-book-open"></i> Lessons</a></li>
                     <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/quizzes"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
                     <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/profile"><i class="fas fa-user"></i> Profile</a></li>
                     <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/settings"><i class="fas fa-cog"></i> Settings</a></li>
