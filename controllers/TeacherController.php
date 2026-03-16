@@ -307,7 +307,6 @@ class TeacherController {
         exit;
     }
 
-
     /**
      * Add Questions to Quiz
      */
@@ -370,52 +369,6 @@ class TeacherController {
     }
     
     /**
-     * Edit Quiz
-     */
-    public function editQuiz($quizId) {
-        $hideFooter = true;
-        
-        $quiz = $this->quizModel->getById($quizId);
-        
-        // Check if quiz exists and belongs to this teacher
-        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'Quiz not found or you do not have permission to edit it.';
-            header('Location: ' . BASE_URL . '/teacher/quizzes');
-            exit;
-        }
-        
-        $subjects = $this->subjectModel->getAll();
-        $classes = $this->classModel->getAll();
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'title' => $_POST['title'] ?? '',
-                'description' => $_POST['description'] ?? '',
-                'subject_id' => $_POST['subject_id'] ?? null,
-                'class_id' => $_POST['class_id'] ?? null,
-                'time_limit' => $_POST['time_limit'] ?? 30,
-                'passing_score' => $_POST['passing_score'] ?? 50,
-                'max_attempts' => $_POST['max_attempts'] ?? 3,
-                'start_date' => $_POST['start_date'] ?? date('Y-m-d H:i:s'),
-                'end_date' => $_POST['end_date'] ?? null,
-                'is_published' => isset($_POST['is_published']) ? 1 : 0
-            ];
-            
-            $result = $this->quizModel->update($quizId, $data);
-            
-            if ($result['success']) {
-                $_SESSION['success'] = 'Quiz updated successfully!';
-                header('Location: ' . BASE_URL . '/teacher/quizzes');
-                exit;
-            } else {
-                $_SESSION['error'] = $result['error'] ?? 'Failed to update quiz.';
-            }
-        }
-        
-        require_once __DIR__ . '/../views/teacher/edit_quiz.php';
-    }
-    
-    /**
      * Delete Quiz
      */
     public function deleteQuiz($quizId) {
@@ -438,27 +391,6 @@ class TeacherController {
         
         header('Location: ' . BASE_URL . '/teacher/quizzes');
         exit;
-    }
-    
-    /**
-     * View Quiz Results
-     */
-    public function quizResults($quizId) {
-        $hideFooter = true;
-        
-        $quiz = $this->quizModel->getById($quizId);
-        
-        // Check if quiz exists and belongs to this teacher
-        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'Quiz not found or you do not have permission to view results.';
-            header('Location: ' . BASE_URL . '/teacher/quizzes');
-            exit;
-        }
-        
-        $results = $this->quizModel->getResults($quizId);
-        $stats = $this->quizModel->getQuizStats($quizId);
-        
-        require_once __DIR__ . '/../views/teacher/quiz_results.php';
     }
     
     /**
@@ -731,6 +663,70 @@ class TeacherController {
     }
 
     /**
+     * Edit Quiz
+     */
+    public function editQuiz($quizId) {
+        $hideFooter = true;
+        
+        $quiz = $this->quizModel->getById($quizId);
+        
+        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'Quiz not found or you do not have permission to edit it.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        $classes = $this->classModel->getActive();
+        $subjects = $this->subjectModel->getAll();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'title' => $_POST['title'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'subject_id' => $_POST['subject_id'] ?? null,
+                'class_id' => $_POST['class_id'] ?? null,
+                'time_limit' => $_POST['time_limit'] ?? 30,
+                'passing_score' => $_POST['passing_score'] ?? 50,
+                'max_attempts' => $_POST['max_attempts'] ?? 3,
+                'end_date' => !empty($_POST['end_date']) ? $_POST['end_date'] : null,
+                'is_published' => isset($_POST['is_published']) ? 1 : 0
+            ];
+            
+            $result = $this->quizModel->update($quizId, $data);
+            
+            if ($result['success']) {
+                $_SESSION['success'] = 'Quiz updated successfully!';
+                header('Location: ' . BASE_URL . '/teacher/quizzes');
+                exit;
+            } else {
+                $_SESSION['error'] = $result['error'] ?? 'Failed to update quiz.';
+            }
+        }
+        
+        require_once __DIR__ . '/../views/teacher/edit_quiz.php';
+    }
+
+    /**
+     * Quiz Results
+     */
+    public function quizResults($quizId) {
+        $hideFooter = true;
+        
+        $quiz = $this->quizModel->getById($quizId);
+        
+        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'Quiz not found or you do not have permission to view results.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        $results = $this->quizModel->getResults($quizId);
+        $stats = $this->quizModel->getQuizStats($quizId);
+        
+        require_once __DIR__ . '/../views/teacher/quiz_results.php';
+    }
+
+    /**
      * Preview Quiz
      */
     public function previewQuiz($quizId) {
@@ -744,12 +740,7 @@ class TeacherController {
             exit;
         }
         
-        // Simple preview for now
-        echo "<h1>Preview: " . htmlspecialchars($quiz['title']) . "</h1>";
-        echo "<pre>";
-        print_r($quiz);
-        echo "</pre>";
-        exit;
+        require_once __DIR__ . '/../views/teacher/preview_quiz.php';
     }
 }
 ?>
