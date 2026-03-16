@@ -306,82 +306,26 @@ class TeacherController {
         header('Location: ' . BASE_URL . '/teacher/lessons');
         exit;
     }
-    
-    /**
-     * Quizzes Management
-     */
-    public function quizzes() {
-        $hideFooter = true;
-        
-        $teacherId = $_SESSION['user_id'];
-        $page = $_GET['page'] ?? 1;
-        $search = $_GET['search'] ?? null;
-        
-        $limit = 10;
-        $offset = ($page - 1) * $limit;
-        
-        if ($search) {
-            $quizzes = $this->quizModel->searchByTeacher($teacherId, $search);
-        } else {
-            $quizzes = $this->quizModel->getByTeacher($teacherId, $limit, $offset);
-        }
-        
-        $totalQuizzes = count($this->quizModel->getByTeacher($teacherId));
-        $totalPages = ceil($totalQuizzes / $limit);
-        
-        require_once __DIR__ . '/../views/teacher/quizzes.php';
-    }
-    
-    /**
-     * Create Quiz Form
-     */
-    public function createQuiz() {
-        $hideFooter = true;
-        
-        $subjects = $this->subjectModel->getAll();
-        $classes = $this->classModel->getAll();
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'title' => $_POST['title'] ?? '',
-                'description' => $_POST['description'] ?? '',
-                'subject_id' => $_POST['subject_id'] ?? null,
-                'class_id' => $_POST['class_id'] ?? null,
-                'teacher_id' => $_SESSION['user_id'],
-                'time_limit' => $_POST['time_limit'] ?? 30,
-                'passing_score' => $_POST['passing_score'] ?? 50,
-                'max_attempts' => $_POST['max_attempts'] ?? 3,
-                'start_date' => $_POST['start_date'] ?? date('Y-m-d H:i:s'),
-                'end_date' => $_POST['end_date'] ?? null,
-                'is_published' => isset($_POST['is_published']) ? 1 : 0
-            ];
-            
-            $result = $this->quizModel->create($data);
-            
-            if ($result['success']) {
-                $_SESSION['quiz_id'] = $result['quiz_id'];
-                $_SESSION['success'] = 'Quiz created! Now add questions.';
-                header('Location: ' . BASE_URL . '/teacher/quizzes/add-questions/' . $result['quiz_id']);
-                exit;
-            } else {
-                $_SESSION['error'] = $result['error'] ?? 'Failed to create quiz.';
-            }
-        }
-        
-        require_once __DIR__ . '/../views/teacher/create_quiz.php';
-    }
-    
+
+
     /**
      * Add Questions to Quiz
      */
     public function addQuestions($quizId) {
         $hideFooter = true;
         
+        // Get the quiz
         $quiz = $this->quizModel->getById($quizId);
         
         // Check if quiz exists and belongs to this teacher
-        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'Quiz not found or you do not have permission to modify it.';
+        if (!$quiz) {
+            $_SESSION['error'] = 'Quiz not found.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        if ($quiz['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'You do not have permission to modify this quiz.';
             header('Location: ' . BASE_URL . '/teacher/quizzes');
             exit;
         }
@@ -390,26 +334,35 @@ class TeacherController {
             $questions = [];
             
             // Process questions from form
-            foreach ($_POST['questions'] as $index => $q) {
-                $questions[] = [
-                    'question' => $q['question'],
-                    'option_a' => $q['option_a'],
-                    'option_b' => $q['option_b'],
-                    'option_c' => $q['option_c'] ?? null,
-                    'option_d' => $q['option_d'] ?? null,
-                    'correct_answer' => $q['correct_answer'],
-                    'points' => $q['points'] ?? 1
-                ];
+            if (isset($_POST['questions']) && is_array($_POST['questions'])) {
+                foreach ($_POST['questions'] as $index => $q) {
+                    // Only add if question text and required options are provided
+                    if (!empty($q['question']) && !empty($q['option_a']) && !empty($q['option_b']) && !empty($q['correct_answer'])) {
+                        $questions[] = [
+                            'question' => $q['question'],
+                            'option_a' => $q['option_a'],
+                            'option_b' => $q['option_b'],
+                            'option_c' => $q['option_c'] ?? null,
+                            'option_d' => $q['option_d'] ?? null,
+                            'correct_answer' => $q['correct_answer'],
+                            'points' => $q['points'] ?? 1
+                        ];
+                    }
+                }
             }
             
-            $result = $this->quizModel->addQuestions($quizId, $questions);
-            
-            if ($result['success']) {
-                $_SESSION['success'] = 'Questions added successfully!';
-                header('Location: ' . BASE_URL . '/teacher/quizzes');
-                exit;
+            if (empty($questions)) {
+                $_SESSION['error'] = 'Please add at least one question.';
             } else {
-                $_SESSION['error'] = $result['error'] ?? 'Failed to add questions.';
+                $result = $this->quizModel->addQuestions($quizId, $questions);
+                
+                if ($result['success']) {
+                    $_SESSION['success'] = count($questions) . ' questions added successfully!';
+                    header('Location: ' . BASE_URL . '/teacher/quizzes');
+                    exit;
+                } else {
+                    $_SESSION['error'] = $result['error'] ?? 'Failed to add questions.';
+                }
             }
         }
         
@@ -711,6 +664,92 @@ class TeacherController {
         }
         
         require_once __DIR__ . '/../views/teacher/preview_lesson.php';
+    }
+
+    /**
+     * Quizzes Management - View all quizzes
+     */
+    public function quizzes() {
+        $hideFooter = true;
+        
+        $teacherId = $_SESSION['user_id'];
+        $page = $_GET['page'] ?? 1;
+        $search = $_GET['search'] ?? null;
+        
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+        
+        if ($search) {
+            $quizzes = $this->quizModel->searchByTeacher($teacherId, $search);
+            $totalQuizzes = count($quizzes);
+            $totalPages = 1;
+        } else {
+            $quizzes = $this->quizModel->getByTeacher($teacherId, $limit, $offset);
+            $totalQuizzes = count($this->quizModel->getByTeacher($teacherId));
+            $totalPages = ceil($totalQuizzes / $limit);
+        }
+        
+        require_once __DIR__ . '/../views/teacher/quizzes.php';
+    }
+
+    /**
+     * Create Quiz Form
+     */
+    public function createQuiz() {
+        $hideFooter = true;
+        
+        $classes = $this->classModel->getActive();
+        $subjects = $this->subjectModel->getAll();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'title' => $_POST['title'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'subject_id' => $_POST['subject_id'] ?? null,
+                'class_id' => $_POST['class_id'] ?? null,
+                'teacher_id' => $_SESSION['user_id'],
+                'time_limit' => $_POST['time_limit'] ?? 30,
+                'passing_score' => $_POST['passing_score'] ?? 50,
+                'max_attempts' => $_POST['max_attempts'] ?? 3,
+                'start_date' => date('Y-m-d H:i:s'),
+                'end_date' => !empty($_POST['end_date']) ? $_POST['end_date'] : null,
+                'is_published' => isset($_POST['is_published']) ? 1 : 0
+            ];
+            
+            $result = $this->quizModel->create($data);
+            
+            if ($result['success']) {
+                $_SESSION['success'] = 'Quiz created successfully! Now add questions.';
+                header('Location: ' . BASE_URL . '/teacher/quizzes/add-questions/' . $result['quiz_id']);
+                exit;
+            } else {
+                $_SESSION['error'] = $result['error'] ?? 'Failed to create quiz.';
+            }
+        }
+        
+        require_once __DIR__ . '/../views/teacher/create_quiz.php';
+    }
+
+    /**
+     * Preview Quiz
+     */
+    public function previewQuiz($quizId) {
+        $hideFooter = true;
+        
+        $quiz = $this->quizModel->getById($quizId);
+        
+        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'Quiz not found or you do not have permission to preview it.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        // Simple preview for now
+        echo "<h1>Preview: " . htmlspecialchars($quiz['title']) . "</h1>";
+        echo "<pre>";
+        print_r($quiz);
+        echo "</pre>";
+        exit;
     }
 }
 ?>

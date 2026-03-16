@@ -43,14 +43,16 @@ class Quiz {
         }
     }
     
-    // Add questions to quiz
+    /**
+     * Add questions to quiz
+     */
     public function addQuestions($quizId, $questions) {
         try {
             $this->conn->beginTransaction();
             
             foreach ($questions as $question) {
                 $query = "INSERT INTO quiz_questions (quiz_id, question, option_a, option_b, option_c, option_d, correct_answer, points) 
-                          VALUES (:quiz_id, :question, :option_a, :option_b, :option_c, :option_d, :correct_answer, :points)";
+                        VALUES (:quiz_id, :question, :option_a, :option_b, :option_c, :option_d, :correct_answer, :points)";
                 
                 $stmt = $this->conn->prepare($query);
                 $stmt->execute([
@@ -65,8 +67,14 @@ class Quiz {
                 ]);
             }
             
+            // Update quiz status if needed
+            $updateQuery = "UPDATE quizzes SET updated_at = NOW() WHERE id = :id";
+            $updateStmt = $this->conn->prepare($updateQuery);
+            $updateStmt->execute([':id' => $quizId]);
+            
             $this->conn->commit();
             return ['success' => true, 'message' => 'Questions added successfully'];
+            
         } catch (PDOException $e) {
             $this->conn->rollBack();
             error_log("Add questions error: " . $e->getMessage());
