@@ -111,8 +111,10 @@ $routes = [
     // External user routes
     '/external/dashboard' => 'ExternalController@dashboard',
     '/external/materials' => 'ExternalController@materials',
+    '/external/view-lesson/{id}' => 'ExternalController@viewLesson',
     '/external/subscription' => 'ExternalController@subscription',
     '/external/purchase' => 'ExternalController@purchase',
+    '/external/lessons' => 'ExternalController@materials',
     '/external/quizzes' => 'ExternalController@quizzes',
     '/external/take-quiz/{id}' => 'ExternalController@takeQuiz',
     '/external/quiz-result/{id}' => 'ExternalController@quizResult',

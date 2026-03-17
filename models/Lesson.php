@@ -401,6 +401,53 @@ class Lesson {
     }
     
     /**
+     * Check if lesson is bookmarked by user
+     */
+    public function isBookmarked($userId, $lessonId) {
+        try {
+            $query = "SELECT id FROM bookmarks WHERE user_id = :user_id AND lesson_id = :lesson_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':user_id' => $userId,
+                ':lesson_id' => $lessonId
+            ]);
+            
+            return $stmt->fetch() ? true : false;
+        } catch (PDOException $e) {
+            error_log("Check bookmark error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Add bookmark
+     */
+    public function addBookmark($userId, $lessonId) {
+        try {
+            // Check if already bookmarked
+            if ($this->isBookmarked($userId, $lessonId)) {
+                return ['success' => false, 'error' => 'Already bookmarked'];
+            }
+            
+            $query = "INSERT INTO bookmarks (user_id, lesson_id, created_at) VALUES (:user_id, :lesson_id, NOW())";
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([
+                ':user_id' => $userId,
+                ':lesson_id' => $lessonId
+            ]);
+            
+            if ($result) {
+                return ['success' => true, 'message' => 'Bookmark added'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to add bookmark'];
+        } catch (PDOException $e) {
+            error_log("Add bookmark error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error'];
+        }
+    }
+
+    /**
      * Remove bookmark
      */
     public function removeBookmark($userId, $lessonId) {
@@ -413,28 +460,35 @@ class Lesson {
             ]);
             
             if ($result) {
-                return ['success' => true, 'message' => 'Bookmark removed successfully'];
+                return ['success' => true, 'message' => 'Bookmark removed'];
             }
             
             return ['success' => false, 'error' => 'Failed to remove bookmark'];
         } catch (PDOException $e) {
             error_log("Remove bookmark error: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Failed to remove bookmark'];
+            return ['success' => false, 'error' => 'Database error'];
         }
     }
-    
+
     /**
-     * Get bookmarked lessons
+     * Get user's bookmarked lessons
      */
     public function getBookmarks($userId) {
         try {
-            $query = "SELECT l.*, s.name as subject_name,
-                     b.created_at as bookmarked_at
-                     FROM bookmarks b
-                     JOIN lessons l ON b.lesson_id = l.id
-                     LEFT JOIN subjects s ON l.subject_id = s.id
-                     WHERE b.user_id = :user_id
-                     ORDER BY b.created_at DESC";
+            $query = "SELECT l.*, 
+                    s.name as subject_name,
+                    c.name as class_name,
+                    u.first_name as teacher_name,
+                    u.last_name as teacher_last_name,
+                    b.created_at as bookmarked_at,
+                    (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                    FROM bookmarks b
+                    JOIN lessons l ON b.lesson_id = l.id
+                    LEFT JOIN subjects s ON l.subject_id = s.id
+                    LEFT JOIN classes c ON l.class_id = c.id
+                    LEFT JOIN users u ON l.teacher_id = u.id
+                    WHERE b.user_id = :user_id
+                    ORDER BY b.created_at DESC";
             
             $stmt = $this->conn->prepare($query);
             $stmt->execute([':user_id' => $userId]);
@@ -602,6 +656,123 @@ class Lesson {
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             error_log("Get daily views error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get all published lessons for external users (regardless of approval status)
+     */
+    public function getPublishedLessons($subjectId = null) {
+        try {
+            $query = "SELECT l.*, 
+                    s.name as subject_name, 
+                    c.name as class_name,
+                    u.first_name as teacher_name,
+                    u.last_name as teacher_last_name,
+                    (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                    FROM lessons l
+                    LEFT JOIN subjects s ON l.subject_id = s.id
+                    LEFT JOIN classes c ON l.class_id = c.id
+                    LEFT JOIN users u ON l.teacher_id = u.id
+                    WHERE l.is_published = 1"; // Only check is_published, ignore is_approved
+            
+            $params = [];
+            
+            if ($subjectId) {
+                $query .= " AND l.subject_id = :subject_id";
+                $params[':subject_id'] = $subjectId;
+            }
+            
+            $query .= " ORDER BY l.created_at DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get published lessons error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get published lesson by ID (regardless of approval status)
+     */
+    public function getPublishedLessonById($lessonId, $userId = null) {
+        try {
+            $query = "SELECT l.*, 
+                    s.name as subject_name, 
+                    c.name as class_name,
+                    u.first_name as teacher_name,
+                    u.last_name as teacher_last_name
+                    FROM lessons l
+                    LEFT JOIN subjects s ON l.subject_id = s.id
+                    LEFT JOIN classes c ON l.class_id = c.id
+                    LEFT JOIN users u ON l.teacher_id = u.id
+                    WHERE l.id = :id AND l.is_published = 1"; // Only check is_published
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':id' => $lessonId]);
+            
+            $lesson = $stmt->fetch();
+            
+            if ($lesson) {
+                // Get materials
+                $materialQuery = "SELECT * FROM lesson_materials WHERE lesson_id = :lesson_id";
+                $materialStmt = $this->conn->prepare($materialQuery);
+                $materialStmt->execute([':lesson_id' => $lessonId]);
+                $lesson['materials'] = $materialStmt->fetchAll();
+                
+                // Check if bookmarked by user
+                if ($userId) {
+                    $lesson['is_bookmarked'] = $this->isBookmarked($userId, $lessonId);
+                }
+                
+                // Increment view count
+                $this->incrementViews($lessonId);
+            }
+            
+            return $lesson;
+        } catch (PDOException $e) {
+            error_log("Get published lesson by ID error: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Search published lessons (regardless of approval status)
+     */
+    public function searchPublished($keyword, $subjectId = null) {
+        try {
+            $query = "SELECT l.*, 
+                    s.name as subject_name, 
+                    c.name as class_name,
+                    u.first_name as teacher_name,
+                    u.last_name as teacher_last_name,
+                    (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                    FROM lessons l
+                    LEFT JOIN subjects s ON l.subject_id = s.id
+                    LEFT JOIN classes c ON l.class_id = c.id
+                    LEFT JOIN users u ON l.teacher_id = u.id
+                    WHERE l.is_published = 1
+                    AND (l.title LIKE :keyword OR l.content LIKE :keyword)";
+            
+            $params = [':keyword' => '%' . $keyword . '%'];
+            
+            if ($subjectId) {
+                $query .= " AND l.subject_id = :subject_id";
+                $params[':subject_id'] = $subjectId;
+            }
+            
+            $query .= " ORDER BY l.views DESC LIMIT 50";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Search published lessons error: " . $e->getMessage());
             return [];
         }
     }

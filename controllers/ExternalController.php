@@ -4,6 +4,8 @@ require_once __DIR__ . '/../models/Subscription.php';
 require_once __DIR__ . '/../models/Lesson.php';
 require_once __DIR__ . '/../models/Quiz.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Settings.php';
+require_once __DIR__ . '/../models/Subject.php';
 
 class ExternalController {
     private $subscriptionModel;
@@ -11,6 +13,7 @@ class ExternalController {
     private $quizModel;
     private $userModel;
     private $settingsModel;
+    private $subjectModel;
     
     public function __construct() {
         // Check if user is logged in
@@ -30,6 +33,7 @@ class ExternalController {
         $this->quizModel = new Quiz();
         $this->userModel = new User();
         $this->settingsModel = new Settings();
+        $this->subjectModel = new Subject();
     }
     
     private function redirectToRoleDashboard() {
@@ -61,243 +65,7 @@ class ExternalController {
     }
     
     /**
-     * Display profile page
-     */
-    public function profile() {
-        $hideFooter = true;
-        
-        try {
-            $profile = $this->userModel->getProfile($_SESSION['user_id']);
-            
-            if (!$profile) {
-                // Create basic profile from session
-                $nameParts = explode(' ', $_SESSION['user_name'] ?? 'User');
-                $profile = [
-                    'id' => $_SESSION['user_id'],
-                    'first_name' => $nameParts[0] ?? '',
-                    'last_name' => $nameParts[1] ?? '',
-                    'email' => $_SESSION['user_email'] ?? '',
-                    'phone' => '',
-                    'role' => $_SESSION['user_role'] ?? 'external',
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'profile_photo' => null
-                ];
-            }
-            
-            require_once __DIR__ . '/../views/external/profile.php';
-            
-        } catch (Exception $e) {
-            error_log("Profile error: " . $e->getMessage());
-            $_SESSION['error'] = 'Could not load profile';
-            header('Location: ' . BASE_URL . '/external/dashboard');
-            exit;
-        }
-    }
-    
-    /**
-     * Display settings page
-     */
-    public function settings() {
-        $hideFooter = true;
-        
-        try {
-            $profile = $this->userModel->getProfile($_SESSION['user_id']);
-            require_once __DIR__ . '/../views/external/settings.php';
-        } catch (Exception $e) {
-            error_log("Settings error: " . $e->getMessage());
-            $_SESSION['error'] = 'Could not load settings';
-            header('Location: ' . BASE_URL . '/external/dashboard');
-            exit;
-        }
-    }
-    
-    /**
-     * Update profile
-     */
-    public function updateProfile() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/external/profile');
-            exit;
-        }
-        
-        $data = [
-            'first_name' => $_POST['first_name'] ?? '',
-            'last_name' => $_POST['last_name'] ?? '',
-            'email' => $_POST['email'] ?? '',
-            'phone' => $_POST['phone'] ?? ''
-        ];
-        
-        // Validate input
-        if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
-            $_SESSION['error'] = 'Please fill in all required fields';
-            header('Location: ' . BASE_URL . '/external/profile');
-            exit;
-        }
-        
-        $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
-        
-        if ($result['success']) {
-            // NOW update the session with the user's own data
-            $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
-            $_SESSION['user_email'] = $data['email'];
-            
-            $_SESSION['success'] = $result['message'];
-        } else {
-            $_SESSION['error'] = $result['error'];
-        }
-        
-        header('Location: ' . BASE_URL . '/external/profile');
-        exit;
-    }
-    
-    /**
-     * Change password
-     */
-    public function changePassword() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/external/settings');
-            exit;
-        }
-        
-        $currentPassword = $_POST['current_password'] ?? '';
-        $newPassword = $_POST['new_password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
-        
-        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
-            $_SESSION['error'] = 'Please fill in all password fields';
-            header('Location: ' . BASE_URL . '/external/settings');
-            exit;
-        }
-        
-        if ($newPassword !== $confirmPassword) {
-            $_SESSION['error'] = 'New passwords do not match';
-            header('Location: ' . BASE_URL . '/external/settings');
-            exit;
-        }
-        
-        if (strlen($newPassword) < 8) {
-            $_SESSION['error'] = 'Password must be at least 8 characters long';
-            header('Location: ' . BASE_URL . '/external/settings');
-            exit;
-        }
-        
-        $result = $this->userModel->changePassword($_SESSION['user_id'], $currentPassword, $newPassword);
-        
-        if ($result['success']) {
-            $_SESSION['success'] = $result['message'];
-        } else {
-            $_SESSION['error'] = $result['error'];
-        }
-        
-        header('Location: ' . BASE_URL . '/external/settings');
-        exit;
-    }
-    
-    /**
-     * Delete Account - FIXED VERSION (no internal session_start)
-     */
-    public function deleteAccount() {
-        // Enable error reporting
-        error_reporting(E_ALL);
-        ini_set('display_errors', 1);
-        
-        $hideFooter = true;
-        
-        // DO NOT start session here - it's already started in config.php
-        
-        // Debug: Log what's happening
-        error_log("========== DELETE ACCOUNT CALLED ==========");
-        error_log("Session ID: " . session_id());
-        error_log("Session user_id: " . ($_SESSION['user_id'] ?? 'NOT SET'));
-        error_log("POST data: " . print_r($_POST, true));
-        
-        // Check if it's a POST request
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            error_log("ERROR: Not a POST request");
-            $_SESSION['error'] = 'Invalid request method';
-            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
-            exit;
-        }
-        
-        // Check if user is logged in
-        if (!isset($_SESSION['user_id'])) {
-            error_log("ERROR: User not logged in - session user_id not set");
-            $_SESSION['error'] = 'You must be logged in to delete your account. Please login again.';
-            header('Location: ' . BASE_URL . '/login');
-            exit;
-        }
-        
-        $userId = $_SESSION['user_id'];
-        $password = $_POST['password'] ?? '';
-        $confirmDelete = isset($_POST['confirm_delete']) ? true : false;
-        
-        error_log("User ID from session: " . $userId);
-        error_log("Password provided: " . (empty($password) ? 'NO' : 'YES'));
-        error_log("Confirm checkbox: " . ($confirmDelete ? 'YES' : 'NO'));
-        
-        // Validate password
-        if (empty($password)) {
-            error_log("ERROR: Password empty");
-            $_SESSION['error'] = 'Please enter your password to confirm account deletion';
-            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
-            exit;
-        }
-        
-        // Check confirmation checkbox
-        if (!$confirmDelete) {
-            error_log("ERROR: Confirmation checkbox not checked");
-            $_SESSION['error'] = 'Please confirm that you understand this action is permanent';
-            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
-            exit;
-        }
-        
-        // Attempt to delete account
-        error_log("Calling userModel->deleteAccount for user ID: " . $userId);
-        $result = $this->userModel->deleteAccount($userId, $password);
-        error_log("Delete account result: " . print_r($result, true));
-        
-        if ($result['success']) {
-            error_log("SUCCESS: Account deleted");
-            
-            // Store user info for logging before destroying session
-            $deletedUserId = $userId;
-            
-            // Clear all session data
-            $_SESSION = array();
-            
-            // Destroy the session cookie
-            if (ini_get("session.use_cookies")) {
-                $params = session_get_cookie_params();
-                setcookie(session_name(), '', time() - 42000,
-                    $params["path"], $params["domain"],
-                    $params["secure"], $params["httponly"]
-                );
-            }
-            
-            // Destroy session
-            session_destroy();
-            
-            // Start a new session for the success message
-            session_start();
-            $_SESSION['success'] = 'Your account has been successfully deleted. We\'re sorry to see you go!';
-            
-            error_log("Redirecting to login with success message");
-            header('Location: ' . BASE_URL . '/login');
-            exit;
-        } else {
-            error_log("ERROR: " . ($result['error'] ?? 'Unknown error'));
-            $_SESSION['error'] = $result['error'] ?? 'Failed to delete account. Please check your password and try again.';
-            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
-            exit;
-        }
-    }
-    
-    /**
-     * Display materials
+     * Display learning materials
      */
     public function materials() {
         $hideFooter = true;
@@ -307,13 +75,16 @@ class ExternalController {
             exit;
         }
         
+        $subject = $_GET['subject'] ?? null;
         $search = $_GET['search'] ?? null;
         
         if ($search) {
-            $lessons = $this->lessonModel->search($search);
+            $lessons = $this->lessonModel->searchPublished($search, $subject);
         } else {
-            $lessons = $this->lessonModel->getAll(1, 20);
+            $lessons = $this->lessonModel->getPublishedLessons($subject);
         }
+        
+        $subjects = $this->subjectModel->getAll();
         
         require_once __DIR__ . '/../views/external/materials.php';
     }
@@ -329,11 +100,11 @@ class ExternalController {
             exit;
         }
         
-        $lesson = $this->lessonModel->getById($lessonId);
+        $lesson = $this->lessonModel->getPublishedLessonById($lessonId, $_SESSION['user_id']);
         
         if (!$lesson) {
-            header('HTTP/1.0 404 Not Found');
-            echo "Lesson not found";
+            $_SESSION['error'] = 'Lesson not found or not available.';
+            header('Location: ' . BASE_URL . '/external/materials');
             exit;
         }
         
@@ -341,21 +112,61 @@ class ExternalController {
     }
     
     /**
-     * Display available quizzes for external users
+     * Toggle bookmark
      */
-    public function quizzes() {
+    public function toggleBookmark($lessonId) {
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'error' => 'Please login first']);
+            exit;
+        }
+        
+        $userId = $_SESSION['user_id'];
+        $isBookmarked = $this->lessonModel->isBookmarked($userId, $lessonId);
+        
+        if ($isBookmarked) {
+            $result = $this->lessonModel->removeBookmark($userId, $lessonId);
+            $message = 'Bookmark removed';
+        } else {
+            $result = $this->lessonModel->addBookmark($userId, $lessonId);
+            $message = 'Lesson bookmarked';
+        }
+        
+        if ($result['success']) {
+            echo json_encode(['success' => true, 'message' => $message, 'bookmarked' => !$isBookmarked]);
+        } else {
+            echo json_encode(['success' => false, 'error' => $result['error']]);
+        }
+        exit;
+    }
+    
+    /**
+     * Get user's bookmarks
+     */
+    public function bookmarks() {
         $hideFooter = true;
         
-        // Check if user has access (free trial or subscription)
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
-        // Get all published quizzes
-        $quizzes = $this->quizModel->getPublishedQuizzes();
+        $bookmarks = $this->lessonModel->getBookmarks($_SESSION['user_id']);
         
-        // Get user's quiz results
+        require_once __DIR__ . '/../views/external/bookmarks.php';
+    }
+    
+    /**
+     * Display quizzes
+     */
+    public function quizzes() {
+        $hideFooter = true;
+        
+        if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+        
+        $quizzes = $this->quizModel->getPublishedQuizzes();
         $results = $this->quizModel->getUserResults($_SESSION['user_id']);
         
         require_once __DIR__ . '/../views/external/quizzes.php';
@@ -367,14 +178,12 @@ class ExternalController {
     public function takeQuiz($quizId) {
         $hideFooter = true;
         
-        // Check if user has access
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Submit quiz
             $attemptId = $_POST['attempt_id'] ?? null;
             $answers = $_POST['answers'] ?? [];
             
@@ -396,7 +205,6 @@ class ExternalController {
                 exit;
             }
         } else {
-            // Start quiz
             $result = $this->quizModel->startAttempt($quizId, $_SESSION['user_id']);
             
             if ($result['success']) {
@@ -418,7 +226,6 @@ class ExternalController {
     public function quizResult($attemptId) {
         $hideFooter = true;
         
-        // Check if user has access
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
@@ -443,9 +250,6 @@ class ExternalController {
      */
     public function subscription() {
         $hideFooter = true;
-
-        // Get subscription settings from database
-        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
         
         $currentSubscription = $this->subscriptionModel->checkStatus($_SESSION['user_id']);
         $paymentHistory = $this->subscriptionModel->getPaymentHistory($_SESSION['user_id']);
@@ -465,8 +269,7 @@ class ExternalController {
         if (!in_array($plan, $validPlans)) {
             $plan = 'monthly';
         }
-
-        // Get subscription settings from database
+        
         $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
         
         require_once __DIR__ . '/../views/external/purchase.php';
@@ -517,6 +320,129 @@ class ExternalController {
         
         header('Location: ' . BASE_URL . '/external/purchase?plan=' . $plan);
         exit;
+    }
+    
+    /**
+     * Display profile page
+     */
+    public function profile() {
+        $hideFooter = true;
+        
+        $profile = $this->userModel->getProfile($_SESSION['user_id']);
+        require_once __DIR__ . '/../views/external/profile.php';
+    }
+    
+    /**
+     * Update profile
+     */
+    public function updateProfile() {
+        $hideFooter = true;
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/external/profile');
+            exit;
+        }
+        
+        $data = [
+            'first_name' => $_POST['first_name'] ?? '',
+            'last_name' => $_POST['last_name'] ?? '',
+            'email' => $_POST['email'] ?? '',
+            'phone' => $_POST['phone'] ?? ''
+        ];
+        
+        $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
+        
+        if ($result['success']) {
+            $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
+            $_SESSION['user_email'] = $data['email'];
+            $_SESSION['success'] = $result['message'];
+        } else {
+            $_SESSION['error'] = $result['error'];
+        }
+        
+        header('Location: ' . BASE_URL . '/external/profile');
+        exit;
+    }
+    
+    /**
+     * Display settings page
+     */
+    public function settings() {
+        $hideFooter = true;
+        require_once __DIR__ . '/../views/external/settings.php';
+    }
+    
+    /**
+     * Change password
+     */
+    public function changePassword() {
+        $hideFooter = true;
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/external/settings?tab=password');
+            exit;
+        }
+        
+        $currentPassword = $_POST['current_password'] ?? '';
+        $newPassword = $_POST['new_password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        
+        if ($newPassword !== $confirmPassword) {
+            $_SESSION['error'] = 'New passwords do not match';
+            header('Location: ' . BASE_URL . '/external/settings?tab=password');
+            exit;
+        }
+        
+        if (strlen($newPassword) < 8) {
+            $_SESSION['error'] = 'Password must be at least 8 characters long';
+            header('Location: ' . BASE_URL . '/external/settings?tab=password');
+            exit;
+        }
+        
+        $result = $this->userModel->changePassword($_SESSION['user_id'], $currentPassword, $newPassword);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = $result['message'];
+        } else {
+            $_SESSION['error'] = $result['error'];
+        }
+        
+        header('Location: ' . BASE_URL . '/external/settings?tab=password');
+        exit;
+    }
+    
+    /**
+     * Delete account
+     */
+    public function deleteAccount() {
+        $hideFooter = true;
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
+            exit;
+        }
+        
+        $password = $_POST['password'] ?? '';
+        
+        if (empty($password)) {
+            $_SESSION['error'] = 'Please enter your password';
+            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
+            exit;
+        }
+        
+        $result = $this->userModel->deleteAccount($_SESSION['user_id'], $password);
+        
+        if ($result['success']) {
+            session_destroy();
+            session_start();
+            $_SESSION['success'] = 'Your account has been successfully deleted.';
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        } else {
+            $_SESSION['error'] = $result['error'];
+            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
+            exit;
+        }
     }
     
     /**
