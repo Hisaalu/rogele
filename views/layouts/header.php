@@ -219,7 +219,7 @@
             box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
         }
 
-        /* ===== FIXED USER DROPDOWN MENU - MATCHING YOUR HTML STRUCTURE ===== */
+        /* ===== UPDATED USER DROPDOWN MENU - CLICK TO OPEN ===== */
         .user-menu {
             position: relative;
             display: inline-block;
@@ -253,6 +253,12 @@
             border-color: white;
         }
 
+        .user-initials.active {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+            border-color: white;
+        }
+
         /* Dropdown Content - Hidden by default */
         .dropdown-content {
             position: absolute;
@@ -266,19 +272,19 @@
             overflow: hidden;
             border: 1px solid #E2E8F0;
             display: none; /* Hidden by default */
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        /* Show dropdown when hovering over user-dropdown */
-        .user-dropdown:hover .dropdown-content {
-            display: block; /* Show on hover */
-        }
-
-        /* Keep dropdown visible when hovering over the dropdown itself */
-        .dropdown-content:hover {
+        /* Show dropdown when active class is added */
+        .dropdown-content.show {
             display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        /* Optional: Add a small triangle/arrow */
+        /* Add a small triangle/arrow */
         .dropdown-content::before {
             content: '';
             position: absolute;
@@ -696,10 +702,10 @@
                             </a></li>
                         </ul>
                         
-                        <!-- ===== FIXED USER MENU WITH DROPDOWN - MATCHING YOUR HTML ===== -->
+                        <!-- ===== UPDATED USER MENU WITH DROPDOWN - CLICK TO OPEN ===== -->
                         <div class="user-menu">
                             <div class="user-dropdown">
-                                <div class="user-initials">
+                                <div class="user-initials" id="userMenuButton">
                                     <?php 
                                     // Get user initials
                                     $nameParts = explode(' ', $_SESSION['user_name'] ?? 'User');
@@ -712,7 +718,7 @@
                                     echo substr($initials, 0, 2);
                                     ?>
                                 </div>
-                                <div class="dropdown-content">
+                                <div class="dropdown-content" id="userDropdown">
                                     <div class="dropdown-header">
                                         <p><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></p>
                                         <small><?php echo htmlspecialchars($_SESSION['user_email'] ?? ''); ?></small>
@@ -837,6 +843,7 @@
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
     <main class="main-content">
+        <!-- Alert Messages -->
         <?php if (isset($_SESSION['success'])): ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
@@ -850,3 +857,5 @@
                 <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
             </div>
         <?php endif; ?>
+        
+        <!-- Page content will be included here -->

@@ -170,6 +170,87 @@
             });
         }, 5000);
     });
+
+     // ===== CLICK DROPDOWN FUNCTIONALITY =====
+     document.addEventListener('DOMContentLoaded', function() {
+         // Get elements
+         const userMenuButton = document.getElementById('userMenuButton');
+         const userDropdown = document.getElementById('userDropdown');
+         
+         if (userMenuButton && userDropdown) {
+             // Toggle dropdown on click
+             userMenuButton.addEventListener('click', function(event) {
+                 event.stopPropagation();
+                 event.preventDefault();
+                 
+                 // Toggle show class
+                 userDropdown.classList.toggle('show');
+                 
+                 // Toggle active class on button
+                 this.classList.toggle('active');
+             });
+             
+             // Close dropdown when clicking outside
+             document.addEventListener('click', function(event) {
+                 if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
+                     userDropdown.classList.remove('show');
+                     userMenuButton.classList.remove('active');
+                 }
+             });
+             
+             // Close dropdown when pressing Escape key
+             document.addEventListener('keydown', function(event) {
+                 if (event.key === 'Escape') {
+                     userDropdown.classList.remove('show');
+                     userMenuButton.classList.remove('active');
+                 }
+             });
+             
+             // Prevent dropdown from closing when clicking inside it
+             userDropdown.addEventListener('click', function(event) {
+                 event.stopPropagation();
+             });
+         }
+     });
+
+     // Mobile menu functionality (keep your existing mobile menu code)
+     document.addEventListener('DOMContentLoaded', function() {
+         const mobileToggle = document.getElementById('mobileToggle');
+         const mobileMenu = document.getElementById('mobileMenu');
+         const mobileOverlay = document.getElementById('mobileOverlay');
+         const mobileClose = document.getElementById('mobileClose');
+         
+         function openMobileMenu() {
+             mobileMenu.classList.add('active');
+             mobileOverlay.classList.add('active');
+             document.body.classList.add('menu-open');
+         }
+         
+         function closeMobileMenu() {
+             mobileMenu.classList.remove('active');
+             mobileOverlay.classList.remove('active');
+             document.body.classList.remove('menu-open');
+         }
+         
+         if (mobileToggle) {
+             mobileToggle.addEventListener('click', openMobileMenu);
+         }
+         
+         if (mobileClose) {
+             mobileClose.addEventListener('click', closeMobileMenu);
+         }
+         
+         if (mobileOverlay) {
+             mobileOverlay.addEventListener('click', closeMobileMenu);
+         }
+         
+         // Close mobile menu on escape key
+         document.addEventListener('keydown', function(event) {
+             if (event.key === 'Escape') {
+                 closeMobileMenu();
+             }
+         });
+     });
     </script>
 
     <style>
