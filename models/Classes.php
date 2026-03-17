@@ -173,5 +173,49 @@ class Classes {
             return [];
         }
     }
+
+    /**
+     * Get classes taught by a teacher
+     */
+    public function getClassesByTeacher($teacherId) {
+        try {
+            $query = "SELECT DISTINCT c.*
+                    FROM classes c
+                    JOIN subjects s ON c.id = s.class_id
+                    WHERE s.teacher_id = :teacher_id
+                    AND c.is_active = 1
+                    ORDER BY c.level";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':teacher_id' => $teacherId]);
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get classes by teacher error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Count classes taught by a teacher
+     */
+    public function countClassesByTeacher($teacherId) {
+        try {
+            $query = "SELECT COUNT(DISTINCT c.id) as total
+                    FROM classes c
+                    JOIN subjects s ON c.id = s.class_id
+                    WHERE s.teacher_id = :teacher_id
+                    AND c.is_active = 1";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':teacher_id' => $teacherId]);
+            $result = $stmt->fetch();
+            
+            return $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Count classes by teacher error: " . $e->getMessage());
+            return 0;
+        }
+    }
 }
 ?>

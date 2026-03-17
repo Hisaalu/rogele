@@ -661,12 +661,13 @@ class Lesson {
     }
 
     /**
-     * Get all published lessons for external users (regardless of approval status)
+     * Get all published lessons for external users (filter by subject name)
      */
-    public function getPublishedLessons($subjectId = null) {
+    public function getPublishedLessons($subjectName = null) {
         try {
             $query = "SELECT l.*, 
                     s.name as subject_name, 
+                    s.id as subject_id,
                     c.name as class_name,
                     u.first_name as teacher_name,
                     u.last_name as teacher_last_name,
@@ -675,13 +676,13 @@ class Lesson {
                     LEFT JOIN subjects s ON l.subject_id = s.id
                     LEFT JOIN classes c ON l.class_id = c.id
                     LEFT JOIN users u ON l.teacher_id = u.id
-                    WHERE l.is_published = 1"; // Only check is_published, ignore is_approved
+                    WHERE l.is_published = 1";
             
             $params = [];
             
-            if ($subjectId) {
-                $query .= " AND l.subject_id = :subject_id";
-                $params[':subject_id'] = $subjectId;
+            if ($subjectName && $subjectName !== '') {
+                $query .= " AND s.name = :subject_name";
+                $params[':subject_name'] = $subjectName;
             }
             
             $query .= " ORDER BY l.created_at DESC";
@@ -741,12 +742,13 @@ class Lesson {
     }
 
     /**
-     * Search published lessons (regardless of approval status)
+     * Search published lessons
      */
     public function searchPublished($keyword, $subjectId = null) {
         try {
             $query = "SELECT l.*, 
-                    s.name as subject_name, 
+                    s.name as subject_name,
+                    s.id as subject_id,
                     c.name as class_name,
                     u.first_name as teacher_name,
                     u.last_name as teacher_last_name,
@@ -760,7 +762,7 @@ class Lesson {
             
             $params = [':keyword' => '%' . $keyword . '%'];
             
-            if ($subjectId) {
+            if ($subjectId && $subjectId !== '') {
                 $query .= " AND l.subject_id = :subject_id";
                 $params[':subject_id'] = $subjectId;
             }

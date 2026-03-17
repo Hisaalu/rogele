@@ -65,26 +65,47 @@ class ExternalController {
     }
     
     /**
-     * Display learning materials
+     * Display learning materials for external users
      */
     public function materials() {
         $hideFooter = true;
         
+        // Check if user has access
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
+        // Get filter parameters
         $subject = $_GET['subject'] ?? null;
         $search = $_GET['search'] ?? null;
         
+        // Get all published lessons
         if ($search) {
             $lessons = $this->lessonModel->searchPublished($search, $subject);
         } else {
             $lessons = $this->lessonModel->getPublishedLessons($subject);
         }
         
-        $subjects = $this->subjectModel->getAll();
+        // Get unique subjects for filter dropdown
+        $allSubjects = $this->subjectModel->getAll();
+        
+        // Filter to get unique subject names (remove duplicates)
+        $uniqueSubjects = [];
+        $seen = [];
+        foreach ($allSubjects as $subject) {
+            if (!in_array($subject['name'], $seen)) {
+                $uniqueSubjects[] = $subject;
+                $seen[] = $subject['name'];
+            }
+        }
+        
+        // Sort subjects alphabetically
+        usort($uniqueSubjects, function($a, $b) {
+            return strcmp($a['name'], $b['name']);
+        });
+        
+        $subjects = $uniqueSubjects;
         
         require_once __DIR__ . '/../views/external/materials.php';
     }

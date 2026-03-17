@@ -62,11 +62,11 @@ class TeacherController {
         $totalLessons = count($this->lessonModel->getByTeacher($teacherId));
         $totalQuizzes = count($this->quizModel->getByTeacher($teacherId));
         
-        // Get recent lessons
-        $recentLessons = $this->lessonModel->getByTeacher($teacherId, 5);
+        // Get recent lessons (ordered by created_at DESC, limit 10)
+        $recentLessons = $this->lessonModel->getByTeacher($teacherId, 10, 0);
         
-        // Get recent quizzes
-        $recentQuizzes = $this->quizModel->getByTeacher($teacherId, 5);
+        // Get recent quizzes (ordered by created_at DESC, limit 10)
+        $recentQuizzes = $this->quizModel->getByTeacher($teacherId, 10, 0);
         
         // Get class performance stats
         $classPerformance = $this->getClassPerformance();
@@ -483,12 +483,15 @@ class TeacherController {
     public function profile() {
         $hideFooter = true;
         
-        $profile = $this->userModel->getProfile($_SESSION['user_id']);
+        $userId = $_SESSION['user_id'];
+        
+        // Get user profile
+        $profile = $this->userModel->getProfile($userId);
         
         if (!$profile) {
             $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Teacher');
             $profile = [
-                'id' => $_SESSION['user_id'],
+                'id' => $userId,
                 'first_name' => $nameParts[0] ?? '',
                 'last_name' => $nameParts[1] ?? '',
                 'email' => $_SESSION['user_email'] ?? '',
@@ -498,6 +501,12 @@ class TeacherController {
                 'profile_photo' => null
             ];
         }
+        
+        // Get actual students count (learners and external users)
+        $profile['students_count'] = $this->userModel->countStudentsByTeacher($userId);
+        
+        // Get classes count
+        $profile['classes_count'] = count($this->classModel->getByTeacher($userId));
         
         require_once __DIR__ . '/../views/teacher/profile.php';
     }

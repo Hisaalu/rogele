@@ -152,7 +152,11 @@ $classPerformance = $classPerformance ?? [
                         <a href="/rays-of-grace/teacher/lessons/create" class="btn-create">Create Your First Lesson</a>
                     </div>
                 <?php else: ?>
-                    <?php foreach ($recentLessons as $lesson): ?>
+                    <?php 
+                    // Show only the last 5 lessons
+                    $displayLessons = array_slice($recentLessons, 0, 5);
+                    foreach ($displayLessons as $lesson): 
+                    ?>
                     <div class="activity-item">
                         <div class="activity-icon" style="background: rgba(139, 92, 246, 0.1);">
                             <i class="fas fa-book" style="color: #8B5CF6;"></i>
@@ -187,7 +191,11 @@ $classPerformance = $classPerformance ?? [
                         <a href="/rays-of-grace/teacher/quizzes/create" class="btn-create">Create Your First Quiz</a>
                     </div>
                 <?php else: ?>
-                    <?php foreach ($recentQuizzes as $quiz): ?>
+                    <?php 
+                    // Show only the last 5 quizzes
+                    $displayQuizzes = array_slice($recentQuizzes, 0, 5);
+                    foreach ($displayQuizzes as $quiz): 
+                    ?>
                     <div class="activity-item">
                         <div class="activity-icon" style="background: rgba(249, 115, 22, 0.1);">
                             <i class="fas fa-pencil-alt" style="color: #F97316;"></i>
