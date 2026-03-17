@@ -1006,48 +1006,34 @@ class User {
     }
 
     /**
-     * Get students by teacher (learners and external users in classes taught by this teacher)
+     * Get students by teacher - SIMPLIFIED VERSION
      */
     public function getStudentsByTeacher($teacherId, $classId = null, $search = null) {
         try {
-            $query = "SELECT DISTINCT u.*, c.name as class_name 
+            $query = "SELECT u.*, c.name as class_name 
                     FROM users u
                     LEFT JOIN classes c ON u.class_id = c.id
-                    LEFT JOIN subjects s ON c.id = s.class_id
                     WHERE (u.role = 'learner' OR u.role = 'external')
                     AND u.is_active = 1";
             
             $params = [];
-            
-            // If teacher is specified, filter by classes they teach
-            if ($teacherId) {
-                $query .= " AND (s.teacher_id = :teacher_id OR u.class_id IS NULL)";
-                $params[':teacher_id'] = $teacherId;
-            }
             
             if ($classId) {
                 $query .= " AND u.class_id = :class_id";
                 $params[':class_id'] = $classId;
             }
             
-            if ($search) {
-                $query .= " AND (u.first_name LIKE :search 
+            if ($search && !empty($search)) {
+                $query .= " AND (
+                            u.first_name LIKE :search 
                             OR u.last_name LIKE :search 
                             OR u.email LIKE :search
-                            OR CONCAT(u.first_name, ' ', u.last_name) LIKE :search)";
+                            OR CONCAT(u.first_name, ' ', u.last_name) LIKE :search
+                        )";
                 $params[':search'] = '%' . $search . '%';
             }
             
-            $query .= " ORDER BY 
-                        CASE u.role 
-                            WHEN 'learner' THEN 1 
-                            WHEN 'external' THEN 2 
-                            ELSE 3 
-                        END,
-                        c.level, 
-                        u.first_name, 
-                        u.last_name 
-                        LIMIT 100";
+            $query .= " ORDER BY u.role, u.first_name, u.last_name LIMIT 100";
             
             $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
@@ -1060,9 +1046,9 @@ class User {
     }
 
     /**
-     * Count students by teacher (learners and external users)
+     * Get students count by teacher with filters
      */
-    public function countStudentsByTeacher($teacherId) {
+    public function countStudentsByTeacher($teacherId, $classId = null, $search = null) {
         try {
             $query = "SELECT COUNT(DISTINCT u.id) as total
                     FROM users u
@@ -1074,8 +1060,29 @@ class User {
             $params = [];
             
             if ($teacherId) {
-                $query .= " AND (s.teacher_id = :teacher_id OR u.class_id IS NULL)";
+                $query .= " AND (s.teacher_id = :teacher_id";
+                
+                if (!$classId) {
+                    $query .= " OR u.class_id IS NULL";
+                }
+                $query .= ")";
+                
                 $params[':teacher_id'] = $teacherId;
+            }
+            
+            if ($classId) {
+                $query .= " AND u.class_id = :class_id";
+                $params[':class_id'] = $classId;
+            }
+            
+            if ($search && !empty($search)) {
+                $query .= " AND (
+                            u.first_name LIKE :search 
+                            OR u.last_name LIKE :search 
+                            OR u.email LIKE :search
+                            OR CONCAT(u.first_name, ' ', u.last_name) LIKE :search
+                        )";
+                $params[':search'] = '%' . $search . '%';
             }
             
             $stmt = $this->conn->prepare($query);
@@ -1086,6 +1093,28 @@ class User {
         } catch (PDOException $e) {
             error_log("Count students by teacher error: " . $e->getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Get all students (for debugging)
+     */
+    public function getAllStudents() {
+        try {
+            $query = "SELECT u.*, c.name as class_name 
+                    FROM users u
+                    LEFT JOIN classes c ON u.class_id = c.id
+                    WHERE (u.role = 'learner' OR u.role = 'external')
+                    AND u.is_active = 1
+                    ORDER BY u.role, u.first_name";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get all students error: " . $e->getMessage());
+            return [];
         }
     }
 }

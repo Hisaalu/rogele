@@ -130,7 +130,7 @@ foreach ($results as $result) {
                             </a>
                             
                             <?php if ($attemptCount > 0): ?>
-                                <a href="/rays-of-grace/external/quiz-results/<?php echo $quiz['id']; ?>" class="btn-results" title="View Results">
+                                <a href="/rays-of-grace/external/quiz-result/<?php echo $quiz['id']; ?>" class="btn-results" title="View Results">
                                     <i class="fas fa-chart-bar"></i>
                                 </a>
                             <?php endif; ?>

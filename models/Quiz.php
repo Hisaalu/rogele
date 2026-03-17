@@ -761,5 +761,137 @@ class Quiz {
             return [];
         }
     }
+
+    /**
+     * Get all quizzes with filters (for admin)
+     */
+    public function getAllQuizzes($search = null, $teacherId = null, $status = null, $limit = 15, $offset = 0) {
+        try {
+            $query = "SELECT q.*, 
+                    s.name as subject_name, 
+                    c.name as class_name,
+                    u.first_name as teacher_name,
+                    u.last_name as teacher_last_name,
+                    u.email as teacher_email,
+                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
+                    (SELECT COUNT(*) FROM quiz_attempts WHERE quiz_id = q.id) as attempt_count
+                    FROM quizzes q
+                    LEFT JOIN subjects s ON q.subject_id = s.id
+                    LEFT JOIN classes c ON q.class_id = c.id
+                    LEFT JOIN users u ON q.teacher_id = u.id
+                    WHERE 1=1";
+            
+            $params = [];
+            
+            if ($search) {
+                $query .= " AND (q.title LIKE :search OR q.description LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            if ($teacherId) {
+                $query .= " AND q.teacher_id = :teacher_id";
+                $params[':teacher_id'] = $teacherId;
+            }
+            
+            if ($status === 'published') {
+                $query .= " AND q.is_published = 1";
+            } elseif ($status === 'draft') {
+                $query .= " AND q.is_published = 0";
+            }
+            
+            $query .= " ORDER BY q.created_at DESC LIMIT :limit OFFSET :offset";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get all quizzes error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Count all quizzes with filters (for admin)
+     */
+    public function countAllQuizzes($search = null, $teacherId = null, $status = null) {
+        try {
+            $query = "SELECT COUNT(*) as total FROM quizzes q WHERE 1=1";
+            
+            $params = [];
+            
+            if ($search) {
+                $query .= " AND (q.title LIKE :search OR q.description LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            if ($teacherId) {
+                $query .= " AND q.teacher_id = :teacher_id";
+                $params[':teacher_id'] = $teacherId;
+            }
+            
+            if ($status === 'published') {
+                $query .= " AND q.is_published = 1";
+            } elseif ($status === 'draft') {
+                $query .= " AND q.is_published = 0";
+            }
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            $result = $stmt->fetch();
+            
+            return $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Count all quizzes error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Approve quiz
+     */
+    public function approve($quizId) {
+        try {
+            $query = "UPDATE quizzes SET is_approved = 1 WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([':id' => $quizId]);
+            
+            if ($result) {
+                return ['success' => true, 'message' => 'Quiz approved'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to approve quiz'];
+        } catch (PDOException $e) {
+            error_log("Approve quiz error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error'];
+        }
+    }
+
+    /**
+     * Reject quiz
+     */
+    public function reject($quizId) {
+        try {
+            $query = "UPDATE quizzes SET is_approved = 0 WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([':id' => $quizId]);
+            
+            if ($result) {
+                return ['success' => true, 'message' => 'Quiz rejected'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to reject quiz'];
+        } catch (PDOException $e) {
+            error_log("Reject quiz error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error'];
+        }
+    }
 }
 ?>

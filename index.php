@@ -136,6 +136,15 @@ $routes = [
     '/admin/settings/test-email' => 'AdminController@testEmailConfig',
     '/admin/settings/clear-cache' => 'AdminController@clearCache',
     '/admin/settings/reset-defaults' => 'AdminController@resetToDefaults',
+    '/admin/lessons' => 'AdminController@lessons',
+    '/admin/lessons/view/{id}' => 'AdminController@viewLesson',
+    '/admin/lessons/approve/{id}' => 'AdminController@approveLesson',
+    '/admin/lessons/reject/{id}' => 'AdminController@rejectLesson',
+    '/admin/quizzes' => 'AdminController@quizzes',
+    '/admin/quizzes/view/{id}' => 'AdminController@viewQuiz',
+    '/admin/quizzes/approve/{id}' => 'AdminController@approveQuiz',
+    '/admin/quizzes/reject/{id}' => 'AdminController@rejectQuiz',
+    '/admin/quizzes/delete/{id}' => 'AdminController@deleteQuiz',
 ];
 
 // Add this temporary debug code after defining $routes

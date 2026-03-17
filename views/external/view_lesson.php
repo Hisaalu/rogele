@@ -54,7 +54,7 @@ if (!isset($lesson)) {
             <h2 style="color: #1E293B; margin-bottom: 20px;">Downloadable Materials</h2>
             <div style="display: grid; gap: 15px;">
                 <?php foreach ($lesson['materials'] as $material): ?>
-                    <a href="/rays-of-grace/<?php echo $material['file_path']; ?>" download 
+                    <a href="/rays-of-grace/public/<?php echo $material['file_path']; ?>" download 
                        style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #F8FAFC; border-radius: 10px; text-decoration: none; color: #1E293B; transition: background 0.3s ease;">
                         <i class="fas fa-file-pdf" style="color: #F97316; font-size: 1.5rem;"></i>
                         <span style="flex: 1;"><?php echo htmlspecialchars($material['file_name']); ?></span>

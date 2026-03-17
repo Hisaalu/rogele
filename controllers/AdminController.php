@@ -5,6 +5,8 @@ require_once __DIR__ . '/../models/Report.php';
 require_once __DIR__ . '/../models/Quiz.php';
 require_once __DIR__ . '/../models/Subscription.php';
 require_once __DIR__ . '/../models/Settings.php';
+require_once __DIR__ . '/../models/Lesson.php'; 
+require_once __DIR__ . '/../models/Classes.php';
 
 class AdminController {
     private $userModel;
@@ -12,6 +14,8 @@ class AdminController {
     private $quizModel;
     private $subscriptionModel;
     private $settingsModel;
+     private $lessonModel;
+    private $classModel;
     
     public function __construct() {
         // Check if user is logged in and is admin
@@ -32,6 +36,8 @@ class AdminController {
         $this->quizModel = new Quiz();
         $this->subscriptionModel = new Subscription();
         $this->settingsModel = new Settings();
+        $this->lessonModel = new Lesson();
+        $this->classModel = new Classes();
     }
     
     private function redirectToRoleDashboard() {
@@ -715,6 +721,174 @@ class AdminController {
         }
         
         header('Location: ' . BASE_URL . '/admin/settings');
+        exit;
+    }
+
+    /**
+     * View all lessons (for admin)
+     */
+    public function lessons() {
+        $hideFooter = true;
+        
+        $page = $_GET['page'] ?? 1;
+        $search = $_GET['search'] ?? null;
+        $teacherId = $_GET['teacher'] ?? null;
+        $status = $_GET['status'] ?? null;
+        
+        $limit = 15;
+        $offset = ($page - 1) * $limit;
+        
+        // Get all lessons with filters
+        $lessons = $this->lessonModel->getAllLessons($search, $teacherId, $status, $limit, $offset);
+        
+        // Get total count for pagination
+        $totalLessons = $this->lessonModel->countAllLessons($search, $teacherId, $status);
+        $totalPages = ceil($totalLessons / $limit);
+        
+        // Get all teachers for filter dropdown
+        $teachers = $this->userModel->getAllUsers('teacher');
+        
+        require_once __DIR__ . '/../views/admin/lessons.php';
+    }
+
+    /**
+     * View single lesson (admin)
+     */
+    public function viewLesson($lessonId) {
+        $hideFooter = true;
+        
+        $lesson = $this->lessonModel->getById($lessonId);
+        
+        if (!$lesson) {
+            $_SESSION['error'] = 'Lesson not found.';
+            header('Location: ' . BASE_URL . '/admin/lessons');
+            exit;
+        }
+        
+        require_once __DIR__ . '/../views/admin/view_lesson.php';
+    }
+
+    /**
+     * Approve lesson
+     */
+    public function approveLesson($lessonId) {
+        $result = $this->lessonModel->approve($lessonId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Lesson approved successfully.';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to approve lesson.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/lessons');
+        exit;
+    }
+
+    /**
+     * Reject/Disapprove lesson
+     */
+    public function rejectLesson($lessonId) {
+        $result = $this->lessonModel->reject($lessonId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Lesson rejected.';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to reject lesson.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/lessons');
+        exit;
+    }
+
+    /**
+     * View all quizzes (for admin)
+     */
+    public function quizzes() {
+        $hideFooter = true;
+        
+        $page = $_GET['page'] ?? 1;
+        $search = $_GET['search'] ?? null;
+        $teacherId = $_GET['teacher'] ?? null;
+        $status = $_GET['status'] ?? null;
+        
+        $limit = 15;
+        $offset = ($page - 1) * $limit;
+        
+        // Get all quizzes with filters
+        $quizzes = $this->quizModel->getAllQuizzes($search, $teacherId, $status, $limit, $offset);
+        
+        // Get total count for pagination
+        $totalQuizzes = $this->quizModel->countAllQuizzes($search, $teacherId, $status);
+        $totalPages = ceil($totalQuizzes / $limit);
+        
+        // Get all teachers for filter dropdown
+        $teachers = $this->userModel->getAllUsers('teacher');
+        
+        require_once __DIR__ . '/../views/admin/quizzes.php';
+    }
+
+    /**
+     * View single quiz (admin)
+     */
+    public function viewQuiz($quizId) {
+        $hideFooter = true;
+        
+        $quiz = $this->quizModel->getById($quizId);
+        
+        if (!$quiz) {
+            $_SESSION['error'] = 'Quiz not found.';
+            header('Location: ' . BASE_URL . '/admin/quizzes');
+            exit;
+        }
+        
+        require_once __DIR__ . '/../views/admin/view_quiz.php';
+    }
+
+    /**
+     * Approve quiz
+     */
+    public function approveQuiz($quizId) {
+        $result = $this->quizModel->approve($quizId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Quiz approved successfully.';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to approve quiz.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/quizzes');
+        exit;
+    }
+
+    /**
+     * Reject quiz
+     */
+    public function rejectQuiz($quizId) {
+        $result = $this->quizModel->reject($quizId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Quiz rejected.';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to reject quiz.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/quizzes');
+        exit;
+    }
+
+    /**
+     * Delete quiz (admin)
+     */
+    public function deleteQuiz($quizId) {
+        $result = $this->quizModel->delete($quizId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Quiz deleted successfully.';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to delete quiz.';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/quizzes');
         exit;
     }
 }

@@ -573,4 +573,36 @@ $search = $_GET['search'] ?? '';
 }
 </style>
 
+<script>
+// Live search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="search"]');
+    const classSelect = document.querySelector('select[name="class_id"]');
+    const filterForm = document.querySelector('.filters-form');
+    
+    let searchTimeout;
+    
+    // Live search with debounce
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterForm.submit();
+            }, 500); // Wait 500ms after user stops typing
+        });
+    }
+    
+    // Auto-submit on class change
+    if (classSelect) {
+        classSelect.addEventListener('change', function() {
+            filterForm.submit();
+        });
+    }
+    
+    // Preserve scroll position after form submit
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+});
+</script>
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

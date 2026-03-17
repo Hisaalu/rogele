@@ -416,14 +416,26 @@ class TeacherController {
         $classId = $_GET['class_id'] ?? null;
         $search = $_GET['search'] ?? null;
         
+        // Debug logging
+        error_log("========== STUDENTS METHOD CALLED ==========");
+        error_log("Teacher ID: " . $teacherId);
+        error_log("Class ID: " . ($classId ?? 'none'));
+        error_log("Search: " . ($search ?? 'none'));
+        
         // Get classes taught by this teacher
         $classes = $this->classModel->getByTeacher($teacherId);
+        error_log("Classes found: " . count($classes));
         
-        // Get students based on filters (learners and external users)
+        // Get students
         $students = $this->userModel->getStudentsByTeacher($teacherId, $classId, $search);
+        error_log("Students found: " . count($students));
         
-        // Debug: Log what we found
-        error_log("Found " . count($students) . " students for teacher ID: " . $teacherId);
+        // If no students found, try a simpler query to see if any students exist
+        if (empty($students)) {
+            error_log("WARNING: No students found! Checking if any students exist in database...");
+            $allStudents = $this->userModel->getAllStudents();
+            error_log("Total students in database: " . count($allStudents));
+        }
         
         require_once __DIR__ . '/../views/teacher/students.php';
     }

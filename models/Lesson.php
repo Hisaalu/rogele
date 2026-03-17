@@ -327,11 +327,12 @@ class Lesson {
     }
     
     /**
-     * Upload lesson materials - CHANGED FROM PRIVATE TO PUBLIC
+     * Upload lesson materials
      */
     public function uploadMaterials($lessonId, $files) {
         try {
-            $targetDir = UPLOAD_PATH . 'lessons/';
+            // Define the correct upload directory
+            $targetDir = __DIR__ . '/../public/uploads/lessons/';
             
             // Create directory if it doesn't exist
             if (!file_exists($targetDir)) {
@@ -344,6 +345,9 @@ class Lesson {
                     $targetFile = $targetDir . $fileName;
                     
                     if (move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
+                        // IMPORTANT: Save the path as 'uploads/lessons/filename'
+                        $dbPath = 'uploads/lessons/' . $fileName;
+                        
                         $query = "INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) 
                                 VALUES (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
                         
@@ -351,7 +355,7 @@ class Lesson {
                         $stmt->execute([
                             ':lesson_id' => $lessonId,
                             ':file_name' => $files['name'][$i],
-                            ':file_path' => 'uploads/lessons/' . $fileName,
+                            ':file_path' => $dbPath, // This should be 'uploads/lessons/filename'
                             ':file_type' => $files['type'][$i],
                             ':file_size' => $files['size'][$i]
                         ]);
@@ -776,6 +780,125 @@ class Lesson {
         } catch (PDOException $e) {
             error_log("Search published lessons error: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Get all lessons with filters (for admin)
+     */
+    public function getAllLessons($search = null, $teacherId = null, $status = null, $limit = 15, $offset = 0) {
+        try {
+            $query = "SELECT l.*, 
+                    s.name as subject_name, 
+                    c.name as class_name,
+                    u.first_name as teacher_name,
+                    u.last_name as teacher_last_name,
+                    u.email as teacher_email,
+                    (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                    FROM lessons l
+                    LEFT JOIN subjects s ON l.subject_id = s.id
+                    LEFT JOIN classes c ON l.class_id = c.id
+                    LEFT JOIN users u ON l.teacher_id = u.id
+                    WHERE 1=1";
+            
+            $params = [];
+            
+            if ($search) {
+                $query .= " AND (l.title LIKE :search OR l.content LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            if ($teacherId) {
+                $query .= " AND l.teacher_id = :teacher_id";
+                $params[':teacher_id'] = $teacherId;
+            }
+            
+            if ($status === 'published') {
+                $query .= " AND l.is_published = 1";
+            } elseif ($status === 'draft') {
+                $query .= " AND l.is_published = 0";
+            } elseif ($status === 'approved') {
+                $query .= " AND l.is_approved = 1";
+            } elseif ($status === 'pending') {
+                $query .= " AND l.is_approved = 0";
+            }
+            
+            $query .= " ORDER BY l.created_at DESC LIMIT :limit OFFSET :offset";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get all lessons error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Count all lessons with filters (for admin)
+     */
+    public function countAllLessons($search = null, $teacherId = null, $status = null) {
+        try {
+            $query = "SELECT COUNT(*) as total FROM lessons l WHERE 1=1";
+            
+            $params = [];
+            
+            if ($search) {
+                $query .= " AND (l.title LIKE :search OR l.content LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            if ($teacherId) {
+                $query .= " AND l.teacher_id = :teacher_id";
+                $params[':teacher_id'] = $teacherId;
+            }
+            
+            if ($status === 'published') {
+                $query .= " AND l.is_published = 1";
+            } elseif ($status === 'draft') {
+                $query .= " AND l.is_published = 0";
+            } elseif ($status === 'approved') {
+                $query .= " AND l.is_approved = 1";
+            } elseif ($status === 'pending') {
+                $query .= " AND l.is_approved = 0";
+            }
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            $result = $stmt->fetch();
+            
+            return $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Count all lessons error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Reject lesson
+     */
+    public function reject($lessonId) {
+        try {
+            $query = "UPDATE lessons SET is_approved = 0 WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([':id' => $lessonId]);
+            
+            if ($result) {
+                return ['success' => true, 'message' => 'Lesson rejected'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to reject lesson'];
+        } catch (PDOException $e) {
+            error_log("Reject lesson error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error'];
         }
     }
 }
