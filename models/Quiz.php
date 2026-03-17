@@ -733,5 +733,33 @@ class Quiz {
             return [];
         }
     }
+
+    /**
+     * Get all published quizzes for external users
+     */
+    public function getPublishedQuizzes() {
+        try {
+            $query = "SELECT q.*, 
+                    s.name as subject_name,
+                    c.name as class_name,
+                    u.first_name as teacher_name,
+                    u.last_name as teacher_last_name,
+                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                    FROM quizzes q
+                    LEFT JOIN subjects s ON q.subject_id = s.id
+                    LEFT JOIN classes c ON q.class_id = c.id
+                    LEFT JOIN users u ON q.teacher_id = u.id
+                    WHERE q.is_published = 1
+                    ORDER BY q.created_at DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Get published quizzes error: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

@@ -341,35 +341,40 @@ class ExternalController {
     }
     
     /**
-     * Display quizzes
+     * Display available quizzes for external users
      */
     public function quizzes() {
         $hideFooter = true;
         
+        // Check if user has access (free trial or subscription)
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
-        $user = $this->userModel->getById($_SESSION['user_id']);
-        $quizzes = $this->quizModel->getAvailableQuizzes($_SESSION['user_id'], $user['class_id'] ?? null);
+        // Get all published quizzes
+        $quizzes = $this->quizModel->getPublishedQuizzes();
+        
+        // Get user's quiz results
         $results = $this->quizModel->getUserResults($_SESSION['user_id']);
         
         require_once __DIR__ . '/../views/external/quizzes.php';
     }
     
     /**
-     * Take quiz
+     * Take a quiz
      */
     public function takeQuiz($quizId) {
         $hideFooter = true;
         
+        // Check if user has access
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Submit quiz
             $attemptId = $_POST['attempt_id'] ?? null;
             $answers = $_POST['answers'] ?? [];
             
@@ -391,6 +396,7 @@ class ExternalController {
                 exit;
             }
         } else {
+            // Start quiz
             $result = $this->quizModel->startAttempt($quizId, $_SESSION['user_id']);
             
             if ($result['success']) {
@@ -407,11 +413,12 @@ class ExternalController {
     }
     
     /**
-     * Display quiz result
+     * View quiz result
      */
     public function quizResult($attemptId) {
         $hideFooter = true;
         
+        // Check if user has access
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
