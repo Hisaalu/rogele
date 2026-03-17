@@ -96,6 +96,7 @@ $routes = [
     '/teacher/students' => 'TeacherController@students',
     '/teacher/students/progress/{id}' => 'TeacherController@studentProgress',
     '/teacher/analytics' => 'TeacherController@analytics',
+    '/teacher/lessons/delete-material/{id}' => 'TeacherController@deleteMaterial',
 
     // Teacher API routes
     '/teacher/api/quiz-performance' => 'TeacherApiController@quizPerformance',

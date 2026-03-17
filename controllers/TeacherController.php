@@ -759,5 +759,43 @@ class TeacherController {
         
         require_once __DIR__ . '/../views/teacher/preview_quiz.php';
     }
+
+    /**
+     * Delete lesson material
+     */
+    public function deleteMaterial($materialId) {
+        $hideFooter = true;
+        
+        // Get the material to check ownership
+        $material = $this->lessonModel->getMaterialById($materialId);
+        
+        if (!$material) {
+            $_SESSION['error'] = 'Material not found.';
+            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '/rays-of-grace/teacher/lessons');
+            exit;
+        }
+        
+        // Get the lesson to check if it belongs to this teacher
+        $lesson = $this->lessonModel->getById($material['lesson_id']);
+        
+        if (!$lesson || $lesson['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'You do not have permission to delete this material.';
+            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '/rays-of-grace/teacher/lessons');
+            exit;
+        }
+        
+        // Delete the material
+        $result = $this->lessonModel->deleteMaterial($materialId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Material deleted successfully.';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to delete material.';
+        }
+        
+        // Redirect back to the edit page
+        header('Location: ' . BASE_URL . '/teacher/lessons/edit/' . $material['lesson_id']);
+        exit;
+    }
 }
 ?>

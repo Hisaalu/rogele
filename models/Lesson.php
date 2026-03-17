@@ -327,9 +327,9 @@ class Lesson {
     }
     
     /**
-     * Upload lesson materials
+     * Upload lesson materials - CHANGED FROM PRIVATE TO PUBLIC
      */
-    private function uploadMaterials($lessonId, $files) {
+    public function uploadMaterials($lessonId, $files) {
         try {
             $targetDir = UPLOAD_PATH . 'lessons/';
             
@@ -345,7 +345,7 @@ class Lesson {
                     
                     if (move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
                         $query = "INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) 
-                                  VALUES (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
+                                VALUES (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
                         
                         $stmt = $this->conn->prepare($query);
                         $stmt->execute([
@@ -358,9 +358,10 @@ class Lesson {
                     }
                 }
             }
+            return true;
         } catch (PDOException $e) {
             error_log("Material upload error: " . $e->getMessage());
-            throw $e;
+            return false;
         }
     }
     
@@ -527,35 +528,53 @@ class Lesson {
     }
 
     /**
+     * Get material by ID
+     */
+    public function getMaterialById($materialId) {
+        try {
+            // Use $this->conn, not $this->db
+            $query = "SELECT * FROM lesson_materials WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':id' => $materialId]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Get material by ID error: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Delete lesson material
      */
     public function deleteMaterial($materialId) {
         try {
-            // Get file path first
-            $query = "SELECT file_path FROM lesson_materials WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $materialId]);
-            $material = $stmt->fetch();
+            // First, get the material to find the file path
+            $material = $this->getMaterialById($materialId);
             
-            if ($material) {
-                // Delete file from server
-                $filePath = __DIR__ . '/../public/' . $material['file_path'];
-                if (file_exists($filePath)) {
-                    unlink($filePath);
-                }
-                
-                // Delete from database
-                $deleteQuery = "DELETE FROM lesson_materials WHERE id = :id";
-                $deleteStmt = $this->conn->prepare($deleteQuery);
-                $deleteStmt->execute([':id' => $materialId]);
-                
-                return ['success' => true];
+            if (!$material) {
+                return ['success' => false, 'error' => 'Material not found'];
             }
             
-            return ['success' => false, 'error' => 'Material not found'];
+            // Delete file from server
+            $filePath = __DIR__ . '/../public/' . $material['file_path'];
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            
+            // Delete from database
+            $query = "DELETE FROM lesson_materials WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([':id' => $materialId]);
+            
+            if ($result) {
+                return ['success' => true, 'message' => 'Material deleted successfully'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to delete material'];
+            
         } catch (PDOException $e) {
             error_log("Delete material error: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Database error'];
+            return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
 

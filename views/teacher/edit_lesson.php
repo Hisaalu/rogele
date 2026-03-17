@@ -190,8 +190,8 @@ $classes = $classes ?? [];
                                     <span class="file-name"><?php echo htmlspecialchars($material['file_name']); ?></span>
                                     <span class="file-size"><?php echo round($material['file_size'] / 1024, 2); ?> KB</span>
                                     <a href="/rays-of-grace/teacher/lessons/delete-material/<?php echo $material['id']; ?>" 
-                                       class="remove-file" 
-                                       onclick="return confirm('Delete this material?')">
+                                    class="remove-file" 
+                                    onclick="return confirm('Are you sure you want to delete this material?')">
                                         <i class="fas fa-times"></i>
                                     </a>
                                 </div>
