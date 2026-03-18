@@ -55,13 +55,22 @@ class ExternalController {
     }
     
     /**
-     * Display dashboard
+     * External User Dashboard
      */
     public function dashboard() {
         $hideFooter = true;
-        $hasAccess = $this->userModel->hasAccess($_SESSION['user_id']);
-        $subscription = $this->subscriptionModel->checkStatus($_SESSION['user_id']);
         
+        // Check if user has active subscription
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
+        $hasActiveSubscription = !empty($currentSubscription);
+        
+        // Get trial days from settings
+        $trialDays = $this->settingsModel->get('trial_days', 60);
+        
+        // Get current plan if subscribed
+        $currentPlan = $currentSubscription['plan_type'] ?? null;
+        
+        // Pass variables to view
         require_once __DIR__ . '/../views/external/dashboard.php';
     }
     
@@ -641,15 +650,60 @@ class ExternalController {
         
         $subscriptionId = $_GET['subscription_id'] ?? 0;
         
-        // Get upgrade details
-        $upgradeDetails = $this->subscriptionModel->getUpgradeDetails($subscriptionId);
-        
-        if (!$upgradeDetails) {
+        if (!$subscriptionId) {
             header('Location: /rays-of-grace/external/dashboard');
             exit;
         }
         
+        // Get upgrade details from the subscription
+        $upgradeDetails = $this->subscriptionModel->getUpgradeDetails($subscriptionId);
+        
+        if (!$upgradeDetails) {
+            $_SESSION['error'] = 'Upgrade details not found';
+            header('Location: /rays-of-grace/external/subscription');
+            exit;
+        }
+        
+        // Get the new plan type
+        $toPlan = $upgradeDetails['plan_type'] ?? '';
+        
+        // Get the original subscription to find the from plan
+        $originalSubscriptionId = $upgradeDetails['original_subscription_id'] ?? null;
+        $fromPlan = '';
+        
+        if ($originalSubscriptionId) {
+            $originalSubscription = $this->subscriptionModel->getUpgradeDetails($originalSubscriptionId);
+            $fromPlan = $originalSubscription['plan_type'] ?? '';
+        }
+        
+        // Get payment details for this subscription
+        $paymentDetails = $this->subscriptionModel->getPaymentForSubscription($subscriptionId);
+        
+        // Calculate price breakdown (or get from payment)
+        $priceCalculation = [
+            'upgrade_price' => $upgradeDetails['amount'] ?? 0,
+            'new_price' => $this->getPlanPrice($toPlan),
+            'remaining_value' => 0 // You might want to calculate this properly
+        ];
+        
+        // New end date
+        $newEndDate = $upgradeDetails['end_date'] ?? date('Y-m-d H:i:s', strtotime('+1 year'));
+        
+        // Pass all variables to the view
         require_once __DIR__ . '/../views/external/upgrade-success.php';
+    }
+
+    /**
+     * Helper method to get plan price
+     */
+    private function getPlanPrice($planType) {
+        $prices = [
+            'monthly' => 15000,
+            'termly' => 40000,
+            'yearly' => 120000
+        ];
+        
+        return $prices[$planType] ?? 0;
     }
 
     /**

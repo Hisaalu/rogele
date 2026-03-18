@@ -625,9 +625,7 @@ class Subscription {
      */
     public function getUpgradeDetails($subscriptionId) {
         try {
-            $sql = "SELECT * FROM subscriptions 
-                    WHERE id = :id";
-            
+            $sql = "SELECT * FROM subscriptions WHERE id = :id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':id', $subscriptionId, PDO::PARAM_INT);
             $stmt->execute();
@@ -635,6 +633,23 @@ class Subscription {
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Error getting upgrade details: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get payment details for a subscription
+     */
+    public function getPaymentForSubscription($subscriptionId) {
+        try {
+            $sql = "SELECT * FROM payment_history WHERE subscription_id = :subscription_id ORDER BY created_at DESC LIMIT 1";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':subscription_id', $subscriptionId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error getting payment details: " . $e->getMessage());
             return null;
         }
     }

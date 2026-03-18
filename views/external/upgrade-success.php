@@ -2,6 +2,13 @@
 // File: /views/external/upgrade-success.php
 $pageTitle = 'Upgrade Successful - Rays of Grace';
 require_once __DIR__ . '/../layouts/header.php';
+
+// Set default values if variables are not passed
+$toPlan = $toPlan ?? '';
+$priceCalculation = $priceCalculation ?? ['upgrade_price' => 0];
+$upgradePrice = $priceCalculation['upgrade_price'] ?? 0;
+$newEndDate = $newEndDate ?? date('Y-m-d H:i:s', strtotime('+1 year'));
+$subscriptionId = $_GET['subscription_id'] ?? 0;
 ?>
 
 <div class="success-container">
@@ -18,12 +25,12 @@ require_once __DIR__ . '/../layouts/header.php';
             
             <div class="summary-item">
                 <span class="summary-label">New Plan:</span>
-                <span class="summary-value"><?php echo ucfirst($toPlan); ?></span>
+                <span class="summary-value"><?php echo ucfirst($toPlan ?: 'Premium'); ?></span>
             </div>
             
             <div class="summary-item">
                 <span class="summary-label">Amount Paid:</span>
-                <span class="summary-value amount">UGX <?php echo number_format($priceCalculation['upgrade_price']); ?></span>
+                <span class="summary-value amount">UGX <?php echo number_format($upgradePrice); ?></span>
             </div>
             
             <div class="summary-item">
@@ -58,6 +65,7 @@ require_once __DIR__ . '/../layouts/header.php';
     </div>
 </div>
 
+<!-- Add this CSS if it's not already in your file -->
 <style>
 .success-container {
     min-height: 70vh;
