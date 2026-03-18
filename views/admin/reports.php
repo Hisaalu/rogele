@@ -179,11 +179,11 @@ $revenueData = $revenueData ?? [];
             <i class="fas fa-users"></i>
             <span class="tab-label">Users</span>
         </a>
-        <a href="?type=quizzes&start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>" class="tab-item <?php echo $type === 'quizzes' ? 'active' : ''; ?>" data-tab="quizzes">
+        <a href="/rays-of-grace/admin/quizzes" class="tab-item <?php echo $type === 'quizzes' ? 'active' : ''; ?>" data-tab="quizzes">
             <i class="fas fa-pencil-alt"></i>
             <span class="tab-label">Quizzes</span>
         </a>
-        <a href="?type=payments&start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>" class="tab-item <?php echo $type === 'payments' ? 'active' : ''; ?>" data-tab="payments">
+        <a href="/rays-of-grace/admin/subscriptions" class="tab-item <?php echo $type === 'payments' ? 'active' : ''; ?>" data-tab="payments">
             <i class="fas fa-credit-card"></i>
             <span class="tab-label">Revenue</span>
         </a>

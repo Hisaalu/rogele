@@ -10,6 +10,15 @@ class Subscription {
         $this->db = Database::getInstance();
         $this->conn = $this->db->getConnection();
     }
+
+    /**
+     * Get the database connection
+     * 
+     * @return PDO The database connection
+     */
+    public function getConnection() {
+        return $this->conn;
+    }
     
     // Create subscription
     public function create($userId, $planType, $paymentMethod = null) {
@@ -130,31 +139,118 @@ class Subscription {
         }
     }
     
-    // Get all subscriptions (for admin)
-    public function getAllSubscriptions($status = null) {
+    /**
+     * Get all subscriptions with optional filters
+     */
+    public function getAllSubscriptions($filters = [], $limit = 20, $offset = 0) {
         try {
-            $query = "SELECT s.*, u.first_name, u.last_name, u.email 
-                     FROM subscriptions s
-                     JOIN users u ON s.user_id = u.id";
+            $sql = "SELECT s.*, 
+                        u.first_name, 
+                        u.last_name, 
+                        u.email,
+                        u.role as user_role
+                    FROM subscriptions s
+                    LEFT JOIN users u ON s.user_id = u.id
+                    WHERE 1=1";
             
-            if ($status) {
-                $query .= " WHERE s.status = :status";
+            $params = [];
+            
+            // Apply filters
+            if (!empty($filters['status'])) {
+                $sql .= " AND s.status = :status";
+                $params[':status'] = $filters['status'];
             }
             
-            $query .= " ORDER BY s.created_at DESC LIMIT 50";
-            
-            $stmt = $this->conn->prepare($query);
-            
-            if ($status) {
-                $stmt->execute([':status' => $status]);
-            } else {
-                $stmt->execute();
+            if (!empty($filters['plan_type'])) {
+                $sql .= " AND s.plan_type = :plan_type";
+                $params[':plan_type'] = $filters['plan_type'];
             }
             
-            return $stmt->fetchAll();
+            if (!empty($filters['user_id'])) {
+                $sql .= " AND s.user_id = :user_id";
+                $params[':user_id'] = $filters['user_id'];
+            }
+            
+            // Order by most recent first
+            $sql .= " ORDER BY s.created_at DESC";
+            
+            // Add pagination
+            if ($limit > 0) {
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+            
+            $stmt = $this->conn->prepare($sql);
+            
+            // Bind parameters
+            foreach ($params as $key => $value) {
+                if ($key == ':limit' || $key == ':offset') {
+                    $stmt->bindValue($key, $value, PDO::PARAM_INT);
+                } else {
+                    $stmt->bindValue($key, $value);
+                }
+            }
+            
+            if ($limit > 0) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+            
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Debug log
+            error_log("getAllSubscriptions with user_id filter returned " . count($results) . " results");
+            
+            return $results;
+            
         } catch (PDOException $e) {
-            error_log("Get all subscriptions error: " . $e->getMessage());
+            error_log("Error getting all subscriptions: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Count total subscriptions with filters (for pagination)
+     */
+    public function countAllSubscriptions($filters = []) {
+        try {
+            $sql = "SELECT COUNT(*) as total 
+                    FROM subscriptions s
+                    LEFT JOIN users u ON s.user_id = u.id
+                    WHERE 1=1";
+            
+            $params = [];
+            
+            if (!empty($filters['status'])) {
+                $sql .= " AND s.status = :status";
+                $params[':status'] = $filters['status'];
+            }
+            
+            if (!empty($filters['plan_type'])) {
+                $sql .= " AND s.plan_type = :plan_type";
+                $params[':plan_type'] = $filters['plan_type'];
+            }
+            
+            if (!empty($filters['search'])) {
+                $sql .= " AND (u.first_name LIKE :search 
+                            OR u.last_name LIKE :search 
+                            OR u.email LIKE :search)";
+                $params[':search'] = '%' . $filters['search'] . '%';
+            }
+            
+            if (empty($filters['status'])) {
+                $sql .= " AND s.status IN ('active', 'expired')";
+            }
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute($params);
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? (int)$result['total'] : 0;
+            
+        } catch (PDOException $e) {
+            error_log("Error counting subscriptions: " . $e->getMessage());
+            return 0;
         }
     }
     
@@ -270,30 +366,143 @@ class Subscription {
     }
 
     /**
-     * Get subscription statistics for a date range
+     * Get subscription statistics for admin dashboard
      */
-    public function getSubscriptionStats($start_date, $end_date) {
+    public function getSubscriptionStats() {
         try {
-            $query = "SELECT 
-                        DATE(created_at) as date,
-                        COUNT(*) as total,
-                        SUM(CASE WHEN plan_type = 'monthly' THEN 1 ELSE 0 END) as monthly,
-                        SUM(CASE WHEN plan_type = 'termly' THEN 1 ELSE 0 END) as termly,
-                        SUM(CASE WHEN plan_type = 'yearly' THEN 1 ELSE 0 END) as yearly
-                    FROM subscriptions
-                    WHERE DATE(created_at) BETWEEN :start_date AND :end_date
-                    GROUP BY DATE(created_at)
-                    ORDER BY date DESC";
+            $stats = [];
             
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                ':start_date' => $start_date,
-                ':end_date' => $end_date
-            ]);
+            // Total active subscriptions
+            $sql1 = "SELECT COUNT(*) as total FROM subscriptions WHERE status = 'active'";
+            $stmt1 = $this->conn->query($sql1);
+            $stats['active'] = $stmt1->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             
-            return $stmt->fetchAll();
+            // Total expired subscriptions
+            $sql2 = "SELECT COUNT(*) as total FROM subscriptions WHERE status = 'expired'";
+            $stmt2 = $this->conn->query($sql2);
+            $stats['expired'] = $stmt2->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            // Total pending subscriptions
+            $sql3 = "SELECT COUNT(*) as total FROM subscriptions WHERE status = 'pending'";
+            $stmt3 = $this->conn->query($sql3);
+            $stats['pending'] = $stmt3->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            // Total cancelled
+            $sql4 = "SELECT COUNT(*) as total FROM subscriptions WHERE status = 'cancelled'";
+            $stmt4 = $this->conn->query($sql4);
+            $stats['cancelled'] = $stmt4->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            // Total revenue from all subscriptions
+            $sql5 = "SELECT SUM(amount) as total FROM subscriptions WHERE status = 'active' OR status = 'expired'";
+            $stmt5 = $this->conn->query($sql5);
+            $stats['total_revenue'] = $stmt5->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            // Revenue this month
+            $sql6 = "SELECT SUM(amount) as total FROM subscriptions 
+                    WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) 
+                    AND YEAR(created_at) = YEAR(CURRENT_DATE())
+                    AND (status = 'active' OR status = 'expired')";
+            $stmt6 = $this->conn->query($sql6);
+            $stats['monthly_revenue'] = $stmt6->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            // Plan distribution
+            $sql7 = "SELECT plan_type, COUNT(*) as count, SUM(amount) as total 
+                    FROM subscriptions 
+                    WHERE status = 'active' 
+                    GROUP BY plan_type";
+            $stmt7 = $this->conn->query($sql7);
+            $stats['plan_distribution'] = $stmt7->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Recent subscriptions (last 30 days)
+            $sql8 = "SELECT COUNT(*) as total FROM subscriptions 
+                    WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+            $stmt8 = $this->conn->query($sql8);
+            $stats['recent_30days'] = $stmt8->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            return $stats;
+            
         } catch (PDOException $e) {
-            error_log("Get subscription stats error: " . $e->getMessage());
+            error_log("Error getting subscription stats: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get subscription details by ID
+     */
+    public function getSubscriptionById($subscriptionId) {
+        try {
+            $sql = "SELECT s.*, 
+                        u.first_name, 
+                        u.last_name, 
+                        u.email,
+                        u.phone,
+                        u.role as user_role
+                    FROM subscriptions s
+                    LEFT JOIN users u ON s.user_id = u.id
+                    WHERE s.id = :id";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':id', $subscriptionId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error getting subscription by ID: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Update subscription status (admin)
+     */
+    public function updateSubscriptionStatus($subscriptionId, $status) {
+        try {
+            $sql = "UPDATE subscriptions SET status = :status WHERE id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':id', $subscriptionId, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                return ['success' => true, 'message' => 'Subscription status updated'];
+            } else {
+                return ['success' => false, 'error' => 'Failed to update status'];
+            }
+            
+        } catch (PDOException $e) {
+            error_log("Error updating subscription status: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error'];
+        }
+    }
+
+    /**
+     * Cancel subscription (admin)
+     */
+    public function cancelSubscription($subscriptionId) {
+        return $this->updateSubscriptionStatus($subscriptionId, 'cancelled');
+    }
+
+    /**
+     * Get expiring subscriptions (next 30 days)
+     */
+    public function getExpiringSubscriptions($days = 30) {
+        try {
+            $sql = "SELECT s.*, u.first_name, u.last_name, u.email 
+                    FROM subscriptions s
+                    LEFT JOIN users u ON s.user_id = u.id
+                    WHERE s.status = 'active' 
+                    AND s.end_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL :days DAY)
+                    ORDER BY s.end_date ASC";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':days', $days, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error getting expiring subscriptions: " . $e->getMessage());
             return [];
         }
     }

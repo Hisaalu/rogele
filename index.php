@@ -148,6 +148,12 @@ $routes = [
     '/admin/quizzes/approve/{id}' => 'AdminController@approveQuiz',
     '/admin/quizzes/reject/{id}' => 'AdminController@rejectQuiz',
     '/admin/quizzes/delete/{id}' => 'AdminController@deleteQuiz',
+    '/admin/subscriptions' => 'AdminSubscriptionController@index',
+    '/admin/subscriptions/view/{id}' => 'AdminSubscriptionController@view',
+    '/admin/subscriptions/update-status' => 'AdminSubscriptionController@updateStatus',
+    '/admin/subscriptions/cancel/{id}' => 'AdminSubscriptionController@cancel',
+    '/admin/subscriptions/export' => 'AdminSubscriptionController@export',
+    '/admin/subscriptions/reports' => 'AdminSubscriptionController@reports',
 ];
 
 // Add this temporary debug code after defining $routes
