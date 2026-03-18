@@ -20,7 +20,13 @@ $recentActivity = $recentActivity ?? [];
                 <i class="fas fa-tachometer-alt"></i>
                 Admin Dashboard
             </h1>
-            <p class="page-subtitle">Welcome back, <?php echo htmlspecialchars($_SESSION['user_name']); ?>! Here's what's happening with your platform.</p>
+            <p class="page-subtitle">
+                Welcome back, <?php 
+                    $fullName = $_SESSION['user_name'] ?? '';
+                    $firstName = explode(' ', trim($fullName))[0];
+                    echo htmlspecialchars($firstName); 
+                ?>! Here's what's happening with your platform.
+            </p>
         </div>
         <div class="date-display">
             <i class="fas fa-calendar"></i>

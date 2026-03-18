@@ -21,7 +21,15 @@ $classPerformance = $classPerformance ?? [
     <div class="welcome-banner">
         <div class="welcome-content">
             <h1 class="welcome-title">
-                Welcome back, <span class="teacher-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Teacher'); ?></span>! 👋
+                Welcome back, <span class="teacher-name">
+                    <?php 
+                        // Get full name from session
+                        $fullName = $_SESSION['user_name'] ?? 'Teacher';
+                        // Extract first name (everything before first space)
+                        $firstName = explode(' ', trim($fullName))[0];
+                        echo htmlspecialchars($firstName); 
+                    ?>
+                </span>! 👋
             </h1>
             <p class="welcome-subtitle">Here's what's happening with your classes today</p>
         </div>

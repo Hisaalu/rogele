@@ -6,7 +6,12 @@ require_once __DIR__ . '/../layouts/header.php';
 
 <div style="padding: 40px 20px; max-width: 1200px; margin: 0 auto;">
     <h1 style="font-size: 2rem; margin-bottom: 20px; background: linear-gradient(135deg, #8B5CF6, #F97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-        Welcome back, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Student'); ?>! 📚
+        Welcome back, 
+        <?php 
+            $fullName = $_SESSION['user_name'] ?? 'User';
+            $firstName = explode(' ', trim($fullName))[0];
+            echo htmlspecialchars($firstName); 
+        ?>! 📚
     </h1>
     
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">

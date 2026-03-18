@@ -21,7 +21,7 @@
                             </div>
                         </div>
                         <p class="footer-about">
-                            Providing quality education through innovative e-learning solutions since 2010.
+                            Providing quality education through innovative e-learning solutions since 2016.
                         </p>
                         <div class="footer-social">
                             <a href="https://www.facebook.com/profile.php?id=100057146993995" target="_blank"><i class="fab fa-facebook-f"></i></a>
@@ -37,7 +37,7 @@
                         <ul>
                             <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-chevron-right"></i> Home</a></li>
                             <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
-                            <li><a href="#courses"><i class="fas fa-chevron-right"></i> Courses</a></li>
+                            <li><a href="/rays-of-grace/external/lessons"><i class="fas fa-chevron-right"></i> Lessons</a></li>
                             <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
                         </ul>
                     </div>
@@ -47,8 +47,8 @@
                         <h4>Contact Us</h4>
                         <ul class="contact-info">
                             <li><i class="fas fa-phone"></i> +256 778 086 883</li>
-                            <li><i class="fas fa-envelope"></i> info@raysofgrace.cac.ug</li>
-                            <li><i class="fas fa-map-marker"></i> Kampala, Uganda</li>
+                            <li><i class="fas fa-envelope"></i> info@raysofgrace.ac.ug</li>
+                            <li><i class="fas fa-map-marker"></i> Njeru, Uganda</li>
                         </ul>
                     </div>
                 </div>
@@ -62,6 +62,11 @@
     </footer>
     <?php endif; ?>
 
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" aria-label="Back to Top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <!-- JavaScript for Mobile Menu -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -71,6 +76,7 @@
         const mobileClose = document.getElementById('mobileClose');
         const mobileOverlay = document.getElementById('mobileOverlay');
         const body = document.body;
+        const backToTop = document.getElementById('backToTop');
 
         // Function to open menu
         function openMenu() {
@@ -169,6 +175,26 @@
                 setTimeout(() => alert.remove(), 300);
             });
         }, 5000);
+
+        // Back to Top Button functionality
+        if (backToTop) {
+            // Show/hide button based on scroll position
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 2500) {
+                    backToTop.classList.add('show');
+                } else {
+                    backToTop.classList.remove('show');
+                }
+            });
+
+            // Scroll to top when clicked
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
     });
 
      // ===== CLICK DROPDOWN FUNCTIONALITY =====
@@ -397,6 +423,56 @@
         .footer-bottom p {
             color: #94A3B8;
             font-size: 0.9rem;
+        }
+
+        /* Back to Top Button Styles */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #8B5CF6, #F97316);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .back-to-top:active {
+            transform: scale(0.95);
+        }
+
+        /* Mobile Responsive for Back to Top */
+        @media (max-width: 768px) {
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
         }
 
         @media (max-width: 768px) {
