@@ -6,6 +6,7 @@ require_once __DIR__ . '/../models/Quiz.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../models/Subject.php';
+require_once __DIR__ . '/../helpers/MailHelper.php';
 
 class ExternalController {
     private $subscriptionModel;
@@ -267,14 +268,24 @@ class ExternalController {
     }
     
     /**
-     * Display subscription page
+     * Show subscription page
      */
     public function subscription() {
         $hideFooter = true;
         
-        $currentSubscription = $this->subscriptionModel->checkStatus($_SESSION['user_id']);
-        $paymentHistory = $this->subscriptionModel->getPaymentHistory($_SESSION['user_id']);
+        // Get current subscription
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
         
+        // Get subscription settings
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
+        
+        // Get payment history - use the combined history for better display
+        $paymentHistory = $this->subscriptionModel->getCombinedHistory($_SESSION['user_id']);
+        
+        // Also get raw payment history if you want separate tables
+        $rawPaymentHistory = $this->subscriptionModel->getUserPaymentHistory($_SESSION['user_id']);
+        
+        // Pass to view
         require_once __DIR__ . '/../views/external/subscription.php';
     }
     
@@ -472,6 +483,258 @@ class ExternalController {
     public function trialStatus() {
         $hideFooter = true;
         require_once __DIR__ . '/../views/external/trial_status.php';
+    }
+
+    /**
+     * Show upgrade confirmation page
+     */
+    public function upgradeConfirmation() {
+        $hideFooter = true;
+        
+        $fromPlan = $_GET['from'] ?? '';
+        $toPlan = $_GET['to'] ?? '';
+        
+        if (empty($fromPlan) || empty($toPlan)) {
+            $_SESSION['error'] = 'Invalid upgrade request';
+            header('Location: /rays-of-grace/external/subscription');
+            exit;
+        }
+        
+        // Get current subscription
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
+        
+        if (!$currentSubscription) {
+            $_SESSION['error'] = 'No active subscription found';
+            header('Location: /rays-of-grace/external/subscription');
+            exit;
+        }
+        
+        // Get subscription settings
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
+        
+        // Calculate upgrade price
+        $priceCalculation = $this->subscriptionModel->calculateUpgradePrice(
+            $fromPlan, 
+            $toPlan, 
+            $currentSubscription
+        );
+        
+        if (!$priceCalculation['success']) {
+            $_SESSION['error'] = $priceCalculation['error'];
+            header('Location: /rays-of-grace/external/subscription');
+            exit;
+        }
+        
+        // Plan details with features
+        $plans = [
+            'monthly' => [
+                'name' => 'Monthly',
+                'price' => $subscriptionSettings['monthly_price'] ?? 15000,
+                'features' => [
+                    'Full access to all lessons',
+                    'Practice quizzes',
+                    'Progress tracking',
+                    'Email support'
+                ]
+            ],
+            'termly' => [
+                'name' => 'Termly',
+                'price' => $subscriptionSettings['termly_price'] ?? 40000,
+                'features' => [
+                    'Everything in Monthly',
+                    'Priority support',
+                    'Downloadable materials',
+                    'Save ' . number_format((($subscriptionSettings['monthly_price'] ?? 15000) * 3) - ($subscriptionSettings['termly_price'] ?? 40000)) . ' UGX'
+                ]
+            ],
+            'yearly' => [
+                'name' => 'Yearly',
+                'price' => $subscriptionSettings['yearly_price'] ?? 120000,
+                'features' => [
+                    'Everything in Termly',
+                    '2 months free',
+                    'Certificate of completion',
+                    '1-on-1 tutoring sessions'
+                ]
+            ]
+        ];
+        
+        $fromPlanDetails = $plans[$fromPlan] ?? ['name' => ucfirst($fromPlan), 'price' => 0, 'features' => []];
+        $toPlanDetails = $plans[$toPlan] ?? ['name' => ucfirst($toPlan), 'price' => 0, 'features' => []];
+        
+        // Load the view
+        require_once __DIR__ . '/../views/external/upgrade-confirmation.php';
+    }
+
+    /**
+     * Process the upgrade
+     */
+    public function processUpgrade() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /rays-of-grace/external/subscription');
+            exit;
+        }
+        
+        $fromPlan = $_POST['from_plan'] ?? '';
+        $toPlan = $_POST['to_plan'] ?? '';
+        $amount = $_POST['amount'] ?? 0;
+        $paymentMethod = $_POST['payment_method'] ?? 'mobile_money';
+        $phoneNumber = $_POST['phone_number'] ?? '';
+        $provider = $_POST['provider'] ?? '';
+        
+        // Validate
+        if (empty($fromPlan) || empty($toPlan) || $amount <= 0) {
+            $_SESSION['error'] = 'Invalid upgrade request';
+            header('Location: /rays-of-grace/external/subscription');
+            exit;
+        }
+        
+        // Get current subscription
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
+        
+        if (!$currentSubscription) {
+            $_SESSION['error'] = 'No active subscription found';
+            header('Location: /rays-of-grace/external/subscription');
+            exit;
+        }
+        
+        // Here you would integrate with your payment gateway
+        // For demo, we'll simulate a successful payment
+        
+        $paymentDetails = [
+            'method' => $paymentMethod,
+            'phone' => $phoneNumber,
+            'provider' => $provider,
+            'reference' => 'UPG_' . time() . '_' . $_SESSION['user_id'],
+            'transaction_id' => 'TXN_' . uniqid(),
+            'timestamp' => date('Y-m-d H:i:s'),
+            'amount' => $amount
+        ];
+        
+        // Process the upgrade
+        $result = $this->subscriptionModel->upgradeSubscription(
+            $_SESSION['user_id'],
+            $fromPlan,
+            $toPlan,
+            $paymentDetails
+        );
+        
+        if ($result['success']) {
+            $_SESSION['success'] = $result['message'];
+            
+            // Send confirmation email
+            $this->sendUpgradeConfirmationEmail($_SESSION['user_id'], $fromPlan, $toPlan, $amount, $result['new_end_date']);
+            
+            header('Location: /rays-of-grace/external/upgrade-success?subscription_id=' . $result['new_subscription_id']);
+        } else {
+            $_SESSION['error'] = $result['error'];
+            header('Location: /rays-of-grace/external/subscription');
+        }
+        exit;
+    }
+
+    /**
+     * Show upgrade success page
+     */
+    public function upgradeSuccess() {
+        $hideFooter = true;
+        
+        $subscriptionId = $_GET['subscription_id'] ?? 0;
+        
+        // Get upgrade details
+        $upgradeDetails = $this->subscriptionModel->getUpgradeDetails($subscriptionId);
+        
+        if (!$upgradeDetails) {
+            header('Location: /rays-of-grace/external/dashboard');
+            exit;
+        }
+        
+        require_once __DIR__ . '/../views/external/upgrade-success.php';
+    }
+
+    /**
+     * Send upgrade confirmation email
+     */
+    private function sendUpgradeConfirmationEmail($userId, $fromPlan, $toPlan, $amount, $newEndDate) {
+        // Get user details
+        $user = $this->userModel->getById($userId);
+        
+        $to = $user['email'];
+        $subject = "Your Rays of Grace Subscription Has Been Upgraded! 🎉";
+        
+        $message = "
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; }
+                .content { padding: 30px; background: #f9f9f9; }
+                .button { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 30px; text-decoration: none; border-radius: 50px; display: inline-block; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h2>Subscription Upgrade Confirmation</h2>
+                </div>
+                <div class='content'>
+                    <h3>Congratulations, {$user['first_name']}! 🎊</h3>
+                    <p>Your subscription has been successfully upgraded from <strong>" . ucfirst($fromPlan) . "</strong> to <strong>" . ucfirst($toPlan) . "</strong>!</p>
+                    
+                    <h4>Upgrade Summary:</h4>
+                    <ul>
+                        <li><strong>Previous Plan:</strong> " . ucfirst($fromPlan) . "</li>
+                        <li><strong>New Plan:</strong> " . ucfirst($toPlan) . "</li>
+                        <li><strong>Upgrade Amount Paid:</strong> UGX " . number_format($amount) . "</li>
+                        <li><strong>New Expiry Date:</strong> " . date('F j, Y', strtotime($newEndDate)) . "</li>
+                    </ul>
+                    
+                    <p>You now have access to all premium features of the " . ucfirst($toPlan) . " plan!</p>
+                    
+                    <p style='text-align: center; margin-top: 30px;'>
+                        <a href='" . BASE_URL . "/external/dashboard' class='button'>Go to Dashboard</a>
+                    </p>
+                    
+                    <p>Thank you for choosing Rays of Grace E-Learning!</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+        
+        // Send email using your mail function
+        $this->sendEmail($to, $subject, $message);
+    }
+
+    /**
+     * Send email using PHP's mail function or your preferred mail library
+     */
+    private function sendEmail($to, $subject, $message, $headers = []) {
+        try {
+            // Set content-type header for HTML emails
+            $defaultHeaders = [
+                'MIME-Version: 1.0',
+                'Content-type: text/html; charset=utf-8',
+                'From: Rays of Grace E-Learning <noreply@raysofgrace.com>',
+                'Reply-To: support@raysofgrace.com',
+                'X-Mailer: PHP/' . phpversion()
+            ];
+            
+            $allHeaders = array_merge($defaultHeaders, $headers);
+            
+            // Use PHP's mail function
+            if (mail($to, $subject, $message, implode("\r\n", $allHeaders))) {
+                error_log("Email sent successfully to: " . $to);
+                return true;
+            } else {
+                error_log("Failed to send email to: " . $to);
+                return false;
+            }
+        } catch (Exception $e) {
+            error_log("Error sending email: " . $e->getMessage());
+            return false;
+        }
     }
 }
 ?>

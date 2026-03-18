@@ -22,7 +22,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
         <?php if ($trialDays > 0): ?>
         <div class="trial-badge">
             <i class="fas fa-gift"></i>
-            <?php echo $trialDays; ?> days free trial on all plans
+            Your free trial will end!
         </div>
         <?php endif; ?>
     </div>
@@ -51,7 +51,21 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
                 <h3>You have an active <?php echo ucfirst($currentSubscription['plan_type']); ?> subscription</h3>
                 <p>Valid until <?php echo date('F j, Y', strtotime($currentSubscription['end_date'])); ?></p>
             </div>
-            <a href="/rays-of-grace/external/dashboard" class="btn-primary">Go to Dashboard</a>
+            <?php
+            // Determine the next tier plan
+            $currentPlan = $currentSubscription['plan_type'];
+            $nextPlan = 'yearly'; // Default
+
+            if ($currentPlan === 'monthly') {
+                $nextPlan = 'termly';
+            } elseif ($currentPlan === 'termly') {
+                $nextPlan = 'yearly';
+            }
+            ?>
+
+            <a href="/rays-of-grace/external/upgrade-confirmation?from=<?php echo $currentPlan; ?>&to=<?php echo $nextPlan; ?>" class="btn-primary">
+                <i class="fas fa-rocket"></i> Upgrade to <?php echo ucfirst($nextPlan); ?>
+            </a>
         </div>
     <?php endif; ?>
 
@@ -144,35 +158,86 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 
     <!-- Payment History -->
     <?php if (!empty($paymentHistory)): ?>
-    <div class="history-section">
-        <h2 class="section-title">Payment History</h2>
-        <div class="table-responsive">
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Plan</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($paymentHistory as $payment): ?>
-                    <tr>
-                        <td><?php echo date('M d, Y', strtotime($payment['created_at'])); ?></td>
-                        <td><?php echo ucfirst($payment['plan_type']); ?></td>
-                        <td>UGX <?php echo number_format($payment['amount']); ?></td>
-                        <td>
-                            <span class="status-badge <?php echo $payment['status']; ?>">
-                                <?php echo ucfirst($payment['status']); ?>
-                            </span>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+        <div class="history-section">
+            <h2 class="section-title">
+                <i class="fas fa-history"></i>
+                Payment & Subscription History
+            </h2>
+            <div class="table-responsive">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Plan</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($paymentHistory as $payment): ?>
+                        <tr>
+                            <td>
+                                <div class="date-cell">
+                                    <span class="date-day"><?php echo date('M d, Y', strtotime($payment['created_at'])); ?></span>
+                                    <span class="date-time"><?php echo date('h:i A', strtotime($payment['created_at'])); ?></span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="type-badge <?php echo $payment['history_type'] ?? 'subscription'; ?>">
+                                    <?php if (($payment['history_type'] ?? '') === 'payment'): ?>
+                                        <i class="fas fa-credit-card"></i> Payment
+                                    <?php elseif (isset($payment['from_plan']) && isset($payment['to_plan'])): ?>
+                                        <i class="fas fa-arrow-up"></i> Upgrade
+                                    <?php else: ?>
+                                        <i class="fas fa-crown"></i> Subscription
+                                    <?php endif; ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="plan-name">
+                                    <?php 
+                                    if (isset($payment['to_plan']) && $payment['to_plan']) {
+                                        echo ucfirst($payment['to_plan']);
+                                    } else {
+                                        echo ucfirst($payment['plan_type'] ?? 'N/A');
+                                    }
+                                    ?>
+                                </span>
+                                <?php if (isset($payment['from_plan']) && $payment['from_plan']): ?>
+                                    <small class="from-plan">(from <?php echo ucfirst($payment['from_plan']); ?>)</small>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span class="amount-cell">
+                                    UGX <?php echo number_format($payment['amount']); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <?php if (!empty($payment['payment_method'])): ?>
+                                <span class="payment-method">
+                                    <i class="fas fa-<?php echo $payment['payment_method'] === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>"></i>
+                                    <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'])); ?>
+                                </span>
+                                <?php else: ?>
+                                <span class="payment-method">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span class="status-badge <?php echo $payment['status']; ?>">
+                                    <?php echo ucfirst($payment['status']); ?>
+                                </span>
+                                <?php if (!empty($payment['transaction_id'])): ?>
+                                <small class="transaction-id">ID: <?php echo substr($payment['transaction_id'], -8); ?></small>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
     <?php endif; ?>
 </div>
 
@@ -506,6 +571,104 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+/* Enhanced Payment History Styles */
+.date-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-day {
+    font-weight: 600;
+    color: #1E293B;
+}
+
+.date-time {
+    font-size: 0.75rem;
+    color: #64748B;
+}
+
+.type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.type-badge.payment {
+    background: #EFF6FF;
+    color: #1E40AF;
+}
+
+.type-badge.subscription {
+    background: #F0FDF4;
+    color: #166534;
+}
+
+.plan-name {
+    font-weight: 600;
+    color: #1E293B;
+    display: block;
+}
+
+.from-plan {
+    font-size: 0.7rem;
+    color: #64748B;
+    display: block;
+    margin-top: 2px;
+}
+
+.amount-cell {
+    font-weight: 700;
+    color: #059669;
+}
+
+.payment-method {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    color: #4A5568;
+}
+
+.payment-method i {
+    color: #667eea;
+}
+
+.transaction-id {
+    display: block;
+    font-size: 0.65rem;
+    color: #94A3B8;
+    margin-top: 3px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .date-day {
+        color: #F1F5F9;
+    }
+    
+    .plan-name {
+        color: #F1F5F9;
+    }
+    
+    .type-badge.payment {
+        background: #1E3A5F;
+        color: #90CDF4;
+    }
+    
+    .type-badge.subscription {
+        background: #1A4731;
+        color: #9AE6B4;
+    }
+    
+    .payment-method {
+        color: #CBD5E0;
     }
 }
 

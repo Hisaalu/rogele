@@ -222,5 +222,61 @@ class Settings {
         // For example, delete temporary files, clear session data, etc.
         return true;
     }
+
+    /**
+     * Get a setting value by key
+     * 
+     * @param string $key The setting key
+     * @param mixed $default Default value if setting not found
+     * @return mixed The setting value
+     */
+    public function get($key, $default = null) {
+        try {
+            $sql = "SELECT setting_value FROM settings WHERE setting_key = :key";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':key', $key);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return $result['setting_value'];
+            }
+            
+            return $default;
+            
+        } catch (PDOException $e) {
+            error_log("Error getting setting: " . $e->getMessage());
+            return $default;
+        }
+    }
+
+     /**
+     * Get multiple settings by group
+     * 
+     * @param string $group The setting group
+     * @return array Array of settings
+     */
+    public function getSettingsByGroup($group) {
+        try {
+            $sql = "SELECT * FROM settings WHERE setting_group = :group";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':group', $group);
+            $stmt->execute();
+            
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $settings = [];
+            foreach ($results as $row) {
+                $settings[$row['setting_key']] = $row['setting_value'];
+            }
+            
+            return $settings;
+            
+        } catch (PDOException $e) {
+            error_log("Error getting settings by group: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

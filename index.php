@@ -124,6 +124,9 @@ $routes = [
     '/external/update-profile' => 'ExternalController@updateProfile',
     '/external/change-password' => 'ExternalController@changePassword',
     '/external/delete-account' => 'ExternalController@deleteAccount',
+    '/external/upgrade-confirmation' => 'ExternalController@upgradeConfirmation',
+    '/external/process-upgrade' => 'ExternalController@processUpgrade',
+    '/external/upgrade-success' => 'ExternalController@upgradeSuccess',
 
     // Settings routes
     '/admin/settings' => 'AdminController@settings',
