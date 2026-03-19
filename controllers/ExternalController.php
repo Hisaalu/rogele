@@ -67,10 +67,21 @@ class ExternalController {
         // Get trial days from settings
         $trialDays = $this->settingsModel->get('trial_days', 60);
         
+        // Calculate remaining trial days dynamically
+        $remainingTrialDays = $this->userModel->getRemainingTrialDays($_SESSION['user_id'], $trialDays);
+        
+        // Get trial end date
+        $trialEndDate = $this->userModel->getTrialEndDate($_SESSION['user_id'], $trialDays);
+        
+        // Calculate percentage of trial used (for progress bar)
+        $daysPassed = $trialDays - $remainingTrialDays;
+        $trialPercentage = $trialDays > 0 ? min(100, round(($daysPassed / $trialDays) * 100)) : 0;
+        
         // Get current plan if subscribed
         $currentPlan = $currentSubscription['plan_type'] ?? null;
+        $subscriptionEndDate = $currentSubscription['end_date'] ?? null;
         
-        // Pass variables to view
+        // Pass to view
         require_once __DIR__ . '/../views/external/dashboard.php';
     }
     

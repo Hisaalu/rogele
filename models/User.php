@@ -1117,5 +1117,95 @@ class User {
             return [];
         }
     }
+
+    /**
+     * Calculate remaining trial days for a user
+     * 
+     * @param int $userId The user ID
+     * @param int $trialDays Total trial days (default 60)
+     * @return int Remaining trial days (0 if expired or subscribed)
+     */
+    public function getRemainingTrialDays($userId, $trialDays = 60) {
+        try {
+            // Check if user has an active subscription first
+            $subscriptionModel = new Subscription();
+            $activeSubscription = $subscriptionModel->getCurrentSubscription($userId);
+            
+            // If user has an active subscription, no trial days remaining
+            if ($activeSubscription) {
+                return 0;
+            }
+            
+            // Get user's creation date (trial start date)
+            $sql = "SELECT created_at FROM users WHERE id = :user_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$result) {
+                return $trialDays; // Default if user not found
+            }
+            
+            $createdAt = new DateTime($result['created_at']);
+            $now = new DateTime();
+            
+            // Calculate days passed since creation
+            $daysPassed = $createdAt->diff($now)->days;
+            
+            // Calculate remaining days
+            $remainingDays = max(0, $trialDays - $daysPassed);
+            
+            return $remainingDays;
+            
+        } catch (Exception $e) {
+            error_log("Error calculating remaining trial days: " . $e->getMessage());
+            return $trialDays; // Return default on error
+        }
+    }
+
+    /**
+     * Get trial end date for a user
+     * 
+     * @param int $userId The user ID
+     * @param int $trialDays Total trial days
+     * @return string|null Trial end date or null
+     */
+    public function getTrialEndDate($userId, $trialDays = 60) {
+        try {
+            $sql = "SELECT created_at FROM users WHERE id = :user_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$result) {
+                return null;
+            }
+            
+            $createdAt = new DateTime($result['created_at']);
+            $createdAt->modify("+{$trialDays} days");
+            
+            return $createdAt->format('Y-m-d H:i:s');
+            
+        } catch (Exception $e) {
+            error_log("Error calculating trial end date: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Check if user is still in trial period
+     * 
+     * @param int $userId The user ID
+     * @param int $trialDays Total trial days
+     * @return bool True if still in trial, false otherwise
+     */
+    public function isInTrialPeriod($userId, $trialDays = 60) {
+        $remainingDays = $this->getRemainingTrialDays($userId, $trialDays);
+        return $remainingDays > 0;
+    }
 }
 ?>
