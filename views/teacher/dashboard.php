@@ -98,7 +98,7 @@ $classPerformance = $classPerformance ?? [
     <div class="quick-actions">
         <h2 class="section-title">Quick Actions</h2>
         <div class="actions-grid">
-            <a href="/rays-of-grace/teacher/lessons/create" class="action-card">
+            <a href="<?php echo BASE_URL; ?>/teacher/lessons/create" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-plus-circle"></i>
                 </div>
@@ -109,7 +109,7 @@ $classPerformance = $classPerformance ?? [
                 <i class="fas fa-arrow-right"></i>
             </a>
 
-            <a href="/rays-of-grace/teacher/quizzes/create" class="action-card">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-plus-circle"></i>
                 </div>
@@ -120,7 +120,7 @@ $classPerformance = $classPerformance ?? [
                 <i class="fas fa-arrow-right"></i>
             </a>
 
-            <a href="/rays-of-grace/teacher/students" class="action-card">
+            <a href="<?php echo BASE_URL; ?>/teacher/students" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-users"></i>
                 </div>
@@ -131,7 +131,7 @@ $classPerformance = $classPerformance ?? [
                 <i class="fas fa-arrow-right"></i>
             </a>
 
-            <a href="/rays-of-grace/teacher/analytics" class="action-card">
+            <a href="<?php echo BASE_URL; ?>/teacher/analytics" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-chart-bar"></i>
                 </div>
@@ -150,14 +150,14 @@ $classPerformance = $classPerformance ?? [
         <div class="recent-card">
             <div class="card-header">
                 <h3><i class="fas fa-book-open"></i> Recent Lessons</h3>
-                <a href="/rays-of-grace/teacher/lessons" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body">
                 <?php if (empty($recentLessons)): ?>
                     <div class="empty-state">
                         <i class="fas fa-book"></i>
                         <p>No lessons created yet</p>
-                        <a href="/rays-of-grace/teacher/lessons/create" class="btn-create">Create Your First Lesson</a>
+                        <a href="<?php echo BASE_URL; ?>/teacher/lessons/create" class="btn-create">Create Your First Lesson</a>
                     </div>
                 <?php else: ?>
                     <?php 
@@ -189,14 +189,14 @@ $classPerformance = $classPerformance ?? [
         <div class="recent-card">
             <div class="card-header">
                 <h3><i class="fas fa-pencil-alt"></i> Recent Quizzes</h3>
-                <a href="/rays-of-grace/teacher/quizzes" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body">
                 <?php if (empty($recentQuizzes)): ?>
                     <div class="empty-state">
                         <i class="fas fa-pencil-alt"></i>
                         <p>No quizzes created yet</p>
-                        <a href="/rays-of-grace/teacher/quizzes/create" class="btn-create">Create Your First Quiz</a>
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-create">Create Your First Quiz</a>
                     </div>
                 <?php else: ?>
                     <?php 
@@ -215,7 +215,7 @@ $classPerformance = $classPerformance ?? [
                                 <span><i class="fas fa-users"></i> <?php echo $quiz['attempts'] ?? 0; ?> attempts</span>
                             </p>
                         </div>
-                        <a href="/rays-of-grace/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="btn-view">View Results</a>
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="btn-view">View Results</a>
                     </div>
                     <?php endforeach; ?>
                 <?php endif; ?>

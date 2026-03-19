@@ -45,7 +45,7 @@ $statusFilter = $_GET['status'] ?? '';
             </select>
             
             <button type="submit" class="btn-filter">Apply Filters</button>
-            <a href="/rays-of-grace/admin/quizzes" class="btn-clear">Clear</a>
+            <a href="<?php echo BASE_URL; ?>/admin/quizzes" class="btn-clear">Clear</a>
         </form>
     </div>
 
@@ -89,10 +89,10 @@ $statusFilter = $_GET['status'] ?? '';
                             </td>
                             <td><?php echo date('M d, Y', strtotime($quiz['created_at'])); ?></td>
                             <td class="actions-cell">
-                                <a href="/rays-of-grace/admin/quizzes/view/<?php echo $quiz['id']; ?>" class="action-btn view" title="View">
+                                <a href="<?php echo BASE_URL; ?>/admin/quizzes/view/<?php echo $quiz['id']; ?>" class="action-btn view" title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="/rays-of-grace/admin/quizzes/delete/<?php echo $quiz['id']; ?>" class="action-btn delete" title="Delete" onclick="return confirm('Are you sure you want to delete this quiz? All associated questions and results will be lost.')">
+                                <a href="<?php echo BASE_URL; ?>/admin/quizzes/delete/<?php echo $quiz['id']; ?>" class="action-btn delete" title="Delete" onclick="return confirm('Are you sure you want to delete this quiz? All associated questions and results will be lost.')">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </td>

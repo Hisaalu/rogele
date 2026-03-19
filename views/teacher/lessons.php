@@ -19,7 +19,7 @@ $search = $_GET['search'] ?? '';
             </h1>
             <p class="page-subtitle">Manage and organize your teaching materials</p>
         </div>
-        <a href="/rays-of-grace/teacher/lessons/create" class="btn-primary">
+        <a href="<?php echo BASE_URL; ?>/teacher/lessons/create" class="btn-primary">
             <i class="fas fa-plus-circle"></i>
             Create New Lesson
         </a>
@@ -56,7 +56,7 @@ $search = $_GET['search'] ?? '';
                 <i class="fas fa-search"></i> Search
             </button>
             <?php if ($search): ?>
-                <a href="/rays-of-grace/teacher/lessons" class="btn-clear">
+                <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="btn-clear">
                     <i class="fas fa-times"></i> Clear
                 </a>
             <?php endif; ?>
@@ -71,7 +71,7 @@ $search = $_GET['search'] ?? '';
             </div>
             <h3>No Lessons Yet</h3>
             <p>You haven't created any lessons. Start by creating your first lesson!</p>
-            <a href="/rays-of-grace/teacher/lessons/create" class="btn-primary">
+            <a href="<?php echo BASE_URL; ?>/teacher/lessons/create" class="btn-primary">
                 <i class="fas fa-plus-circle"></i>
                 Create Your First Lesson
             </a>
@@ -130,13 +130,13 @@ $search = $_GET['search'] ?? '';
 
                         <!-- Action Buttons -->
                         <div class="lesson-actions">
-                            <a href="/rays-of-grace/teacher/lessons/edit/<?php echo $lesson['id']; ?>" class="action-btn edit" title="Edit Lesson">
+                            <a href="<?php echo BASE_URL; ?>/teacher/lessons/edit/<?php echo $lesson['id']; ?>" class="action-btn edit" title="Edit Lesson">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="/rays-of-grace/teacher/lessons/delete/<?php echo $lesson['id']; ?>" class="action-btn delete" title="Delete Lesson" onclick="return confirm('Are you sure you want to delete this lesson? This action cannot be undone.')">
+                            <a href="<?php echo BASE_URL; ?>/teacher/lessons/delete/<?php echo $lesson['id']; ?>" class="action-btn delete" title="Delete Lesson" onclick="return confirm('Are you sure you want to delete this lesson? This action cannot be undone.')">
                                 <i class="fas fa-trash"></i>
                             </a>
-                            <a href="/rays-of-grace/teacher/lessons/preview/<?php echo $lesson['id']; ?>" class="action-btn preview" title="Preview Lesson" target="_blank">
+                            <a href="<?php echo BASE_URL; ?>/teacher/lessons/preview/<?php echo $lesson['id']; ?>" class="action-btn preview" title="Preview Lesson" target="_blank">
                                 <i class="fas fa-eye"></i>
                             </a>
                         </div>

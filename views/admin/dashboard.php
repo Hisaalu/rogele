@@ -93,7 +93,7 @@ $recentActivity = $recentActivity ?? [];
     <div class="quick-actions">
         <h2 class="section-title">Quick Actions</h2>
         <div class="actions-grid">
-            <a href="/rays-of-grace/admin/users/create" class="action-card">
+            <a href="<?php echo BASE_URL; ?>/admin/users/create" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-user-plus"></i>
                 </div>
@@ -104,7 +104,7 @@ $recentActivity = $recentActivity ?? [];
                 <i class="fas fa-arrow-right"></i>
             </a>
 
-            <a href="/rays-of-grace/admin/reports" class="action-card">
+            <a href="<?php echo BASE_URL; ?>/admin/reports" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-chart-bar"></i>
                 </div>
@@ -115,7 +115,7 @@ $recentActivity = $recentActivity ?? [];
                 <i class="fas fa-arrow-right"></i>
             </a>
 
-            <a href="/rays-of-grace/admin/settings" class="action-card">
+            <a href="<?php echo BASE_URL; ?>/admin/settings" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-cog"></i>
                 </div>
@@ -126,7 +126,7 @@ $recentActivity = $recentActivity ?? [];
                 <i class="fas fa-arrow-right"></i>
             </a>
 
-            <a href="/rays-of-grace/admin/users" class="action-card">
+            <a href="<?php echo BASE_URL; ?>/admin/users" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-users-cog"></i>
                 </div>
@@ -145,7 +145,7 @@ $recentActivity = $recentActivity ?? [];
         <div class="dashboard-card">
             <div class="card-header">
                 <h3><i class="fas fa-user-plus"></i> Recent Users</h3>
-                <a href="/rays-of-grace/admin/users" class="view-all">View All</a>
+                <a href="<?php echo BASE_URL; ?>/admin/users" class="view-all">View All</a>
             </div>
             <div class="card-body">
                 <?php if (empty($recentUsers)): ?>
@@ -159,7 +159,7 @@ $recentActivity = $recentActivity ?? [];
                     <div class="user-item">
                         <div class="user-avatar">
                             <?php if (!empty($user['profile_photo'])): ?>
-                                <img src="/rays-of-grace/<?php echo $user['profile_photo']; ?>" alt="<?php echo $user['first_name']; ?>">
+                                <img src="<?php echo BASE_URL; ?>/<?php echo $user['profile_photo']; ?>" alt="<?php echo $user['first_name']; ?>">
                             <?php else: ?>
                                 <div class="avatar-placeholder" style="background: linear-gradient(135deg, #8B5CF6, #F97316);">
                                     <?php echo strtoupper(substr($user['first_name'] ?? 'U', 0, 1) . substr($user['last_name'] ?? 'S', 0, 1)); ?>
@@ -181,7 +181,7 @@ $recentActivity = $recentActivity ?? [];
         <div class="dashboard-card">
             <div class="card-header">
                 <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                <a href="/rays-of-grace/admin/reports?type=activity" class="view-all">View All</a>
+                <a href="<?php echo BASE_URL; ?>/admin/reports?type=activity" class="view-all">View All</a>
             </div>
             <div class="card-body">
                 <?php if (empty($recentActivity)): ?>

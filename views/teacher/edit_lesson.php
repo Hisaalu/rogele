@@ -13,7 +13,7 @@ $classes = $classes ?? [];
     <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/teacher/lessons" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Lessons
             </a>
             <h1 class="page-title">
@@ -41,7 +41,7 @@ $classes = $classes ?? [];
 
     <!-- Edit Lesson Form -->
     <div class="form-card">
-        <form method="POST" action="/rays-of-grace/teacher/lessons/edit/<?php echo $lesson['id']; ?>" enctype="multipart/form-data" class="lesson-form" id="lessonForm">
+        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/lessons/edit/<?php echo $lesson['id']; ?>" enctype="multipart/form-data" class="lesson-form" id="lessonForm">
             <!-- Basic Information -->
             <div class="form-section">
                 <h3 class="section-title">
@@ -189,7 +189,7 @@ $classes = $classes ?? [];
                                     <i class="fas fa-file"></i>
                                     <span class="file-name"><?php echo htmlspecialchars($material['file_name']); ?></span>
                                     <span class="file-size"><?php echo round($material['file_size'] / 1024, 2); ?> KB</span>
-                                    <a href="/rays-of-grace/teacher/lessons/delete-material/<?php echo $material['id']; ?>" 
+                                    <a href="<?php echo BASE_URL; ?>/teacher/lessons/delete-material/<?php echo $material['id']; ?>" 
                                     class="remove-file" 
                                     onclick="return confirm('Are you sure you want to delete this material?')">
                                         <i class="fas fa-times"></i>
@@ -224,7 +224,7 @@ $classes = $classes ?? [];
                     <i class="fas fa-save"></i>
                     Update Lesson
                 </button>
-                <a href="/rays-of-grace/teacher/lessons" class="btn-secondary">
+                <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="btn-secondary">
                     <i class="fas fa-times"></i>
                     Cancel
                 </a>

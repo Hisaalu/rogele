@@ -20,12 +20,12 @@ $paymentHistory = $paymentHistory ?? [];
             <p class="page-subtitle">View and manage subscription #<?php echo $subscription['id'] ?? ''; ?></p>
         </div>
         <div class="header-actions">
-            <a href="/rays-of-grace/admin/subscriptions" class="btn-back">
+            <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="btn-back">
                 <i class="fas fa-arrow-left"></i>
                 Back to Subscriptions
             </a>
             <?php if (($subscription['status'] ?? '') === 'active'): ?>
-                <a href="/rays-of-grace/admin/subscriptions/cancel/<?php echo $subscription['id'] ?? 0; ?>" 
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/cancel/<?php echo $subscription['id'] ?? 0; ?>" 
                    class="btn-cancel"
                    onclick="return confirm('Are you sure you want to cancel this subscription?')">
                     <i class="fas fa-ban"></i>
@@ -183,7 +183,7 @@ $paymentHistory = $paymentHistory ?? [];
                 </div>
                 
                 <div class="user-actions">
-                    <a href="/rays-of-grace/admin/users/edit/<?php echo $subscription['user_id'] ?? 0; ?>" class="btn-view-user">
+                    <a href="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo $subscription['user_id'] ?? 0; ?>" class="btn-view-user">
                         <i class="fas fa-user-edit"></i> View User Profile
                     </a>
                 </div>
@@ -212,7 +212,7 @@ $paymentHistory = $paymentHistory ?? [];
             <div class="upgrade-item">
                 <span class="upgrade-label">Original Subscription ID:</span>
                 <span class="upgrade-value">
-                    <a href="/rays-of-grace/admin/subscriptions/view/<?php echo $subscription['original_subscription_id'] ?? 0; ?>">
+                    <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo $subscription['original_subscription_id'] ?? 0; ?>">
                         #<?php echo $subscription['original_subscription_id'] ?? 'N/A'; ?>
                     </a>
                 </span>
@@ -222,43 +222,56 @@ $paymentHistory = $paymentHistory ?? [];
     <?php endif; ?>
 
     <!-- Payment History -->
-    <?php if (!empty($paymentHistory)): ?>
-    <div class="payment-history-card">
-        <div class="card-header">
-            <h2><i class="fas fa-history"></i> Payment History</h2>
+    <?php if (!empty($paymentHistory) && is_array($paymentHistory)): ?>
+        <div class="payment-history-card">
+            <div class="card-header">
+                <h2><i class="fas fa-history"></i> Payment History</h2>
+                <span class="payment-count"><?php echo count($paymentHistory); ?> payment(s)</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="payment-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Transaction ID</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($paymentHistory as $payment): ?>
+                        <?php if (is_array($payment)): // Ensure each payment is an array ?>
+                        <tr>
+                            <td><?php echo isset($payment['created_at']) ? date('M d, Y h:i A', strtotime($payment['created_at'])) : 'N/A'; ?></td>
+                            <td class="amount-cell">UGX <?php echo isset($payment['amount']) ? number_format($payment['amount']) : '0'; ?></td>
+                            <td>
+                                <?php 
+                                $method = $payment['payment_method'] ?? 'unknown';
+                                $icon = $method === 'mobile_money' ? 'mobile-alt' : 'credit-card';
+                                ?>
+                                <i class="fas fa-<?php echo $icon; ?>"></i>
+                                <?php echo ucfirst(str_replace('_', ' ', $method)); ?>
+                            </td>
+                            <td class="transaction-id"><?php echo $payment['transaction_id'] ?? 'N/A'; ?></td>
+                            <td>
+                                <span class="status-badge <?php echo $payment['status'] ?? 'unknown'; ?>">
+                                    <?php echo isset($payment['status']) ? ucfirst($payment['status']) : 'Unknown'; ?>
+                                </span>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        
-        <div class="table-responsive">
-            <table class="payment-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Amount</th>
-                        <th>Payment Method</th>
-                        <th>Transaction ID</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($paymentHistory as $payment): ?>
-                    <tr>
-                        <td><?php echo date('M d, Y h:i A', strtotime($payment['created_at'])); ?></td>
-                        <td class="amount-cell">UGX <?php echo number_format($payment['amount']); ?></td>
-                        <td>
-                            <i class="fas fa-<?php echo $payment['payment_method'] === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>"></i>
-                            <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'] ?? 'unknown')); ?>
-                        </td>
-                        <td class="transaction-id"><?php echo $payment['transaction_id'] ?? 'N/A'; ?></td>
-                        <td>
-                            <span class="status-badge <?php echo $payment['status']; ?>">
-                                <?php echo ucfirst($payment['status']); ?>
-                            </span>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+    <?php else: ?>
+    <!-- Optional: Show a message when no payment history -->
+    <div class="info-message">
+        <i class="fas fa-info-circle"></i>
+        <p>No payment history found for this subscription.</p>
     </div>
     <?php endif; ?>
 
@@ -302,7 +315,7 @@ $paymentHistory = $paymentHistory ?? [];
                             </span>
                         </td>
                         <td>
-                            <a href="/rays-of-grace/admin/subscriptions/view/<?php echo $history['id']; ?>" class="btn-view-small">
+                            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo $history['id']; ?>" class="btn-view-small">
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>
@@ -739,6 +752,34 @@ $paymentHistory = $paymentHistory ?? [];
     padding: 3px 8px;
     border-radius: 20px;
     font-size: 0.8rem;
+}
+
+.payment-count {
+    background: #8B5CF6;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.info-message {
+    background: #F8FAFC;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    color: #64748B;
+    margin: 20px 0;
+}
+
+.info-message i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #8B5CF6;
+}
+
+.info-message p {
+    font-size: 1rem;
 }
 
 /* Animations */

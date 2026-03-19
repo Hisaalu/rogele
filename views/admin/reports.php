@@ -171,23 +171,23 @@ $revenueData = $revenueData ?? [];
 
     <!-- Navigation Tabs - Mobile optimized -->
     <div class="report-tabs">
-        <a href="/rays-of-grace/admin/reports" class="tab-item <?php echo $type === 'overview' ? 'active' : ''; ?>" data-tab="overview">
+        <a href="<?php echo BASE_URL; ?>/admin/reports" class="tab-item <?php echo $type === 'overview' ? 'active' : ''; ?>" data-tab="overview">
             <i class="fas fa-chart-line"></i>
             <span class="tab-label">Overview</span>
         </a>
-        <a href="/rays-of-grace/admin/users" class="tab-item <?php echo $type === 'users' ? 'active' : ''; ?>" data-tab="users">
+        <a href="<?php echo BASE_URL; ?>/admin/users" class="tab-item <?php echo $type === 'users' ? 'active' : ''; ?>" data-tab="users">
             <i class="fas fa-users"></i>
             <span class="tab-label">Users</span>
         </a>
-        <a href="/rays-of-grace/admin/quizzes" class="tab-item <?php echo $type === 'quizzes' ? 'active' : ''; ?>" data-tab="quizzes">
+        <a href="<?php echo BASE_URL; ?>/admin/quizzes" class="tab-item <?php echo $type === 'quizzes' ? 'active' : ''; ?>" data-tab="quizzes">
             <i class="fas fa-pencil-alt"></i>
             <span class="tab-label">Quizzes</span>
         </a>
-        <a href="/rays-of-grace/admin/subscriptions" class="tab-item <?php echo $type === 'payments' ? 'active' : ''; ?>" data-tab="payments">
+        <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="tab-item <?php echo $type === 'payments' ? 'active' : ''; ?>" data-tab="payments">
             <i class="fas fa-credit-card"></i>
             <span class="tab-label">Revenue</span>
         </a>
-        <a href="/rays-of-grace/admin/reports?type=activity" class="tab-item <?php echo $type === 'activity' ? 'active' : ''; ?>" data-tab="activity">
+        <a href="<?php echo BASE_URL; ?>/admin/reports?type=activity" class="tab-item <?php echo $type === 'activity' ? 'active' : ''; ?>" data-tab="activity">
             <i class="fas fa-history"></i>
             <span class="tab-label">Activity</span>
         </a>
@@ -1843,7 +1843,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Helper functions
 function updateChartDays(days) {
-    window.location.href = `/rays-of-grace/admin/reports?type=overview&days=${days}`;
+    window.location.href = `<?php echo BASE_URL; ?>/admin/reports?type=overview&days=${days}`;
 }
 
 function setQuickRange(days) {
@@ -1865,18 +1865,18 @@ function applyFilters() {
         return;
     }
     
-    window.location.href = `/rays-of-grace/admin/reports?type=${type}&start_date=${startDate}&end_date=${endDate}`;
+    window.location.href = `<?php echo BASE_URL; ?>/admin/reports?type=${type}&start_date=${startDate}&end_date=${endDate}`;
 }
 
 function resetFilters() {
-    window.location.href = `/rays-of-grace/admin/reports?type=<?php echo $type; ?>`;
+    window.location.href = `<?php echo BASE_URL; ?>/admin/reports?type=<?php echo $type; ?>`;
 }
 
 function exportReport() {
     const type = '<?php echo $type; ?>';
     const startDate = document.getElementById('start_date').value;
     const endDate = document.getElementById('end_date').value;
-    window.location.href = `/rays-of-grace/admin/reports/export?type=${type}&start_date=${startDate}&end_date=${endDate}`;
+    window.location.href = `<?php echo BASE_URL; ?>/admin/reports/export?type=${type}&start_date=${startDate}&end_date=${endDate}`;
 }
 
 // Quick filter buttons

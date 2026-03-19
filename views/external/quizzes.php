@@ -124,13 +124,13 @@ foreach ($results as $result) {
                                 <i class="fas fa-ban"></i> No Attempts Left
                             </div>
                         <?php else: ?>
-                            <a href="/rays-of-grace/external/take-quiz/<?php echo $quiz['id']; ?>" class="btn-start">
+                            <a href="<?php echo BASE_URL; ?>/external/take-quiz/<?php echo $quiz['id']; ?>" class="btn-start">
                                 <span>Start Quiz</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
                             
                             <?php if ($attemptCount > 0): ?>
-                                <a href="/rays-of-grace/external/quiz-result/<?php echo $quiz['id']; ?>" class="btn-results" title="View Results">
+                                <a href="<?php echo BASE_URL; ?>/external/quiz-result/<?php echo $quiz['id']; ?>" class="btn-results" title="View Results">
                                     <i class="fas fa-chart-bar"></i>
                                 </a>
                             <?php endif; ?>

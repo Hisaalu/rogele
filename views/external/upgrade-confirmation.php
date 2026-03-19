@@ -100,7 +100,7 @@ require_once __DIR__ . '/../layouts/header.php';
         </div>
 
         <!-- Payment Form -->
-        <form action="/rays-of-grace/external/process-upgrade" method="POST" class="payment-form">
+        <form action="<?php echo BASE_URL; ?>/external/process-upgrade" method="POST" class="payment-form">
             <input type="hidden" name="from_plan" value="<?php echo $fromPlan; ?>">
             <input type="hidden" name="to_plan" value="<?php echo $toPlan; ?>">
             <input type="hidden" name="amount" value="<?php echo $priceCalculation['upgrade_price']; ?>">
@@ -200,12 +200,12 @@ require_once __DIR__ . '/../layouts/header.php';
             <div class="terms-section">
                 <label class="checkbox-label">
                     <input type="checkbox" name="terms" required>
-                    <span>I agree to the <a href="/rays-of-grace/terms">Terms of Service</a> and <a href="/rays-of-grace/privacy">Privacy Policy</a></span>
+                    <span>I agree to the <a href="<?php echo BASE_URL; ?>/terms">Terms of Service</a> and <a href="<?php echo BASE_URL; ?>/privacy">Privacy Policy</a></span>
                 </label>
             </div>
 
             <div class="form-actions">
-                <a href="/rays-of-grace/external/subscription" class="btn-cancel">
+                <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-cancel">
                     <i class="fas fa-arrow-left"></i> Cancel
                 </a>
                 <button type="submit" class="btn-pay">

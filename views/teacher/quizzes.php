@@ -19,7 +19,7 @@ $search = $_GET['search'] ?? '';
             </h1>
             <p class="page-subtitle">Create and manage quizzes for your students</p>
         </div>
-        <a href="/rays-of-grace/teacher/quizzes/create" class="btn-primary">
+        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-primary">
             <i class="fas fa-plus-circle"></i>
             Create New Quiz
         </a>
@@ -56,7 +56,7 @@ $search = $_GET['search'] ?? '';
                 <i class="fas fa-search"></i> Search
             </button>
             <?php if ($search): ?>
-                <a href="/rays-of-grace/teacher/quizzes" class="btn-clear">
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-clear">
                     <i class="fas fa-times"></i> Clear
                 </a>
             <?php endif; ?>
@@ -71,7 +71,7 @@ $search = $_GET['search'] ?? '';
             </div>
             <h3>No Quizzes Yet</h3>
             <p>You haven't created any quizzes. Start by creating your first quiz!</p>
-            <a href="/rays-of-grace/teacher/quizzes/create" class="btn-primary">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-primary">
                 <i class="fas fa-plus-circle"></i>
                 Create Your First Quiz
             </a>
@@ -122,19 +122,19 @@ $search = $_GET['search'] ?? '';
                     </div>
 
                     <div class="quiz-actions">
-                        <a href="/rays-of-grace/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="action-btn questions" title="Add Questions">
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="action-btn questions" title="Add Questions">
                             <i class="fas fa-plus-circle"></i>
                         </a>
-                        <a href="/rays-of-grace/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="action-btn edit" title="Edit Quiz">
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="action-btn edit" title="Edit Quiz">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="/rays-of-grace/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="action-btn results" title="View Results">
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="action-btn results" title="View Results">
                             <i class="fas fa-chart-bar"></i>
                         </a>
-                        <a href="/rays-of-grace/teacher/quizzes/preview/<?php echo $quiz['id']; ?>" class="action-btn preview" title="Preview Quiz" target="_blank">
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/preview/<?php echo $quiz['id']; ?>" class="action-btn preview" title="Preview Quiz" target="_blank">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <a href="/rays-of-grace/teacher/quizzes/delete/<?php echo $quiz['id']; ?>" class="action-btn delete" title="Delete Quiz" onclick="return confirm('Are you sure you want to delete this quiz? All associated questions and results will be lost.')">
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/delete/<?php echo $quiz['id']; ?>" class="action-btn delete" title="Delete Quiz" onclick="return confirm('Are you sure you want to delete this quiz? All associated questions and results will be lost.')">
                             <i class="fas fa-trash"></i>
                         </a>
                     </div>

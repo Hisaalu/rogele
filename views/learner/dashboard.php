@@ -18,19 +18,19 @@ require_once __DIR__ . '/../layouts/header.php';
         <h2 style="color: #1E293B; margin-bottom: 20px;">Student Dashboard</h2>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-            <a href="/rays-of-grace/learner/materials" style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease;">
+            <a href="<?php echo BASE_URL; ?>/learner/materials" style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease;">
                 <i class="fas fa-book-open" style="font-size: 2rem; margin-bottom: 15px;"></i>
                 <h3 style="margin-bottom: 10px;">My Lessons</h3>
                 <p style="opacity: 0.9; font-size: 0.9rem;">Access your class materials</p>
             </a>
             
-            <a href="/rays-of-grace/learner/quizzes" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: all 0.3s ease;">
+            <a href="<?php echo BASE_URL; ?>/learner/quizzes" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: all 0.3s ease;">
                 <i class="fas fa-pencil-alt" style="font-size: 2rem; margin-bottom: 15px; color: #F97316;"></i>
                 <h3 style="margin-bottom: 10px;">Take Quizzes</h3>
                 <p style="color: #64748B; font-size: 0.9rem;">Test your knowledge</p>
             </a>
             
-            <a href="/rays-of-grace/learner/progress" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: all 0.3s ease;">
+            <a href="<?php echo BASE_URL; ?>/learner/progress" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: all 0.3s ease;">
                 <i class="fas fa-chart-line" style="font-size: 2rem; margin-bottom: 15px; color: #8B5CF6;"></i>
                 <h3 style="margin-bottom: 10px;">My Progress</h3>
                 <p style="color: #64748B; font-size: 0.9rem;">Track your learning</p>

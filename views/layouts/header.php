@@ -694,10 +694,10 @@
                             <li><a href="<?php echo BASE_URL; ?>/" class="<?php echo basename($_SERVER['REQUEST_URI']) == '' ? 'active' : ''; ?>">
                                 <i class="fas fa-home"></i> Home
                             </a></li>
-                            <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>">
+                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a></li>
-                            <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>">
+                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-book-open"></i> Lessons
                             </a></li>
                         </ul>
@@ -723,10 +723,10 @@
                                         <p><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></p>
                                         <small><?php echo htmlspecialchars($_SESSION['user_email'] ?? ''); ?></small>
                                     </div>
-                                    <a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/profile">
+                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile">
                                         <i class="fas fa-user"></i> My Profile
                                     </a>
-                                    <a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/settings">
+                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings">
                                         <i class="fas fa-cog"></i> Settings
                                     </a>
                                     <div class="dropdown-divider"></div>
@@ -797,11 +797,11 @@
             <div class="mobile-menu-content">
                 <ul class="mobile-nav-links">
                     <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/lessons"><i class="fas fa-book-open"></i> Lessons</a></li>
-                    <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/quizzes"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
-                    <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/profile"><i class="fas fa-user"></i> Profile</a></li>
-                    <li><a href="/rays-of-grace/<?php echo $_SESSION['user_role']; ?>/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons"><i class="fas fa-book-open"></i> Lessons</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings"><i class="fas fa-cog"></i> Settings</a></li>
                     <li><a href="<?php echo BASE_URL; ?>/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </div>

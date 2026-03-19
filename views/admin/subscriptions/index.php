@@ -23,11 +23,11 @@ $dateTo = $_GET['date_to'] ?? '';
             <p class="page-subtitle">View and manage all user subscriptions on the platform</p>
         </div>
         <div class="header-actions">
-            <a href="/rays-of-grace/admin/subscriptions/export?status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" class="btn-export">
+            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/export?status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" class="btn-export">
                 <i class="fas fa-download"></i>
                 Export CSV
             </a>
-            <a href="/rays-of-grace/admin/subscriptions/reports" class="btn-reports">
+            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/reports" class="btn-reports">
                 <i class="fas fa-chart-bar"></i>
                 View Reports
             </a>
@@ -135,7 +135,7 @@ $dateTo = $_GET['date_to'] ?? '';
             </div>
             
             <button type="submit" class="btn-filter">Apply Filters</button>
-            <a href="/rays-of-grace/admin/subscriptions" class="btn-reset">Reset</a>
+            <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="btn-reset">Reset</a>
         </form>
     </div>
 
@@ -194,12 +194,12 @@ $dateTo = $_GET['date_to'] ?? '';
                                 </span>
                             </td>
                             <td class="actions-cell">
-                                <a href="/rays-of-grace/admin/subscriptions/view/<?php echo $sub['id']; ?>" class="action-btn view" title="View Details">
+                                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo $sub['id']; ?>" class="action-btn view" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 
                                 <?php if ($sub['status'] === 'active'): ?>
-                                    <a href="/rays-of-grace/admin/subscriptions/cancel/<?php echo $sub['id']; ?>" 
+                                    <a href="<?php echo BASE_URL; ?>/admin/subscriptions/cancel/<?php echo $sub['id']; ?>" 
                                        class="action-btn cancel" 
                                        title="Cancel Subscription"
                                        onclick="return confirm('Are you sure you want to cancel this subscription?')">

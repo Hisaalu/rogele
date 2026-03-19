@@ -11,7 +11,7 @@ $quizId = $quiz['id'] ?? 0;
     <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/teacher/quizzes" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Quizzes
             </a>
             <h1 class="page-title">
@@ -39,7 +39,7 @@ $quizId = $quiz['id'] ?? 0;
 
     <!-- Questions Form -->
     <div class="form-card">
-        <form method="POST" action="/rays-of-grace/teacher/quizzes/add-questions/<?php echo $quizId; ?>" class="questions-form" id="questionsForm">
+        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quizId; ?>" class="questions-form" id="questionsForm">
             <div id="questions-container">
                 <!-- Question 1 (default) -->
                 <div class="question-card" id="question-1">
@@ -149,7 +149,7 @@ $quizId = $quiz['id'] ?? 0;
                     <i class="fas fa-save"></i>
                     Save Questions
                 </button>
-                <a href="/rays-of-grace/teacher/quizzes" class="btn-secondary">
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-secondary">
                     <i class="fas fa-times"></i>
                     Cancel
                 </a>

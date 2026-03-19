@@ -33,7 +33,7 @@ $endTime = time() + ($quiz['time_limit'] * 60);
         </div>
         
         <!-- Quiz Form -->
-        <form method="POST" action="/rays-of-grace/external/take-quiz/<?php echo $quizId; ?>" id="quizForm">
+        <form method="POST" action="<?php echo BASE_URL; ?>/external/take-quiz/<?php echo $quizId; ?>" id="quizForm">
             <input type="hidden" name="attempt_id" value="<?php echo $attemptId; ?>">
             
             <?php foreach ($questions as $index => $question): ?>

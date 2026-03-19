@@ -37,7 +37,7 @@
                         <ul>
                             <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-chevron-right"></i> Home</a></li>
                             <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
-                            <li><a href="/rays-of-grace/external/lessons"><i class="fas fa-chevron-right"></i> Lessons</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/external/lessons"><i class="fas fa-chevron-right"></i> Lessons</a></li>
                             <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
                         </ul>
                     </div>

@@ -29,7 +29,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 <div class="purchase-container">
     <!-- Back Link -->
     <div class="back-link">
-        <a href="/rays-of-grace/external/subscription">
+        <a href="<?php echo BASE_URL; ?>/external/subscription">
             <i class="fas fa-arrow-left"></i> Back to Plans
         </a>
     </div>
@@ -63,7 +63,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
         </div>
 
         <!-- Payment Form -->
-        <form method="POST" action="/rays-of-grace/external/process-payment" class="payment-form">
+        <form method="POST" action="<?php echo BASE_URL; ?>/external/process-payment" class="payment-form">
             <input type="hidden" name="plan" value="<?php echo $plan; ?>">
             
             <div class="form-group">

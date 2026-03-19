@@ -11,7 +11,7 @@ $questions = $quiz['questions'] ?? [];
     <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/admin/quizzes" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/admin/quizzes" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Quizzes
             </a>
             <h1 class="page-title">
@@ -126,7 +126,7 @@ $questions = $quiz['questions'] ?? [];
 
         <!-- Admin Actions -->
         <div class="admin-actions">
-            <a href="/rays-of-grace/admin/quizzes/delete/<?php echo $quiz['id']; ?>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this quiz? This action cannot be undone.')">
+            <a href="<?php echo BASE_URL; ?>/admin/quizzes/delete/<?php echo $quiz['id']; ?>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this quiz? This action cannot be undone.')">
                 <i class="fas fa-trash"></i> Delete Quiz
             </a>
         </div>

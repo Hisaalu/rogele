@@ -14,7 +14,7 @@ if (!isset($user) || empty($user)) {
     <!-- Header with Back Link -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/admin/users" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/admin/users" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Users
             </a>
             <h1 class="page-title">
@@ -42,7 +42,7 @@ if (!isset($user) || empty($user)) {
 
     <!-- Edit Form -->
     <div class="form-card">
-        <form method="POST" class="edit-form" action="/rays-of-grace/admin/users/edit/<?php echo $user['id']; ?>">
+        <form method="POST" class="edit-form" action="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo $user['id']; ?>">
             <!-- Personal Information Section -->
             <div class="form-section">
                 <h3 class="section-title">
@@ -153,7 +153,7 @@ if (!isset($user) || empty($user)) {
                     <i class="fas fa-save"></i>
                     Update User
                 </button>
-                <a href="/rays-of-grace/admin/users" class="btn-cancel">
+                <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-cancel">
                     <i class="fas fa-times"></i>
                     Cancel
                 </a>
@@ -178,12 +178,12 @@ if (!isset($user) || empty($user)) {
                     </div>
                 </div>
                 <?php if ($user['is_suspended'] ?? false): ?>
-                    <a href="/rays-of-grace/admin/users/activate/<?php echo $user['id']; ?>" class="btn-activate" onclick="return confirm('Activate this user?')">
+                    <a href="<?php echo BASE_URL; ?>/admin/users/activate/<?php echo $user['id']; ?>" class="btn-activate" onclick="return confirm('Activate this user?')">
                         <i class="fas fa-check-circle"></i>
                         Activate User
                     </a>
                 <?php else: ?>
-                    <a href="/rays-of-grace/admin/users/suspend/<?php echo $user['id']; ?>" class="btn-suspend" onclick="return confirm('Suspend this user? They will not be able to log in.')">
+                    <a href="<?php echo BASE_URL; ?>/admin/users/suspend/<?php echo $user['id']; ?>" class="btn-suspend" onclick="return confirm('Suspend this user? They will not be able to log in.')">
                         <i class="fas fa-ban"></i>
                         Suspend User
                     </a>
@@ -198,7 +198,7 @@ if (!isset($user) || empty($user)) {
                         <p>Permanently delete this user and all associated data</p>
                     </div>
                 </div>
-                <a href="/rays-of-grace/admin/users/delete/<?php echo $user['id']; ?>" class="btn-delete" onclick="return confirmDelete(<?php echo $user['id']; ?>, '<?php echo addslashes($user['first_name'] . ' ' . $user['last_name']); ?>')">
+                <a href="<?php echo BASE_URL; ?>/admin/users/delete/<?php echo $user['id']; ?>" class="btn-delete" onclick="return confirmDelete(<?php echo $user['id']; ?>, '<?php echo addslashes($user['first_name'] . ' ' . $user['last_name']); ?>')">
                     <i class="fas fa-trash"></i>
                     Delete User
                 </a>

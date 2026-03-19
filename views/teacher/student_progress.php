@@ -12,7 +12,7 @@ $lessonProgress = $lessonProgress ?? [];
     <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/teacher/students" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/teacher/students" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Students
             </a>
             <h1 class="page-title">
@@ -29,7 +29,7 @@ $lessonProgress = $lessonProgress ?? [];
     <div class="student-info-card">
         <div class="student-avatar-large">
             <?php if (!empty($student['profile_photo'])): ?>
-                <img src="/rays-of-grace/<?php echo $student['profile_photo']; ?>" alt="">
+                <img src="<?php echo BASE_URL; ?>/<?php echo $student['profile_photo']; ?>" alt="">
             <?php else: ?>
                 <div class="avatar-placeholder-large">
                     <?php echo strtoupper(substr($student['first_name'] ?? 'S', 0, 1)); ?>

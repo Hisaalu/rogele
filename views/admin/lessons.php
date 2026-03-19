@@ -47,7 +47,7 @@ $statusFilter = $_GET['status'] ?? '';
             </select>
             
             <button type="submit" class="btn-filter">Apply Filters</button>
-            <a href="/rays-of-grace/admin/lessons" class="btn-clear">Clear</a>
+            <a href="<?php echo BASE_URL; ?>/admin/lessons" class="btn-clear">Clear</a>
         </form>
     </div>
 
@@ -93,14 +93,14 @@ $statusFilter = $_GET['status'] ?? '';
                             </td>
                             <td><?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></td>
                             <td class="actions-cell">
-                                <a href="/rays-of-grace/admin/lessons/view/<?php echo $lesson['id']; ?>" class="action-btn view" title="View">
+                                <a href="<?php echo BASE_URL; ?>/admin/lessons/view/<?php echo $lesson['id']; ?>" class="action-btn view" title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <?php if (!$lesson['is_approved']): ?>
-                                    <a href="/rays-of-grace/admin/lessons/approve/<?php echo $lesson['id']; ?>" class="action-btn approve" title="Approve" onclick="return confirm('Approve this lesson?')">
+                                    <a href="<?php echo BASE_URL; ?>/admin/lessons/approve/<?php echo $lesson['id']; ?>" class="action-btn approve" title="Approve" onclick="return confirm('Approve this lesson?')">
                                         <i class="fas fa-check-circle"></i>
                                     </a>
-                                    <a href="/rays-of-grace/admin/lessons/reject/<?php echo $lesson['id']; ?>" class="action-btn reject" title="Reject" onclick="return confirm('Reject this lesson?')">
+                                    <a href="<?php echo BASE_URL; ?>/admin/lessons/reject/<?php echo $lesson['id']; ?>" class="action-btn reject" title="Reject" onclick="return confirm('Reject this lesson?')">
                                         <i class="fas fa-times-circle"></i>
                                     </a>
                                 <?php endif; ?>

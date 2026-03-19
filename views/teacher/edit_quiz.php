@@ -13,7 +13,7 @@ $questions = $quiz['questions'] ?? [];
     <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/teacher/quizzes" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Quizzes
             </a>
             <h1 class="page-title">
@@ -41,7 +41,7 @@ $questions = $quiz['questions'] ?? [];
 
     <!-- Edit Quiz Form -->
     <div class="form-card">
-        <form method="POST" action="/rays-of-grace/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="quiz-form" id="quizForm">
+        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="quiz-form" id="quizForm">
             <!-- Basic Information -->
             <div class="form-section">
                 <h3 class="section-title">
@@ -208,7 +208,7 @@ $questions = $quiz['questions'] ?? [];
                     <i class="fas fa-save"></i>
                     Update Quiz
                 </button>
-                <a href="/rays-of-grace/teacher/quizzes" class="btn-secondary">
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-secondary">
                     <i class="fas fa-times"></i>
                     Cancel
                 </a>
@@ -224,7 +224,7 @@ $questions = $quiz['questions'] ?? [];
                 <i class="fas fa-list"></i>
                 Quiz Questions (<?php echo count($questions); ?>)
             </h2>
-            <a href="/rays-of-grace/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="btn-add-questions">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="btn-add-questions">
                 <i class="fas fa-plus-circle"></i>
                 Add More Questions
             </a>

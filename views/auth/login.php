@@ -580,7 +580,7 @@ body {
                         <input type="checkbox" name="remember" id="remember">
                         <span>Remember me</span>
                     </label>
-                    <a href="/rays-of-grace/forgot-password" class="forgot-link">Forgot Password?</a>
+                    <a href="<?php echo BASE_URL; ?>/forgot-password" class="forgot-link">Forgot Password?</a>
                 </div>
                 
                 <button type="submit" class="btn-login" id="loginButton">

@@ -11,7 +11,7 @@ $subjects = $subjects ?? [];
     <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/teacher/quizzes" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Quizzes
             </a>
             <h1 class="page-title">
@@ -32,7 +32,7 @@ $subjects = $subjects ?? [];
 
     <!-- Create Quiz Form -->
     <div class="form-card">
-        <form method="POST" action="/rays-of-grace/teacher/quizzes/create" class="quiz-form" id="quizForm">
+        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="quiz-form" id="quizForm">
             <!-- Basic Information -->
             <div class="form-section">
                 <h3 class="section-title">
@@ -193,7 +193,7 @@ $subjects = $subjects ?? [];
                     <i class="fas fa-save"></i>
                     Create Quiz
                 </button>
-                <a href="/rays-of-grace/teacher/quizzes" class="btn-secondary">
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-secondary">
                     <i class="fas fa-times"></i>
                     Cancel
                 </a>

@@ -48,11 +48,11 @@ $subscriptionId = $_GET['subscription_id'] ?? 0;
         </div>
         
         <div class="action-buttons">
-            <a href="/rays-of-grace/external/dashboard" class="btn-primary">
+            <a href="<?php echo BASE_URL; ?>/external/dashboard" class="btn-primary">
                 <i class="fas fa-tachometer-alt"></i>
                 Go to Dashboard
             </a>
-            <a href="/rays-of-grace/external/lessons" class="btn-secondary">
+            <a href="<?php echo BASE_URL; ?>/external/lessons" class="btn-secondary">
                 <i class="fas fa-book-open"></i>
                 Start Learning
             </a>

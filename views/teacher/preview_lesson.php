@@ -12,7 +12,7 @@ $lesson = $lesson ?? [];
             <i class="fas fa-eye"></i>
             Lesson Preview
         </h1>
-        <a href="/rays-of-grace/teacher/lessons" class="back-link">
+        <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="back-link">
             <i class="fas fa-arrow-left"></i> Back to Lessons
         </a>
     </div>
@@ -53,7 +53,7 @@ $lesson = $lesson ?? [];
             <h3>Materials</h3>
             <div class="materials-list">
                 <?php foreach ($lesson['materials'] as $material): ?>
-                <a href="/rays-of-grace/<?php echo $material['file_path']; ?>" target="_blank" class="material-item">
+                <a href="<?php echo BASE_URL; ?>/<?php echo $material['file_path']; ?>" target="_blank" class="material-item">
                     <i class="fas fa-file-pdf"></i>
                     <span><?php echo htmlspecialchars($material['file_name']); ?></span>
                     <!-- <i class="fas fa-download"></i> -->

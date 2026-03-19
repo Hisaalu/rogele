@@ -12,7 +12,7 @@ $stats = $stats ?? [];
     <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/teacher/quizzes" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Quizzes
             </a>
             <h1 class="page-title">

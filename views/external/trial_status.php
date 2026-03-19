@@ -67,7 +67,7 @@ try {
             
             <!-- Call to Action -->
             <div style="text-align: center;">
-                <a href="/rays-of-grace/external/subscription" style="display: inline-block; background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: 600; font-size: 1.1rem;">
+                <a href="<?php echo BASE_URL; ?>/external/subscription" style="display: inline-block; background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: 600; font-size: 1.1rem;">
                     Choose a Subscription Plan
                 </a>
             </div>
@@ -77,7 +77,7 @@ try {
                 <i class="fas fa-frown" style="font-size: 4rem; color: #CBD5E1; margin-bottom: 20px;"></i>
                 <h3 style="color: #1E293B; margin-bottom: 10px;">No Active Trial</h3>
                 <p style="color: #64748B; margin-bottom: 30px;">You don't have an active free trial.</p>
-                <a href="/rays-of-grace/external/subscription" style="display: inline-block; background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: 600;">
+                <a href="<?php echo BASE_URL; ?>/external/subscription" style="display: inline-block; background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: 600;">
                     View Subscription Plans
                 </a>
             </div>

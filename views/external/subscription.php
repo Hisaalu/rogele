@@ -63,7 +63,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
             }
             ?>
 
-            <a href="/rays-of-grace/external/upgrade-confirmation?from=<?php echo $currentPlan; ?>&to=<?php echo $nextPlan; ?>" class="btn-primary">
+            <a href="<?php echo BASE_URL; ?>/external/upgrade-confirmation?from=<?php echo $currentPlan; ?>&to=<?php echo $nextPlan; ?>" class="btn-primary">
                 <i class="fas fa-rocket"></i> Upgrade to <?php echo ucfirst($nextPlan); ?>
             </a>
         </div>
@@ -90,7 +90,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
             </ul>
             
             <?php if (!$currentSubscription): ?>
-            <a href="/rays-of-grace/external/purchase?plan=monthly" class="btn-select">Select Plan</a>
+            <a href="<?php echo BASE_URL; ?>/external/purchase?plan=monthly" class="btn-select">Select Plan</a>
             <?php endif; ?>
         </div>
 
@@ -121,7 +121,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
             </ul>
             
             <?php if (!$currentSubscription): ?>
-            <a href="/rays-of-grace/external/purchase?plan=termly" class="btn-select popular-btn">Select Plan</a>
+            <a href="<?php echo BASE_URL; ?>/external/purchase?plan=termly" class="btn-select popular-btn">Select Plan</a>
             <?php endif; ?>
         </div>
 
@@ -151,7 +151,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
             </ul>
             
             <?php if (!$currentSubscription): ?>
-            <a href="/rays-of-grace/external/purchase?plan=yearly" class="btn-select">Select Plan</a>
+            <a href="<?php echo BASE_URL; ?>/external/purchase?plan=yearly" class="btn-select">Select Plan</a>
             <?php endif; ?>
         </div>
     </div>

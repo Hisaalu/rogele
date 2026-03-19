@@ -54,11 +54,11 @@ require_once __DIR__ . '/../layouts/header.php';
                 </div>
                 
                 <div class="success-actions">
-                    <a href="/rays-of-grace/login" class="btn-primary">
+                    <a href="<?php echo BASE_URL; ?>/login" class="btn-primary">
                         <i class="fas fa-sign-in-alt"></i>
                         Back to Login
                     </a>
-                    <a href="/rays-of-grace/forgot-password" class="btn-secondary">
+                    <a href="<?php echo BASE_URL; ?>/forgot-password" class="btn-secondary">
                         <i class="fas fa-redo-alt"></i>
                         Resend Email
                     </a>
@@ -66,7 +66,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 
                 <div class="contact-support">
                     <i class="fas fa-headset"></i>
-                    <span>Need help? <a href="/rays-of-grace/contact">Contact Support</a></span>
+                    <span>Need help? <a href="<?php echo BASE_URL; ?>/contact">Contact Support</a></span>
                 </div>
             </div>
         <?php else: ?>
@@ -79,7 +79,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 <p>No worries, we'll send you reset instructions</p>
             </div>
 
-            <form action="/rays-of-grace/forgot-password" method="POST" class="auth-form" id="forgotForm">
+            <form action="<?php echo BASE_URL; ?>/forgot-password" method="POST" class="auth-form" id="forgotForm">
                 <div class="form-group">
                     <label for="email">
                         <i class="fas fa-envelope"></i>
@@ -105,7 +105,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 </button>
 
                 <div class="auth-footer">
-                    <p>Remember your password? <a href="/rays-of-grace/login">Back to Login</a></p>
+                    <p>Remember your password? <a href="<?php echo BASE_URL; ?>/login">Back to Login</a></p>
                 </div>
             </form>
         <?php endif; ?>

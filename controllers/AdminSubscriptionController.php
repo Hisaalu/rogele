@@ -71,23 +71,24 @@ class AdminSubscriptionController {
             exit;
         }
         
-        // Get user's subscription history (ALL subscriptions for this user)
-        // Make sure this method exists and returns all subscriptions for the user
+        // Get user's subscription history
         $filters = ['user_id' => $subscription['user_id']];
         $userHistory = $this->subscriptionModel->getAllSubscriptions($filters, 0, 0);
         
-        // Debug: Check if userHistory is being fetched
-        error_log("User History count: " . count($userHistory));
-        
-        // Get payment history for this specific subscription
+        // Get payment history for this subscription - this now returns an array
         $paymentHistory = $this->subscriptionModel->getPaymentForSubscription($id);
         
-        // If paymentHistory is not an array, make it an array
+        // Ensure paymentHistory is an array
         if (!is_array($paymentHistory)) {
-            $paymentHistory = $paymentHistory ? [$paymentHistory] : [];
+            $paymentHistory = [];
         }
         
-        // Pass all variables to the view
+        // Debug logging
+        error_log("View Subscription ID: $id");
+        error_log("User ID: " . $subscription['user_id']);
+        error_log("User History count: " . count($userHistory));
+        error_log("Payment History count: " . count($paymentHistory));
+        
         require_once __DIR__ . '/../views/admin/subscriptions/view.php';
     }
     

@@ -22,7 +22,7 @@ $appearanceSettings = $appearanceSettings ?? [];
             <p class="page-subtitle">Customize and manage your platform settings</p>
         </div>
         <div class="header-actions">
-            <form method="POST" action="/rays-of-grace/admin/settings/save-all" style="display: inline;">
+            <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/save-all" style="display: inline;">
                 <button type="submit" class="btn-save-all">
                     <i class="fas fa-save"></i>
                     Save All Changes
@@ -69,7 +69,7 @@ $appearanceSettings = $appearanceSettings ?? [];
             </div>
             
             <div class="card-body">
-                <form method="POST" action="/rays-of-grace/admin/settings/general" class="settings-form" id="generalSettingsForm">
+                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/general" class="settings-form" id="generalSettingsForm">
                     <div class="form-group">
                         <label for="site_name">
                             <i class="fas fa-tag"></i>
@@ -152,7 +152,7 @@ $appearanceSettings = $appearanceSettings ?? [];
             </div>
             
             <div class="card-body">
-                <form method="POST" action="/rays-of-grace/admin/settings/subscription" class="settings-form" id="subscriptionForm">
+                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/subscription" class="settings-form" id="subscriptionForm">
                     <div class="price-inputs">
                         <div class="form-group price-group">
                             <label for="monthly_price">
@@ -257,7 +257,7 @@ $appearanceSettings = $appearanceSettings ?? [];
             </div>
             
             <div class="card-body">
-                <form method="POST" action="/rays-of-grace/admin/settings/email" class="settings-form" id="emailForm">
+                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/email" class="settings-form" id="emailForm">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="smtp_host">
@@ -362,7 +362,7 @@ $appearanceSettings = $appearanceSettings ?? [];
             </div>
             
             <div class="card-body">
-                <form method="POST" action="/rays-of-grace/admin/settings/security" class="settings-form" id="securityForm">
+                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/security" class="settings-form" id="securityForm">
                     <div class="form-group toggle-group">
                         <div class="toggle-label">
                             <i class="fas fa-lock"></i>
@@ -433,7 +433,7 @@ $appearanceSettings = $appearanceSettings ?? [];
             </div>
             
             <div class="card-body">
-                <form method="POST" action="/rays-of-grace/admin/settings/appearance" class="settings-form" id="appearanceForm">
+                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/appearance" class="settings-form" id="appearanceForm">
                     <div class="form-group">
                         <label for="theme_color">
                             <i class="fas fa-palette"></i>
@@ -510,7 +510,7 @@ $appearanceSettings = $appearanceSettings ?? [];
                         <p>Remove all cached data and temporary files</p>
                     </div>
                 </div>
-                <a href="/rays-of-grace/admin/settings/clear-cache" class="btn-danger" onclick="return confirm('Are you sure you want to clear the system cache? This may temporarily affect performance.')">
+                <a href="<?php echo BASE_URL; ?>/admin/settings/clear-cache" class="btn-danger" onclick="return confirm('Are you sure you want to clear the system cache? This may temporarily affect performance.')">
                     <i class="fas fa-broom"></i>
                     Clear Cache
                 </a>
@@ -524,7 +524,7 @@ $appearanceSettings = $appearanceSettings ?? [];
                         <p>Restore all settings to factory defaults</p>
                     </div>
                 </div>
-                <a href="/rays-of-grace/admin/settings/reset-defaults" class="btn-danger" onclick="return confirm('⚠️ WARNING: This will reset ALL settings to factory defaults. This action cannot be undone. Are you absolutely sure?')">
+                <a href="<?php echo BASE_URL; ?>/admin/settings/reset-defaults" class="btn-danger" onclick="return confirm('⚠️ WARNING: This will reset ALL settings to factory defaults. This action cannot be undone. Are you absolutely sure?')">
                     <i class="fas fa-undo-alt"></i>
                     Reset All
                 </a>
@@ -1420,7 +1420,7 @@ function resetForm(type) {
 }
 
 function testEmailConfig() {
-    window.location.href = '/rays-of-grace/admin/settings/test-email';
+    window.location.href = '<?php echo BASE_URL; ?>/admin/settings/test-email';
 }
 
 function previewChanges() {

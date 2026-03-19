@@ -6,8 +6,19 @@ define('DB_NAME', 'rays_of_grace_elearning');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
+// Database Configuration for production (InfinityFree)
+// define('DB_HOST', 'sql113.infinityfree.com');
+// define('DB_NAME', 'if0_41431560_elearning');
+// define('DB_USER', 'if0_41431560');
+// define('DB_PASS', 'tyoa1trItvmuPr');
+
 // Application Configuration
-define('BASE_URL', 'http://localhost/rays-of-grace');
+// define('BASE_URL', 'http://localhost/rays-of-grace');
+// define('SITE_NAME', 'Rays of Grace E-Learning Environment');
+// define('ROOT_PATH', dirname(__DIR__));
+
+// Application Configuration
+define('BASE_URL', "http://localhost/rays-of-grace");
 define('SITE_NAME', 'Rays of Grace E-Learning Platform');
 define('ROOT_PATH', dirname(__DIR__));
 

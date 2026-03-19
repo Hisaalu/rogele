@@ -5,14 +5,14 @@ require_once __DIR__ . '/../layouts/header.php';
 
 // This assumes $lesson is passed from the controller
 if (!isset($lesson)) {
-    header('Location: /rays-of-grace/external/materials');
+    header('Location: <?php echo BASE_URL; ?>/external/materials');
     exit;
 }
 ?>
 
 <div style="padding: 40px 20px; max-width: 1000px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <a href="/rays-of-grace/external/materials" style="color: #8B5CF6; text-decoration: none;">
+        <a href="<?php echo BASE_URL; ?>/external/materials" style="color: #8B5CF6; text-decoration: none;">
             <i class="fas fa-arrow-left"></i> Back to Materials
         </a>
         
@@ -54,7 +54,7 @@ if (!isset($lesson)) {
             <h2 style="color: #1E293B; margin-bottom: 20px;">Downloadable Materials</h2>
             <div style="display: grid; gap: 15px;">
                 <?php foreach ($lesson['materials'] as $material): ?>
-                    <a href="/rays-of-grace/public/<?php echo $material['file_path']; ?>" download 
+                    <a href="<?php echo BASE_URL; ?>/public/<?php echo $material['file_path']; ?>" download 
                        style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #F8FAFC; border-radius: 10px; text-decoration: none; color: #1E293B; transition: background 0.3s ease;">
                         <i class="fas fa-file-pdf" style="color: #F97316; font-size: 1.5rem;"></i>
                         <span style="flex: 1;"><?php echo htmlspecialchars($material['file_name']); ?></span>
@@ -115,7 +115,7 @@ function getYoutubeId($url) {
 
 <script>
 function toggleBookmark(lessonId) {
-    fetch(`/rays-of-grace/external/toggle-bookmark/${lessonId}`, {
+    fetch(`<?php echo BASE_URL; ?>/external/toggle-bookmark/${lessonId}`, {
         method: 'POST',
         headers: {
             'X-Requested-With': 'XMLHttpRequest'

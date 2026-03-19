@@ -76,10 +76,10 @@ $passed = $attemptDetails['score'] >= $attemptDetails['passing_score'];
         
         <!-- Action Buttons -->
         <div style="display: flex; gap: 20px; justify-content: center;">
-            <a href="/rays-of-grace/external/quizzes" style="background: white; color: #8B5CF6; border: 2px solid #8B5CF6; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600;">
+            <a href="<?php echo BASE_URL; ?>/external/quizzes" style="background: white; color: #8B5CF6; border: 2px solid #8B5CF6; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600;">
                 Try Another Quiz
             </a>
-            <a href="/rays-of-grace/external/materials" style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600;">
+            <a href="<?php echo BASE_URL; ?>/external/materials" style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600;">
                 Continue Learning
             </a>
         </div>

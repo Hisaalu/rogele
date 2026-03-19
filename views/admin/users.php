@@ -19,7 +19,7 @@ $search = $_GET['search'] ?? '';
             </h1>
             <p class="page-subtitle">View, edit, suspend, and manage all users on the platform</p>
         </div>
-        <a href="/rays-of-grace/admin/users/create" class="btn-primary">
+        <a href="<?php echo BASE_URL; ?>/admin/users/create" class="btn-primary">
             <i class="fas fa-user-plus"></i>
             Add New User
         </a>
@@ -72,7 +72,7 @@ $search = $_GET['search'] ?? '';
             </div>
             
             <button type="submit" class="btn-filter">Apply Filters</button>
-            <a href="/rays-of-grace/admin/users" class="btn-reset">Reset</a>
+            <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-reset">Reset</a>
         </form>
     </div>
 
@@ -104,7 +104,7 @@ $search = $_GET['search'] ?? '';
                             <td class="user-cell">
                                 <div class="user-avatar">
                                     <?php if (!empty($user['profile_photo'])): ?>
-                                        <img src="/rays-of-grace/<?php echo $user['profile_photo']; ?>" alt="<?php echo $user['first_name']; ?>">
+                                        <img src="<?php echo BASE_URL; ?>/<?php echo $user['profile_photo']; ?>" alt="<?php echo $user['first_name']; ?>">
                                     <?php else: ?>
                                         <div class="avatar-placeholder" style="background: linear-gradient(135deg, #8B5CF6, #F97316);">
                                             <?php 
@@ -138,24 +138,24 @@ $search = $_GET['search'] ?? '';
                             <td><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
                             <td class="actions-cell">
                                 <!-- Edit Button -->
-                                <a href="/rays-of-grace/admin/users/edit/<?php echo $user['id']; ?>" class="action-btn edit" title="Edit User">
+                                <a href="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo $user['id']; ?>" class="action-btn edit" title="Edit User">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 
                                 <!-- Suspend/Activate Button -->
                                 <?php if ($user['is_suspended']): ?>
-                                    <a href="/rays-of-grace/admin/users/activate/<?php echo $user['id']; ?>" class="action-btn activate" title="Activate User" onclick="return confirm('Activate this user?')">
+                                    <a href="<?php echo BASE_URL; ?>/admin/users/activate/<?php echo $user['id']; ?>" class="action-btn activate" title="Activate User" onclick="return confirm('Activate this user?')">
                                         <i class="fas fa-check-circle"></i>
                                     </a>
                                 <?php else: ?>
-                                    <a href="/rays-of-grace/admin/users/suspend/<?php echo $user['id']; ?>" class="action-btn suspend" title="Suspend User" onclick="return confirm('Suspend this user? They will not be able to log in.')">
+                                    <a href="<?php echo BASE_URL; ?>/admin/users/suspend/<?php echo $user['id']; ?>" class="action-btn suspend" title="Suspend User" onclick="return confirm('Suspend this user? They will not be able to log in.')">
                                         <i class="fas fa-ban"></i>
                                     </a>
                                 <?php endif; ?>
                                 
                                 <!-- Delete Button (cannot delete yourself) -->
                                 <?php if ($_SESSION['user_id'] != $user['id']): ?>
-                                    <a href="/rays-of-grace/admin/users/delete/<?php echo $user['id']; ?>" class="action-btn delete" title="Delete User" onclick="return confirmDelete(<?php echo $user['id']; ?>, '<?php echo addslashes($user['first_name'] . ' ' . $user['last_name']); ?>')">
+                                    <a href="<?php echo BASE_URL; ?>/admin/users/delete/<?php echo $user['id']; ?>" class="action-btn delete" title="Delete User" onclick="return confirmDelete(<?php echo $user['id']; ?>, '<?php echo addslashes($user['first_name'] . ' ' . $user['last_name']); ?>')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 <?php endif; ?>

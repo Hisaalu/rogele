@@ -1,6 +1,5 @@
 <?php
 // File: /index.php
-// Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -9,43 +8,47 @@ require_once __DIR__ . '/config/config.php';
 
 // Simple autoloader
 spl_autoload_register(function ($class) {
-    // Check in controllers directory
-    $controllerPath = __DIR__ . '/controllers/' . $class . '.php';
-    if (file_exists($controllerPath)) {
-        require_once $controllerPath;
-        return true;
-    }
+    $paths = [
+        __DIR__ . '/controllers/' . $class . '.php',
+        __DIR__ . '/models/' . $class . '.php'
+    ];
     
-    // Check in models directory
-    $modelPath = __DIR__ . '/models/' . $class . '.php';
-    if (file_exists($modelPath)) {
-        require_once $modelPath;
-        return true;
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            require_once $path;
+            return true;
+        }
     }
-    
     return false;
 });
 
-// Simple routing
+// Get the request URI
 $request = $_SERVER['REQUEST_URI'];
-
-// Remove base path from request
-$basePath = '/rays-of-grace';
-if (strpos($request, $basePath) === 0) {
-    $request = substr($request, strlen($basePath));
-}
 
 // Remove query string
 $request = strtok($request, '?');
 
-// If request is empty, set to root
-if ($request == '' || $request == '/') {
+// --- FIXED BASE PATH REMOVAL ---
+// Get the script directory (empty for root installation)
+$scriptName = $_SERVER['SCRIPT_NAME'];
+$basePath = dirname($scriptName);
+
+// Remove base path if it exists and isn't just '/'
+if ($basePath != '/' && $basePath != '\\' && $basePath != '.') {
+    $basePath = rtrim($basePath, '/');
+    if (strpos($request, $basePath) === 0) {
+        $request = substr($request, strlen($basePath));
+    }
+}
+// --- END OF FIX ---
+
+// Ensure request starts with /
+if (empty($request) || $request == '') {
     $request = '/';
 }
 
-// Debug - you can remove this after fixing
-echo "<!-- Debug: Request URI: " . $_SERVER['REQUEST_URI'] . " -->\n";
-echo "<!-- Debug: Processed Request: " . $request . " -->\n";
+// Debug (remove in production)
+// echo "<!-- Request: $request -->";
 
 // Define routes
 $routes = [
@@ -53,9 +56,9 @@ $routes = [
     '/login' => 'AuthController@login',
     '/register' => 'AuthController@register',
     '/logout' => 'AuthController@logout',
-    '/change-password' => 'AuthController@changePassword',
     '/forgot-password' => 'AuthController@forgotPassword',
     '/reset-password' => 'AuthController@resetPassword',
+    '/change-password' => 'AuthController@changePassword',
     
     // Admin routes
     '/admin/dashboard' => 'AdminController@dashboard',
@@ -67,14 +70,12 @@ $routes = [
     '/admin/users/activate/{id}' => 'AdminController@activateUser',
     '/admin/users/delete/{id}' => 'AdminController@deleteUser',
     '/admin/reports' => 'AdminController@reports',
-    '/admin/reports/export' => 'AdminController@exportReport',
     '/admin/settings' => 'AdminController@settings',
-    '/admin/api/chart-data' => 'ChartApiController@chartData',
-    '/admin/update-profile' => 'AdminController@updateProfile',
-    '/admin/update-profile-photo' => 'AdminController@updateProfilePhoto',
-    '/admin/reports/export' => 'ExportController@exportReport',
+    '/admin/lessons' => 'AdminController@lessons',
+    '/admin/quizzes' => 'AdminController@quizzes',
+    '/admin/subscriptions' => 'AdminSubscriptionController@index',
+    '/admin/subscriptions/view/{id}' => 'AdminSubscriptionController@view',
     
-    // Teacher routes
     // Teacher routes
     '/teacher/dashboard' => 'TeacherController@dashboard',
     '/teacher/profile' => 'TeacherController@profile',
@@ -97,8 +98,8 @@ $routes = [
     '/teacher/students/progress/{id}' => 'TeacherController@studentProgress',
     '/teacher/analytics' => 'TeacherController@analytics',
     '/teacher/lessons/delete-material/{id}' => 'TeacherController@deleteMaterial',
-
-    // Teacher API routes
+    
+     // Teacher API routes
     '/teacher/api/quiz-performance' => 'TeacherApiController@quizPerformance',
     '/teacher/api/lesson-views' => 'TeacherApiController@lessonViews',
     
@@ -127,8 +128,8 @@ $routes = [
     '/external/upgrade-confirmation' => 'ExternalController@upgradeConfirmation',
     '/external/process-upgrade' => 'ExternalController@processUpgrade',
     '/external/upgrade-success' => 'ExternalController@upgradeSuccess',
-
-    // Settings routes
+    
+     // Settings routes
     '/admin/settings' => 'AdminController@settings',
     '/admin/settings/general' => 'AdminController@saveGeneralSettings',
     '/admin/settings/subscription' => 'AdminController@saveSubscriptionSettings',
@@ -156,18 +157,13 @@ $routes = [
     '/admin/subscriptions/reports' => 'AdminSubscriptionController@reports',
 ];
 
-// Add this temporary debug code after defining $routes
-echo "<!-- Debug: Checking routes -->";
-if (!isset($routes['/external/delete-account'])) {
-    die("ERROR: Route /external/delete-account is not defined in routes array!");
-} else {
-    echo "<!-- Route exists: /external/delete-account -->";
-}
+// Route matching
+$matched = false;
 
-// FIRST: Check for exact matches (simple routes)
+// Check for exact match
 if (isset($routes[$request])) {
-    $controllerAction = $routes[$request];
-    list($controllerName, $methodName) = explode('@', $controllerAction);
+    $action = $routes[$request];
+    list($controllerName, $methodName) = explode('@', $action);
     
     $controllerFile = __DIR__ . '/controllers/' . $controllerName . '.php';
     
@@ -179,70 +175,49 @@ if (isset($routes[$request])) {
             
             if (method_exists($controller, $methodName)) {
                 $controller->$methodName();
+                $matched = true;
                 exit;
-            } else {
-                die("Method $methodName not found in $controllerName");
             }
-        } else {
-            die("Class $controllerName not found");
         }
-    } else {
-        die("Controller file not found: $controllerFile");
     }
 }
 
-// SECOND: Check for routes with parameters (like {id})
-$matched = false;
-foreach ($routes as $route => $controllerAction) {
-    // Convert route to regex pattern
-    $pattern = preg_replace('/\{[^\}]+\}/', '([^/]+)', $route);
-    $pattern = '#^' . $pattern . '$#';
-    
-    if (preg_match($pattern, $request, $matches)) {
-        array_shift($matches); // Remove full match
-        
-        list($controllerName, $methodName) = explode('@', $controllerAction);
-        
-        $controllerFile = __DIR__ . '/controllers/' . $controllerName . '.php';
-        
-        if (file_exists($controllerFile)) {
-            require_once $controllerFile;
+// Check for parameterized routes
+if (!$matched) {
+    foreach ($routes as $route => $action) {
+        if (strpos($route, '{') !== false) {
+            $pattern = preg_replace('/\{[^\}]+\}/', '([^/]+)', $route);
+            $pattern = '#^' . $pattern . '$#';
             
-            if (class_exists($controllerName)) {
-                $controller = new $controllerName();
+            if (preg_match($pattern, $request, $matches)) {
+                array_shift($matches);
+                list($controllerName, $methodName) = explode('@', $action);
                 
-                if (method_exists($controller, $methodName)) {
-                    call_user_func_array([$controller, $methodName], $matches);
-                    $matched = true;
-                    exit;
+                $controllerFile = __DIR__ . '/controllers/' . $controllerName . '.php';
+                
+                if (file_exists($controllerFile)) {
+                    require_once $controllerFile;
+                    
+                    if (class_exists($controllerName)) {
+                        $controller = new $controllerName();
+                        
+                        if (method_exists($controller, $methodName)) {
+                            call_user_func_array([$controller, $methodName], $matches);
+                            $matched = true;
+                            exit;
+                        }
+                    }
                 }
             }
         }
-        break;
     }
 }
 
-// If still no match, show 404
+// If no route matched
 if (!$matched) {
     header("HTTP/1.0 404 Not Found");
     echo "<h1>404 - Page Not Found</h1>";
-    echo "<p>The requested URL '{$request}' was not found on this server.</p>";
+    echo "<p>The requested page was not found.</p>";
     echo "<p><a href='" . BASE_URL . "'>Go to Homepage</a></p>";
-    
-    // Debug information (remove in production)
-    echo "<h3>Debug Information:</h3>";
-    echo "<pre>";
-    echo "Request URI: " . $_SERVER['REQUEST_URI'] . "\n";
-    echo "Processed Request: " . $request . "\n";
-    echo "Base URL: " . BASE_URL . "\n";
-    echo "Script Name: " . $_SERVER['SCRIPT_NAME'] . "\n";
-    echo "Document Root: " . $_SERVER['DOCUMENT_ROOT'] . "\n";
-    echo "Available Routes with parameters:\n";
-    foreach ($routes as $route => $action) {
-        if (strpos($route, '{') !== false) {
-            echo "  - $route\n";
-        }
-    }
-    echo "</pre>";
 }
 ?>

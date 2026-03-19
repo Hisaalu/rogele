@@ -792,7 +792,7 @@ class TeacherController {
         
         if (!$material) {
             $_SESSION['error'] = 'Material not found.';
-            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '/rays-of-grace/teacher/lessons');
+            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
             exit;
         }
         
@@ -801,7 +801,7 @@ class TeacherController {
         
         if (!$lesson || $lesson['teacher_id'] != $_SESSION['user_id']) {
             $_SESSION['error'] = 'You do not have permission to delete this material.';
-            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '/rays-of-grace/teacher/lessons');
+            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
             exit;
         }
         

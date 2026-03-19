@@ -12,7 +12,7 @@ $classes = $classes ?? [];
     <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/teacher/lessons" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Lessons
             </a>
             <h1 class="page-title">
@@ -40,7 +40,7 @@ $classes = $classes ?? [];
 
     <!-- Create Lesson Form -->
     <div class="form-card">
-        <form method="POST" action="/rays-of-grace/teacher/lessons/create" enctype="multipart/form-data" class="lesson-form" id="lessonForm">
+        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/lessons/create" enctype="multipart/form-data" class="lesson-form" id="lessonForm">
             <!-- Basic Information -->
             <div class="form-section">
                 <h3 class="section-title">
@@ -206,7 +206,7 @@ $classes = $classes ?? [];
                     <i class="fas fa-save"></i>
                     Create Lesson
                 </button>
-                <a href="/rays-of-grace/teacher/lessons" class="btn-secondary">
+                <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="btn-secondary">
                     <i class="fas fa-times"></i>
                     Cancel
                 </a>

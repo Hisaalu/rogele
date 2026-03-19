@@ -58,7 +58,7 @@ $activeTab = $_GET['tab'] ?? 'password';
                 </h3>
                 <p class="card-description">Ensure your account is secure by using a strong password</p>
                 
-                <form method="POST" action="/rays-of-grace/teacher/change-password" class="settings-form" id="passwordForm">
+                <form method="POST" action="<?php echo BASE_URL; ?>/teacher/change-password" class="settings-form" id="passwordForm">
                     <div class="form-group">
                         <label for="current_password">
                             <i class="fas fa-lock"></i>
@@ -135,7 +135,7 @@ $activeTab = $_GET['tab'] ?? 'password';
                 </h3>
                 <p class="card-description">Choose what updates you want to receive</p>
                 
-                <form method="POST" action="/rays-of-grace/teacher/update-notifications" class="settings-form">
+                <form method="POST" action="<?php echo BASE_URL; ?>/teacher/update-notifications" class="settings-form">
                     <div class="notification-group">
                         <h4>Email Notifications</h4>
                         
@@ -212,7 +212,7 @@ $activeTab = $_GET['tab'] ?? 'password';
                 </h3>
                 <p class="card-description">Control your privacy and data sharing preferences</p>
                 
-                <form method="POST" action="/rays-of-grace/teacher/update-privacy" class="settings-form">
+                <form method="POST" action="<?php echo BASE_URL; ?>/teacher/update-privacy" class="settings-form">
                     <div class="privacy-group">
                         <label class="toggle-item">
                             <div class="toggle-info">

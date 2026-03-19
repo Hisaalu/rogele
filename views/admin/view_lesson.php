@@ -10,7 +10,7 @@ $lesson = $lesson ?? [];
     <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="/rays-of-grace/admin/lessons" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/admin/lessons" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Lessons
             </a>
             <h1 class="page-title">
@@ -74,7 +74,7 @@ $lesson = $lesson ?? [];
             <h3>Materials</h3>
             <div class="materials-list">
                 <?php foreach ($lesson['materials'] as $material): ?>
-                <a href="/rays-of-grace/public/<?php echo $material['file_path']; ?>" target="_blank" class="material-item">
+                <a href="<?php echo BASE_URL; ?>/public/<?php echo $material['file_path']; ?>" target="_blank" class="material-item">
                     <i class="fas fa-file-pdf"></i>
                     <span><?php echo htmlspecialchars($material['file_name']); ?></span>
                     <i class="fas fa-download"></i>
@@ -87,10 +87,10 @@ $lesson = $lesson ?? [];
         <!-- Admin Actions -->
         <div class="admin-actions">
             <?php if (!$lesson['is_approved']): ?>
-                <a href="/rays-of-grace/admin/lessons/approve/<?php echo $lesson['id']; ?>" class="btn-approve" onclick="return confirm('Approve this lesson?')">
+                <a href="<?php echo BASE_URL; ?>/admin/lessons/approve/<?php echo $lesson['id']; ?>" class="btn-approve" onclick="return confirm('Approve this lesson?')">
                     <i class="fas fa-check-circle"></i> Approve Lesson
                 </a>
-                <a href="/rays-of-grace/admin/lessons/reject/<?php echo $lesson['id']; ?>" class="btn-reject" onclick="return confirm('Reject this lesson?')">
+                <a href="<?php echo BASE_URL; ?>/admin/lessons/reject/<?php echo $lesson['id']; ?>" class="btn-reject" onclick="return confirm('Reject this lesson?')">
                     <i class="fas fa-times-circle"></i> Reject Lesson
                 </a>
             <?php else: ?>

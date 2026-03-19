@@ -20,11 +20,11 @@ $revenueByMonth = $revenueByMonth ?? [];
             <p class="page-subtitle">Analytics and insights for all subscriptions</p>
         </div>
         <div class="header-actions">
-            <a href="/rays-of-grace/admin/subscriptions" class="btn-back">
+            <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="btn-back">
                 <i class="fas fa-arrow-left"></i>
                 Back to Subscriptions
             </a>
-            <a href="/rays-of-grace/admin/subscriptions/export?report=true" class="btn-export">
+            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/export?report=true" class="btn-export">
                 <i class="fas fa-download"></i>
                 Export Report
             </a>
@@ -144,7 +144,7 @@ $revenueByMonth = $revenueByMonth ?? [];
                                 </span>
                             </td>
                             <td>
-                                <a href="/rays-of-grace/admin/subscriptions/view/<?php echo $sub['id']; ?>" class="btn-view">
+                                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo $sub['id']; ?>" class="btn-view">
                                     <i class="fas fa-eye"></i> View
                                 </a>
                             </td>

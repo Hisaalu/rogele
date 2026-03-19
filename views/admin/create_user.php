@@ -8,7 +8,7 @@ require_once __DIR__ . '/../layouts/header.php';
     <!-- Header -->
     <div class="page-header">
         <div class="header-content">
-            <a href="/rays-of-grace/admin/users" class="back-link">
+            <a href="<?php echo BASE_URL; ?>/admin/users" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Users
             </a>
             <h1 class="page-title">
@@ -28,7 +28,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
     <!-- Create User Form -->
     <div class="form-card">
-        <form method="POST" action="/rays-of-grace/admin/users/create" class="admin-form">
+        <form method="POST" action="<?php echo BASE_URL; ?>/admin/users/create" class="admin-form">
             <!-- Basic Information -->
             <div class="form-section">
                 <h2 class="section-title">
@@ -184,7 +184,7 @@ require_once __DIR__ . '/../layouts/header.php';
                     <i class="fas fa-save"></i>
                     Create User
                 </button>
-                <a href="/rays-of-grace/admin/users" class="btn-secondary">
+                <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-secondary">
                     <i class="fas fa-times"></i>
                     Cancel
                 </a>

@@ -505,7 +505,7 @@ class ExternalController {
         
         if (empty($fromPlan) || empty($toPlan)) {
             $_SESSION['error'] = 'Invalid upgrade request';
-            header('Location: /rays-of-grace/external/subscription');
+            header('Location: <?php echo BASE_URL; ?>/external/subscription');
             exit;
         }
         
@@ -514,7 +514,7 @@ class ExternalController {
         
         if (!$currentSubscription) {
             $_SESSION['error'] = 'No active subscription found';
-            header('Location: /rays-of-grace/external/subscription');
+            header('Location: <?php echo BASE_URL; ?>/external/subscription');
             exit;
         }
         
@@ -530,7 +530,7 @@ class ExternalController {
         
         if (!$priceCalculation['success']) {
             $_SESSION['error'] = $priceCalculation['error'];
-            header('Location: /rays-of-grace/external/subscription');
+            header('Location: <?php echo BASE_URL; ?>/external/subscription');
             exit;
         }
         
@@ -580,7 +580,7 @@ class ExternalController {
      */
     public function processUpgrade() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /rays-of-grace/external/subscription');
+            header('Location: <?php echo BASE_URL; ?>/external/subscription');
             exit;
         }
         
@@ -594,7 +594,7 @@ class ExternalController {
         // Validate
         if (empty($fromPlan) || empty($toPlan) || $amount <= 0) {
             $_SESSION['error'] = 'Invalid upgrade request';
-            header('Location: /rays-of-grace/external/subscription');
+            header('Location: <?php echo BASE_URL; ?>/external/subscription');
             exit;
         }
         
@@ -603,7 +603,7 @@ class ExternalController {
         
         if (!$currentSubscription) {
             $_SESSION['error'] = 'No active subscription found';
-            header('Location: /rays-of-grace/external/subscription');
+            header('Location: <?php echo BASE_URL; ?>/external/subscription');
             exit;
         }
         
@@ -634,10 +634,10 @@ class ExternalController {
             // Send confirmation email
             $this->sendUpgradeConfirmationEmail($_SESSION['user_id'], $fromPlan, $toPlan, $amount, $result['new_end_date']);
             
-            header('Location: /rays-of-grace/external/upgrade-success?subscription_id=' . $result['new_subscription_id']);
+            header('Location: <?php echo BASE_URL; ?>/external/upgrade-success?subscription_id=' . $result['new_subscription_id']);
         } else {
             $_SESSION['error'] = $result['error'];
-            header('Location: /rays-of-grace/external/subscription');
+            header('Location: <?php echo BASE_URL; ?>/external/subscription');
         }
         exit;
     }
@@ -651,7 +651,7 @@ class ExternalController {
         $subscriptionId = $_GET['subscription_id'] ?? 0;
         
         if (!$subscriptionId) {
-            header('Location: /rays-of-grace/external/dashboard');
+            header('Location: <?php echo BASE_URL; ?>/external/dashboard');
             exit;
         }
         
@@ -660,7 +660,7 @@ class ExternalController {
         
         if (!$upgradeDetails) {
             $_SESSION['error'] = 'Upgrade details not found';
-            header('Location: /rays-of-grace/external/subscription');
+            header('Location: <?php echo BASE_URL; ?>/external/subscription');
             exit;
         }
         

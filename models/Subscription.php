@@ -847,19 +847,31 @@ class Subscription {
     }
 
     /**
-     * Get payment details for a subscription
+     * Get payment history for a subscription
+     * 
+     * @param int $subscriptionId The subscription ID
+     * @return array Array of payment records
      */
     public function getPaymentForSubscription($subscriptionId) {
         try {
-            $sql = "SELECT * FROM payment_history WHERE subscription_id = :subscription_id ORDER BY created_at DESC LIMIT 1";
+            $sql = "SELECT * FROM payment_history 
+                    WHERE subscription_id = :subscription_id 
+                    ORDER BY created_at DESC";
+            
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':subscription_id', $subscriptionId, PDO::PARAM_INT);
             $stmt->execute();
             
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Debug log
+            error_log("getPaymentForSubscription for ID $subscriptionId returned " . count($results) . " records");
+            
+            return $results; // Always return an array
+            
         } catch (PDOException $e) {
             error_log("Error getting payment details: " . $e->getMessage());
-            return null;
+            return []; // Return empty array on error
         }
     }
 

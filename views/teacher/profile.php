@@ -37,7 +37,7 @@ $profile = $profile ?? [];
             <div class="profile-photo-section">
                 <div class="profile-photo-wrapper">
                     <?php if (!empty($profile['profile_photo'])): ?>
-                        <img src="/rays-of-grace/<?php echo $profile['profile_photo']; ?>" alt="Profile Photo" class="profile-photo">
+                        <img src="<?php echo BASE_URL; ?>/<?php echo $profile['profile_photo']; ?>" alt="Profile Photo" class="profile-photo">
                     <?php else: ?>
                         <div class="profile-photo-placeholder">
                             <?php 
@@ -58,7 +58,7 @@ $profile = $profile ?? [];
                     </button>
                 </div>
                 
-                <form method="POST" action="/rays-of-grace/teacher/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
+                <form method="POST" action="<?php echo BASE_URL; ?>/teacher/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
                     <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" style="display: none;" onchange="document.getElementById('photoUploadForm').submit()">
                 </form>
                 
@@ -110,7 +110,7 @@ $profile = $profile ?? [];
                 Edit Personal Information
             </h3>
             
-            <form method="POST" action="/rays-of-grace/teacher/update-profile" class="profile-form" id="profileForm">
+            <form method="POST" action="<?php echo BASE_URL; ?>/teacher/update-profile" class="profile-form" id="profileForm">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="first_name">

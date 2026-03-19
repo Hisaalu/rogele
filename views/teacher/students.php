@@ -66,7 +66,7 @@ $search = $_GET['search'] ?? '';
             </button>
             
             <?php if ($search || $selectedClass): ?>
-                <a href="/rays-of-grace/teacher/students" class="btn-clear">
+                <a href="<?php echo BASE_URL; ?>/teacher/students" class="btn-clear">
                     <i class="fas fa-times"></i> Clear
                 </a>
             <?php endif; ?>
@@ -88,7 +88,7 @@ $search = $_GET['search'] ?? '';
                 <div class="student-card">
                     <div class="student-avatar">
                         <?php if (!empty($student['profile_photo'])): ?>
-                            <img src="/rays-of-grace/<?php echo $student['profile_photo']; ?>" alt="<?php echo $student['first_name']; ?>">
+                            <img src="<?php echo BASE_URL; ?>/<?php echo $student['profile_photo']; ?>" alt="<?php echo $student['first_name']; ?>">
                         <?php else: ?>
                             <div class="avatar-placeholder">
                                 <?php 
@@ -142,7 +142,7 @@ $search = $_GET['search'] ?? '';
                         </div>
                         
                         <div class="student-actions">
-                            <a href="/rays-of-grace/teacher/students/progress/<?php echo $student['id']; ?>" class="btn-view">
+                            <a href="<?php echo BASE_URL; ?>/teacher/students/progress/<?php echo $student['id']; ?>" class="btn-view">
                                 <i class="fas fa-chart-line"></i> View Progress
                             </a>
                         </div>

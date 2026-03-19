@@ -34,7 +34,7 @@ require_once __DIR__ . '/../layouts/header.php';
             <div class="profile-photo-section">
                 <div class="profile-photo-wrapper">
                     <?php if (!empty($profile['profile_photo'])): ?>
-                        <img src="/rays-of-grace/<?php echo $profile['profile_photo']; ?>" alt="Profile Photo" class="profile-photo">
+                        <img src="<?php echo BASE_URL; ?>/<?php echo $profile['profile_photo']; ?>" alt="Profile Photo" class="profile-photo">
                     <?php else: ?>
                         <div class="profile-photo-placeholder">
                             <?php 
@@ -57,7 +57,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Admin'); ?></h2>
                 <p class="profile-role">System Administrator</p>
                 
-                <form method="POST" action="/rays-of-grace/admin/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
+                <form method="POST" action="<?php echo BASE_URL; ?>/admin/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
                     <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" style="display: none;" onchange="document.getElementById('photoUploadForm').submit()">
                 </form>
                 
@@ -99,7 +99,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 Edit Personal Information
             </h3>
             
-            <form method="POST" action="/rays-of-grace/admin/update-profile" class="profile-form">
+            <form method="POST" action="<?php echo BASE_URL; ?>/admin/update-profile" class="profile-form">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="first_name">
@@ -166,7 +166,7 @@ require_once __DIR__ . '/../layouts/header.php';
                         <i class="fas fa-save"></i>
                         Save Changes
                     </button>
-                    <a href="/rays-of-grace/admin/dashboard" class="btn-cancel">
+                    <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="btn-cancel">
                         <i class="fas fa-times"></i>
                         Cancel
                     </a>

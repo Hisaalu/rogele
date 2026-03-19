@@ -141,7 +141,7 @@ $lessonViews = $lessonViews ?? [];
                                 </span>
                             </td>
                             <td>
-                                <a href="/rays-of-grace/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="btn-view">
+                                <a href="<?php echo BASE_URL; ?>/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="btn-view">
                                     <i class="fas fa-chart-bar"></i> View
                                 </a>
                             </td>
@@ -211,7 +211,7 @@ function loadQuizChart(days) {
     }
     
     // Fetch real data from API
-    fetch(`/rays-of-grace/teacher/api/quiz-performance?days=${days}`)
+    fetch(`<?php echo BASE_URL; ?>/teacher/api/quiz-performance?days=${days}`)
         .then(response => response.json())
         .then(data => {
             quizChart = new Chart(ctx, {
@@ -344,7 +344,7 @@ function loadLessonChart(days) {
     }
     
     // Fetch real data from API
-    fetch(`/rays-of-grace/teacher/api/lesson-views?days=${days}`)
+    fetch(`<?php echo BASE_URL; ?>/teacher/api/lesson-views?days=${days}`)
         .then(response => response.json())
         .then(data => {
             lessonChart = new Chart(ctx, {
@@ -426,7 +426,7 @@ function filterLessonChart(days) {
 
 function refreshAnalytics() {
     const range = document.getElementById('timeRange').value;
-    window.location.href = `/rays-of-grace/teacher/analytics?range=${range}`;
+    window.location.href = `<?php echo BASE_URL; ?>/teacher/analytics?range=${range}`;
 }
 
 // Handle window resize

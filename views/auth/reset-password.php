@@ -6,7 +6,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 $token = $_GET['token'] ?? '';
 if (empty($token)) {
-    header('Location: /rays-of-grace/login');
+    header('Location: <?php echo BASE_URL; ?>/login');
     exit;
 }
 ?>
@@ -28,7 +28,7 @@ if (empty($token)) {
             </div>
         <?php endif; ?>
 
-        <form action="/rays-of-grace/reset-password" method="POST" class="auth-form" id="resetForm">
+        <form action="<?php echo BASE_URL; ?>/reset-password" method="POST" class="auth-form" id="resetForm">
             <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
             
             <div class="form-group">
@@ -83,7 +83,7 @@ if (empty($token)) {
             </button>
 
             <div class="auth-footer">
-                <p>Remember your password? <a href="/rays-of-grace/login">Back to Login</a></p>
+                <p>Remember your password? <a href="<?php echo BASE_URL; ?>/login">Back to Login</a></p>
             </div>
         </form>
     </div>

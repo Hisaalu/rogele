@@ -53,7 +53,7 @@ $trialPercentage = $trialPercentage ?? 100; // Percentage of trial used
                     </div>
                 </div>
                 
-                <a href="/rays-of-grace/external/subscription" 
+                <a href="<?php echo BASE_URL; ?>/external/subscription" 
                    style="margin-left: auto; background: linear-gradient(135deg, #F59E0B, #F97316); color: white; padding: 10px 25px; border-radius: 50px; text-decoration: none; font-size: 0.95rem; font-weight: 600; transition: all 0.3s ease; white-space: nowrap; box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);">
                     <i class="fas fa-rocket"></i> Subscribe Now
                 </a>
@@ -90,7 +90,7 @@ $trialPercentage = $trialPercentage ?? 100; // Percentage of trial used
                     </p>
                 </div>
                 
-                <a href="/rays-of-grace/external/subscription" 
+                <a href="<?php echo BASE_URL; ?>/external/subscription" 
                    style="margin-left: auto; background: #10B981; color: white; padding: 10px 25px; border-radius: 50px; text-decoration: none; font-size: 0.95rem; font-weight: 600; transition: all 0.3s ease; white-space: nowrap;">
                     <i class="fas fa-cog"></i> Manage Plan
                 </a>
@@ -99,19 +99,19 @@ $trialPercentage = $trialPercentage ?? 100; // Percentage of trial used
         <?php endif; ?>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-            <a href="/rays-of-grace/external/materials" style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease;">
+            <a href="<?php echo BASE_URL; ?>/external/materials" style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease;">
                 <i class="fas fa-book-open" style="font-size: 2rem; margin-bottom: 15px;"></i>
                 <h3 style="margin-bottom: 10px;">Learning Materials</h3>
                 <p style="opacity: 0.9; font-size: 0.9rem;">Access all lessons and resources</p>
             </a>
             
-            <a href="/rays-of-grace/external/quizzes" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: all 0.3s ease;">
+            <a href="<?php echo BASE_URL; ?>/external/quizzes" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: all 0.3s ease;">
                 <i class="fas fa-pencil-alt" style="font-size: 2rem; margin-bottom: 15px; color: #F97316;"></i>
                 <h3 style="margin-bottom: 10px;">Practice Quizzes</h3>
                 <p style="color: #64748B; font-size: 0.9rem;">Test your knowledge</p>
             </a>
             
-            <a href="/rays-of-grace/external/subscription" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: all 0.3s ease;">
+            <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: all 0.3s ease;">
                 <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 15px; color: #8B5CF6;"></i>
                 <h3 style="margin-bottom: 10px;">Subscription</h3>
                 <p style="color: #64748B; font-size: 0.9rem;">Manage your subscription</p>

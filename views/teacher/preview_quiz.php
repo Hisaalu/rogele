@@ -14,7 +14,7 @@ $questions = $quiz['questions'] ?? [];
             <i class="fas fa-eye"></i>
             Quiz Preview
         </h1>
-        <a href="/rays-of-grace/teacher/quizzes" class="back-link">
+        <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
             <i class="fas fa-arrow-left"></i> Back to Quizzes
         </a>
     </div>
@@ -44,7 +44,7 @@ $questions = $quiz['questions'] ?? [];
             <div class="empty-questions">
                 <i class="fas fa-pencil-alt"></i>
                 <h3>No Questions Added Yet</h3>
-                <p>This quiz doesn't have any questions. <a href="/rays-of-grace/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>">Add questions now</a>.</p>
+                <p>This quiz doesn't have any questions. <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>">Add questions now</a>.</p>
             </div>
         <?php else: ?>
             <div class="questions-list">
@@ -101,10 +101,10 @@ $questions = $quiz['questions'] ?? [];
 
         <!-- Actions -->
         <div class="preview-actions">
-            <a href="/rays-of-grace/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-edit">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-edit">
                 <i class="fas fa-edit"></i> Edit Quiz
             </a>
-            <a href="/rays-of-grace/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="btn-add">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="btn-add">
                 <i class="fas fa-plus-circle"></i> Add/Edit Questions
             </a>
         </div>

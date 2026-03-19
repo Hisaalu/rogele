@@ -63,7 +63,7 @@ $search = $_GET['search'] ?? '';
             </button>
             
             <?php if ($search || $selectedSubject): ?>
-                <a href="/rays-of-grace/external/materials" class="btn-clear">
+                <a href="<?php echo BASE_URL; ?>/external/materials" class="btn-clear">
                     <i class="fas fa-times"></i> Clear
                 </a>
             <?php endif; ?>
@@ -129,7 +129,7 @@ $search = $_GET['search'] ?? '';
                             </span>
                         </div>
 
-                        <a href="/rays-of-grace/external/view-lesson/<?php echo $lesson['id']; ?>" class="btn-view">
+                        <a href="<?php echo BASE_URL; ?>/external/view-lesson/<?php echo $lesson['id']; ?>" class="btn-view">
                             <span>Start Learning</span>
                             <i class="fas fa-arrow-right"></i>
                         </a>
