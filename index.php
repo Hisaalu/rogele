@@ -128,6 +128,13 @@ $routes = [
     '/external/upgrade-confirmation' => 'ExternalController@upgradeConfirmation',
     '/external/process-upgrade' => 'ExternalController@processUpgrade',
     '/external/upgrade-success' => 'ExternalController@upgradeSuccess',
+    '/external/process-payment' => 'ExternalController@processPayment',
+    '/external/payment-callback' => 'ExternalController@paymentCallback',
+    '/external/payment-success' => 'ExternalController@paymentSuccess',
+    '/external/payment-cancelled' => 'ExternalController@paymentCancelled',
+    '/external/process-pesapal-payment' => 'ExternalController@processPesapalPayment',
+    '/external/pesapal-callback' => 'ExternalController@pesapalCallback',
+    '/external/pesapal-ipn' => 'ExternalController@pesapalIpn',
     
      // Settings routes
     '/admin/settings' => 'AdminController@settings',

@@ -7,6 +7,8 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../models/Subject.php';
 require_once __DIR__ . '/../helpers/MailHelper.php';
+require_once __DIR__ . '/../config/pesapal.php';
+require_once __DIR__ . '/../lib/Pesapal.php';
 
 class ExternalController {
     private $subscriptionModel;
@@ -326,52 +328,56 @@ class ExternalController {
         
         require_once __DIR__ . '/../views/external/purchase.php';
     }
-    
+
     /**
-     * Process payment
+     * Send payment confirmation email
      */
-    public function processPayment() {
-        $hideFooter = true;
+    private function sendPaymentConfirmationEmail($userId, $planType, $amount) {
+        $user = $this->userModel->getById($userId);
         
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+        if (!$user) {
+            return;
         }
         
-        $plan = $_POST['plan'] ?? 'monthly';
-        $phoneNumber = $_POST['phone_number'] ?? '';
-        $paymentMethod = $_POST['payment_method'] ?? '';
+        $subject = "Payment Confirmation - " . ucfirst($planType) . " Subscription";
         
-        if (empty($phoneNumber) || empty($paymentMethod)) {
-            $_SESSION['error'] = 'Please fill in all payment details';
-            header('Location: ' . BASE_URL . '/external/purchase?plan=' . $plan);
-            exit;
-        }
+        $message = "
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 30px; text-align: center; }
+                .content { padding: 30px; background: #f9f9f9; }
+                .amount { font-size: 24px; font-weight: bold; color: #8B5CF6; }
+                .button { background: #8B5CF6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h2>Payment Confirmation</h2>
+                </div>
+                <div class='content'>
+                    <h3>Hello " . htmlspecialchars($user['first_name']) . "!</h3>
+                    <p>Thank you for your subscription payment. Your account has been successfully activated.</p>
+                    <p><strong>Plan:</strong> " . ucfirst($planType) . "</p>
+                    <p><strong>Amount Paid:</strong> <span class='amount'>UGX " . number_format($amount) . "</span></p>
+                    <p>You now have full access to all premium features!</p>
+                    <p style='text-align: center; margin-top: 30px;'>
+                        <a href='" . BASE_URL . "/external/dashboard' class='button'>Go to Dashboard</a>
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
         
-        $result = $this->subscriptionModel->create($_SESSION['user_id'], $plan, $paymentMethod);
+        $headers = "MIME-Version: 1.0\r\n";
+        $headers .= "Content-type: text/html; charset=utf-8\r\n";
+        $headers .= "From: Rays of Grace <noreply@raysofgrace.com>\r\n";
         
-        if ($result['success']) {
-            $amount = SUBSCRIPTION_PLANS[$plan] ?? 0;
-            $paymentResult = $this->subscriptionModel->processPayment(
-                $_SESSION['user_id'],
-                $result['subscription_id'],
-                $phoneNumber,
-                $amount
-            );
-            
-            if ($paymentResult['success']) {
-                $_SESSION['success'] = 'Payment successful! Your subscription is now active.';
-                header('Location: ' . BASE_URL . '/external/dashboard');
-                exit;
-            } else {
-                $_SESSION['error'] = 'Payment failed: ' . ($paymentResult['error'] ?? 'Unknown error');
-            }
-        } else {
-            $_SESSION['error'] = 'Failed to create subscription: ' . ($result['error'] ?? 'Unknown error');
-        }
-        
-        header('Location: ' . BASE_URL . '/external/purchase?plan=' . $plan);
-        exit;
+        mail($user['email'], $subject, $message, $headers);
     }
     
     /**
@@ -516,7 +522,7 @@ class ExternalController {
         
         if (empty($fromPlan) || empty($toPlan)) {
             $_SESSION['error'] = 'Invalid upgrade request';
-            header('Location: <?php echo BASE_URL; ?>/external/subscription');
+            header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
@@ -525,27 +531,14 @@ class ExternalController {
         
         if (!$currentSubscription) {
             $_SESSION['error'] = 'No active subscription found';
-            header('Location: <?php echo BASE_URL; ?>/external/subscription');
+            header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
         // Get subscription settings
         $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
         
-        // Calculate upgrade price
-        $priceCalculation = $this->subscriptionModel->calculateUpgradePrice(
-            $fromPlan, 
-            $toPlan, 
-            $currentSubscription
-        );
-        
-        if (!$priceCalculation['success']) {
-            $_SESSION['error'] = $priceCalculation['error'];
-            header('Location: <?php echo BASE_URL; ?>/external/subscription');
-            exit;
-        }
-        
-        // Plan details with features
+        // Plan details
         $plans = [
             'monthly' => [
                 'name' => 'Monthly',
@@ -563,8 +556,7 @@ class ExternalController {
                 'features' => [
                     'Everything in Monthly',
                     'Priority support',
-                    'Downloadable materials',
-                    'Save ' . number_format((($subscriptionSettings['monthly_price'] ?? 15000) * 3) - ($subscriptionSettings['termly_price'] ?? 40000)) . ' UGX'
+                    'Downloadable materials'
                 ]
             ],
             'yearly' => [
@@ -579,33 +571,58 @@ class ExternalController {
             ]
         ];
         
+        // Calculate upgrade price
+        $prices = [
+            'monthly' => $subscriptionSettings['monthly_price'] ?? 15000,
+            'termly' => $subscriptionSettings['termly_price'] ?? 40000,
+            'yearly' => $subscriptionSettings['yearly_price'] ?? 120000
+        ];
+        
+        $currentPrice = $prices[$fromPlan] ?? 0;
+        $newPrice = $prices[$toPlan] ?? 0;
+        
+        // Calculate remaining days
+        $endDate = new DateTime($currentSubscription['end_date']);
+        $now = new DateTime();
+        $daysRemaining = $now->diff($endDate)->days;
+        
+        // Calculate prorated value
+        $totalDays = $fromPlan === 'monthly' ? 30 : ($fromPlan === 'termly' ? 90 : 365);
+        $dailyRate = $currentPrice / $totalDays;
+        $remainingValue = $dailyRate * $daysRemaining;
+        $upgradePrice = max(0, $newPrice - $remainingValue);
+        
+        $priceCalculation = [
+            'success' => true,
+            'current_price' => $currentPrice,
+            'new_price' => $newPrice,
+            'days_remaining' => $daysRemaining,
+            'remaining_value' => round($remainingValue),
+            'upgrade_price' => round($upgradePrice)
+        ];
+        
         $fromPlanDetails = $plans[$fromPlan] ?? ['name' => ucfirst($fromPlan), 'price' => 0, 'features' => []];
         $toPlanDetails = $plans[$toPlan] ?? ['name' => ucfirst($toPlan), 'price' => 0, 'features' => []];
         
-        // Load the view
         require_once __DIR__ . '/../views/external/upgrade-confirmation.php';
     }
 
     /**
-     * Process the upgrade
+     * Process upgrade (local test version)
      */
     public function processUpgrade() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: <?php echo BASE_URL; ?>/external/subscription');
+            header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
         $fromPlan = $_POST['from_plan'] ?? '';
         $toPlan = $_POST['to_plan'] ?? '';
         $amount = $_POST['amount'] ?? 0;
-        $paymentMethod = $_POST['payment_method'] ?? 'mobile_money';
-        $phoneNumber = $_POST['phone_number'] ?? '';
-        $provider = $_POST['provider'] ?? '';
         
-        // Validate
-        if (empty($fromPlan) || empty($toPlan) || $amount <= 0) {
+        if (empty($fromPlan) || empty($toPlan)) {
             $_SESSION['error'] = 'Invalid upgrade request';
-            header('Location: <?php echo BASE_URL; ?>/external/subscription');
+            header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
@@ -614,93 +631,48 @@ class ExternalController {
         
         if (!$currentSubscription) {
             $_SESSION['error'] = 'No active subscription found';
-            header('Location: <?php echo BASE_URL; ?>/external/subscription');
+            header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
-        // Here you would integrate with your payment gateway
-        // For demo, we'll simulate a successful payment
-        
-        $paymentDetails = [
-            'method' => $paymentMethod,
-            'phone' => $phoneNumber,
-            'provider' => $provider,
-            'reference' => 'UPG_' . time() . '_' . $_SESSION['user_id'],
-            'transaction_id' => 'TXN_' . uniqid(),
-            'timestamp' => date('Y-m-d H:i:s'),
-            'amount' => $amount
-        ];
-        
-        // Process the upgrade
+        // Process upgrade
         $result = $this->subscriptionModel->upgradeSubscription(
             $_SESSION['user_id'],
             $fromPlan,
             $toPlan,
-            $paymentDetails
+            [
+                'method' => $_POST['payment_method'] ?? 'mobile_money',
+                'transaction_id' => 'UPG_' . time() . '_' . $_SESSION['user_id'],
+                'amount' => $amount
+            ]
         );
         
         if ($result['success']) {
             $_SESSION['success'] = $result['message'];
-            
-            // Send confirmation email
-            $this->sendUpgradeConfirmationEmail($_SESSION['user_id'], $fromPlan, $toPlan, $amount, $result['new_end_date']);
-            
-            header('Location: <?php echo BASE_URL; ?>/external/upgrade-success?subscription_id=' . $result['new_subscription_id']);
+            header('Location: ' . BASE_URL . '/external/upgrade-success?subscription_id=' . $result['new_subscription_id']);
+            exit;
         } else {
             $_SESSION['error'] = $result['error'];
-            header('Location: <?php echo BASE_URL; ?>/external/subscription');
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
         }
-        exit;
     }
 
     /**
-     * Show upgrade success page
+     * Upgrade success page
      */
     public function upgradeSuccess() {
         $hideFooter = true;
         
         $subscriptionId = $_GET['subscription_id'] ?? 0;
         
-        if (!$subscriptionId) {
-            header('Location: <?php echo BASE_URL; ?>/external/dashboard');
-            exit;
-        }
-        
-        // Get upgrade details from the subscription
+        // Get upgrade details
         $upgradeDetails = $this->subscriptionModel->getUpgradeDetails($subscriptionId);
         
-        if (!$upgradeDetails) {
-            $_SESSION['error'] = 'Upgrade details not found';
-            header('Location: <?php echo BASE_URL; ?>/external/subscription');
-            exit;
-        }
-        
-        // Get the new plan type
         $toPlan = $upgradeDetails['plan_type'] ?? '';
+        $upgradePrice = $upgradeDetails['amount'] ?? 0;
+        $newEndDate = $upgradeDetails['end_date'] ?? date('Y-m-d H:i:s');
         
-        // Get the original subscription to find the from plan
-        $originalSubscriptionId = $upgradeDetails['original_subscription_id'] ?? null;
-        $fromPlan = '';
-        
-        if ($originalSubscriptionId) {
-            $originalSubscription = $this->subscriptionModel->getUpgradeDetails($originalSubscriptionId);
-            $fromPlan = $originalSubscription['plan_type'] ?? '';
-        }
-        
-        // Get payment details for this subscription
-        $paymentDetails = $this->subscriptionModel->getPaymentForSubscription($subscriptionId);
-        
-        // Calculate price breakdown (or get from payment)
-        $priceCalculation = [
-            'upgrade_price' => $upgradeDetails['amount'] ?? 0,
-            'new_price' => $this->getPlanPrice($toPlan),
-            'remaining_value' => 0 // You might want to calculate this properly
-        ];
-        
-        // New end date
-        $newEndDate = $upgradeDetails['end_date'] ?? date('Y-m-d H:i:s', strtotime('+1 year'));
-        
-        // Pass all variables to the view
         require_once __DIR__ . '/../views/external/upgrade-success.php';
     }
 
@@ -800,6 +772,232 @@ class ExternalController {
             error_log("Error sending email: " . $e->getMessage());
             return false;
         }
+    }
+
+
+    /**
+     * Process payment with Pesapal
+     */
+    public function processPesapalPayment() {
+        // Debug logging
+        error_log("=== processPesapalPayment called ===");
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            error_log("Not a POST request");
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+        
+        $planType = $_POST['plan'] ?? '';
+        $paymentMethod = $_POST['payment_method'] ?? 'mobile_money';
+        $phoneNumber = $_POST['phone_number'] ?? '';
+        
+        error_log("Plan: $planType, Method: $paymentMethod, Phone: $phoneNumber");
+        
+        if (empty($planType)) {
+            $_SESSION['error'] = 'Please select a subscription plan';
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+        
+        if ($paymentMethod == 'mobile_money' && empty($phoneNumber)) {
+            $_SESSION['error'] = 'Phone number is required for mobile money payments';
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+        
+        // Get plan amount
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
+        $amounts = [
+            'monthly' => $subscriptionSettings['monthly_price'] ?? 15000,
+            'termly' => $subscriptionSettings['termly_price'] ?? 40000,
+            'yearly' => $subscriptionSettings['yearly_price'] ?? 120000
+        ];
+        
+        $amount = $amounts[$planType] ?? 0;
+        error_log("Amount: $amount UGX");
+        
+        // Create pending payment record
+        $paymentResult = $this->subscriptionModel->createPendingPayment(
+            $_SESSION['user_id'],
+            $planType,
+            $amount,
+            $paymentMethod,
+            $phoneNumber
+        );
+        
+        if (!$paymentResult['success']) {
+            error_log("Failed to create payment record: " . ($paymentResult['error'] ?? 'Unknown error'));
+            $_SESSION['error'] = $paymentResult['error'];
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+        
+        error_log("Payment record created: " . print_r($paymentResult, true));
+        
+        // Get user details
+        $user = $this->userModel->getById($_SESSION['user_id']);
+        $nameParts = explode(' ', $user['first_name'] . ' ' . $user['last_name']);
+        $firstName = $nameParts[0] ?? $user['first_name'];
+        $lastName = isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : '';
+        
+        // Initialize Pesapal
+        require_once __DIR__ . '/../lib/Pesapal.php';
+        $pesapal = new Pesapal();
+        
+        // Prepare payment data
+        $paymentData = [
+            'amount' => $amount,
+            'phone' => $phoneNumber,
+            'email' => $user['email'],
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'reference' => $paymentResult['transaction_id'],
+            'description' => ucfirst($planType) . ' Subscription - Rays of Grace'
+        ];
+        
+        error_log("Submitting to Pesapal: " . json_encode($paymentData));
+        
+        // Submit payment to Pesapal
+        $response = $pesapal->submitPayment($paymentData);
+        
+        error_log("Pesapal Response: " . json_encode($response));
+        
+        if (isset($response['error']) && $response['error']) {
+            $_SESSION['error'] = $response['message'];
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+        
+        // Store pending info in session
+        $_SESSION['pending_payment_id'] = $paymentResult['payment_id'];
+        $_SESSION['pending_transaction_id'] = $paymentResult['transaction_id'];
+        $_SESSION['pending_plan'] = $planType;
+        $_SESSION['pending_amount'] = $amount;
+        $_SESSION['pesapal_tracking_id'] = $response['tracking_id'] ?? '';
+        
+        // Redirect to Pesapal
+        if (isset($response['redirect_url'])) {
+            error_log("Redirecting to: " . $response['redirect_url']);
+            header('Location: ' . $response['redirect_url']);
+            exit;
+        } else {
+            $_SESSION['error'] = 'No redirect URL from Pesapal';
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+    }
+
+    /**
+     * Pesapal callback (after payment)
+     */
+    public function pesapalCallback() {
+        $pesapalTrackingId = $_GET['pesapal_transaction_tracking_id'] ?? '';
+        $merchantReference = $_GET['pesapal_merchant_reference'] ?? '';
+        
+        if (empty($pesapalTrackingId)) {
+            $_SESSION['error'] = 'Invalid payment callback';
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+        
+        // Verify payment status
+        $pesapal = new Pesapal();
+        $verification = $pesapal->queryPaymentStatus($pesapalTrackingId);
+        
+        if (!$verification['success']) {
+            $_SESSION['error'] = 'Payment verification failed';
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+        
+        // Check if payment was successful
+        if ($verification['status'] == 'COMPLETED') {
+            // Update payment record
+            $this->subscriptionModel->updatePaymentStatus(
+                $merchantReference,
+                'completed',
+                $verification
+            );
+            
+            // Activate subscription
+            $this->activatePesapalSubscription($merchantReference);
+            
+            $_SESSION['success'] = 'Payment successful! Your subscription is now active.';
+            header('Location: ' . BASE_URL . '/external/dashboard');
+            exit;
+        } else {
+            $_SESSION['error'] = 'Payment was not successful. Status: ' . $verification['status'];
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+    }
+
+    /**
+     * Pesapal IPN (Instant Payment Notification)
+     */
+    public function pesapalIpn() {
+        $pesapalTrackingId = $_GET['pesapal_transaction_tracking_id'] ?? '';
+        $merchantReference = $_GET['pesapal_merchant_reference'] ?? '';
+        
+        if (empty($pesapalTrackingId)) {
+            http_response_code(400);
+            echo 'Invalid IPN request';
+            exit;
+        }
+        
+        // Verify payment status
+        $pesapal = new Pesapal();
+        $verification = $pesapal->queryPaymentStatus($pesapalTrackingId);
+        
+        if ($verification['success'] && $verification['status'] == 'COMPLETED') {
+            $this->subscriptionModel->updatePaymentStatus(
+                $merchantReference,
+                'completed',
+                $verification
+            );
+            
+            $this->activatePesapalSubscription($merchantReference);
+            
+            echo 'OK';
+            exit;
+        }
+        
+        echo 'FAILED';
+        exit;
+    }
+
+    /**
+     * Activate subscription after successful payment
+     */
+    private function activatePesapalSubscription($reference) {
+        $payment = $this->subscriptionModel->getPaymentByTransactionId($reference);
+        
+        if (!$payment) {
+            error_log("Payment not found for reference: $reference");
+            return false;
+        }
+        
+        // Create subscription
+        $subscriptionResult = $this->subscriptionModel->createSubscription(
+            $payment['user_id'],
+            $payment['plan_type'],
+            $payment['amount'],
+            $reference
+        );
+        
+        if ($subscriptionResult['success']) {
+            // Send confirmation email
+            $this->sendPaymentConfirmationEmail(
+                $payment['user_id'],
+                $payment['plan_type'],
+                $payment['amount']
+            );
+            
+            error_log("Subscription activated for user: " . $payment['user_id']);
+        }
+        
+        return $subscriptionResult;
     }
 }
 ?>

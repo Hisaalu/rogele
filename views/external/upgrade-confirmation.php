@@ -2,32 +2,23 @@
 // File: /views/external/upgrade-confirmation.php
 $pageTitle = 'Confirm Upgrade - Rays of Grace';
 require_once __DIR__ . '/../layouts/header.php';
+
+// Get data from controller
+$fromPlan = $fromPlan ?? '';
+$toPlan = $toPlan ?? '';
+$fromPlanDetails = $fromPlanDetails ?? [];
+$toPlanDetails = $toPlanDetails ?? [];
+$priceCalculation = $priceCalculation ?? [];
 ?>
 
 <div class="upgrade-container">
-    <!-- Progress Steps -->
-    <div class="progress-steps">
-        <div class="step completed">
-            <div class="step-icon"><i class="fas fa-check"></i></div>
-            <div class="step-label">Review</div>
-        </div>
-        <div class="step active">
-            <div class="step-icon">2</div>
-            <div class="step-label">Payment</div>
-        </div>
-        <div class="step">
-            <div class="step-icon">3</div>
-            <div class="step-label">Confirmation</div>
-        </div>
-    </div>
-
     <div class="upgrade-card">
         <div class="card-header">
             <div class="header-icon">
                 <i class="fas fa-rocket"></i>
             </div>
-            <h1>Confirm Your Upgrade</h1>
-            <p>Please review your upgrade details below</p>
+            <h1>Upgrade Your Plan</h1>
+            <p>Review your upgrade details below</p>
         </div>
 
         <!-- Plan Comparison -->
@@ -37,13 +28,13 @@ require_once __DIR__ . '/../layouts/header.php';
                 <div class="plan-icon">
                     <i class="fas fa-<?php echo $fromPlan === 'yearly' ? 'crown' : ($fromPlan === 'termly' ? 'star' : 'user'); ?>"></i>
                 </div>
-                <h3><?php echo ucfirst($fromPlanDetails['name']); ?></h3>
+                <h3><?php echo ucfirst($fromPlanDetails['name'] ?? $fromPlan); ?></h3>
                 <div class="plan-price">
                     <small>UGX</small>
-                    <span><?php echo number_format($fromPlanDetails['price']); ?></span>
+                    <span><?php echo number_format($fromPlanDetails['price'] ?? 0); ?></span>
                 </div>
                 <ul class="plan-features">
-                    <?php foreach ($fromPlanDetails['features'] as $feature): ?>
+                    <?php foreach (($fromPlanDetails['features'] ?? []) as $feature): ?>
                         <li><i class="fas fa-check"></i> <?php echo $feature; ?></li>
                     <?php endforeach; ?>
                 </ul>
@@ -59,13 +50,13 @@ require_once __DIR__ . '/../layouts/header.php';
                 <div class="plan-icon">
                     <i class="fas fa-<?php echo $toPlan === 'yearly' ? 'crown' : ($toPlan === 'termly' ? 'star' : 'rocket'); ?>"></i>
                 </div>
-                <h3><?php echo ucfirst($toPlanDetails['name']); ?></h3>
+                <h3><?php echo ucfirst($toPlanDetails['name'] ?? $toPlan); ?></h3>
                 <div class="plan-price">
                     <small>UGX</small>
-                    <span><?php echo number_format($toPlanDetails['price']); ?></span>
+                    <span><?php echo number_format($toPlanDetails['price'] ?? 0); ?></span>
                 </div>
                 <ul class="plan-features">
-                    <?php foreach ($toPlanDetails['features'] as $feature): ?>
+                    <?php foreach (($toPlanDetails['features'] ?? []) as $feature): ?>
                         <li><i class="fas fa-check"></i> <?php echo $feature; ?></li>
                     <?php endforeach; ?>
                 </ul>
@@ -78,19 +69,19 @@ require_once __DIR__ . '/../layouts/header.php';
             
             <div class="breakdown-item">
                 <span>New Plan Price:</span>
-                <strong>UGX <?php echo number_format($priceCalculation['new_price']); ?></strong>
+                <strong>UGX <?php echo number_format($priceCalculation['new_price'] ?? 0); ?></strong>
             </div>
             
             <div class="breakdown-item">
-                <span>Remaining Value (<?php echo $priceCalculation['days_remaining']; ?> days):</span>
-                <strong class="text-success">- UGX <?php echo number_format($priceCalculation['remaining_value']); ?></strong>
+                <span>Remaining Value (<?php echo $priceCalculation['days_remaining'] ?? 0; ?> days):</span>
+                <strong class="text-success">- UGX <?php echo number_format($priceCalculation['remaining_value'] ?? 0); ?></strong>
             </div>
             
             <div class="breakdown-divider"></div>
             
             <div class="breakdown-item total">
                 <span>You Pay Today:</span>
-                <strong class="total-amount">UGX <?php echo number_format($priceCalculation['upgrade_price']); ?></strong>
+                <strong class="total-amount">UGX <?php echo number_format($priceCalculation['upgrade_price'] ?? 0); ?></strong>
             </div>
             
             <div class="savings-note">
@@ -101,9 +92,9 @@ require_once __DIR__ . '/../layouts/header.php';
 
         <!-- Payment Form -->
         <form action="<?php echo BASE_URL; ?>/external/process-upgrade" method="POST" class="payment-form">
-            <input type="hidden" name="from_plan" value="<?php echo $fromPlan; ?>">
-            <input type="hidden" name="to_plan" value="<?php echo $toPlan; ?>">
-            <input type="hidden" name="amount" value="<?php echo $priceCalculation['upgrade_price']; ?>">
+            <input type="hidden" name="from_plan" value="<?php echo htmlspecialchars($fromPlan); ?>">
+            <input type="hidden" name="to_plan" value="<?php echo htmlspecialchars($toPlan); ?>">
+            <input type="hidden" name="amount" value="<?php echo $priceCalculation['upgrade_price'] ?? 0; ?>">
             
             <h3>💳 Select Payment Method</h3>
             
@@ -129,35 +120,15 @@ require_once __DIR__ . '/../layouts/header.php';
                         </div>
                     </div>
                 </label>
-                
-                <label class="payment-method">
-                    <input type="radio" name="payment_method" value="bank_transfer">
-                    <div class="method-content">
-                        <i class="fas fa-university"></i>
-                        <div>
-                            <strong>Bank Transfer</strong>
-                            <small>Direct bank deposit</small>
-                        </div>
-                    </div>
-                </label>
             </div>
 
-            <!-- Mobile Money Details (shown when mobile money selected) -->
             <div class="payment-details" id="mobileMoneyDetails">
                 <div class="form-group">
                     <label for="phone_number">Mobile Money Number</label>
                     <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 0772 123 456">
                 </div>
-                <div class="form-group">
-                    <label for="provider">Provider</label>
-                    <select name="provider" id="provider">
-                        <option value="mtn">MTN Uganda</option>
-                        <option value="airtel">Airtel Uganda</option>
-                    </select>
-                </div>
             </div>
 
-            <!-- Card Details (hidden initially) -->
             <div class="payment-details" id="cardDetails" style="display: none;">
                 <div class="form-row">
                     <div class="form-group">
@@ -175,32 +146,12 @@ require_once __DIR__ . '/../layouts/header.php';
                         <input type="text" id="cvv" placeholder="123">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="card_name">Name on Card</label>
-                    <input type="text" id="card_name" placeholder="John Doe">
-                </div>
             </div>
 
-            <!-- Bank Transfer Details (hidden initially) -->
-            <div class="payment-details" id="bankDetails" style="display: none;">
-                <div class="bank-info">
-                    <p><strong>Bank:</strong> Stanbic Bank Uganda</p>
-                    <p><strong>Account Name:</strong> Rays of Grace E-Learning</p>
-                    <p><strong>Account Number:</strong> 9030012345678</p>
-                    <p><strong>Branch:</strong> Kampala Main</p>
-                    <p><strong>Swift Code:</strong> SBICUGKX</p>
-                </div>
-                <div class="form-group">
-                    <label for="transaction_ref">Transaction Reference</label>
-                    <input type="text" id="transaction_ref" name="transaction_ref" placeholder="Enter bank transaction reference">
-                </div>
-            </div>
-
-            <!-- Terms and Submit -->
             <div class="terms-section">
                 <label class="checkbox-label">
                     <input type="checkbox" name="terms" required>
-                    <span>I agree to the <a href="<?php echo BASE_URL; ?>/terms">Terms of Service</a> and <a href="<?php echo BASE_URL; ?>/privacy">Privacy Policy</a></span>
+                    <span>I agree to the <a href="/terms">Terms of Service</a></span>
                 </label>
             </div>
 
@@ -209,8 +160,7 @@ require_once __DIR__ . '/../layouts/header.php';
                     <i class="fas fa-arrow-left"></i> Cancel
                 </a>
                 <button type="submit" class="btn-pay">
-                    Pay UGX <?php echo number_format($priceCalculation['upgrade_price']); ?>
-                    <i class="fas fa-lock"></i>
+                    Pay UGX <?php echo number_format($priceCalculation['upgrade_price'] ?? 0); ?>
                 </button>
             </div>
         </form>
@@ -224,73 +174,6 @@ require_once __DIR__ . '/../layouts/header.php';
     padding: 0 20px;
 }
 
-/* Progress Steps */
-.progress-steps {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 50px;
-    position: relative;
-}
-
-.progress-steps::before {
-    content: '';
-    position: absolute;
-    top: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 70%;
-    height: 2px;
-    background: #E2E8F0;
-    z-index: 1;
-}
-
-.step {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    flex: 1;
-    max-width: 120px;
-}
-
-.step.completed .step-icon {
-    background: linear-gradient(135deg, #48BB78, #38A169);
-    color: white;
-    border-color: #48BB78;
-}
-
-.step.active .step-icon {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    border-color: #667eea;
-    transform: scale(1.1);
-}
-
-.step-icon {
-    width: 50px;
-    height: 50px;
-    background: white;
-    border: 2px solid #E2E8F0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 10px;
-    font-weight: 700;
-    transition: all 0.3s ease;
-}
-
-.step-label {
-    font-size: 0.9rem;
-    color: #64748B;
-    font-weight: 500;
-}
-
-.step.active .step-label {
-    color: #667eea;
-    font-weight: 600;
-}
-
-/* Upgrade Card */
 .upgrade-card {
     background: white;
     border-radius: 30px;
@@ -306,7 +189,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .header-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #8B5CF6, #F97316);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -320,17 +203,15 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .card-header h1 {
-    font-size: 2.2rem;
+    font-size: 2rem;
     color: #1E293B;
     margin-bottom: 10px;
 }
 
 .card-header p {
     color: #64748B;
-    font-size: 1.1rem;
 }
 
-/* Plan Comparison */
 .plan-comparison {
     display: flex;
     align-items: center;
@@ -347,16 +228,15 @@ require_once __DIR__ . '/../layouts/header.php';
     border-radius: 20px;
     padding: 30px;
     position: relative;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
+    text-align: center;
 }
 
 .plan-card.current-plan {
-    border-color: #94A3B8;
+    border: 2px solid #94A3B8;
 }
 
 .plan-card.new-plan {
-    border-color: #667eea;
+    border: 2px solid #8B5CF6;
     background: linear-gradient(135deg, #F8FAFC, white);
 }
 
@@ -378,14 +258,14 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .new-plan .plan-badge {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #8B5CF6, #F97316);
     color: white;
 }
 
 .plan-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #8B5CF6, #F97316);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -399,21 +279,13 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .plan-card h3 {
-    text-align: center;
     font-size: 1.5rem;
     margin-bottom: 15px;
     color: #1E293B;
 }
 
 .plan-price {
-    text-align: center;
     margin-bottom: 20px;
-}
-
-.plan-price small {
-    font-size: 0.9rem;
-    color: #64748B;
-    margin-right: 5px;
 }
 
 .plan-price span {
@@ -426,56 +298,49 @@ require_once __DIR__ . '/../layouts/header.php';
     list-style: none;
     padding: 0;
     margin: 0;
+    text-align: left;
 }
 
 .plan-features li {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     color: #4A5568;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .plan-features li i {
-    color: #48BB78;
-    font-size: 0.9rem;
+    color: #10B981;
 }
 
 .upgrade-arrow {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: #667eea;
+    color: #8B5CF6;
     font-size: 2rem;
-}
-
-.upgrade-arrow i:first-child {
-    display: block;
 }
 
 .upgrade-arrow i:last-child {
     display: none;
 }
 
-/* Price Breakdown */
 .price-breakdown {
-    background: linear-gradient(135deg, #F8FAFC, #EDF2F7);
+    background: #F8FAFC;
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 40px;
 }
 
 .price-breakdown h3 {
+    margin-bottom: 20px;
     color: #1E293B;
-    margin-bottom: 25px;
-    font-size: 1.3rem;
 }
 
 .breakdown-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     margin-bottom: 15px;
     color: #4A5568;
 }
@@ -487,17 +352,17 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .total-amount {
-    color: #667eea;
-    font-size: 1.5rem;
+    color: #8B5CF6;
+    font-size: 1.3rem;
 }
 
 .text-success {
-    color: #48BB78;
+    color: #10B981;
 }
 
 .breakdown-divider {
     height: 2px;
-    background: linear-gradient(90deg, transparent, #CBD5E0, transparent);
+    background: #E2E8F0;
     margin: 20px 0;
 }
 
@@ -506,80 +371,69 @@ require_once __DIR__ . '/../layouts/header.php';
     align-items: center;
     gap: 10px;
     background: #FEF3C7;
-    border: 1px solid #F59E0B;
     border-radius: 12px;
     padding: 15px;
     margin-top: 20px;
     color: #92400E;
 }
 
-.savings-note i {
-    font-size: 1.2rem;
-}
-
-/* Payment Form */
-.payment-form h3 {
-    color: #1E293B;
-    margin-bottom: 25px;
-    font-size: 1.3rem;
-}
-
 .payment-methods {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    display: flex;
     gap: 15px;
-    margin-bottom: 30px;
+    margin: 20px 0;
 }
 
 .payment-method {
-    position: relative;
+    flex: 1;
     cursor: pointer;
 }
 
-.payment-method input[type="radio"] {
-    position: absolute;
-    opacity: 0;
+.payment-method input {
+    display: none;
 }
 
 .method-content {
     border: 2px solid #E2E8F0;
     border-radius: 16px;
-    padding: 20px;
+    padding: 15px;
     display: flex;
     align-items: center;
     gap: 15px;
     transition: all 0.3s ease;
 }
 
-.payment-method input[type="radio"]:checked + .method-content {
-    border-color: #667eea;
+.payment-method input:checked + .method-content {
+    border-color: #8B5CF6;
     background: #F8FAFC;
-    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.1);
 }
 
 .method-content i {
-    font-size: 1.8rem;
-    color: #667eea;
+    font-size: 1.5rem;
+    color: #8B5CF6;
 }
 
-.method-content strong {
-    display: block;
-    color: #1E293B;
-    margin-bottom: 5px;
-}
-
-.method-content small {
-    color: #64748B;
-    font-size: 0.8rem;
-}
-
-/* Payment Details */
 .payment-details {
     background: #F8FAFC;
     border-radius: 16px;
-    padding: 25px;
-    margin-bottom: 25px;
-    animation: slideDown 0.3s ease;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #E2E8F0;
+    border-radius: 12px;
 }
 
 .form-row {
@@ -588,51 +442,8 @@ require_once __DIR__ . '/../layouts/header.php';
     gap: 15px;
 }
 
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #4A5568;
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #E2E8F0;
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-}
-
-.bank-info {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    border: 1px solid #E2E8F0;
-}
-
-.bank-info p {
-    margin-bottom: 10px;
-    color: #4A5568;
-}
-
-/* Terms */
 .terms-section {
-    margin: 30px 0;
+    margin: 20px 0;
 }
 
 .checkbox-label {
@@ -640,80 +451,35 @@ require_once __DIR__ . '/../layouts/header.php';
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    color: #4A5568;
 }
 
-.checkbox-label a {
-    color: #667eea;
-    text-decoration: none;
-}
-
-.checkbox-label a:hover {
-    text-decoration: underline;
-}
-
-/* Form Actions */
 .form-actions {
     display: flex;
     gap: 15px;
     margin-top: 30px;
 }
 
-.btn-cancel,
-.btn-pay {
+.btn-cancel, .btn-pay {
     flex: 1;
-    padding: 16px 30px;
+    padding: 14px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1.1rem;
     text-align: center;
     text-decoration: none;
-    transition: all 0.3s ease;
     border: none;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
 }
 
 .btn-cancel {
     background: #F1F5F9;
-    color: #64748B;
-}
-
-.btn-cancel:hover {
-    background: #E2E8F0;
+    color: #1E293B;
 }
 
 .btn-pay {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #8B5CF6, #F97316);
     color: white;
-    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 }
 
-.btn-pay:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
-}
-
-.btn-pay i {
-    font-size: 1rem;
-}
-
-/* Animations */
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsive */
 @media (max-width: 768px) {
     .plan-comparison {
         flex-direction: column;
@@ -727,97 +493,22 @@ require_once __DIR__ . '/../layouts/header.php';
         display: block;
     }
     
-    .progress-steps::before {
-        width: 90%;
+    .payment-methods {
+        flex-direction: column;
     }
     
     .form-actions {
         flex-direction: column;
     }
-    
-    .payment-methods {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .upgrade-card {
-        padding: 25px;
-    }
-    
-    .card-header h1 {
-        font-size: 1.8rem;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .method-content {
-        flex-direction: column;
-        text-align: center;
-    }
 }
 </style>
 
 <script>
-// Toggle payment details based on selected method
 document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
     radio.addEventListener('change', function() {
-        // Hide all payment details
-        document.getElementById('mobileMoneyDetails').style.display = 'none';
-        document.getElementById('cardDetails').style.display = 'none';
-        document.getElementById('bankDetails').style.display = 'none';
-        
-        // Show selected payment details
-        if (this.value === 'mobile_money') {
-            document.getElementById('mobileMoneyDetails').style.display = 'block';
-        } else if (this.value === 'card') {
-            document.getElementById('cardDetails').style.display = 'block';
-        } else if (this.value === 'bank_transfer') {
-            document.getElementById('bankDetails').style.display = 'block';
-        }
+        document.getElementById('mobileMoneyDetails').style.display = this.value === 'mobile_money' ? 'block' : 'none';
+        document.getElementById('cardDetails').style.display = this.value === 'card' ? 'block' : 'none';
     });
-});
-
-// Format card number
-document.getElementById('card_number')?.addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\s/g, '');
-    if (value.length > 0) {
-        value = value.match(new RegExp('.{1,4}', 'g')).join(' ');
-    }
-    e.target.value = value;
-});
-
-// Format expiry date
-document.getElementById('expiry_date')?.addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\//g, '');
-    if (value.length >= 2) {
-        value = value.slice(0, 2) + '/' + value.slice(2);
-    }
-    e.target.value = value;
-});
-
-// Format phone number
-document.getElementById('phone_number')?.addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 0) {
-        if (value.startsWith('0')) {
-            value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 10);
-        }
-    }
-    e.target.value = value;
-});
-
-// Confirm before submit
-document.querySelector('.payment-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    let amount = <?php echo $priceCalculation['upgrade_price']; ?>;
-    
-    if (confirm(`💰 Confirm Payment\n\nYou are about to pay UGX ${amount.toLocaleString()} for your upgrade.\n\nClick OK to proceed with payment.`)) {
-        this.submit();
-    }
 });
 </script>
 
