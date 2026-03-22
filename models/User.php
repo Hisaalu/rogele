@@ -1200,12 +1200,108 @@ class User {
      * Check if user is still in trial period
      * 
      * @param int $userId The user ID
-     * @param int $trialDays Total trial days
+     * @param int $trialDays Total trial days (default 60)
      * @return bool True if still in trial, false otherwise
      */
     public function isInTrialPeriod($userId, $trialDays = 60) {
-        $remainingDays = $this->getRemainingTrialDays($userId, $trialDays);
-        return $remainingDays > 0;
+        try {
+            // First check if user has active subscription
+            $subscriptionModel = new Subscription();
+            $activeSubscription = $subscriptionModel->getCurrentSubscription($userId);
+            
+            // If they have an active subscription, they're not in trial
+            if ($activeSubscription) {
+                return false;
+            }
+            
+            // Get user's creation date
+            $sql = "SELECT created_at FROM users WHERE id = :user_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$user) {
+                return false;
+            }
+            
+            $createdAt = new DateTime($user['created_at']);
+            $now = new DateTime();
+            $daysPassed = $createdAt->diff($now)->days;
+            
+            return $daysPassed < $trialDays;
+            
+        } catch (Exception $e) {
+            error_log("Error checking trial period: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get trial status for user
+     * 
+     * @param int $userId The user ID
+     * @param int $trialDays Total trial days
+     * @return array Trial status information
+     */
+    public function getTrialStatus($userId, $trialDays = 60) {
+        try {
+            $subscriptionModel = new Subscription();
+            $activeSubscription = $subscriptionModel->getCurrentSubscription($userId);
+            
+            if ($activeSubscription) {
+                return [
+                    'is_trial' => false,
+                    'has_subscription' => true,
+                    'remaining_days' => 0,
+                    'trial_ended' => false,
+                    'message' => 'You have an active subscription!'
+                ];
+            }
+            
+            $sql = "SELECT created_at FROM users WHERE id = :user_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$user) {
+                return [
+                    'is_trial' => false,
+                    'has_subscription' => false,
+                    'remaining_days' => 0,
+                    'trial_ended' => true,
+                    'message' => 'Account error'
+                ];
+            }
+            
+            $createdAt = new DateTime($user['created_at']);
+            $now = new DateTime();
+            $daysPassed = $createdAt->diff($now)->days;
+            $remainingDays = max(0, $trialDays - $daysPassed);
+            
+            return [
+                'is_trial' => $remainingDays > 0,
+                'has_subscription' => false,
+                'remaining_days' => $remainingDays,
+                'trial_ended' => $remainingDays <= 0,
+                'trial_start_date' => $user['created_at'],
+                'trial_end_date' => $createdAt->modify("+{$trialDays} days")->format('Y-m-d H:i:s'),
+                'message' => $remainingDays > 0 ? "Trial ends in {$remainingDays} days" : "Trial has ended"
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Error getting trial status: " . $e->getMessage());
+            return [
+                'is_trial' => false,
+                'has_subscription' => false,
+                'remaining_days' => 0,
+                'trial_ended' => true,
+                'message' => 'Error checking trial status'
+            ];
+        }
     }
 }
 ?>

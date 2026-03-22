@@ -91,6 +91,7 @@ class ExternalController {
      * Display learning materials for external users
      */
     public function materials() {
+        $this->checkAccess();
         $hideFooter = true;
         
         // Check if user has access
@@ -137,6 +138,7 @@ class ExternalController {
      * View single lesson
      */
     public function viewLesson($lessonId) {
+        $this->checkAccess();
         $hideFooter = true;
         
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
@@ -203,6 +205,7 @@ class ExternalController {
      * Display quizzes
      */
     public function quizzes() {
+        $this->checkAccess();
         $hideFooter = true;
         
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
@@ -220,6 +223,7 @@ class ExternalController {
      * Take a quiz
      */
     public function takeQuiz($quizId) {
+        $this->checkAccess();
         $hideFooter = true;
         
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
@@ -998,6 +1002,50 @@ class ExternalController {
         }
         
         return $subscriptionResult;
+    }
+
+    /**
+     * Check if user has access to content (trial or subscription)
+     * Redirects to subscription page if no access
+     */
+    private function checkAccess() {
+        $userId = $_SESSION['user_id'];
+        $trialDays = $this->settingsModel->get('trial_days', 60);
+        
+        // Check if user has active subscription
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($userId);
+        
+        if ($currentSubscription) {
+            return true; // Has active subscription
+        }
+        
+        // Check if still in trial period
+        $trialStatus = $this->userModel->getTrialStatus($userId, $trialDays);
+        
+        if ($trialStatus['is_trial']) {
+            return true; // Still in trial
+        }
+        
+        // No access - redirect to subscription
+        $_SESSION['error'] = 'Your free trial has ended. Please subscribe to continue accessing lessons and quizzes.';
+        header('Location: ' . BASE_URL . '/external/subscription');
+        exit;
+    }
+
+    /**
+     * Check if user has access (returns boolean, no redirect)
+     */
+    private function hasAccess() {
+        $userId = $_SESSION['user_id'];
+        $trialDays = $this->settingsModel->get('trial_days', 60);
+        
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($userId);
+        if ($currentSubscription) {
+            return true;
+        }
+        
+        $trialStatus = $this->userModel->getTrialStatus($userId, $trialDays);
+        return $trialStatus['is_trial'];
     }
 }
 ?>
