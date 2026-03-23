@@ -1,186 +1,583 @@
 <?php
-// File: /views/external/take_quiz.php
-$pageTitle = 'Take Quiz - Rays of Grace';
+//views/external/take_quiz.php
+$pageTitle = $quiz['title'] . ' - Rays of Grace';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Calculate end time for timer
-$endTime = time() + ($quiz['time_limit'] * 60);
+// Make sure questions exist
+if (empty($questions)) {
+    echo '<div style="text-align: center; padding: 50px;">
+            <h2>No Questions Found</h2>
+            <p>This quiz doesn\'t have any questions yet. Please contact the administrator.</p>
+            <a href="' . BASE_URL . '/external/quizzes" class="btn-primary">Back to Quizzes</a>
+          </div>';
+    require_once __DIR__ . '/../layouts/footer.php';
+    exit;
+}
+
+// Get time limit in seconds
+$timeLimitSeconds = isset($quiz['time_limit']) && $quiz['time_limit'] > 0 ? $quiz['time_limit'] * 60 : 0;
+$quizId = $quiz['id'];
+$attemptIdValue = $attemptId;
 ?>
 
-<div style="padding: 20px; max-width: 900px; margin: 0 auto;">
-    <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-        <!-- Quiz Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+<div class="quiz-take-container">
+    <div class="quiz-header">
+        <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
+        
+        <div class="quiz-warning">
+            <i class="fas fa-exclamation-triangle"></i>
             <div>
-                <h1 style="color: #1E293B; margin-bottom: 5px;"><?php echo htmlspecialchars($quiz['title']); ?></h1>
-                <p style="color: #64748B;"><?php echo htmlspecialchars($quiz['description'] ?? 'Answer all questions carefully.'); ?></p>
-            </div>
-            <div style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 15px 25px; border-radius: 15px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: 700;" id="timer"><?php echo $quiz['time_limit']; ?>:00</div>
-                <div style="font-size: 0.9rem; opacity: 0.9;">Time Remaining</div>
+                <strong>⚠️ Important Notice:</strong>
+                <p>You can only take this quiz once. Do NOT refresh the page, close the browser, or use the back button. Your progress will be saved automatically as you answer.</p>
             </div>
         </div>
         
-        <!-- Progress Bar -->
-        <div style="margin-bottom: 30px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #64748B;">
-                <span>Question <span id="current-question">1</span> of <span id="total-questions"><?php echo count($questions); ?></span></span>
-                <span id="progress-percentage">0%</span>
+        <div class="quiz-stats">
+            <div class="stat">
+                <i class="fas fa-question-circle"></i>
+                <span><?php echo count($questions); ?> Questions</span>
             </div>
-            <div style="width: 100%; height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
-                <div id="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8B5CF6, #F97316); transition: width 0.3s ease;"></div>
+            <div class="stat">
+                <i class="fas fa-hourglass-half"></i>
+                <span id="timerDisplay">Loading...</span>
+            </div>
+            <div class="stat" id="answeredStat">
+                <i class="fas fa-check-circle"></i>
+                <span id="answeredCount">0</span> Answered
             </div>
         </div>
+    </div>
+
+    <form id="quizForm" method="POST" action="<?php echo BASE_URL; ?>/external/take-quiz/<?php echo $quiz['id']; ?>">
+        <input type="hidden" name="attempt_id" value="<?php echo $attemptId; ?>">
         
-        <!-- Quiz Form -->
-        <form method="POST" action="<?php echo BASE_URL; ?>/external/take-quiz/<?php echo $quizId; ?>" id="quizForm">
-            <input type="hidden" name="attempt_id" value="<?php echo $attemptId; ?>">
-            
+        <div class="questions-list">
             <?php foreach ($questions as $index => $question): ?>
-                <div class="question-card" id="question-<?php echo $index + 1; ?>" style="display: <?php echo $index === 0 ? 'block' : 'none'; ?>; margin-bottom: 30px;">
-                    <h3 style="margin-bottom: 20px; color: #1E293B;">
-                        <span style="background: #8B5CF6; color: white; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 10px; font-size: 0.9rem;">
-                            <?php echo $index + 1; ?>
-                        </span>
-                        <?php echo htmlspecialchars($question['question']); ?>
-                    </h3>
+                <div class="question-item" data-question-id="<?php echo $question['id']; ?>">
+                    <div class="question-number">Question <?php echo $index + 1; ?> of <?php echo count($questions); ?></div>
+                    <div class="question-text"><?php echo htmlspecialchars($question['question_text']); ?></div>
                     
-                    <div style="display: grid; gap: 15px;">
-                        <label style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #E2E8F0; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;">
-                            <input type="radio" name="answers[<?php echo $question['id']; ?>]" value="A" style="width: 20px; height: 20px; accent-color: #8B5CF6;">
-                            <span>A. <?php echo htmlspecialchars($question['option_a']); ?></span>
-                        </label>
-                        
-                        <label style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #E2E8F0; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;">
-                            <input type="radio" name="answers[<?php echo $question['id']; ?>]" value="B" style="width: 20px; height: 20px; accent-color: #8B5CF6;">
-                            <span>B. <?php echo htmlspecialchars($question['option_b']); ?></span>
-                        </label>
-                        
-                        <?php if (!empty($question['option_c'])): ?>
-                        <label style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #E2E8F0; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;">
-                            <input type="radio" name="answers[<?php echo $question['id']; ?>]" value="C" style="width: 20px; height: 20px; accent-color: #8B5CF6;">
-                            <span>C. <?php echo htmlspecialchars($question['option_c']); ?></span>
-                        </label>
-                        <?php endif; ?>
-                        
-                        <?php if (!empty($question['option_d'])): ?>
-                        <label style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #E2E8F0; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;">
-                            <input type="radio" name="answers[<?php echo $question['id']; ?>]" value="D" style="width: 20px; height: 20px; accent-color: #8B5CF6;">
-                            <span>D. <?php echo htmlspecialchars($question['option_d']); ?></span>
-                        </label>
-                        <?php endif; ?>
+                    <div class="options">
+                        <?php 
+                        $options = $question['options'] ?? [];
+                        $letters = ['A', 'B', 'C', 'D'];
+                        if (empty($options)) {
+                            echo '<p class="error">No options available for this question.</p>';
+                        } else {
+                            foreach ($options as $optIndex => $option):
+                                $letter = $letters[$optIndex];
+                        ?>
+                            <label class="option">
+                                <input type="radio" 
+                                    name="answers[<?php echo $question['id']; ?>]" 
+                                    value="<?php echo $optIndex; ?>"
+                                    required>
+                                <span class="option-letter"><?php echo $letter; ?></span>
+                                <span class="option-text"><?php echo htmlspecialchars($option); ?></span>
+                            </label>
+                        <?php 
+                            endforeach;
+                        }
+                        ?>
                     </div>
                 </div>
             <?php endforeach; ?>
-            
-            <!-- Navigation Buttons -->
-            <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-                <button type="button" id="prevBtn" onclick="changeQuestion(-1)" style="background: white; color: #64748B; border: 2px solid #E2E8F0; padding: 12px 30px; border-radius: 50px; font-weight: 600; cursor: pointer; display: none;">
-                    <i class="fas fa-arrow-left"></i> Previous
-                </button>
-                
-                <button type="button" id="nextBtn" onclick="changeQuestion(1)" style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 600; cursor: pointer;">
-                    Next <i class="fas fa-arrow-right"></i>
-                </button>
-                
-                <button type="submit" id="submitBtn" style="display: none; background: #10B981; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 600; cursor: pointer;">
-                    Submit Quiz <i class="fas fa-check"></i>
-                </button>
+        </div>
+        
+        <div class="quiz-footer">
+            <div class="timer-warning" id="timerWarning" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Less than 1 minute remaining!</span>
             </div>
-        </form>
-    </div>
+            <button type="submit" class="btn-submit" id="submitBtn" disabled>
+                <i class="fas fa-check-circle"></i> Submit Quiz
+            </button>
+        </div>
+    </form>
 </div>
 
-<script>
-let currentQuestion = 1;
-const totalQuestions = <?php echo count($questions); ?>;
-const endTime = <?php echo $endTime; ?> * 1000;
+<style>
+/* Your existing CSS styles remain the same */
+.quiz-take-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+.quiz-header {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+.quiz-header h1 {
+    color: #1E293B;
+    margin-bottom: 20px;
+}
+.quiz-warning {
+    background: #FEF3C7;
+    border-left: 4px solid #F59E0B;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    gap: 12px;
+}
+.quiz-warning i {
+    font-size: 1.2rem;
+    color: #F59E0B;
+}
+.quiz-warning strong {
+    color: #92400E;
+    display: block;
+    margin-bottom: 5px;
+}
+.quiz-warning p {
+    color: #B45309;
+    font-size: 0.85rem;
+    margin: 0;
+}
+.quiz-stats {
+    display: flex;
+    gap: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #E2E8F0;
+    flex-wrap: wrap;
+}
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748B;
+}
+.stat i {
+    color: #8B5CF6;
+}
+#timerDisplay {
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 1.1rem;
+    color: #1E293B;
+}
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+.question-item {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+.question-item.answered {
+    border-left: 4px solid #10B981;
+}
+.question-number {
+    font-size: 0.75rem;
+    color: #8B5CF6;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.question-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1E293B;
+    margin-bottom: 20px;
+}
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #F8FAFC;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+.option:hover {
+    background: #F1F5F9;
+    transform: translateX(5px);
+}
+.option input[type="radio"] {
+    display: none;
+}
+.option-letter {
+    width: 30px;
+    height: 30px;
+    background: white;
+    border: 2px solid #CBD5E0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #64748B;
+    transition: all 0.3s ease;
+}
+.option input[type="radio"]:checked + .option-letter {
+    background: #8B5CF6;
+    border-color: #8B5CF6;
+    color: white;
+}
+.option-text {
+    flex: 1;
+    color: #1E293B;
+}
+.quiz-footer {
+    position: sticky;
+    bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.timer-warning {
+    background: #FEF2F2;
+    border: 1px solid #EF4444;
+    padding: 10px 20px;
+    border-radius: 50px;
+    color: #B91C1C;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: pulse 1s infinite;
+}
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+.btn-submit {
+    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+.btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4);
+}
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+@media (max-width: 768px) {
+    .quiz-header { padding: 20px; }
+    .quiz-footer { position: static; margin-top: 20px; }
+    .quiz-stats { gap: 15px; }
+}
+</style>
 
-// Timer functionality
-function updateTimer() {
-    const now = new Date().getTime();
-    const distance = endTime - now;
-    
-    if (distance < 0) {
-        document.getElementById('timer').innerHTML = '0:00';
+<script>
+// ============================================
+// QUIZ STATE - Using localStorage for persistence
+// ============================================
+const QUIZ_STORAGE_KEY = 'quiz_state_' + <?php echo $quizId; ?> + '_' + <?php echo $attemptId; ?>;
+const TOTAL_QUESTIONS = <?php echo count($questions); ?>;
+const TIME_LIMIT_SECONDS = <?php echo $timeLimitSeconds; ?>;
+const QUIZ_START_TIME = 'quiz_start_time_' + <?php echo $quizId; ?>;
+
+// Load saved answers from localStorage
+function loadSavedAnswers() {
+    const savedState = localStorage.getItem(QUIZ_STORAGE_KEY);
+    if (savedState) {
+        try {
+            const answers = JSON.parse(savedState);
+            // Restore radio button selections
+            for (const [questionId, value] of Object.entries(answers)) {
+                const radio = document.querySelector(`input[name="answers[${questionId}]"][value="${value}"]`);
+                if (radio) {
+                    radio.checked = true;
+                }
+            }
+            updateProgress();
+        } catch (e) {
+            console.error('Error loading saved answers:', e);
+        }
+    }
+}
+
+// Save answers to localStorage
+function saveAnswers() {
+    const radioButtons = document.querySelectorAll('input[type="radio"]:checked');
+    const answers = {};
+    radioButtons.forEach(radio => {
+        const name = radio.name;
+        const questionId = name.match(/\d+/)[0];
+        answers[questionId] = radio.value;
+    });
+    localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(answers));
+}
+
+// ============================================
+// TIMER WITH PERSISTENCE
+// ============================================
+let timeLeft = TIME_LIMIT_SECONDS;
+let timerInterval = null;
+let formSubmitted = false;
+const timerDisplay = document.getElementById('timerDisplay');
+const timerWarning = document.getElementById('timerWarning');
+
+// Get remaining time from storage
+function getRemainingTime() {
+    if (TIME_LIMIT_SECONDS > 0) {
+        const startTime = localStorage.getItem(QUIZ_START_TIME);
+        if (startTime) {
+            const elapsed = Math.floor((Date.now() - parseInt(startTime)) / 1000);
+            const remaining = Math.max(0, TIME_LIMIT_SECONDS - elapsed);
+            return remaining;
+        } else {
+            // First time - set start time
+            localStorage.setItem(QUIZ_START_TIME, Date.now().toString());
+            return TIME_LIMIT_SECONDS;
+        }
+    }
+    return 0;
+}
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function updateTimerDisplay() {
+    if (timerDisplay) {
+        if (timeLeft > 0) {
+            timerDisplay.textContent = formatTime(timeLeft);
+        } else {
+            timerDisplay.textContent = 'Time\'s Up!';
+        }
+    }
+}
+
+function autoSubmit() {
+    if (!formSubmitted) {
+        formSubmitted = true;
+        alert('⏰ Time is up! Your quiz will be submitted automatically.');
         document.getElementById('quizForm').submit();
+    }
+}
+
+function startTimer() {
+    // Get remaining time from storage
+    timeLeft = getRemainingTime();
+    updateTimerDisplay();
+    
+    if (timeLeft <= 0) {
+        autoSubmit();
         return;
     }
     
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-    document.getElementById('timer').innerHTML = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-    
-    // Change color when time is running low
-    if (minutes < 5) {
-        document.getElementById('timer').style.color = '#F97316';
+    // Show warning if less than 1 minute
+    if (timeLeft <= 60) {
+        if (timerWarning) timerWarning.style.display = 'flex';
     }
-    if (minutes < 2) {
-        document.getElementById('timer').style.color = '#EF4444';
-    }
+    
+    timerInterval = setInterval(() => {
+        if (timeLeft > 0 && !formSubmitted) {
+            timeLeft--;
+            updateTimerDisplay();
+            
+            // Update stored remaining time
+            const startTime = localStorage.getItem(QUIZ_START_TIME);
+            if (startTime) {
+                const newStartTime = Date.now() - (TIME_LIMIT_SECONDS - timeLeft) * 1000;
+                localStorage.setItem(QUIZ_START_TIME, newStartTime.toString());
+            }
+            
+            // Show warning when less than 1 minute remaining
+            if (timeLeft <= 60 && timeLeft > 0) {
+                if (timerWarning) timerWarning.style.display = 'flex';
+            } else {
+                if (timerWarning) timerWarning.style.display = 'none';
+            }
+            
+            // Auto-submit when time reaches 0
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                autoSubmit();
+            }
+        }
+    }, 1000);
 }
 
-setInterval(updateTimer, 1000);
-
-// Question navigation
-function changeQuestion(direction) {
-    // Hide current question
-    document.getElementById('question-' + currentQuestion).style.display = 'none';
-    
-    // Update question number
-    currentQuestion += direction;
-    document.getElementById('current-question').textContent = currentQuestion;
-    
-    // Show new question
-    document.getElementById('question-' + currentQuestion).style.display = 'block';
-    
-    // Update progress bar
-    const progress = (currentQuestion / totalQuestions) * 100;
-    document.getElementById('progress-bar').style.width = progress + '%';
-    document.getElementById('progress-percentage').textContent = Math.round(progress) + '%';
-    
-    // Update buttons
-    document.getElementById('prevBtn').style.display = currentQuestion === 1 ? 'none' : 'inline-block';
-    
-    if (currentQuestion === totalQuestions) {
-        document.getElementById('nextBtn').style.display = 'none';
-        document.getElementById('submitBtn').style.display = 'inline-block';
+// ============================================
+// PREVENT BACK NAVIGATION
+// ============================================
+// Push a new state to prevent going back
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', function(event) {
+    if (confirm('⚠️ WARNING: If you go back, you will lose your progress and cannot retake this quiz!\n\nDo you want to continue?')) {
+        // Clear storage and redirect
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        localStorage.removeItem(QUIZ_START_TIME);
+        window.location.href = '<?php echo BASE_URL; ?>/external/quizzes';
     } else {
-        document.getElementById('nextBtn').style.display = 'inline-block';
-        document.getElementById('submitBtn').style.display = 'none';
-    }
-}
-
-// Confirm before submitting
-document.getElementById('quizForm').addEventListener('submit', function(e) {
-    if (!confirm('Are you sure you want to submit your answers?')) {
-        e.preventDefault();
+        // Push state again to prevent going back
+        history.pushState(null, null, location.href);
     }
 });
 
-// Highlight selected answers
-document.querySelectorAll('input[type="radio"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        // Remove highlight from all labels in this group
-        const name = this.getAttribute('name');
-        document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
-            r.closest('label').style.background = 'white';
-            r.closest('label').style.borderColor = '#E2E8F0';
-        });
-        
-        // Highlight selected label
-        this.closest('label').style.background = 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(249, 115, 22, 0.1))';
-        this.closest('label').style.borderColor = '#8B5CF6';
+// ============================================
+// PREVENT REFRESH
+// ============================================
+window.addEventListener('beforeunload', function (e) {
+    const submitBtn = document.getElementById('submitBtn');
+    if (!formSubmitted && submitBtn && !submitBtn.disabled) {
+        e.preventDefault();
+        e.returnValue = '⚠️ If you refresh, you will lose your progress and cannot retake this quiz! Are you sure?';
+        return e.returnValue;
+    }
+});
+
+// ============================================
+// TRACK ANSWERED QUESTIONS
+// ============================================
+const answeredCountSpan = document.getElementById('answeredCount');
+const submitBtn = document.getElementById('submitBtn');
+const radioButtons = document.querySelectorAll('input[type="radio"]');
+const questionItems = document.querySelectorAll('.question-item');
+
+function updateProgress() {
+    const answered = new Set();
+    radioButtons.forEach(radio => {
+        if (radio.checked) {
+            const name = radio.name;
+            answered.add(name);
+            
+            // Highlight answered question
+            const questionId = name.match(/\d+/)[0];
+            const item = document.querySelector(`.question-item[data-question-id="${questionId}"]`);
+            if (item) item.classList.add('answered');
+        }
     });
+    const count = answered.size;
+    if (answeredCountSpan) answeredCountSpan.textContent = count;
+    
+    // Enable submit when all questions are answered
+    if (submitBtn) {
+        if (count === TOTAL_QUESTIONS) {
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.disabled = true;
+        }
+    }
+    
+    // Save answers to localStorage
+    saveAnswers();
+}
+
+// ============================================
+// INITIALIZE
+// ============================================
+if (radioButtons.length > 0) {
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', updateProgress);
+    });
+    
+    // Load saved answers from localStorage
+    loadSavedAnswers();
+    
+    // Initial update
+    updateProgress();
+}
+
+// Start the timer
+startTimer();
+
+// Mark form as submitted and clear storage on submit
+const quizForm = document.getElementById('quizForm');
+if (quizForm) {
+    quizForm.addEventListener('submit', function() {
+        formSubmitted = true;
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        // Clear storage
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        localStorage.removeItem(QUIZ_START_TIME);
+    });
+}
+
+// ============================================
+// ANTI-CHEAT MEASURES
+// ============================================
+// Block right-click
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+// Block copy-paste
+document.addEventListener('copy', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+document.addEventListener('paste', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+// Warn about tab switching
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden && !formSubmitted) {
+        alert('⚠️ Please do not switch tabs during the quiz. Your attempt may be invalidated.');
+    }
+});
+
+// Block keyboard shortcuts (Ctrl+R, Ctrl+Shift+R, F5)
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey && (e.key === 'r' || e.key === 'R')) || 
+        (e.ctrlKey && e.shiftKey && (e.key === 'r' || e.key === 'R')) ||
+        e.key === 'F5') {
+        e.preventDefault();
+        alert('⚠️ Refreshing the page is not allowed during the quiz!');
+        return false;
+    }
+    
+    // Block backspace
+    if (e.key === 'Backspace') {
+        const target = e.target;
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            alert('⚠️ Using backspace to go back is not allowed during the quiz!');
+            return false;
+        }
+    }
+});
+
+document.getElementById('quizForm').addEventListener('submit', function(e) {
+    var formData = new FormData(this);
+    console.log("Form submission data:");
+    for (var pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
 });
 </script>
-
-<style>
-    label:hover {
-        background: #F8FAFC;
-        border-color: #8B5CF6;
-    }
-</style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

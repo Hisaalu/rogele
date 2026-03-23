@@ -123,6 +123,7 @@ $subjects = $subjects ?? [];
                             min="1" 
                             max="180"
                         >
+                        <small class="input-hint">Time allowed for students to complete the quiz</small>
                     </div>
 
                     <div class="form-group">
@@ -134,10 +135,11 @@ $subjects = $subjects ?? [];
                             type="number" 
                             id="passing_score" 
                             name="passing_score" 
-                            value="50" 
+                            value="70" 
                             min="0" 
                             max="100"
                         >
+                        <small class="input-hint">Minimum percentage required to pass</small>
                     </div>
                 </div>
 
@@ -155,6 +157,7 @@ $subjects = $subjects ?? [];
                             min="1" 
                             max="10"
                         >
+                        <small class="input-hint">Number of times a student can attempt this quiz</small>
                     </div>
 
                     <div class="form-group">
@@ -167,6 +170,7 @@ $subjects = $subjects ?? [];
                             id="end_date" 
                             name="end_date"
                         >
+                        <small class="input-hint">Quiz will expire on this date (leave blank for no expiry)</small>
                     </div>
                 </div>
             </div>
@@ -180,10 +184,23 @@ $subjects = $subjects ?? [];
                 
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
-                        <input type="checkbox" name="is_published" value="1" checked>
-                        <span>Publish immediately</span>
+                        <input type="checkbox" name="is_published" id="is_published" value="1" checked>
+                        <span><i class="fas fa-globe"></i> Publish immediately</span>
                     </label>
-                    <small class="input-hint">Uncheck to save as draft</small>
+                    <small class="input-hint">
+                        <span id="publishHint" class="text-success">
+                            <i class="fas fa-check-circle"></i> Students will see this quiz immediately
+                        </span>
+                        <span id="draftHint" style="display: none;" class="text-warning">
+                            <i class="fas fa-eye-slash"></i> Quiz will be saved as draft. Students won't see it until you publish it.
+                        </span>
+                    </small>
+                </div>
+                
+                <!-- Warning for publishing without questions -->
+                <div class="alert alert-info" id="publishWarning" style="display: none; margin-top: 15px;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Don't forget to add questions after creating the quiz. Students will only see the quiz once you've added questions and published it.</span>
                 </div>
             </div>
 
@@ -314,6 +331,7 @@ $subjects = $subjects ?? [];
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
+    font-family: inherit;
 }
 
 .form-group input:focus,
@@ -329,6 +347,14 @@ $subjects = $subjects ?? [];
     font-size: 0.8rem;
     color: #64748B;
     margin-top: 5px;
+}
+
+.text-success {
+    color: #10B981;
+}
+
+.text-warning {
+    color: #F59E0B;
 }
 
 /* Checkbox */
@@ -352,6 +378,32 @@ $subjects = $subjects ?? [];
 .checkbox-label span {
     font-weight: 500;
     color: #1E293B;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Alerts */
+.alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.3s ease;
+}
+
+.alert-error {
+    background: #FEF2F2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
+}
+
+.alert-info {
+    background: #EFF6FF;
+    color: #1E40AF;
+    border: 1px solid #BFDBFE;
 }
 
 /* Form Actions */
@@ -407,23 +459,6 @@ $subjects = $subjects ?? [];
     color: #1E293B;
 }
 
-/* Alerts */
-.alert {
-    padding: 16px 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    animation: slideDown 0.3s ease;
-}
-
-.alert-error {
-    background: #FEF2F2;
-    color: #B91C1C;
-    border: 1px solid #FECACA;
-}
-
 @keyframes slideDown {
     from {
         transform: translateY(-20px);
@@ -472,6 +507,10 @@ $subjects = $subjects ?? [];
         color: #F1F5F9;
     }
     
+    .checkbox-label span {
+        color: #F1F5F9;
+    }
+    
     .btn-secondary {
         background: transparent;
         color: #94A3B8;
@@ -481,6 +520,12 @@ $subjects = $subjects ?? [];
     .btn-secondary:hover {
         background: #334155;
         color: #F1F5F9;
+    }
+    
+    .alert-info {
+        background: #1E3A5F;
+        color: #90CDF4;
+        border-color: #2B6CB0;
     }
 }
 </style>
@@ -509,6 +554,26 @@ function filterSubjects() {
     });
 }
 
+// Handle publish/draft toggle
+const publishCheckbox = document.getElementById('is_published');
+const publishHint = document.getElementById('publishHint');
+const draftHint = document.getElementById('draftHint');
+const publishWarning = document.getElementById('publishWarning');
+
+if (publishCheckbox) {
+    publishCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            publishHint.style.display = 'inline';
+            draftHint.style.display = 'none';
+            publishWarning.style.display = 'none';
+        } else {
+            publishHint.style.display = 'none';
+            draftHint.style.display = 'inline';
+            publishWarning.style.display = 'block';
+        }
+    });
+}
+
 // Form validation
 document.getElementById('quizForm').addEventListener('submit', function(e) {
     const title = document.getElementById('title').value.trim();
@@ -531,6 +596,12 @@ document.getElementById('quizForm').addEventListener('submit', function(e) {
         e.preventDefault();
         alert('Please select a subject');
         return false;
+    }
+    
+    // Show confirmation for draft saves
+    const isPublished = document.getElementById('is_published').checked;
+    if (!isPublished) {
+        return confirm('This quiz will be saved as a draft. Students will not see it until you publish it.\n\nClick OK to continue.');
     }
     
     return true;

@@ -212,7 +212,7 @@ $classPerformance = $classPerformance ?? [
                             <h4><?php echo htmlspecialchars($quiz['title']); ?></h4>
                             <p class="activity-meta">
                                 <span><i class="fas fa-clock"></i> <?php echo date('M d, Y', strtotime($quiz['created_at'])); ?></span>
-                                <span><i class="fas fa-users"></i> <?php echo $quiz['attempts'] ?? 0; ?> attempts</span>
+                                <span><i class="fas fa-users"></i> <?php echo $quiz['attempt_count'] ?? 0; ?> attempts</span>
                             </p>
                         </div>
                         <a href="<?php echo BASE_URL; ?>/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="btn-view">View Results</a>

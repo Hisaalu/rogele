@@ -103,180 +103,206 @@ class Quiz {
         }
     }
     
-    // Get quiz by ID with questions
+    /**
+     * Get quiz by ID
+     */
     public function getById($quizId) {
         try {
-            $query = "SELECT q.*, s.name as subject_name, u.first_name as teacher_name,
-                     (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
-                     FROM quizzes q
-                     LEFT JOIN subjects s ON q.subject_id = s.id
-                     LEFT JOIN users u ON q.teacher_id = u.id
-                     WHERE q.id = :id";
+            $sql = "SELECT q.*, 
+                        c.name as class_name,
+                        s.name as subject_name,
+                        (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                    FROM quizzes q
+                    LEFT JOIN classes c ON q.class_id = c.id
+                    LEFT JOIN subjects s ON q.subject_id = s.id
+                    WHERE q.id = :id";
             
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $quizId]);
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
             
-            $quiz = $stmt->fetch();
+            $quiz = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($quiz) {
-                // Get questions
-                $questionQuery = "SELECT * FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id";
-                $questionStmt = $this->conn->prepare($questionQuery);
-                $questionStmt->execute([':quiz_id' => $quizId]);
-                $quiz['questions'] = $questionStmt->fetchAll();
+                // Set status based on is_published
+                $quiz['status'] = $quiz['is_published'] ? 'published' : 'draft';
+                $quiz['time_limit'] = $quiz['time_limit'] ?? 30;
+                $quiz['passing_score'] = $quiz['passing_score'] ?? 70;
+                $quiz['max_attempts'] = $quiz['max_attempts'] ?? 3;
             }
             
             return $quiz;
+            
         } catch (PDOException $e) {
-            error_log("Get by ID error: " . $e->getMessage());
+            error_log("Error getting quiz by ID: " . $e->getMessage());
             return null;
         }
     }
     
-    // Start quiz attempt
+    /**
+     * Start a new quiz attempt
+     */
     public function startAttempt($quizId, $userId) {
         try {
-            // Check if user has reached max attempts
-            $attemptQuery = "SELECT COUNT(*) as attempt_count FROM quiz_attempts 
-                            WHERE quiz_id = :quiz_id AND user_id = :user_id AND status = 'completed'";
-            $attemptStmt = $this->conn->prepare($attemptQuery);
-            $attemptStmt->execute([
-                ':quiz_id' => $quizId,
-                ':user_id' => $userId
-            ]);
-            $attemptCount = $attemptStmt->fetch()['attempt_count'];
-            
-            $quizQuery = "SELECT max_attempts FROM quizzes WHERE id = :id";
-            $quizStmt = $this->conn->prepare($quizQuery);
-            $quizStmt->execute([':id' => $quizId]);
-            $quiz = $quizStmt->fetch();
-            
-            if ($quiz && $attemptCount >= $quiz['max_attempts']) {
-                return ['success' => false, 'error' => 'Maximum attempts reached'];
+            // Check if user has already completed this quiz
+            if ($this->hasCompletedQuiz($userId, $quizId)) {
+                return ['success' => false, 'error' => 'You have already completed this quiz'];
             }
             
-            // Create new attempt
-            $query = "INSERT INTO quiz_attempts (quiz_id, user_id, status, started_at) VALUES (:quiz_id, :user_id, 'in_progress', NOW())";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                ':quiz_id' => $quizId,
-                ':user_id' => $userId
-            ]);
+            // Check if there's an existing in-progress attempt
+            $existingAttempt = $this->getInProgressAttempt($userId, $quizId);
+            
+            if ($existingAttempt) {
+                // Resume existing attempt
+                $questions = $this->getQuestions($quizId);
+                return [
+                    'success' => true,
+                    'attempt_id' => $existingAttempt['id'],
+                    'questions' => $questions,
+                    'message' => 'Resuming existing attempt'
+                ];
+            }
+            
+            // Start new attempt
+            $sql = "INSERT INTO quiz_attempts (quiz_id, user_id, status, started_at) 
+                    VALUES (:quiz_id, :user_id, 'in_progress', NOW())";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
             
             $attemptId = $this->conn->lastInsertId();
             
-            // Get questions
-            $questionsQuery = "SELECT * FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id";
-            $questionsStmt = $this->conn->prepare($questionsQuery);
-            $questionsStmt->execute([':quiz_id' => $quizId]);
-            $questions = $questionsStmt->fetchAll();
+            $questions = $this->getQuestions($quizId);
             
             return [
-                'success' => true, 
+                'success' => true,
                 'attempt_id' => $attemptId,
                 'questions' => $questions
             ];
+            
         } catch (PDOException $e) {
-            error_log("Start attempt error: " . $e->getMessage());
+            error_log("Error starting quiz attempt: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to start quiz'];
         }
     }
     
-    // Submit quiz attempt
+    /**
+     * Submit quiz attempt
+     */
     public function submitAttempt($attemptId, $answers) {
         try {
+            error_log("=== submitAttempt CALLED ===");
+            error_log("Attempt ID: " . $attemptId);
+            
+            // Start transaction
             $this->conn->beginTransaction();
             
-            $correctAnswers = 0;
-            $totalPoints = 0;
-            $earnedPoints = 0;
-            
             // Get attempt details
-            $attemptQuery = "SELECT * FROM quiz_attempts WHERE id = :id";
-            $attemptStmt = $this->conn->prepare($attemptQuery);
-            $attemptStmt->execute([':id' => $attemptId]);
-            $attempt = $attemptStmt->fetch();
+            $sql = "SELECT * FROM quiz_attempts WHERE id = :attempt_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
+            $stmt->execute();
+            $attempt = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$attempt) {
                 return ['success' => false, 'error' => 'Attempt not found'];
             }
             
-            // Save answers and calculate score
-            foreach ($answers as $questionId => $selectedAnswer) {
-                // Get correct answer
-                $questionQuery = "SELECT correct_answer, points FROM quiz_questions WHERE id = :id";
-                $questionStmt = $this->conn->prepare($questionQuery);
-                $questionStmt->execute([':id' => $questionId]);
-                $question = $questionStmt->fetch();
-                
-                $isCorrect = ($selectedAnswer === $question['correct_answer']);
-                if ($isCorrect) {
-                    $correctAnswers++;
-                    $earnedPoints += $question['points'];
-                }
-                $totalPoints += $question['points'];
-                
-                // Save user answer
-                $answerQuery = "INSERT INTO user_quiz_answers (attempt_id, question_id, selected_answer, is_correct) 
-                                VALUES (:attempt_id, :question_id, :selected_answer, :is_correct)";
-                $answerStmt = $this->conn->prepare($answerQuery);
-                $answerStmt->execute([
-                    ':attempt_id' => $attemptId,
-                    ':question_id' => $questionId,
-                    ':selected_answer' => $selectedAnswer,
-                    ':is_correct' => $isCorrect ? 1 : 0
-                ]);
+            // If already completed, return the existing result instead of error
+            if ($attempt['status'] == 'completed') {
+                error_log("Attempt already completed - returning existing result");
+                return [
+                    'success' => true,
+                    'score' => $attempt['score'],
+                    'correct' => $attempt['correct_answers'],
+                    'total' => $attempt['total_questions'],
+                    'attempt_id' => $attemptId,
+                    'already_submitted' => true
+                ];
             }
             
-            // Calculate total questions
-            $totalQuestionsQuery = "SELECT COUNT(*) as total FROM quiz_questions WHERE quiz_id = (SELECT quiz_id FROM quiz_attempts WHERE id = :id)";
-            $totalQuestionsStmt = $this->conn->prepare($totalQuestionsQuery);
-            $totalQuestionsStmt->execute([':id' => $attemptId]);
-            $totalQuestions = $totalQuestionsStmt->fetch()['total'];
+            // Get quiz questions
+            $quizId = $attempt['quiz_id'];
+            $questions = $this->getQuestions($quizId);
             
-            // Calculate percentage score
+            $correctAnswers = 0;
+            $totalQuestions = count($questions);
+            
+            // Delete any existing answers for this attempt (clean slate)
+            $deleteSql = "DELETE FROM quiz_attempt_answers WHERE attempt_id = :attempt_id";
+            $deleteStmt = $this->conn->prepare($deleteSql);
+            $deleteStmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
+            $deleteStmt->execute();
+            
+            // Save each answer
+            $answerSql = "INSERT INTO quiz_attempt_answers (attempt_id, question_id, selected_answer, is_correct) 
+                        VALUES (:attempt_id, :question_id, :selected_answer, :is_correct)";
+            $answerStmt = $this->conn->prepare($answerSql);
+            
+            foreach ($questions as $question) {
+                $correctOption = $question['correct_option'];
+                $userAnswer = isset($answers[$question['id']]) ? $answers[$question['id']] : null;
+                
+                // Convert user answer to integer if needed
+                if (is_numeric($userAnswer)) {
+                    $userAnswer = (int)$userAnswer;
+                }
+                
+                // Handle if answer is stored as letter
+                if (is_string($userAnswer) && in_array(strtoupper($userAnswer), ['A', 'B', 'C', 'D'])) {
+                    $letterToIndex = ['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3];
+                    $userAnswer = $letterToIndex[strtoupper($userAnswer)];
+                }
+                
+                $isCorrect = ($userAnswer !== null && $userAnswer == $correctOption) ? 1 : 0;
+                
+                if ($isCorrect) {
+                    $correctAnswers++;
+                }
+                
+                $answerStmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
+                $answerStmt->bindValue(':question_id', $question['id'], PDO::PARAM_INT);
+                $answerStmt->bindValue(':selected_answer', $userAnswer);
+                $answerStmt->bindValue(':is_correct', $isCorrect, PDO::PARAM_INT);
+                $answerStmt->execute();
+            }
+            
             $score = ($totalQuestions > 0) ? round(($correctAnswers / $totalQuestions) * 100) : 0;
             
-            // Calculate time taken
-            $timeQuery = "SELECT TIMESTAMPDIFF(SECOND, started_at, NOW()) as time_taken FROM quiz_attempts WHERE id = :id";
-            $timeStmt = $this->conn->prepare($timeQuery);
-            $timeStmt->execute([':id' => $attemptId]);
-            $timeTaken = $timeStmt->fetch()['time_taken'];
-            
             // Update attempt
-            $updateQuery = "UPDATE quiz_attempts SET 
-                           status = 'completed',
-                           completed_at = NOW(),
-                           score = :score,
-                           total_questions = :total_questions,
-                           correct_answers = :correct_answers,
-                           time_taken = :time_taken
-                           WHERE id = :id";
+            $sql = "UPDATE quiz_attempts 
+                    SET score = :score, 
+                        correct_answers = :correct_answers,
+                        total_questions = :total_questions,
+                        status = 'completed',
+                        completed_at = NOW()
+                    WHERE id = :attempt_id";
             
-            $updateStmt = $this->conn->prepare($updateQuery);
-            $updateStmt->execute([
-                ':score' => $score,
-                ':total_questions' => $totalQuestions,
-                ':correct_answers' => $correctAnswers,
-                ':time_taken' => $timeTaken,
-                ':id' => $attemptId
-            ]);
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':score', $score);
+            $stmt->bindValue(':correct_answers', $correctAnswers);
+            $stmt->bindValue(':total_questions', $totalQuestions);
+            $stmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
+            $stmt->execute();
             
             $this->conn->commit();
+            
+            error_log("=== submitAttempt SUCCESS ===");
             
             return [
                 'success' => true,
                 'score' => $score,
                 'correct' => $correctAnswers,
                 'total' => $totalQuestions,
-                'points_earned' => $earnedPoints,
-                'total_points' => $totalPoints,
-                'time_taken' => $timeTaken
+                'attempt_id' => $attemptId
             ];
+            
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("Submit attempt error: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Failed to submit quiz'];
+            error_log("Error submitting quiz attempt: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Failed to submit quiz: ' . $e->getMessage()];
         }
     }
     
@@ -310,37 +336,35 @@ class Quiz {
         }
     }
     
-    // Get attempt details
+    /**
+     * Get attempt details with quiz information
+     */
     public function getAttemptDetails($attemptId) {
         try {
-            $query = "SELECT qa.*, q.title as quiz_title, q.passing_score,
-                     u.first_name, u.last_name
-                     FROM quiz_attempts qa
-                     JOIN quizzes q ON qa.quiz_id = q.id
-                     JOIN users u ON qa.user_id = u.id
-                     WHERE qa.id = :id";
+            $sql = "SELECT a.*, 
+                        q.title as quiz_title, 
+                        q.description as quiz_description,
+                        q.passing_score,
+                        q.time_limit
+                    FROM quiz_attempts a
+                    LEFT JOIN quizzes q ON a.quiz_id = q.id
+                    WHERE a.id = :attempt_id";
             
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $attemptId]);
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
+            $stmt->execute();
             
-            $attempt = $stmt->fetch();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($attempt) {
-                // Get answers with questions
-                $answersQuery = "SELECT uqa.*, qq.question, qq.correct_answer, qq.points,
-                                qq.option_a, qq.option_b, qq.option_c, qq.option_d
-                                FROM user_quiz_answers uqa
-                                JOIN quiz_questions qq ON uqa.question_id = qq.id
-                                WHERE uqa.attempt_id = :attempt_id";
-                
-                $answersStmt = $this->conn->prepare($answersQuery);
-                $answersStmt->execute([':attempt_id' => $attemptId]);
-                $attempt['answers'] = $answersStmt->fetchAll();
+            // Set default passing score if not found
+            if ($result && !isset($result['passing_score'])) {
+                $result['passing_score'] = 70; // Default passing score
             }
             
-            return $attempt;
+            return $result;
+            
         } catch (PDOException $e) {
-            error_log("Get attempt details error: " . $e->getMessage());
+            error_log("Error getting attempt details: " . $e->getMessage());
             return null;
         }
     }
@@ -763,57 +787,97 @@ class Quiz {
     }
 
     /**
-     * Get all quizzes with filters (for admin)
+     * Get all published quizzes for external users
      */
-    public function getAllQuizzes($search = null, $teacherId = null, $status = null, $limit = 15, $offset = 0) {
+    public function getAllQuizzes($userId = null) {
         try {
-            $query = "SELECT q.*, 
-                    s.name as subject_name, 
-                    c.name as class_name,
-                    u.first_name as teacher_name,
-                    u.last_name as teacher_last_name,
-                    u.email as teacher_email,
-                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
-                    (SELECT COUNT(*) FROM quiz_attempts WHERE quiz_id = q.id) as attempt_count
-                    FROM quizzes q
-                    LEFT JOIN subjects s ON q.subject_id = s.id
-                    LEFT JOIN classes c ON q.class_id = c.id
-                    LEFT JOIN users u ON q.teacher_id = u.id
-                    WHERE 1=1";
+            error_log("=== getAllQuizzes START ===");
             
-            $params = [];
-            
-            if ($search) {
-                $query .= " AND (q.title LIKE :search OR q.description LIKE :search)";
-                $params[':search'] = '%' . $search . '%';
+            // First, let's check if quiz 30 appears in a simple query
+            $simpleQuery = "SELECT id, title FROM quizzes WHERE is_published = 1 ORDER BY id";
+            $simpleStmt = $this->conn->query($simpleQuery);
+            $simpleResult = $simpleStmt->fetchAll(PDO::FETCH_ASSOC);
+            error_log("SIMPLE QUERY (no filters):");
+            foreach ($simpleResult as $q) {
+                error_log("  ID: {$q['id']} - {$q['title']}");
             }
             
-            if ($teacherId) {
-                $query .= " AND q.teacher_id = :teacher_id";
-                $params[':teacher_id'] = $teacherId;
-            }
+            // Now the actual query
+            $sql = "SELECT DISTINCT q.id, q.*, 
+                            (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
+                            (SELECT name FROM subjects WHERE id = q.subject_id) as subject_name,
+                            (SELECT name FROM classes WHERE id = q.class_id) as class_name
+                        FROM quizzes q
+                        WHERE q.is_published = 1 
+                        AND (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) > 0
+                        GROUP BY q.id
+                        ORDER BY q.id ASC";
             
-            if ($status === 'published') {
-                $query .= " AND q.is_published = 1";
-            } elseif ($status === 'draft') {
-                $query .= " AND q.is_published = 0";
-            }
+            error_log("EXECUTING SQL: " . $sql);
             
-            $query .= " ORDER BY q.created_at DESC LIMIT :limit OFFSET :offset";
-            
-            $stmt = $this->conn->prepare($query);
-            
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
-            }
-            
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-            
+            $stmt = $this->conn->prepare($sql);
             $stmt->execute();
-            return $stmt->fetchAll();
+            $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log("SQL RESULT COUNT: " . count($quizzes));
+            foreach ($quizzes as $q) {
+                error_log("  SQL Result: ID={$q['id']}, Title={$q['title']}, QCount={$q['question_count']}");
+            }
+            
+            // Check if quiz 30 is in the result
+            $found30 = false;
+            foreach ($quizzes as $q) {
+                if ($q['id'] == 30) {
+                    $found30 = true;
+                    error_log("  >>> QUIZ 30 FOUND in SQL result!");
+                    break;
+                }
+            }
+            
+            if (!$found30) {
+                error_log("  >>> QUIZ 30 NOT FOUND in SQL result!");
+                
+                // Let's check if quiz 30 has questions
+                $checkQuestions = $this->conn->prepare("SELECT COUNT(*) as cnt FROM quiz_questions WHERE quiz_id = 30");
+                $checkQuestions->execute();
+                $qCount = $checkQuestions->fetch(PDO::FETCH_ASSOC);
+                error_log("  Quiz 30 question count: " . $qCount['cnt']);
+                
+                // Check if quiz 30 is published
+                $checkPublished = $this->conn->prepare("SELECT is_published FROM quizzes WHERE id = 30");
+                $checkPublished->execute();
+                $published = $checkPublished->fetch(PDO::FETCH_ASSOC);
+                error_log("  Quiz 30 is_published: " . $published['is_published']);
+            }
+            
+            // Remove duplicates (safety)
+            $uniqueQuizzes = [];
+            $seenIds = [];
+            foreach ($quizzes as $quiz) {
+                if (!in_array($quiz['id'], $seenIds)) {
+                    $seenIds[] = $quiz['id'];
+                    $uniqueQuizzes[] = $quiz;
+                }
+            }
+            
+            // Add attempt status for each quiz if userId provided
+            if ($userId && !empty($uniqueQuizzes)) {
+                foreach ($uniqueQuizzes as &$quiz) {
+                    $quiz['completed'] = $this->hasCompletedQuiz($userId, $quiz['id']);
+                    $quiz['in_progress'] = $this->getInProgressAttempt($userId, $quiz['id']) !== null;
+                    $quiz['in_progress_attempt'] = $this->getInProgressAttempt($userId, $quiz['id']);
+                    $quiz['best_score'] = $this->getBestScore($userId, $quiz['id']);
+                    $quiz['attempt_count'] = $this->getAttemptCount($userId, $quiz['id']);
+                    $quiz['status'] = 'published';
+                }
+            }
+            
+            error_log("=== getAllQuizzes END - Returning " . count($uniqueQuizzes) . " quizzes ===");
+            
+            return $uniqueQuizzes;
+            
         } catch (PDOException $e) {
-            error_log("Get all quizzes error: " . $e->getMessage());
+            error_log("Error getting all quizzes: " . $e->getMessage());
             return [];
         }
     }
@@ -891,6 +955,703 @@ class Quiz {
         } catch (PDOException $e) {
             error_log("Reject quiz error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error'];
+        }
+    }
+
+    /**
+     * Check if user has completed a quiz
+     */
+    public function hasCompletedQuiz($userId, $quizId) {
+        try {
+            $sql = "SELECT COUNT(*) as count FROM quiz_attempts 
+                    WHERE user_id = :user_id AND quiz_id = :quiz_id 
+                    AND status = 'completed'";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] > 0;
+            
+        } catch (PDOException $e) {
+            error_log("Error checking quiz completion: " . $e->getMessage());
+            return false;
+        }
+    }
+    /**
+     * Get in-progress attempt for a user
+     */
+    public function getInProgressAttempt($userId, $quizId) {
+        try {
+            $sql = "SELECT * FROM quiz_attempts 
+                    WHERE user_id = :user_id AND quiz_id = :quiz_id 
+                    AND status = 'in_progress'
+                    ORDER BY started_at DESC LIMIT 1";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? $result : null;
+            
+        } catch (PDOException $e) {
+            error_log("Error getting in-progress attempt: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Start a new quiz attempt
+     */
+    public function startQuizAttempt($userId, $quizId) {
+        try {
+            // Check if already completed
+            if ($this->hasCompletedQuiz($userId, $quizId)) {
+                return ['success' => false, 'error' => 'You have already completed this quiz'];
+            }
+            
+            // Check if there's already an in-progress attempt
+            $inProgress = $this->getInProgressAttempt($userId, $quizId);
+            if ($inProgress) {
+                return [
+                    'success' => true, 
+                    'attempt_id' => $inProgress['id'],
+                    'message' => 'Resuming existing attempt'
+                ];
+            }
+            
+            // Start new attempt
+            $sql = "INSERT INTO quiz_attempts (quiz_id, user_id, status, started_at) 
+                    VALUES (:quiz_id, :user_id, 'in_progress', NOW())";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $attemptId = $this->conn->lastInsertId();
+            
+            return [
+                'success' => true,
+                'attempt_id' => $attemptId
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("Error starting quiz attempt: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Failed to start quiz'];
+        }
+    }
+
+    /**
+     * Complete a quiz attempt
+     */
+    public function completeQuizAttempt($attemptId, $score, $correctAnswers, $timeTaken) {
+        try {
+            $sql = "UPDATE quiz_attempts 
+                    SET score = :score, 
+                        correct_answers = :correct_answers,
+                        time_taken = :time_taken,
+                        status = 'completed',
+                        completed_at = NOW()
+                    WHERE id = :attempt_id AND status = 'in_progress'";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':score', $score);
+            $stmt->bindValue(':correct_answers', $correctAnswers);
+            $stmt->bindValue(':time_taken', $timeTaken);
+            $stmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return ['success' => true];
+            
+        } catch (PDOException $e) {
+            error_log("Error completing quiz attempt: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Failed to complete quiz'];
+        }
+    }
+
+    /**
+     * Get total number of questions for a quiz
+     */
+    public function getTotalQuestions($quizId) {
+        try {
+            $sql = "SELECT COUNT(*) as total FROM quiz_questions WHERE quiz_id = :quiz_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'] ?? 0;
+            
+        } catch (PDOException $e) {
+            error_log("Error getting total questions: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get all questions for a quiz
+     * 
+     * @param int $quizId Quiz ID
+     * @return array Array of questions
+     */
+    public function getQuestions($quizId) {
+        try {
+            $sql = "SELECT * FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id ASC";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Convert to format expected by view
+            foreach ($questions as &$question) {
+                // Build options array
+                $options = [];
+                if (!empty($question['option_a'])) $options[] = $question['option_a'];
+                if (!empty($question['option_b'])) $options[] = $question['option_b'];
+                if (!empty($question['option_c'])) $options[] = $question['option_c'];
+                if (!empty($question['option_d'])) $options[] = $question['option_d'];
+                
+                $question['options'] = $options;
+                
+                // Convert correct_answer (A/B/C/D) to index (0/1/2/3)
+                $correctMap = [
+                    'A' => 0,
+                    'B' => 1,
+                    'C' => 2,
+                    'D' => 3
+                ];
+                $correctAnswer = strtoupper(trim($question['correct_answer']));
+                $question['correct_option'] = $correctMap[$correctAnswer] ?? 0;
+                
+                // Set question_text
+                $question['question_text'] = $question['question'];
+            }
+            
+            return $questions;
+            
+        } catch (PDOException $e) {
+            error_log("Error getting quiz questions: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get user's quiz results (all completed attempts)
+     * 
+     * @param int $userId User ID
+     * @return array Array of quiz results
+     */
+    public function getUserQuizResults($userId) {
+        try {
+            $sql = "SELECT a.*, 
+                        q.title as quiz_title,
+                        q.description as quiz_description,
+                        q.passing_score,
+                        q.time_limit
+                    FROM quiz_attempts a
+                    LEFT JOIN quizzes q ON a.quiz_id = q.id
+                    WHERE a.user_id = :user_id 
+                    AND a.status = 'completed'
+                    ORDER BY a.completed_at DESC";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error getting user quiz results: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get best score for a specific quiz
+     * 
+     * @param int $userId User ID
+     * @param int $quizId Quiz ID
+     * @return int Best score percentage
+     */
+    public function getBestScore($userId, $quizId) {
+        try {
+            $sql = "SELECT MAX(score) as best_score 
+                    FROM quiz_attempts 
+                    WHERE user_id = :user_id 
+                    AND quiz_id = :quiz_id 
+                    AND status = 'completed'";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['best_score'] ?? 0;
+            
+        } catch (PDOException $e) {
+            error_log("Error getting best score: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get attempt count for a specific quiz
+     * 
+     * @param int $userId User ID
+     * @param int $quizId Quiz ID
+     * @return int Number of attempts
+     */
+    public function getAttemptCount($userId, $quizId) {
+        try {
+            $sql = "SELECT COUNT(*) as count 
+                    FROM quiz_attempts 
+                    WHERE user_id = :user_id 
+                    AND quiz_id = :quiz_id 
+                    AND status = 'completed'";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] ?? 0;
+            
+        } catch (PDOException $e) {
+            error_log("Error getting attempt count: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get database connection
+     * 
+     * @return PDO Database connection
+     */
+    public function getConnection() {
+        return $this->conn;
+    }
+
+    /**
+     * Get user's completed attempts with attempt IDs
+     */
+    public function getUserCompletedAttempts($userId) {
+        try {
+            $sql = "SELECT id, quiz_id, score, correct_answers, total_questions, completed_at 
+                    FROM quiz_attempts 
+                    WHERE user_id = :user_id AND status = 'completed'
+                    ORDER BY completed_at DESC";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error getting user completed attempts: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get user's answers for a specific attempt
+     * 
+     * @param int $attemptId The attempt ID
+     * @return array Array of answers with question_id as key
+     */
+    public function getUserAnswers($attemptId) {
+        try {
+            $sql = "SELECT question_id, selected_answer, is_correct 
+                    FROM quiz_attempt_answers 
+                    WHERE attempt_id = :attempt_id";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $answers = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $answers[$row['question_id']] = $row['selected_answer'];
+            }
+            
+            return $answers;
+            
+        } catch (PDOException $e) {
+            error_log("Error getting user answers: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Create a new quiz
+     */
+    public function createQuiz($data) {
+        try {
+            $sql = "INSERT INTO quizzes (title, description, subject_id, class_id, time_limit, passing_score, max_attempts, is_published, status, teacher_id, created_at) 
+                    VALUES (:title, :description, :subject_id, :class_id, :time_limit, :passing_score, :max_attempts, :is_published, :status, :teacher_id, NOW())";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':title', $data['title']);
+            $stmt->bindValue(':description', $data['description']);
+            $stmt->bindValue(':subject_id', $data['subject_id']);
+            $stmt->bindValue(':class_id', $data['class_id']);
+            $stmt->bindValue(':time_limit', $data['time_limit'], PDO::PARAM_INT);
+            $stmt->bindValue(':passing_score', $data['passing_score'], PDO::PARAM_INT);
+            $stmt->bindValue(':max_attempts', $data['max_attempts'], PDO::PARAM_INT);
+            $stmt->bindValue(':is_published', $data['is_published'], PDO::PARAM_INT);
+            $stmt->bindValue(':status', $data['is_published'] ? 'published' : 'draft');
+            $stmt->bindValue(':teacher_id', $data['teacher_id'], PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $quizId = $this->conn->lastInsertId();
+            
+            return [
+                'success' => true,
+                'message' => 'Quiz created successfully!',
+                'quiz_id' => $quizId
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("Error creating quiz: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Failed to create quiz'];
+        }
+    }
+
+    /**
+     * Update quiz details
+     */
+    public function updateQuiz($quizId, $data) {
+        try {
+            $sql = "UPDATE quizzes SET 
+                        title = :title,
+                        description = :description,
+                        class_id = :class_id,
+                        subject_id = :subject_id,
+                        time_limit = :time_limit,
+                        passing_score = :passing_score,
+                        max_attempts = :max_attempts,
+                        is_published = :is_published,
+                        end_date = :end_date,
+                        updated_at = NOW()
+                    WHERE id = :id AND teacher_id = :teacher_id";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':title', $data['title']);
+            $stmt->bindValue(':description', $data['description']);
+            $stmt->bindValue(':class_id', $data['class_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':subject_id', $data['subject_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':time_limit', $data['time_limit'], PDO::PARAM_INT);
+            $stmt->bindValue(':passing_score', $data['passing_score'], PDO::PARAM_INT);
+            $stmt->bindValue(':max_attempts', $data['max_attempts'], PDO::PARAM_INT);
+            $stmt->bindValue(':is_published', $data['is_published'], PDO::PARAM_INT);
+            $stmt->bindValue(':end_date', !empty($data['end_date']) ? $data['end_date'] : null);
+            $stmt->bindValue(':id', $quizId, PDO::PARAM_INT);
+            $stmt->bindValue(':teacher_id', $_SESSION['user_id'], PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                // Also update the status column for consistency
+                $statusSql = "UPDATE quizzes SET status = :status WHERE id = :id";
+                $statusStmt = $this->conn->prepare($statusSql);
+                $statusStmt->bindValue(':status', $data['is_published'] ? 'published' : 'draft');
+                $statusStmt->bindValue(':id', $quizId, PDO::PARAM_INT);
+                $statusStmt->execute();
+                
+                return [
+                    'success' => true,
+                    'message' => 'Quiz updated successfully'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => 'Failed to update quiz'
+                ];
+            }
+            
+        } catch (PDOException $e) {
+            error_log("Error updating quiz: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Database error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Check if quiz is available (not expired)
+     */
+    public function isQuizAvailable($quizId) {
+        try {
+            $sql = "SELECT end_date, is_published FROM quizzes WHERE id = :quiz_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $quiz = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$quiz) {
+                return false;
+            }
+            
+            // Check if quiz is published
+            if ($quiz['is_published'] != 1) {
+                return false;
+            }
+            
+            // If no end date set, quiz is always available
+            if (empty($quiz['end_date'])) {
+                return true;
+            }
+            
+            // Check if current date is past the end date
+            $now = new DateTime();
+            $endDate = new DateTime($quiz['end_date']);
+            
+            return $now <= $endDate;
+            
+        } catch (PDOException $e) {
+            error_log("Error checking quiz availability: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get quiz availability status with details
+     * 
+     * @param int $quizId Quiz ID
+     * @return array Status details
+     */
+    public function getQuizAvailabilityStatus($quizId) {
+        try {
+            $sql = "SELECT end_date, is_published FROM quizzes WHERE id = :quiz_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $quiz = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$quiz) {
+                return [
+                    'available' => false,
+                    'reason' => 'not_found',
+                    'message' => 'Quiz not found'
+                ];
+            }
+            
+            // Check if quiz is published
+            if ($quiz['is_published'] != 1) {
+                return [
+                    'available' => false,
+                    'reason' => 'not_published',
+                    'message' => 'This quiz is not published yet.'
+                ];
+            }
+            
+            // Check end date
+            if (!empty($quiz['end_date'])) {
+                $now = new DateTime();
+                $endDate = new DateTime($quiz['end_date']);
+                
+                if ($now > $endDate) {
+                    return [
+                        'available' => false,
+                        'reason' => 'expired',
+                        'end_date' => $quiz['end_date'],
+                        'message' => 'This quiz expired on ' . date('F j, Y', strtotime($quiz['end_date']))
+                    ];
+                }
+                
+                // Calculate days remaining
+                $daysRemaining = $now->diff($endDate)->days;
+                return [
+                    'available' => true,
+                    'reason' => 'active',
+                    'end_date' => $quiz['end_date'],
+                    'days_remaining' => $daysRemaining,
+                    'message' => 'Quiz expires in ' . $daysRemaining . ' days'
+                ];
+            }
+            
+            return [
+                'available' => true,
+                'reason' => 'active',
+                'message' => 'Quiz is available'
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("Error getting quiz availability: " . $e->getMessage());
+            return [
+                'available' => false,
+                'reason' => 'error',
+                'message' => 'Unable to verify quiz availability'
+            ];
+        }
+    }
+
+    /**
+     * Get the number of questions for a quiz
+     * 
+     * @param int $quizId Quiz ID
+     * @return int Number of questions
+     */
+    public function getQuestionCount($quizId) {
+        try {
+            $sql = "SELECT COUNT(*) as count FROM quiz_questions WHERE quiz_id = :quiz_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] ?? 0;
+            
+        } catch (PDOException $e) {
+            error_log("Error getting question count: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Update quiz status (publish/unpublish)
+     */
+    public function updateQuizStatus($quizId, $status) {
+        try {
+            $isPublished = ($status == 'published') ? 1 : 0;
+            
+            $sql = "UPDATE quizzes 
+                    SET is_published = :is_published, 
+                        status = :status,
+                        updated_at = NOW()
+                    WHERE id = :id AND teacher_id = :teacher_id";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':is_published', $isPublished, PDO::PARAM_INT);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':id', $quizId, PDO::PARAM_INT);
+            $stmt->bindValue(':teacher_id', $_SESSION['user_id'], PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                return [
+                    'success' => true,
+                    'message' => $status == 'published' ? 'Quiz published successfully' : 'Quiz unpublished successfully'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => 'Failed to update quiz status'
+                ];
+            }
+            
+        } catch (PDOException $e) {
+            error_log("Error updating quiz status: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Database error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Test database connection and quiz data
+     */
+    public function testQuizData() {
+        try {
+            $result = [];
+            
+            // Test 1: Check if we can connect
+            $result['connection'] = $this->conn ? 'Connected' : 'Not connected';
+            
+            // Test 2: Count total quizzes
+            $stmt = $this->conn->query("SELECT COUNT(*) as total FROM quizzes");
+            $result['total_quizzes'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Test 3: Count published quizzes
+            $stmt = $this->conn->query("SELECT COUNT(*) as total FROM quizzes WHERE is_published = 1");
+            $result['published_quizzes'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Test 4: Count quizzes with questions
+            $stmt = $this->conn->query("SELECT COUNT(DISTINCT quiz_id) as total FROM quiz_questions");
+            $result['quizzes_with_questions'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Test 5: Get list of published quizzes with question counts
+            $stmt = $this->conn->query("
+                SELECT q.id, q.title, q.is_published, COUNT(qq.id) as question_count
+                FROM quizzes q
+                LEFT JOIN quiz_questions qq ON q.id = qq.quiz_id
+                WHERE q.is_published = 1
+                GROUP BY q.id, q.title, q.is_published
+            ");
+            $result['published_quiz_details'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Get a single question by ID
+     */
+    public function getQuestionById($questionId) {
+        try {
+            $sql = "SELECT * FROM quiz_questions WHERE id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':id', $questionId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error getting question by ID: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Update a quiz question
+     */
+    public function updateQuestion($questionId, $data) {
+        try {
+            $sql = "UPDATE quiz_questions SET 
+                        question = :question,
+                        option_a = :option_a,
+                        option_b = :option_b,
+                        option_c = :option_c,
+                        option_d = :option_d,
+                        correct_answer = :correct_answer,
+                        points = :points,
+                        explanation = :explanation
+                    WHERE id = :id";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':question', $data['question']);
+            $stmt->bindValue(':option_a', $data['option_a']);
+            $stmt->bindValue(':option_b', $data['option_b']);
+            $stmt->bindValue(':option_c', $data['option_c']);
+            $stmt->bindValue(':option_d', $data['option_d']);
+            $stmt->bindValue(':correct_answer', $data['correct_answer']);
+            $stmt->bindValue(':points', $data['points'], PDO::PARAM_INT);
+            $stmt->bindValue(':explanation', $data['explanation']);
+            $stmt->bindValue(':id', $questionId, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                return ['success' => true, 'message' => 'Question updated successfully'];
+            }
+            
+            // Get the error info if execution fails
+            $error = $stmt->errorInfo();
+            error_log("SQL Error: " . print_r($error, true));
+            return ['success' => false, 'error' => 'Failed to update question: ' . $error[2]];
+            
+        } catch (PDOException $e) {
+            error_log("Error updating question: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
 }

@@ -11,6 +11,23 @@ $userResults = [];
 foreach ($results as $result) {
     $userResults[$result['quiz_id']][] = $result;
 }
+
+// Remove any duplicates to be safe
+// $uniqueQuizzes = [];
+// $seenIds = [];
+// foreach ($quizzes as $quiz) {
+//     if (!in_array($quiz['id'], $seenIds)) {
+//         $seenIds[] = $quiz['id'];
+//         $uniqueQuizzes[] = $quiz;
+//     }
+// }
+// $quizzes = $uniqueQuizzes;
+
+// Debug info (visible in page source, not on screen)
+echo "<!-- Total quizzes loaded: " . count($quizzes) . " -->\n";
+foreach ($quizzes as $quiz) {
+    echo "<!-- Quiz: ID={$quiz['id']} - Title={$quiz['title']} -->\n";
+}
 ?>
 
 <div class="quizzes-container">
@@ -67,37 +84,76 @@ foreach ($results as $result) {
         </div>
     <?php else: ?>
         <div class="quizzes-grid">
-            <?php foreach ($quizzes as $quiz): 
-                $attempts = $userResults[$quiz['id']] ?? [];
+            <?php foreach ($quizzes as $index => $quiz): 
+                $attempts = isset($userResults[$quiz['id']]) ? $userResults[$quiz['id']] : [];
                 $bestScore = !empty($attempts) ? max(array_column($attempts, 'score')) : 0;
                 $attemptCount = count($attempts);
-                $attemptsLeft = $quiz['max_attempts'] - $attemptCount;
+                $maxAttempts = isset($quiz['max_attempts']) ? $quiz['max_attempts'] : 3;
+                $attemptsLeft = max(0, $maxAttempts - $attemptCount);
+                
+                $hasInProgress = isset($quiz['in_progress']) && $quiz['in_progress'] === true;
+                $hasCompleted = isset($quiz['completed']) && $quiz['completed'] === true;
+                $resultAttemptId = isset($quiz['attempt_id']) ? $quiz['attempt_id'] : null;
+                $hasQuestions = (isset($quiz['question_count']) ? $quiz['question_count'] : 0) > 0;
+                $endDate = isset($quiz['end_date']) ? $quiz['end_date'] : null;
+                
+                // Check if quiz is expired
+                $isExpired = false;
+                if (!empty($endDate) && strtotime($endDate) < time()) {
+                    $isExpired = true;
+                }
+                
+                // Get subject and class names with defaults
+                $subjectName = isset($quiz['subject_name']) ? $quiz['subject_name'] : 'General';
+                $className = isset($quiz['class_name']) ? $quiz['class_name'] : 'All Levels';
+                $questionCount = isset($quiz['question_count']) ? $quiz['question_count'] : 0;
+                $timeLimit = isset($quiz['time_limit']) ? $quiz['time_limit'] : 30;
+                $passingScore = isset($quiz['passing_score']) ? $quiz['passing_score'] : 70;
+                $quizTitle = isset($quiz['title']) ? $quiz['title'] : 'Untitled Quiz';
+                $quizDescription = isset($quiz['description']) ? $quiz['description'] : '';
             ?>
-                <div class="quiz-card">
+                <div class="quiz-card <?php echo $hasCompleted ? 'completed-quiz' : ($hasInProgress ? 'in-progress-quiz' : ''); ?>">
                     <div class="quiz-header">
-                        <span class="quiz-subject"><?php echo htmlspecialchars($quiz['subject_name'] ?? 'General'); ?></span>
-                        <span class="quiz-class"><?php echo htmlspecialchars($quiz['class_name'] ?? 'All Levels'); ?></span>
+                        <span class="quiz-subject"><?php echo htmlspecialchars($subjectName); ?></span>
+                        <span class="quiz-class"><?php echo htmlspecialchars($className); ?></span>
                     </div>
                     
-                    <h3 class="quiz-title"><?php echo htmlspecialchars($quiz['title']); ?></h3>
+                    <h3 class="quiz-title"><?php echo htmlspecialchars($quizTitle); ?></h3>
                     
-                    <?php if (!empty($quiz['description'])): ?>
-                        <p class="quiz-description"><?php echo htmlspecialchars($quiz['description']); ?></p>
+                    <?php if (!empty($quizDescription)): ?>
+                        <p class="quiz-description"><?php echo htmlspecialchars(substr($quizDescription, 0, 100)); ?><?php echo strlen($quizDescription) > 100 ? '...' : ''; ?></p>
                     <?php endif; ?>
                     
                     <div class="quiz-meta">
                         <span title="Questions">
                             <i class="fas fa-question-circle"></i>
-                            <?php echo $quiz['question_count'] ?? 0; ?> questions
+                            <?php echo $questionCount; ?> questions
                         </span>
                         <span title="Time Limit">
                             <i class="fas fa-clock"></i>
-                            <?php echo $quiz['time_limit']; ?> min
+                            <?php echo $timeLimit; ?> min
                         </span>
                         <span title="Passing Score">
                             <i class="fas fa-trophy"></i>
-                            <?php echo $quiz['passing_score']; ?>% to pass
+                            <?php echo $passingScore; ?>% to pass
                         </span>
+                        
+                        <!-- Deadline/Expiration Information -->
+                        <?php if (!empty($endDate)): ?>
+                            <span title="Deadline" class="deadline-badge <?php echo $isExpired ? 'deadline-expired' : 'deadline-active'; ?>">
+                                <i class="fas fa-calendar-times"></i>
+                                <?php if ($isExpired): ?>
+                                    Expired on <?php echo date('M d, Y', strtotime($endDate)); ?>
+                                <?php else: ?>
+                                    Due: <?php echo date('M d, Y', strtotime($endDate)); ?>
+                                    <?php 
+                                    $daysRemaining = ceil((strtotime($endDate) - time()) / 86400);
+                                    if ($daysRemaining <= 3 && $daysRemaining > 0): ?>
+                                        <span class="urgent">(<?php echo $daysRemaining; ?> days left!)</span>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </span>
+                        <?php endif; ?>
                     </div>
                     
                     <!-- User Progress -->
@@ -105,37 +161,81 @@ foreach ($results as $result) {
                         <div class="quiz-progress">
                             <div class="progress-header">
                                 <span>Your best score: <strong><?php echo $bestScore; ?>%</strong></span>
-                                <span><?php echo $attemptCount; ?>/<?php echo $quiz['max_attempts']; ?> attempts</span>
+                                <?php if ($attemptsLeft > 0 && !$hasCompleted): ?>
+                                <span><?php echo $attemptsLeft; ?> attempt(s) left</span>
+                                <?php endif; ?>
                             </div>
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: <?php echo $bestScore; ?>%; background: <?php echo $bestScore >= $quiz['passing_score'] ? '#10B981' : '#F97316'; ?>"></div>
+                                <div class="progress-fill" style="width: <?php echo $bestScore; ?>%; background: <?php echo $bestScore >= $passingScore ? '#10B981' : '#F97316'; ?>"></div>
                             </div>
+                            <?php if ($bestScore >= $passingScore): ?>
+                                <div class="passed-badge">
+                                    <i class="fas fa-check-circle"></i> Passing Score Achieved!
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                     
                     <!-- Action Buttons -->
                     <div class="quiz-actions">
-                        <?php if ($quiz['end_date'] && strtotime($quiz['end_date']) < time()): ?>
+                        <?php if ($isExpired): ?>
                             <div class="quiz-expired">
                                 <i class="fas fa-hourglass-end"></i> Quiz Expired
                             </div>
-                        <?php elseif ($attemptsLeft <= 0): ?>
+                            <?php if ($resultAttemptId): ?>
+                                <a href="<?php echo BASE_URL; ?>/external/quiz-result/<?php echo $resultAttemptId; ?>" class="btn-results">
+                                    <i class="fas fa-chart-bar"></i> View Results
+                                </a>
+                            <?php endif; ?>
+                            
+                        <?php elseif ($hasCompleted): ?>
+                            <div class="quiz-completed-badge">
+                                <i class="fas fa-check-circle"></i> Already Completed
+                            </div>
+                            <?php if ($resultAttemptId): ?>
+                                <a href="<?php echo BASE_URL; ?>/external/quiz-result/<?php echo $resultAttemptId; ?>" class="btn-results">
+                                    <i class="fas fa-chart-bar"></i> View Results
+                                </a>
+                            <?php endif; ?>
+                            
+                        <?php elseif ($hasInProgress): ?>
+                            <div class="quiz-inprogress-badge">
+                                <i class="fas fa-hourglass-half"></i> In Progress
+                            </div>
+                            <a href="<?php echo BASE_URL; ?>/external/take-quiz/<?php echo $quiz['id']; ?>" class="btn-resume">
+                                <i class="fas fa-play"></i> Resume Quiz
+                            </a>
+                            
+                        <?php elseif ($attemptsLeft <= 0 && $maxAttempts > 0): ?>
                             <div class="quiz-expired">
                                 <i class="fas fa-ban"></i> No Attempts Left
                             </div>
+                            <?php if ($resultAttemptId): ?>
+                                <a href="<?php echo BASE_URL; ?>/external/quiz-result/<?php echo $resultAttemptId; ?>" class="btn-results">
+                                    <i class="fas fa-chart-bar"></i> View Results
+                                </a>
+                            <?php endif; ?>
+                            
+                        <?php elseif (!$hasQuestions): ?>
+                            <div class="quiz-expired">
+                                <i class="fas fa-exclamation-triangle"></i> No Questions Available
+                            </div>
+                            
                         <?php else: ?>
                             <a href="<?php echo BASE_URL; ?>/external/take-quiz/<?php echo $quiz['id']; ?>" class="btn-start">
                                 <span>Start Quiz</span>
                                 <i class="fas fa-arrow-right"></i>
                             </a>
-                            
-                            <?php if ($attemptCount > 0): ?>
-                                <a href="<?php echo BASE_URL; ?>/external/quiz-result/<?php echo $quiz['id']; ?>" class="btn-results" title="View Results">
-                                    <i class="fas fa-chart-bar"></i>
-                                </a>
-                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
+                    
+                    <!-- Warning for one-time quizzes -->
+                    <?php if ($maxAttempts == 1 && !$hasCompleted && !$hasInProgress): ?>
+                        <div class="one-time-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>You can only take this quiz once</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -143,6 +243,52 @@ foreach ($results as $result) {
 </div>
 
 <style>
+/* Deadline Badge Styles */
+.deadline-badge {
+    background: #FEF3C7;
+    color: #92400E;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.deadline-badge.deadline-active {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.deadline-badge.deadline-expired {
+    background: #FEF2F2;
+    color: #B91C1C;
+}
+
+.deadline-badge .urgent {
+    color: #EF4444;
+    font-weight: 600;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.quiz-expired {
+    background: #FEF2F2;
+    color: #B91C1C;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .quizzes-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -208,7 +354,7 @@ foreach ($results as $result) {
     padding: 40px;
     background: white;
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
 }
 
 .empty-icon {
@@ -287,10 +433,11 @@ foreach ($results as $result) {
     background: white;
     border-radius: 20px;
     padding: 25px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .quiz-card:hover {
@@ -298,10 +445,22 @@ foreach ($results as $result) {
     box-shadow: 0 20px 60px rgba(139, 92, 246, 0.2);
 }
 
+.quiz-card.completed-quiz {
+    border: 2px solid #10B981;
+    background: linear-gradient(135deg, white, #F0FDF4);
+}
+
+.quiz-card.in-progress-quiz {
+    border: 2px solid #F59E0B;
+    background: linear-gradient(135deg, white, #FEF3C7);
+}
+
 .quiz-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .quiz-subject {
@@ -369,6 +528,8 @@ foreach ($results as $result) {
     margin-bottom: 8px;
     font-size: 0.85rem;
     color: #64748B;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
 .progress-header strong {
@@ -388,14 +549,24 @@ foreach ($results as $result) {
     transition: width 0.3s ease;
 }
 
+.passed-badge {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: #10B981;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 /* Actions */
 .quiz-actions {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
-.btn-start {
+.btn-start, .btn-resume {
     flex: 1;
     background: linear-gradient(135deg, #8B5CF6, #F97316);
     color: white;
@@ -411,7 +582,11 @@ foreach ($results as $result) {
     transition: all 0.3s ease;
 }
 
-.btn-start:hover {
+.btn-resume {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+}
+
+.btn-start:hover, .btn-resume:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
@@ -436,11 +611,9 @@ foreach ($results as $result) {
     transform: rotate(15deg);
 }
 
-.quiz-expired {
+.quiz-expired, .quiz-completed-badge, .quiz-inprogress-badge {
     flex: 1;
     padding: 12px;
-    background: #FEF2F2;
-    color: #B91C1C;
     border-radius: 50px;
     font-size: 0.9rem;
     font-weight: 600;
@@ -449,6 +622,33 @@ foreach ($results as $result) {
     align-items: center;
     justify-content: center;
     gap: 8px;
+}
+
+.quiz-expired {
+    background: #FEF2F2;
+    color: #B91C1C;
+}
+
+.quiz-completed-badge {
+    background: #F0FDF4;
+    color: #166534;
+}
+
+.quiz-inprogress-badge {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.one-time-warning {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: #FEF3C7;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: #92400E;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 /* Responsive */
@@ -465,6 +665,11 @@ foreach ($results as $result) {
         flex-direction: column;
         gap: 8px;
     }
+    
+    .quiz-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 @media (max-width: 480px) {
@@ -472,15 +677,18 @@ foreach ($results as $result) {
         font-size: 2rem;
     }
     
-    .quiz-header {
-        flex-direction: column;
-        gap: 8px;
-        align-items: flex-start;
-    }
-    
     .progress-header {
         flex-direction: column;
         gap: 5px;
+    }
+    
+    .quiz-actions {
+        flex-direction: column;
+    }
+    
+    .btn-results {
+        width: 100%;
+        border-radius: 50px;
     }
 }
 
@@ -488,6 +696,14 @@ foreach ($results as $result) {
 @media (prefers-color-scheme: dark) {
     .quiz-card {
         background: #1E293B;
+    }
+    
+    .quiz-card.completed-quiz {
+        background: linear-gradient(135deg, #1E293B, #1A4731);
+    }
+    
+    .quiz-card.in-progress-quiz {
+        background: linear-gradient(135deg, #1E293B, #332411);
     }
     
     .quiz-title {

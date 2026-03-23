@@ -7,6 +7,7 @@ $quiz = $quiz ?? [];
 $classes = $classes ?? [];
 $subjects = $subjects ?? [];
 $questions = $quiz['questions'] ?? [];
+$currentStatus = $quiz['status'] ?? 'draft';
 ?>
 
 <div class="edit-quiz-container">
@@ -22,6 +23,18 @@ $questions = $quiz['questions'] ?? [];
             </h1>
             <p class="page-subtitle">Editing: <?php echo htmlspecialchars($quiz['title'] ?? ''); ?></p>
         </div>
+        <!-- Status Badge -->
+        <div class="status-badge-container">
+            <?php if ($currentStatus == 'published'): ?>
+                <span class="status-badge published">
+                    <i class="fas fa-globe"></i> Published
+                </span>
+            <?php else: ?>
+                <span class="status-badge draft">
+                    <i class="fas fa-eye-slash"></i> Draft
+                </span>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- Alert Messages -->
@@ -36,6 +49,20 @@ $questions = $quiz['questions'] ?? [];
         <div class="alert alert-error">
             <i class="fas fa-exclamation-circle"></i>
             <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <!-- Warning if no questions and trying to publish -->
+    <?php if (empty($questions) && $currentStatus == 'draft'): ?>
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>No questions added yet!</strong>
+                <p>This quiz has no questions. Students won't be able to take it until you add questions.</p>
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="btn-small">
+                    <i class="fas fa-plus"></i> Add Questions Now
+                </a>
+            </div>
         </div>
     <?php endif; ?>
 
@@ -136,6 +163,7 @@ $questions = $quiz['questions'] ?? [];
                             min="1" 
                             max="180"
                         >
+                        <small class="input-hint">Time allowed for students to complete the quiz</small>
                     </div>
 
                     <div class="form-group">
@@ -147,10 +175,11 @@ $questions = $quiz['questions'] ?? [];
                             type="number" 
                             id="passing_score" 
                             name="passing_score" 
-                            value="<?php echo htmlspecialchars($quiz['passing_score'] ?? 50); ?>" 
+                            value="<?php echo htmlspecialchars($quiz['passing_score'] ?? 70); ?>" 
                             min="0" 
                             max="100"
                         >
+                        <small class="input-hint">Minimum percentage required to pass</small>
                     </div>
                 </div>
 
@@ -168,12 +197,13 @@ $questions = $quiz['questions'] ?? [];
                             min="1" 
                             max="10"
                         >
+                        <small class="input-hint">Number of times a student can attempt this quiz</small>
                     </div>
 
                     <div class="form-group">
                         <label for="end_date">
-                            <i class="fas fa-calendar"></i>
-                            End Date (Optional)
+                            <i class="fas fa-calendar-times"></i>
+                            Quiz Deadline (Optional)
                         </label>
                         <input 
                             type="datetime-local" 
@@ -181,6 +211,16 @@ $questions = $quiz['questions'] ?? [];
                             name="end_date"
                             value="<?php echo !empty($quiz['end_date']) ? date('Y-m-d\TH:i', strtotime($quiz['end_date'])) : ''; ?>"
                         >
+                        <small class="input-hint">
+                            <?php if (!empty($quiz['end_date'])): ?>
+                                Current deadline: <?php echo date('F j, Y \a\t g:i A', strtotime($quiz['end_date'])); ?>
+                                <?php if (strtotime($quiz['end_date']) < time()): ?>
+                                    <span class="text-warning">⚠️ This quiz has expired!</span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                Leave blank for no deadline
+                            <?php endif; ?>
+                        </small>
                     </div>
                 </div>
             </div>
@@ -194,11 +234,17 @@ $questions = $quiz['questions'] ?? [];
                 
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
-                        <input type="checkbox" name="is_published" value="1" 
-                            <?php echo ($quiz['is_published'] ?? 0) ? 'checked' : ''; ?>>
-                        <span>Publish immediately</span>
+                        <input type="checkbox" name="is_published" id="is_published" value="1" 
+                            <?php echo (isset($quiz['is_published']) && $quiz['is_published'] == 1) ? 'checked' : ''; ?>>
+                        <span><i class="fas fa-globe"></i> Publish Quiz</span>
                     </label>
-                    <small class="input-hint">Uncheck to save as draft</small>
+                    <small class="input-hint">
+                        <?php if (isset($quiz['is_published']) && $quiz['is_published'] == 1): ?>
+                            <span class="text-success"><i class="fas fa-check-circle"></i> Quiz is published - students can see it</span>
+                        <?php else: ?>
+                            <span class="text-warning"><i class="fas fa-eye-slash"></i> Quiz is draft - students cannot see it</span>
+                        <?php endif; ?>
+                    </small>
                 </div>
             </div>
 
@@ -206,7 +252,7 @@ $questions = $quiz['questions'] ?? [];
             <div class="form-actions">
                 <button type="submit" class="btn-primary">
                     <i class="fas fa-save"></i>
-                    Update Quiz
+                    Save Changes
                 </button>
                 <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-secondary">
                     <i class="fas fa-times"></i>
@@ -217,52 +263,67 @@ $questions = $quiz['questions'] ?? [];
     </div>
 
     <!-- Questions Section -->
-    <?php if (!empty($questions)): ?>
     <div class="questions-section">
         <div class="section-header">
             <h2 class="section-title">
                 <i class="fas fa-list"></i>
-                Quiz Questions (<?php echo count($questions); ?>)
+                Quiz Questions
+                <?php if (!empty($questions)): ?>
+                    <span class="question-count">(<?php echo count($questions); ?> questions)</span>
+                <?php endif; ?>
             </h2>
             <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="btn-add-questions">
                 <i class="fas fa-plus-circle"></i>
-                Add More Questions
+                <?php echo empty($questions) ? 'Add Questions' : 'Add More Questions'; ?>
             </a>
         </div>
 
-        <div class="questions-list">
-            <?php foreach ($questions as $index => $question): ?>
-            <div class="question-item">
-                <div class="question-number"><?php echo $index + 1; ?></div>
-                <div class="question-content">
-                    <p class="question-text"><?php echo htmlspecialchars($question['question']); ?></p>
-                    <div class="question-options">
-                        <span class="option <?php echo $question['correct_answer'] == 'A' ? 'correct' : ''; ?>">
-                            A. <?php echo htmlspecialchars($question['option_a']); ?>
-                        </span>
-                        <span class="option <?php echo $question['correct_answer'] == 'B' ? 'correct' : ''; ?>">
-                            B. <?php echo htmlspecialchars($question['option_b']); ?>
-                        </span>
-                        <?php if (!empty($question['option_c'])): ?>
-                        <span class="option <?php echo $question['correct_answer'] == 'C' ? 'correct' : ''; ?>">
-                            C. <?php echo htmlspecialchars($question['option_c']); ?>
-                        </span>
-                        <?php endif; ?>
-                        <?php if (!empty($question['option_d'])): ?>
-                        <span class="option <?php echo $question['correct_answer'] == 'D' ? 'correct' : ''; ?>">
-                            D. <?php echo htmlspecialchars($question['option_d']); ?>
-                        </span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="question-meta">
-                        <span><i class="fas fa-star"></i> <?php echo $question['points']; ?> points</span>
+        <?php if (empty($questions)): ?>
+            <div class="empty-questions">
+                <i class="fas fa-question-circle"></i>
+                <h3>No Questions Added Yet</h3>
+                <p>Start adding questions to your quiz. Students will only see the quiz after you add questions and publish it.</p>
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="btn-primary-small">
+                    <i class="fas fa-plus"></i> Add Your First Question
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="questions-list">
+                <?php foreach ($questions as $index => $question): ?>
+                <div class="question-item">
+                    <div class="question-number"><?php echo $index + 1; ?></div>
+                    <div class="question-content">
+                        <p class="question-text"><?php echo htmlspecialchars($question['question']); ?></p>
+                        <div class="question-options">
+                            <span class="option <?php echo $question['correct_answer'] == 'A' ? 'correct' : ''; ?>">
+                                A. <?php echo htmlspecialchars($question['option_a']); ?>
+                            </span>
+                            <span class="option <?php echo $question['correct_answer'] == 'B' ? 'correct' : ''; ?>">
+                                B. <?php echo htmlspecialchars($question['option_b']); ?>
+                            </span>
+                            <?php if (!empty($question['option_c'])): ?>
+                            <span class="option <?php echo $question['correct_answer'] == 'C' ? 'correct' : ''; ?>">
+                                C. <?php echo htmlspecialchars($question['option_c']); ?>
+                            </span>
+                            <?php endif; ?>
+                            <?php if (!empty($question['option_d'])): ?>
+                            <span class="option <?php echo $question['correct_answer'] == 'D' ? 'correct' : ''; ?>">
+                                D. <?php echo htmlspecialchars($question['option_d']); ?>
+                            </span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="question-meta">
+                            <span><i class="fas fa-star"></i> <?php echo $question['points']; ?> points</span>
+                            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit-question/<?php echo $question['id']; ?>" class="edit-question-link">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
                     </div>
                 </div>
+                <?php endforeach; ?>
             </div>
-            <?php endforeach; ?>
-        </div>
+        <?php endif; ?>
     </div>
-    <?php endif; ?>
 </div>
 
 <style>
@@ -287,6 +348,41 @@ $questions = $quiz['questions'] ?? [];
     color: #8B5CF6;
 }
 
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.status-badge-container {
+    margin-top: 10px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.status-badge.published {
+    background: #F0FDF4;
+    color: #166534;
+    border: 1px solid #BBF7D0;
+}
+
+.status-badge.draft {
+    background: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FDE68A;
+}
+
 .page-title {
     font-size: 2rem;
     font-weight: 700;
@@ -302,7 +398,6 @@ $questions = $quiz['questions'] ?? [];
 .page-subtitle {
     color: #64748B;
     font-size: 1rem;
-    margin-bottom: 30px;
 }
 
 /* Form Card */
@@ -337,6 +432,12 @@ $questions = $quiz['questions'] ?? [];
 
 .section-title i {
     color: #8B5CF6;
+}
+
+.question-count {
+    font-size: 0.9rem;
+    color: #64748B;
+    font-weight: normal;
 }
 
 .form-group {
@@ -378,6 +479,7 @@ $questions = $quiz['questions'] ?? [];
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
+    font-family: inherit;
 }
 
 .form-group input:focus,
@@ -393,6 +495,14 @@ $questions = $quiz['questions'] ?? [];
     font-size: 0.8rem;
     color: #64748B;
     margin-top: 5px;
+}
+
+.text-success {
+    color: #10B981;
+}
+
+.text-warning {
+    color: #F59E0B;
 }
 
 /* Checkbox */
@@ -411,6 +521,63 @@ $questions = $quiz['questions'] ?? [];
     width: 18px;
     height: 18px;
     accent-color: #8B5CF6;
+}
+
+.checkbox-label span {
+    font-weight: 500;
+    color: #1E293B;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Alerts */
+.alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.3s ease;
+}
+
+.alert-success {
+    background: #F0FDF4;
+    color: #166534;
+    border: 1px solid #BBF7D0;
+}
+
+.alert-error {
+    background: #FEF2F2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
+}
+
+.alert-warning {
+    background: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FDE68A;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.alert-info {
+    background: #EFF6FF;
+    color: #1E40AF;
+    border: 1px solid #BFDBFE;
+}
+
+.btn-small {
+    background: #8B5CF6;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: auto;
 }
 
 /* Form Actions */
@@ -502,6 +669,46 @@ $questions = $quiz['questions'] ?? [];
     transform: translateY(-2px);
 }
 
+.btn-primary-small {
+    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-small:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+
+.empty-questions {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-questions i {
+    font-size: 4rem;
+    color: #94A3B8;
+    margin-bottom: 20px;
+}
+
+.empty-questions h3 {
+    color: #1E293B;
+    margin-bottom: 10px;
+}
+
+.empty-questions p {
+    color: #64748B;
+    margin-bottom: 25px;
+}
+
 .questions-list {
     display: flex;
     flex-direction: column;
@@ -574,33 +781,22 @@ $questions = $quiz['questions'] ?? [];
     font-size: 0.85rem;
     display: flex;
     gap: 15px;
+    align-items: center;
 }
 
 .question-meta i {
     color: #F97316;
 }
 
-/* Alerts */
-.alert {
-    padding: 16px 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    animation: slideDown 0.3s ease;
+.edit-question-link {
+    color: #8B5CF6;
+    text-decoration: none;
+    transition: color 0.3s ease;
 }
 
-.alert-success {
-    background: #F0FDF4;
-    color: #166534;
-    border: 1px solid #BBF7D0;
-}
-
-.alert-error {
-    background: #FEF2F2;
-    color: #B91C1C;
-    border: 1px solid #FECACA;
+.edit-question-link:hover {
+    color: #7C3AED;
+    text-decoration: underline;
 }
 
 @keyframes slideDown {
@@ -637,6 +833,16 @@ $questions = $quiz['questions'] ?? [];
     
     .question-options {
         justify-content: center;
+    }
+    
+    .alert-warning {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .btn-small {
+        margin-left: 0;
+        margin-top: 10px;
     }
 }
 
@@ -686,6 +892,10 @@ $questions = $quiz['questions'] ?? [];
         background: #334155;
         color: #F1F5F9;
     }
+    
+    .empty-questions h3 {
+        color: #F1F5F9;
+    }
 }
 </style>
 
@@ -712,6 +922,43 @@ function filterSubjects() {
         }
     });
 }
+
+// Handle publish/draft toggle
+const publishCheckbox = document.getElementById('is_published');
+const publishHint = document.getElementById('publishHint');
+const draftHint = document.getElementById('draftHint');
+const publishWarning = document.getElementById('publishWarning');
+
+if (publishCheckbox) {
+    publishCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            publishHint.style.display = 'inline';
+            draftHint.style.display = 'none';
+            if (publishWarning) publishWarning.style.display = 'block';
+        } else {
+            publishHint.style.display = 'none';
+            draftHint.style.display = 'inline';
+            if (publishWarning) publishWarning.style.display = 'none';
+        }
+    });
+}
+
+document.getElementById('quizForm').addEventListener('submit', function(e) {
+    console.log("Form submitted");
+    
+    // Check if checkbox is checked
+    const isPublishedCheckbox = document.getElementById('is_published');
+    console.log("Checkbox checked:", isPublishedCheckbox.checked);
+    console.log("Checkbox value:", isPublishedCheckbox.value);
+    
+    // Log all form data
+    const formData = new FormData(this);
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
+    
+    return true;
+});
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
