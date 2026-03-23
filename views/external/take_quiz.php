@@ -333,7 +333,7 @@ function saveAnswers() {
 }
 
 // ============================================
-// TIMER WITH PERSISTENCE
+// TIMER - FIXED VERSION
 // ============================================
 let timeLeft = TIME_LIMIT_SECONDS;
 let timerInterval = null;
@@ -341,21 +341,20 @@ let formSubmitted = false;
 const timerDisplay = document.getElementById('timerDisplay');
 const timerWarning = document.getElementById('timerWarning');
 
-// Get remaining time from storage
-function getRemainingTime() {
-    if (TIME_LIMIT_SECONDS > 0) {
-        const startTime = localStorage.getItem(QUIZ_START_TIME);
-        if (startTime) {
-            const elapsed = Math.floor((Date.now() - parseInt(startTime)) / 1000);
-            const remaining = Math.max(0, TIME_LIMIT_SECONDS - elapsed);
-            return remaining;
-        } else {
-            // First time - set start time
-            localStorage.setItem(QUIZ_START_TIME, Date.now().toString());
-            return TIME_LIMIT_SECONDS;
-        }
+// Debug: Log the time limit
+console.log("TIME_LIMIT_SECONDS: " + TIME_LIMIT_SECONDS);
+
+// If no time limit, show message and enable submit
+if (TIME_LIMIT_SECONDS <= 0) {
+    if (timerDisplay) timerDisplay.textContent = 'No time limit';
+    // Enable submit button immediately if all questions are answered
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn && document.querySelectorAll('input[type="radio"]:checked').length === TOTAL_QUESTIONS) {
+        submitBtn.disabled = false;
     }
-    return 0;
+} else {
+    // Start the timer only if there's a time limit
+    startTimer();
 }
 
 function formatTime(seconds) {
@@ -365,7 +364,7 @@ function formatTime(seconds) {
 }
 
 function updateTimerDisplay() {
-    if (timerDisplay) {
+    if (timerDisplay && timeLeft >= 0) {
         if (timeLeft > 0) {
             timerDisplay.textContent = formatTime(timeLeft);
         } else {
@@ -375,7 +374,8 @@ function updateTimerDisplay() {
 }
 
 function autoSubmit() {
-    if (!formSubmitted) {
+    if (!formSubmitted && timeLeft <= 0) {
+        console.log("Auto-submitting quiz...");
         formSubmitted = true;
         alert('⏰ Time is up! Your quiz will be submitted automatically.');
         document.getElementById('quizForm').submit();
@@ -383,37 +383,27 @@ function autoSubmit() {
 }
 
 function startTimer() {
-    // Get remaining time from storage
-    timeLeft = getRemainingTime();
+    // Don't start if no time limit
+    if (TIME_LIMIT_SECONDS <= 0) return;
+    
+    console.log("Starting timer with " + timeLeft + " seconds");
     updateTimerDisplay();
     
-    if (timeLeft <= 0) {
-        autoSubmit();
-        return;
-    }
-    
     // Show warning if less than 1 minute
-    if (timeLeft <= 60) {
-        if (timerWarning) timerWarning.style.display = 'flex';
+    if (timeLeft <= 60 && timerWarning) {
+        timerWarning.style.display = 'flex';
     }
     
     timerInterval = setInterval(() => {
-        if (timeLeft > 0 && !formSubmitted) {
+        if (!formSubmitted && timeLeft > 0) {
             timeLeft--;
             updateTimerDisplay();
             
-            // Update stored remaining time
-            const startTime = localStorage.getItem(QUIZ_START_TIME);
-            if (startTime) {
-                const newStartTime = Date.now() - (TIME_LIMIT_SECONDS - timeLeft) * 1000;
-                localStorage.setItem(QUIZ_START_TIME, newStartTime.toString());
-            }
-            
             // Show warning when less than 1 minute remaining
-            if (timeLeft <= 60 && timeLeft > 0) {
-                if (timerWarning) timerWarning.style.display = 'flex';
-            } else {
-                if (timerWarning) timerWarning.style.display = 'none';
+            if (timeLeft <= 60 && timeLeft > 0 && timerWarning) {
+                timerWarning.style.display = 'flex';
+            } else if (timerWarning && timeLeft > 60) {
+                timerWarning.style.display = 'none';
             }
             
             // Auto-submit when time reaches 0
@@ -423,6 +413,14 @@ function startTimer() {
             }
         }
     }, 1000);
+}
+
+// Reset timer function (for debugging)
+function resetTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timeLeft = TIME_LIMIT_SECONDS;
+    updateTimerDisplay();
+    startTimer();
 }
 
 // ============================================

@@ -144,16 +144,15 @@ class Quiz {
      */
     public function startAttempt($quizId, $userId) {
         try {
-            // Check if user has already completed this quiz
-            if ($this->hasCompletedQuiz($userId, $quizId)) {
-                return ['success' => false, 'error' => 'You have already completed this quiz'];
+            // Check if user has reached max attempts
+            if ($this->hasReachedMaxAttempts($userId, $quizId)) {
+                return ['success' => false, 'error' => 'You have used all your attempts for this quiz'];
             }
             
             // Check if there's an existing in-progress attempt
             $existingAttempt = $this->getInProgressAttempt($userId, $quizId);
             
             if ($existingAttempt) {
-                // Resume existing attempt
                 $questions = $this->getQuestions($quizId);
                 return [
                     'success' => true,
@@ -966,19 +965,26 @@ class Quiz {
             $sql = "SELECT COUNT(*) as count FROM quiz_attempts 
                     WHERE user_id = :user_id AND quiz_id = :quiz_id 
                     AND status = 'completed'";
+            
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
             $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
             $stmt->execute();
             
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $result['count'] > 0;
+            $count = $result['count'] ?? 0;
+            
+            error_log("hasCompletedQuiz - User: $userId, Quiz: $quizId, Count: $count");
+            
+            return $count > 0;
             
         } catch (PDOException $e) {
             error_log("Error checking quiz completion: " . $e->getMessage());
             return false;
         }
     }
+
+
     /**
      * Get in-progress attempt for a user
      */
@@ -1652,6 +1658,76 @@ class Quiz {
         } catch (PDOException $e) {
             error_log("Error updating question: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Check if user has reached maximum attempts for a quiz
+     */
+    public function hasReachedMaxAttempts($userId, $quizId) {
+        try {
+            // Get the quiz's max_attempts setting
+            $quizSql = "SELECT max_attempts FROM quizzes WHERE id = :quiz_id";
+            $quizStmt = $this->conn->prepare($quizSql);
+            $quizStmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $quizStmt->execute();
+            $quiz = $quizStmt->fetch(PDO::FETCH_ASSOC);
+            
+            $maxAttempts = $quiz['max_attempts'] ?? 3;
+            
+            // Count completed attempts
+            $sql = "SELECT COUNT(*) as count FROM quiz_attempts 
+                    WHERE user_id = :user_id AND quiz_id = :quiz_id 
+                    AND status = 'completed'";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $attemptCount = $result['count'] ?? 0;
+            
+            error_log("hasReachedMaxAttempts - User: $userId, Quiz: $quizId, Attempts: $attemptCount, Max: $maxAttempts");
+            
+            return $attemptCount >= $maxAttempts;
+            
+        } catch (PDOException $e) {
+            error_log("Error checking max attempts: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get remaining attempts for a user
+     */
+    public function getRemainingAttempts($userId, $quizId) {
+        try {
+            $quizSql = "SELECT max_attempts FROM quizzes WHERE id = :quiz_id";
+            $quizStmt = $this->conn->prepare($quizSql);
+            $quizStmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $quizStmt->execute();
+            $quiz = $quizStmt->fetch(PDO::FETCH_ASSOC);
+            
+            $maxAttempts = $quiz['max_attempts'] ?? 3;
+            
+            $sql = "SELECT COUNT(*) as count FROM quiz_attempts 
+                    WHERE user_id = :user_id AND quiz_id = :quiz_id 
+                    AND status = 'completed'";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $completedAttempts = $result['count'] ?? 0;
+            
+            return max(0, $maxAttempts - $completedAttempts);
+            
+        } catch (PDOException $e) {
+            error_log("Error getting remaining attempts: " . $e->getMessage());
+            return 0;
         }
     }
 }

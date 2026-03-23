@@ -282,7 +282,7 @@ class ExternalController {
             exit;
         }
         
-        // Check if quiz is available (not expired)
+        // Check if quiz is available
         $availability = $this->quizModel->getQuizAvailabilityStatus($quizId);
         
         if (!$availability['available']) {
@@ -291,18 +291,21 @@ class ExternalController {
             exit;
         }
         
+        // Check if user has reached max attempts
+        $remainingAttempts = $this->quizModel->getRemainingAttempts($_SESSION['user_id'], $quizId);
+        error_log("Remaining attempts for user {$_SESSION['user_id']} on quiz $quizId: $remainingAttempts");
+        
+        if ($remainingAttempts <= 0) {
+            $_SESSION['error'] = 'You have used all your attempts for this quiz. Maximum attempts reached.';
+            header('Location: ' . BASE_URL . '/external/quizzes');
+            exit;
+        }
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $attemptId = $_POST['attempt_id'] ?? null;
             $answers = $_POST['answers'] ?? [];
             
-            // CRITICAL DEBUG - Log what's coming from the form
-            error_log("=== FORM SUBMISSION RECEIVED ===");
-            error_log("POST data: " . print_r($_POST, true));
-            error_log("Answers array: " . print_r($answers, true));
-            error_log("Attempt ID from POST: " . $attemptId);
-            
             if (!$attemptId) {
-                error_log("No attempt_id in POST");
                 $_SESSION['error'] = 'Invalid quiz attempt';
                 header('Location: ' . BASE_URL . '/external/quizzes');
                 exit;
@@ -310,16 +313,12 @@ class ExternalController {
             
             // Verify this is the current attempt
             if (isset($_SESSION['current_quiz_attempt']) && $_SESSION['current_quiz_attempt'] != $attemptId) {
-                error_log("Attempt ID mismatch: Session=" . $_SESSION['current_quiz_attempt'] . ", POST=" . $attemptId);
                 $_SESSION['error'] = 'Invalid quiz submission';
                 header('Location: ' . BASE_URL . '/external/quizzes');
                 exit;
             }
             
-            // Call the model to submit
             $result = $this->quizModel->submitAttempt($attemptId, $answers);
-            
-            error_log("Submit attempt result: " . print_r($result, true));
             
             if ($result['success']) {
                 unset($_SESSION['current_quiz_attempt']);
@@ -335,9 +334,9 @@ class ExternalController {
                 exit;
             }
         } else {
-            // Check if user has already completed this quiz
-            if ($this->quizModel->hasCompletedQuiz($_SESSION['user_id'], $quizId)) {
-                $_SESSION['error'] = 'You have already completed this quiz. You cannot take it again.';
+            // Check if user has already completed this quiz (max attempts reached)
+            if ($this->quizModel->hasReachedMaxAttempts($_SESSION['user_id'], $quizId)) {
+                $_SESSION['error'] = 'You have used all your attempts for this quiz. Maximum attempts reached.';
                 header('Location: ' . BASE_URL . '/external/quizzes');
                 exit;
             }
