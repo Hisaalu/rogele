@@ -1,0 +1,12 @@
+
+{
+    "name": "your-app/php-app",
+    "description": "Interactive Learning",
+    "type": "project",
+    "require": {},
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}
