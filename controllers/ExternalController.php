@@ -397,18 +397,18 @@ class ExternalController {
         $questions = $this->quizModel->getQuestions($attemptDetails['quiz_id']);
         $userAnswers = $this->quizModel->getUserAnswers($attemptId);
         
-        // DEBUG: Log what we found
-        error_log("=== QUIZ RESULT DEBUG ===");
-        error_log("Attempt ID: $attemptId");
-        error_log("Quiz ID: " . $attemptDetails['quiz_id']);
-        error_log("Questions found: " . count($questions));
-        error_log("User answers found: " . count($userAnswers));
-        
-        // Debug each question
-        foreach ($questions as $q) {
-            $userAns = isset($userAnswers[$q['id']]) ? $userAnswers[$q['id']] : 'NULL';
-            error_log("  Q{$q['id']}: Correct={$q['correct_option']}, User={$userAns}");
+        // Calculate time taken if not already set
+        if (empty($attemptDetails['time_taken']) && !empty($attemptDetails['started_at']) && !empty($attemptDetails['completed_at'])) {
+            $startTime = strtotime($attemptDetails['started_at']);
+            $endTime = strtotime($attemptDetails['completed_at']);
+            $attemptDetails['time_taken'] = $endTime - $startTime;
         }
+        
+        // Format time for display
+        $timeTaken = isset($attemptDetails['time_taken']) ? (int)$attemptDetails['time_taken'] : 0;
+        $minutes = floor($timeTaken / 60);
+        $seconds = $timeTaken % 60;
+        $attemptDetails['time_formatted'] = $minutes . ':' . ($seconds < 10 ? '0' : '') . $seconds;
         
         $attemptDetails['questions'] = $questions;
         $attemptDetails['user_answers'] = $userAnswers;
