@@ -1,688 +1,414 @@
-<?
+<?php
 // File: /views/auth/forgot-password.php
 $hideHeader = true;
-$pageTitle = 'Forgot Password - Rays of Grace';
-require_once __DIR__ . '/../layouts/header.php';
+$pageTitle = 'Forgot Password | ROGELE';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $pageTitle; ?></title>
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<div class="auth-container">
-    <div class="auth-card">
-        <?php if (isset($_SESSION['success'])): ?>
-            <!-- Success Message with Full Informative Content -->
-            <div class="success-message">
-                <div class="success-icon">
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .forgot-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: #f5f5f5;
+        }
+
+        .forgot-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Card */
+        .forgot-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 40px 32px;
+            width: 100%;
+        }
+
+        /* Logo Section */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-section h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .logo-section p {
+            font-size: 0.85rem;
+            color: black;
+            margin-top: 4px;
+        }
+
+        /* Form */
+        .forgot-form {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #f06724;
+            box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        /* Button */
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: #f06724;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background: #e05a1a;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Back to Login Link */
+        .back-link {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+        }
+
+        .back-link a {
+            color: #7f2677;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Success Message */
+        .success-message {
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background: #e6f4ea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .success-icon i {
+            font-size: 2rem;
+            color: #2e7d32;
+        }
+
+        .success-message h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: black;
+            margin-bottom: 12px;
+        }
+
+        .success-message p {
+            color: black;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        /* Alert Messages */
+        .alert {
+            margin-bottom: 20px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #e6f4ea;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .alert i {
+            font-size: 1rem;
+        }
+
+        /* Loading State */
+        .btn-submit.loading {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .btn-submit.loading::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .forgot-card {
+                padding: 32px 24px;
+            }
+            
+            .logo {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .logo-section h1 {
+                font-size: 1.3rem;
+            }
+            
+            .form-group input {
+                padding: 10px 14px;
+            }
+            
+            .btn-submit {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="forgot-page">
+    <div class="forgot-container">
+        <div class="forgot-card">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo">
+                    <?php 
+                    $logoPath = BASE_URL . '/public/images/logo.png';
+                    $logoFile = __DIR__ . '/../../public/images/logo.png';
+                    ?>
+                    <?php if (file_exists($logoFile)): ?>
+                        <img src="<?php echo $logoPath; ?>" alt="ROGELE Logo">
+                    <?php else: ?>
+                        <span style="font-size: 2.5rem; font-weight: 700; color: #f06724;">RG</span>
+                    <?php endif; ?>
+                </div>
+                <h1>Reset your password</h1>
+                <p>Enter your account email address and we'll send you a password reset link.</p>
+            </div>
+            
+            <!-- Alert Messages -->
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+                </div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i>
+                    <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
                 </div>
-                
-                <h2>📧 Check Your Email!</h2>
-                
-                <div class="success-content">
-                    <p class="success-text">
-                        <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
-                    </p>
-                    
-                    <div class="info-box">
-                        <div class="info-item">
-                            <i class="fas fa-clock"></i>
-                            <div class="info-text">
-                                <strong>20 Minute Expiry</strong>
-                                <span>The reset link will expire in 20 minutes for security reasons</span>
-                            </div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <div class="info-text">
-                                <strong>Check Your Spam Folder</strong>
-                                <span>If you don't see the email, please check your spam/junk folder</span>
-                            </div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <i class="fas fa-shield-alt"></i>
-                            <div class="info-text">
-                                <strong>Didn't Receive an Email?</strong>
-                                <span>If you don't receive the email within a few minutes, click "Resend Email" below</span>
-                            </div>
-                        </div>
+            <?php endif; ?>
+            
+            <!-- Success Message (Full Page) -->
+            <?php if (isset($_SESSION['reset_sent'])): ?>
+                <div class="success-message">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    
-                    <div class="warning-note">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>For security reasons, this link can only be used once. If you need to reset your password again, you'll need to request a new link.</span>
+                    <h2>Check your email</h2>
+                    <p><?php echo $_SESSION['reset_sent']; unset($_SESSION['reset_sent']); ?></p>
+                    <div class="back-link" style="border-top: none; padding-top: 0;">
+                        <a href="<?php echo BASE_URL; ?>/login">Back to login</a>
                     </div>
                 </div>
-                
-                <div class="success-actions">
-                    <a href="<?php echo BASE_URL; ?>/login" class="btn-primary">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Back to Login
-                    </a>
-                    <a href="<?php echo BASE_URL; ?>/forgot-password" class="btn-secondary">
-                        <i class="fas fa-redo-alt"></i>
-                        Resend Email
-                    </a>
-                </div>
-                
-                <div class="contact-support">
-                    <i class="fas fa-headset"></i>
-                    <span>Need help? <a href="<?php echo BASE_URL; ?>/contact">Contact Support</a></span>
-                </div>
-            </div>
-        <?php else: ?>
-            <!-- Forgot Password Form -->
-            <div class="auth-header">
-                <div class="auth-icon">
-                    <i class="fas fa-key"></i>
-                </div>
-                <h2>Forgot Password? 🔐</h2>
-                <p>No worries, we'll send you reset instructions</p>
-            </div>
-
-            <form action="<?php echo BASE_URL; ?>/forgot-password" method="POST" class="auth-form" id="forgotForm">
-                <div class="form-group">
-                    <label for="email">
-                        <i class="fas fa-envelope"></i>
-                        Email Address
-                    </label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        required 
-                        placeholder="Enter your registered email"
-                        autocomplete="off"
-                    >
-                    <small class="input-hint">
-                        <i class="fas fa-paper-plane"></i>
-                        We'll send a password reset link to this email
-                    </small>
-                </div>
-
-                <button type="submit" class="btn-primary btn-block" id="submitBtn">
-                    <span>Send Reset Link</span>
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-
-                <div class="auth-footer">
-                    <p>Remember your password? <a href="<?php echo BASE_URL; ?>/login">Back to Login</a></p>
-                </div>
-            </form>
-        <?php endif; ?>
+            <?php else: ?>
+                <!-- Forgot Password Form -->
+                <form action="<?php echo BASE_URL; ?>/forgot-password" method="POST" class="forgot-form" id="forgotForm">
+                    <div class="form-group">
+                        <input 
+                            type="email" 
+                            name="email" 
+                            id="email"
+                            placeholder="Email address"
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+                    
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        Submit
+                    </button>
+                    
+                    <div class="back-link">
+                        <a href="<?php echo BASE_URL; ?>/login">Remember password? Login</a>
+                    </div>
+                </form>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 
-<style>
-.auth-container {
-    min-height: calc(100vh - 200px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    background: linear-gradient(135deg, #f5f3ff 0%, #fff7ed 100%);
-}
-
-.auth-card {
-    background: white;
-    border-radius: 30px;
-    box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.25);
-    padding: 40px;
-    width: 100%;
-    max-width: 520px;
-    position: relative;
-    overflow: hidden;
-    animation: slideUp 0.5s ease;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.auth-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
-}
-
-/* Auth Header Styles */
-.auth-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.auth-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-.auth-icon i {
-    font-size: 2.5rem;
-    color: white;
-}
-
-.auth-header h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
-}
-
-.auth-header p {
-    color: #64748B;
-    font-size: 0.95rem;
-}
-
-/* Success Message Styles */
-.success-message {
-    text-align: center;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.success-icon {
-    width: 100px;
-    height: 100px;
-    background: #F0FDF4;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 25px;
-    animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-8px);
-    }
-}
-
-.success-icon i {
-    font-size: 3.5rem;
-    color: #10B981;
-}
-
-.success-message h2 {
-    font-size: 1.8rem;
-    color: #1E293B;
-    margin-bottom: 20px;
-    font-weight: 700;
-}
-
-.success-content {
-    margin-bottom: 30px;
-}
-
-.success-text {
-    color: #64748B;
-    font-size: 1rem;
-    line-height: 1.6;
-    margin-bottom: 25px;
-    padding: 15px;
-    background: #F8FAFC;
-    border-radius: 12px;
-    border-left: 4px solid #10B981;
-    text-align: left;
-}
-
-.info-box {
-    background: #F8FAFC;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-.info-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #E2E8F0;
-}
-
-.info-item:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-}
-
-.info-item i {
-    font-size: 1.5rem;
-    color: #8B5CF6;
-    margin-top: 2px;
-}
-
-.info-text {
-    flex: 1;
-}
-
-.info-text strong {
-    display: block;
-    color: #1E293B;
-    font-size: 1rem;
-    margin-bottom: 5px;
-}
-
-.info-text span {
-    color: #64748B;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-.warning-note {
-    background: #FEF2F2;
-    border: 1px solid #FECACA;
-    border-radius: 12px;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-align: left;
-    margin-top: 20px;
-}
-
-.warning-note i {
-    color: #EF4444;
-    font-size: 1.3rem;
-    flex-shrink: 0;
-}
-
-.warning-note span {
-    color: #B91C1C;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-.success-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin: 30px 0 20px;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
-    color: white;
-    border: none;
-    padding: 14px 30px;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
-}
-
-.btn-secondary {
-    background: white;
-    color: #8B5CF6;
-    border: 2px solid #8B5CF6;
-    padding: 12px 28px;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.btn-secondary:hover {
-    background: #8B5CF6;
-    color: white;
-    transform: translateY(-2px);
-}
-
-.contact-support {
-    text-align: center;
-    padding-top: 20px;
-    border-top: 2px solid #F1F5F9;
-    color: #64748B;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.contact-support i {
-    color: #F97316;
-}
-
-.contact-support a {
-    color: #8B5CF6;
-    text-decoration: none;
-    font-weight: 600;
-    margin-left: 5px;
-}
-
-.contact-support a:hover {
-    text-decoration: underline;
-}
-
-/* Form Styles */
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.form-group label {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #1E293B;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.form-group label i {
-    color: #8B5CF6;
-}
-
-.form-group input {
-    padding: 14px 16px;
-    border: 2px solid #E2E8F0;
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    font-family: 'Inter', sans-serif;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
-}
-
-.form-group input:hover {
-    border-color: #8B5CF6;
-}
-
-.input-hint {
-    font-size: 0.9rem;
-    color: #64748B;
-    margin-top: 5px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.input-hint i {
-    color: #F97316;
-    font-size: 0.9rem;
-}
-
-.btn-block {
-    width: 100%;
-}
-
-.auth-footer {
-    text-align: center;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 2px solid #F1F5F9;
-}
-
-.auth-footer p {
-    color: #64748B;
-    font-size: 0.95rem;
-}
-
-.auth-footer a {
-    color: #8B5CF6;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
-}
-
-.auth-footer a:hover {
-    color: #F97316;
-    text-decoration: underline;
-}
-
-/* Loading state */
-.btn-primary.loading {
-    position: relative;
-    color: transparent;
-    pointer-events: none;
-}
-
-.btn-primary.loading::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border: 2px solid white;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-    .auth-card {
-        padding: 30px 20px;
-    }
-    
-    .auth-header h2 {
-        font-size: 1.6rem;
-    }
-    
-    .auth-icon {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .auth-icon i {
-        font-size: 2rem;
-    }
-    
-    .success-icon {
-        width: 80px;
-        height: 80px;
-    }
-    
-    .success-icon i {
-        font-size: 2.8rem;
-    }
-    
-    .success-message h2 {
-        font-size: 1.5rem;
-    }
-    
-    .info-item {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 10px;
-    }
-    
-    .info-item i {
-        margin-bottom: 5px;
-    }
-    
-    .warning-note {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .success-actions {
-        flex-direction: column;
-    }
-    
-    .btn-primary, .btn-secondary {
-        width: 100%;
-    }
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-    .auth-container {
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-    }
-    
-    .auth-card {
-        background: #1E293B;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .auth-footer {
-        border-top-color: #334155;
-    }
-    
-    .auth-footer p {
-        color: #94A3B8;
-    }
-    
-    .input-hint {
-        color: #94A3B8;
-    }
-    
-    .success-text {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .info-box {
-        background: #334155;
-    }
-    
-    .info-item {
-        border-bottom-color: #475569;
-    }
-    
-    .info-text strong {
-        color: #F1F5F9;
-    }
-    
-    .info-text span {
-        color: #94A3B8;
-    }
-    
-    .contact-support {
-        border-top-color: #334155;
-        color: #94A3B8;
-    }
-    
-    .btn-secondary {
-        background: transparent;
-        color: #8B5CF6;
-        border-color: #8B5CF6;
-    }
-    
-    .btn-secondary:hover {
-        background: #8B5CF6;
-        color: white;
-    }
-}
-</style>
-
 <script>
-document.getElementById('forgotForm')?.addEventListener('submit', function(e) {
-    const email = document.getElementById('email').value;
+document.addEventListener('DOMContentLoaded', function() {
+    const forgotForm = document.getElementById('forgotForm');
     const submitBtn = document.getElementById('submitBtn');
+    const emailInput = document.getElementById('email');
     
-    if (!email) {
-        e.preventDefault();
-        alert('Please enter your email address');
-        return;
+    // Auto-focus on email field
+    if (emailInput) {
+        emailInput.focus();
     }
     
-    // Simple email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        e.preventDefault();
-        alert('Please enter a valid email address');
-        return;
+    // Form submission
+    if (forgotForm) {
+        forgotForm.addEventListener('submit', function(e) {
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                e.preventDefault();
+                showAlert('Please enter your email address', 'error');
+                return;
+            }
+            
+            // Simple email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                showAlert('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
     }
     
-    // Add loading state
-    submitBtn.classList.add('loading');
-    submitBtn.disabled = true;
+    // Show alert function
+    function showAlert(message, type) {
+        const existingAlert = document.querySelector('.alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        const forgotCard = document.querySelector('.forgot-card');
+        const logoSection = document.querySelector('.logo-section');
+        
+        if (forgotCard && logoSection) {
+            forgotCard.insertBefore(alertDiv, logoSection.nextSibling);
+        }
+        
+        setTimeout(() => {
+            alertDiv.style.opacity = '0';
+            setTimeout(() => alertDiv.remove(), 300);
+        }, 5000);
+    }
 });
 </script>
+</body>
+</html>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -13,7 +13,7 @@
                     <div class="footer-col">
                         <div class="footer-logo">
                             <div class="logo-icon">
-                                <i class="fas fa-graduation-cap"></i>
+                                <img src="<?php echo BASE_URL; ?>/public/images/logo.jpg" alt="ROGELE Logo" style="width: 45px; height: 45px; object-fit: contain;">
                             </div>
                             <div class="logo-text">
                                 <span class="logo-main">Rays of Grace</span>
@@ -38,7 +38,7 @@
                             <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-chevron-right"></i> Home</a></li>
                             <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
                             <li><a href="<?php echo BASE_URL; ?>/external/lessons"><i class="fas fa-chevron-right"></i> Lessons</a></li>
-                            <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
                         </ul>
                     </div>
 
@@ -306,14 +306,18 @@
         .footer-logo .logo-icon {
             width: 45px;
             height: 45px;
-            background: linear-gradient(135deg, #8B5CF6, #F97316);
+            background: transparent;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
-            color: white;
-            transform: rotate(-5deg);
+            overflow: hidden;
+        }
+
+        .footer-logo .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .footer-logo .logo-main {
@@ -351,7 +355,7 @@
         }
 
         .footer-social a:hover {
-            background: linear-gradient(135deg, #8B5CF6, #F97316);
+            background: linear-gradient(135deg, #7f2677);
             transform: translateY(-3px);
         }
 
@@ -370,7 +374,7 @@
             left: 0;
             width: 40px;
             height: 2px;
-            background: linear-gradient(90deg, #8B5CF6, #F97316);
+            background: linear-gradient(90deg, #7f2677);
         }
 
         .footer-col ul {
@@ -391,13 +395,13 @@
         }
 
         .footer-col ul li a:hover {
-            color: #F97316;
+            color: #f06724;
             transform: translateX(5px);
         }
 
         .footer-col ul li a i {
             font-size: 0.8rem;
-            color: #8B5CF6;
+            color: #f06724;
         }
 
         .contact-info li {
@@ -409,7 +413,7 @@
         }
 
         .contact-info i {
-            color: #8B5CF6;
+            color: #f06724;
             width: 20px;
             font-size: 1.1rem;
         }
@@ -432,7 +436,7 @@
             right: 30px;
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #8B5CF6, #F97316);
+            background: linear-gradient(135deg, #7f2677);
             color: white;
             border: none;
             border-radius: 50%;
@@ -446,7 +450,7 @@
             transform: translateY(20px);
             transition: all 0.3s ease;
             z-index: 999;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 4px 15px rgba(240, 103, 36, 0.3);
         }
 
         .back-to-top.show {
@@ -457,7 +461,7 @@
 
         .back-to-top:hover {
             transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+            box-shadow: 0 6px 20px rgba(127, 38, 119, 0.4);
         }
 
         .back-to-top:active {

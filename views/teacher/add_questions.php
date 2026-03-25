@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/add_questions.php
-$pageTitle = 'Add Questions - Teacher - Rays of Grace';
+$pageTitle = 'Add Questions | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $quiz = $quiz ?? [];
@@ -169,7 +169,7 @@ $quizId = $quiz['id'] ?? 0;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -177,13 +177,13 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #7f2677;
 }
 
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -193,7 +193,7 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -217,7 +217,7 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .question-card:hover {
-    border-color: #8B5CF6;
+    border-color: #f06724;
 }
 
 .question-header {
@@ -228,7 +228,7 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .question-title {
-    color: #1E293B;
+    color: black;
     font-size: 1.1rem;
     font-weight: 600;
     display: flex;
@@ -237,7 +237,7 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .question-title i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .remove-question {
@@ -284,7 +284,7 @@ $quizId = $quiz['id'] ?? 0;
     gap: 8px;
     font-weight: 600;
     font-size: 0.9rem;
-    color: #1E293B;
+    color: black;
     margin-bottom: 5px;
 }
 
@@ -313,7 +313,7 @@ $quizId = $quiz['id'] ?? 0;
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
@@ -325,8 +325,8 @@ $quizId = $quiz['id'] ?? 0;
 
 .btn-add-question {
     background: white;
-    color: #8B5CF6;
-    border: 2px dashed #8B5CF6;
+    color: #7f2677;
+    border: 2px dashed #f06724;
     padding: 15px 30px;
     border-radius: 50px;
     font-weight: 600;
@@ -339,7 +339,7 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .btn-add-question:hover {
-    background: #8B5CF6;
+    background: #f06724;
     color: white;
     border-style: solid;
     transform: translateY(-2px);
@@ -355,7 +355,7 @@ $quizId = $quiz['id'] ?? 0;
 
 .btn-primary {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 30px;
@@ -379,7 +379,7 @@ $quizId = $quiz['id'] ?? 0;
 .btn-secondary {
     padding: 14px 30px;
     background: white;
-    color: #64748B;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -394,9 +394,9 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .btn-secondary:hover {
-    background: #F1F5F9;
+    background: #f06724;
     border-color: #94A3B8;
-    color: #1E293B;
+    color: whiteB;
 }
 
 /* Alerts */
@@ -489,7 +489,7 @@ $quizId = $quiz['id'] ?? 0;
     }
     
     .btn-add-question:hover {
-        background: #8B5CF6;
+        background: #f06724;
         color: white;
     }
     
@@ -500,7 +500,7 @@ $quizId = $quiz['id'] ?? 0;
     }
     
     .btn-secondary:hover {
-        background: #475569;
+        background: #f06724;
         color: #F1F5F9;
     }
 }

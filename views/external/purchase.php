@@ -1,6 +1,6 @@
 <?php
 // File: /views/external/purchase.php
-$pageTitle = 'Purchase Subscription - Rays of Grace';
+$pageTitle = 'Purchase Subscription | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $plan = $_GET['plan'] ?? 'monthly';

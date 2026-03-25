@@ -59,6 +59,8 @@ $routes = [
     '/forgot-password' => 'AuthController@forgotPassword',
     '/reset-password' => 'AuthController@resetPassword',
     '/change-password' => 'AuthController@changePassword',
+
+    '/contact' => 'HomeController@contact',
     
     // Admin routes
     '/admin/dashboard' => 'AdminController@dashboard',

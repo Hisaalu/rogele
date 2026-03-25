@@ -1,6 +1,6 @@
 <?php
 // File: /views/external/dashboard.php
-$pageTitle = 'External Dashboard - Rays of Grace';
+$pageTitle = 'Dashboard | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Get trial status
@@ -10,16 +10,16 @@ $hasAccess = $hasActiveSubscription || ($trialStatus['is_trial'] ?? false);
 ?>
 
 <div style="padding: 40px 20px; max-width: 1200px; margin: 0 auto;">
-    <h1 style="font-size: 2rem; margin-bottom: 20px; background: linear-gradient(135deg, #8B5CF6, #F97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+    <h1 style="font-size: 2rem; margin-bottom: 20px; background: linear-gradient(135deg, #f06724); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
         Welcome, <?php 
             $fullName = $_SESSION['user_name'] ?? 'User';
             $firstName = explode(' ', trim($fullName))[0];
             echo htmlspecialchars($firstName); 
-        ?>! 👋
+        ?>!
     </h1>
     
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-        <h2 style="color: #1E293B; margin-bottom: 20px;">External User Dashboard</h2>
+        <h2 style="color: black; margin-bottom: 20px;">External User Dashboard</h2>
         
         <!-- Access Status Banner -->
         <?php if ($hasActiveSubscription): ?>
@@ -59,11 +59,11 @@ $hasAccess = $hasActiveSubscription || ($trialStatus['is_trial'] ?? false);
                         $percentage = min(100, round(($usedDays / $totalDays) * 100));
                         ?>
                         <div style="background: #FFEDD5; height: 8px; border-radius: 10px; margin-top: 10px; max-width: 400px;">
-                            <div style="background: linear-gradient(90deg, #F59E0B, #F97316); width: <?php echo $percentage; ?>%; height: 100%; border-radius: 10px;"></div>
+                            <div style="background: linear-gradient(90deg, #f06724); width: <?php echo $percentage; ?>%; height: 100%; border-radius: 10px;"></div>
                         </div>
                         <p style="color: #B45309; font-size: 0.75rem; margin-top: 5px;">Day <?php echo $usedDays; ?> of <?php echo $totalDays; ?></p>
                     </div>
-                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: linear-gradient(135deg, #F59E0B, #F97316); color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
+                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: linear-gradient(135deg, #f06724); color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
                         Subscribe Now
                     </a>
                 </div>
@@ -90,8 +90,8 @@ $hasAccess = $hasActiveSubscription || ($trialStatus['is_trial'] ?? false);
         <!-- Feature Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
             <!-- Learning Materials Card -->
-            <a href="<?php echo BASE_URL; ?>/external/materials" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #8B5CF6, #F97316)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#64748B'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; pointer-events: <?php echo $hasAccess ? 'auto' : 'none'; ?>;">
-                <i class="fas fa-book-open" style="font-size: 2rem; margin-bottom: 15px;"></i>
+            <a href="<?php echo BASE_URL; ?>/external/materials" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#64748B'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; pointer-events: <?php echo $hasAccess ? 'auto' : 'none'; ?>;">
+                <i class="fas fa-book-open" style="font-size: 2rem; margin-bottom: 15px; color: #f06724;"></i>
                 <h3 style="margin-bottom: 10px;">Learning Materials</h3>
                 <p style="opacity: 0.9; font-size: 0.9rem;">
                     <?php echo $hasAccess ? 'Access all lessons and resources' : 'Subscribe to access lessons'; ?>
@@ -102,8 +102,8 @@ $hasAccess = $hasActiveSubscription || ($trialStatus['is_trial'] ?? false);
             </a>
             
             <!-- Practice Quizzes Card -->
-            <a href="<?php echo BASE_URL; ?>/external/quizzes" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #8B5CF6, #F97316)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#64748B'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; pointer-events: <?php echo $hasAccess ? 'auto' : 'none'; ?>;">
-                <i class="fas fa-pencil-alt" style="font-size: 2rem; margin-bottom: 15px;"></i>
+            <a href="<?php echo BASE_URL; ?>/external/quizzes" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#64748B'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; pointer-events: <?php echo $hasAccess ? 'auto' : 'none'; ?>;">
+                <i class="fas fa-pencil-alt" style="font-size: 2rem; margin-bottom: 15px; color: #f06724;"></i>
                 <h3 style="margin-bottom: 10px;">Practice Quizzes</h3>
                 <p style="opacity: 0.9; font-size: 0.9rem;">
                     <?php echo $hasAccess ? 'Test your knowledge' : 'Subscribe to access quizzes'; ?>
@@ -115,9 +115,9 @@ $hasAccess = $hasActiveSubscription || ($trialStatus['is_trial'] ?? false);
             
             <!-- Subscription Card (Always accessible) -->
             <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: transform 0.3s ease;">
-                <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 15px; color: #8B5CF6;"></i>
+                <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 15px; color: #f06724;"></i>
                 <h3 style="margin-bottom: 10px;">Subscription</h3>
-                <p style="color: #64748B; font-size: 0.9rem;">
+                <p style="color: black; font-size: 0.9rem;">
                     <?php echo $hasActiveSubscription ? 'Manage your subscription' : ($trialStatus['is_trial'] ? 'Upgrade to premium' : 'Subscribe to continue'); ?>
                 </p>
             </a>

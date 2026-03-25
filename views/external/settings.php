@@ -1,6 +1,6 @@
 <?php
 // File: /views/external/settings.php
-$pageTitle = 'Settings - Rays of Grace';
+$pageTitle = 'Settings | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $activeTab = $_GET['tab'] ?? 'password';
@@ -339,7 +339,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -349,7 +349,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -369,7 +369,7 @@ $activeTab = $_GET['tab'] ?? 'password';
     background: white;
     border-radius: 12px;
     text-decoration: none;
-    color: #64748B;
+    color: black;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -382,18 +382,18 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .tab i {
     font-size: 1.2rem;
-    color: #8B5CF6;
+    color: blak;
 }
 
 .tab:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
-    border-color: #8B5CF6;
+    border-color: #f06724;
     color: #1E293B;
 }
 
 .tab.active {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
 }
 
@@ -418,7 +418,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .card-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1E293B;
+    color: black;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -426,7 +426,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .card-description {
-    color: #64748B;
+    color: black;
     margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 2px solid #F1F5F9;
@@ -455,7 +455,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .password-input-wrapper {
@@ -479,7 +479,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .password-input-wrapper input:hover {
-    border-color: #8B5CF6;
+    border-color: #f06724;
 }
 
 .toggle-password {
@@ -520,7 +520,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .strength-text {
     font-size: 0.85rem;
-    color: #64748B;
+    color: black;
 }
 
 .password-match {
@@ -742,7 +742,7 @@ input:checked + .slider:before {
 }
 
 .btn-save {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 16px;

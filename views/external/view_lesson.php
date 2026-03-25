@@ -1,6 +1,6 @@
 <?php
 // File: /views/external/view_lesson.php
-$pageTitle = 'View Lesson - Rays of Grace';
+$pageTitle = 'Lessons | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // This assumes $lesson is passed from the controller
@@ -12,7 +12,7 @@ if (!isset($lesson)) {
 
 <div style="padding: 40px 20px; max-width: 1000px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <a href="<?php echo BASE_URL; ?>/external/materials" style="color: #8B5CF6; text-decoration: none;">
+        <a href="<?php echo BASE_URL; ?>/external/materials" style="color: #7f2677; text-decoration: none;">
             <i class="fas fa-arrow-left"></i> Back to Materials
         </a>
         
@@ -25,13 +25,13 @@ if (!isset($lesson)) {
         <?php endif; ?>
     </div>
 
-    <h1 style="font-size: 2.5rem; margin-bottom: 20px; color: #1E293B;"><?php echo htmlspecialchars($lesson['title']); ?></h1>
+    <h1 style="font-size: 2.5rem; margin-bottom: 20px; color: black;"><?php echo htmlspecialchars($lesson['title']); ?></h1>
     
-    <div style="display: flex; gap: 20px; margin-bottom: 30px; color: #64748B; flex-wrap: wrap;">
-        <span><i class="fas fa-book" style="color: #8B5CF6;"></i> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?></span>
-        <span><i class="fas fa-user" style="color: #F97316;"></i> <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?></span>
-        <span><i class="fas fa-eye" style="color: #8B5CF6;"></i> <?php echo $lesson['views']; ?> views</span>
-        <span><i class="fas fa-calendar" style="color: #F97316;"></i> <?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></span>
+    <div style="display: flex; gap: 20px; margin-bottom: 30px; color: black; flex-wrap: wrap;">
+        <span><i class="fas fa-book" style="color: #f06724;"></i> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?></span>
+        <span><i class="fas fa-user" style="color: #f06724;"></i> <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?></span>
+        <span><i class="fas fa-eye" style="color: #f06724;"></i> <?php echo $lesson['views']; ?> views</span>
+        <span><i class="fas fa-calendar" style="color: #f06724;"></i> <?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></span>
     </div>
     
     <?php if (!empty($lesson['video_url'])): ?>
@@ -43,15 +43,15 @@ if (!isset($lesson)) {
     <?php endif; ?>
     
     <div style="background: white; border-radius: 20px; padding: 40px; margin-bottom: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-        <h2 style="color: #1E293B; margin-bottom: 20px;">Lesson Content</h2>
-        <div style="color: #64748B; line-height: 1.8;">
+        <h2 style="color: black; margin-bottom: 20px;">Lesson Content</h2>
+        <div style="color: black; line-height: 1.8;">
             <?php echo nl2br(htmlspecialchars($lesson['content'] ?? 'No content available.')); ?>
         </div>
     </div>
     
     <?php if (!empty($lesson['materials'])): ?>
         <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-            <h2 style="color: #1E293B; margin-bottom: 20px;">Downloadable Materials</h2>
+            <h2 style="color: black; margin-bottom: 20px;">Downloadable Materials</h2>
             <div style="display: grid; gap: 15px;">
                 <?php foreach ($lesson['materials'] as $material): ?>
                     <a href="<?php echo BASE_URL; ?>/public/<?php echo $material['file_path']; ?>" download 

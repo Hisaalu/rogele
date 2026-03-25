@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/profile.php
-$pageTitle = 'My Profile - Teacher - Rays of Grace';
+$pageTitle = 'Profile | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $profile = $profile ?? [];
@@ -242,7 +242,7 @@ $profile = $profile ?? [];
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -252,7 +252,7 @@ $profile = $profile ?? [];
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
@@ -341,7 +341,7 @@ $profile = $profile ?? [];
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -364,7 +364,7 @@ $profile = $profile ?? [];
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #8B5CF6;
+    color: black;
     font-size: 1.2rem;
     cursor: pointer;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -372,7 +372,7 @@ $profile = $profile ?? [];
 }
 
 .photo-upload-btn:hover {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     transform: scale(1.1);
 }
@@ -380,12 +380,12 @@ $profile = $profile ?? [];
 .profile-name {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1E293B;
+    color: black;
     margin-bottom: 5px;
 }
 
 .profile-role {
-    color: #8B5CF6;
+    color: black;
     font-weight: 500;
     text-transform: capitalize;
     margin-bottom: 15px;
@@ -396,7 +396,7 @@ $profile = $profile ?? [];
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     font-size: 0.85rem;
     background: #F8FAFC;
     padding: 8px 15px;
@@ -436,7 +436,7 @@ $profile = $profile ?? [];
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #8B5CF6;
+    color: #f06724;
     font-size: 1.2rem;
 }
 
@@ -447,12 +447,12 @@ $profile = $profile ?? [];
 
 .stat-label {
     font-size: 0.85rem;
-    color: #64748B;
+    color: black;
 }
 
 .stat-value {
     font-weight: 600;
-    color: #1E293B;
+    color: black;
 }
 
 /* Right Column */
@@ -463,7 +463,7 @@ $profile = $profile ?? [];
 .card-title {
     font-size: 1.3rem;
     font-weight: 600;
-    color: #1E293B;
+    color: black;
     margin-bottom: 30px;
     display: flex;
     align-items: center;
@@ -498,14 +498,14 @@ $profile = $profile ?? [];
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: black;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #f06724;
     font-size: 1rem;
 }
 
@@ -527,13 +527,13 @@ $profile = $profile ?? [];
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
 .form-group input:hover,
 .form-group textarea:hover {
-    border-color: #8B5CF6;
+    border-color: #f06724;
 }
 
 .form-group textarea {
@@ -550,7 +550,7 @@ $profile = $profile ?? [];
 
 .btn-save {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 30px;
@@ -572,8 +572,8 @@ $profile = $profile ?? [];
 
 .btn-cancel {
     padding: 14px 30px;
-    background: white;
-    color: #64748B;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -587,9 +587,9 @@ $profile = $profile ?? [];
 }
 
 .btn-cancel:hover {
-    background: #F1F5F9;
+    background: #f06724;
     border-color: #94A3B8;
-    color: #1E293B;
+    color: white;
 }
 
 /* Responsive Design */
@@ -665,7 +665,7 @@ $profile = $profile ?? [];
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
     .profile-card {
-        background: #1E293B;
+        background: black;
     }
     
     .profile-name {

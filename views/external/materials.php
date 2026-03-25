@@ -1,6 +1,6 @@
 <?php
 // File: /views/external/materials.php
-$pageTitle = 'Learning Materials - Rays of Grace';
+$pageTitle = 'Learning Materials | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $lessons = $lessons ?? [];
@@ -163,14 +163,14 @@ function getYoutubeId($url) {
 .page-title {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1.1rem;
 }
 
@@ -249,7 +249,7 @@ function getYoutubeId($url) {
 
 .search-box input:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #7f2677;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
@@ -265,7 +265,7 @@ function getYoutubeId($url) {
 
 .btn-search {
     padding: 14px 30px;
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     border: none;
     border-radius: 12px;
@@ -276,7 +276,7 @@ function getYoutubeId($url) {
 }
 
 .btn-search:hover {
-    background: #7C3AED;
+    background: #f06724;
 }
 
 .btn-clear {
@@ -323,7 +323,7 @@ function getYoutubeId($url) {
     height: 180px;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724);
 }
 
 .lesson-thumbnail img {
@@ -387,7 +387,7 @@ function getYoutubeId($url) {
     gap: 15px;
     margin-bottom: 15px;
     font-size: 0.85rem;
-    color: #64748B;
+    color: black;
 }
 
 .lesson-meta span {
@@ -397,11 +397,11 @@ function getYoutubeId($url) {
 }
 
 .lesson-meta i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .lesson-description {
-    color: #475569;
+    color: black;
     font-size: 0.95rem;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -416,7 +416,7 @@ function getYoutubeId($url) {
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.9rem;
-    color: #64748B;
+    color: black;
 }
 
 .lesson-stats span {
@@ -426,11 +426,11 @@ function getYoutubeId($url) {
 }
 
 .lesson-stats i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .btn-view {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677 );
     color: white;
     text-decoration: none;
     padding: 14px 20px;

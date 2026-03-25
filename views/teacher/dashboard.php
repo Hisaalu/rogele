@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/dashboard.php
-$pageTitle = 'Teacher Dashboard - Rays of Grace';
+$pageTitle = 'Teacher Dashboard | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Get statistics from controller
@@ -42,7 +42,7 @@ $classPerformance = $classPerformance ?? [
     <!-- Quick Stats Grid -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
                 <i class="fas fa-book-open"></i>
             </div>
             <div class="stat-content">
@@ -55,7 +55,7 @@ $classPerformance = $classPerformance ?? [
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #F97316, #EA580C);">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
                 <i class="fas fa-pencil-alt"></i>
             </div>
             <div class="stat-content">
@@ -68,7 +68,7 @@ $classPerformance = $classPerformance ?? [
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-content">
@@ -81,7 +81,7 @@ $classPerformance = $classPerformance ?? [
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-content">
@@ -167,7 +167,7 @@ $classPerformance = $classPerformance ?? [
                     ?>
                     <div class="activity-item">
                         <div class="activity-icon" style="background: rgba(139, 92, 246, 0.1);">
-                            <i class="fas fa-book" style="color: #8B5CF6;"></i>
+                            <i class="fas fa-book" style="color: #f06724;"></i>
                         </div>
                         <div class="activity-content">
                             <h4><?php echo htmlspecialchars($lesson['title']); ?></h4>
@@ -233,7 +233,7 @@ $classPerformance = $classPerformance ?? [
 
 /* Welcome Banner */
 .welcome-banner {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
@@ -322,7 +322,7 @@ $classPerformance = $classPerformance ?? [
 
 .stat-label {
     display: block;
-    color: #64748B;
+    color: black;
     font-size: 0.9rem;
     margin-bottom: 5px;
 }
@@ -331,7 +331,7 @@ $classPerformance = $classPerformance ?? [
     display: block;
     font-size: 2rem;
     font-weight: 700;
-    color: #1E293B;
+    color: black;
     line-height: 1.2;
     margin-bottom: 5px;
 }
@@ -349,7 +349,7 @@ $classPerformance = $classPerformance ?? [
 
 /* Section Title */
 .section-title {
-    color: #1E293B;
+    color: black;
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 20px;
@@ -381,7 +381,7 @@ $classPerformance = $classPerformance ?? [
 
 .action-card:hover {
     transform: translateX(5px);
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
 }
 
@@ -394,7 +394,7 @@ $classPerformance = $classPerformance ?? [
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .action-content {
@@ -402,7 +402,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .action-content h3 {
-    color: #1E293B;
+    color: black;
     font-size: 1rem;
     margin-bottom: 3px;
 }
@@ -413,7 +413,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .action-card i:last-child {
-    color: #8B5CF6;
+    color: #f06724;
     opacity: 0;
     transition: all 0.3s ease;
 }
@@ -451,7 +451,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .performance-header h3 {
-    color: #1E293B;
+    color: black;
     font-size: 1.1rem;
     font-weight: 600;
 }
@@ -461,7 +461,7 @@ $classPerformance = $classPerformance ?? [
     border: 2px solid #E2E8F0;
     border-radius: 30px;
     font-size: 0.85rem;
-    color: #1E293B;
+    color: black;
     background: white;
     cursor: pointer;
 }
@@ -496,7 +496,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .card-header h3 {
-    color: #1E293B;
+    color: black;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -504,11 +504,11 @@ $classPerformance = $classPerformance ?? [
 }
 
 .card-header h3 i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .view-all {
-    color: #8B5CF6;
+    color: #f06724;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -562,7 +562,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .activity-content h4 {
-    color: #1E293B;
+    color: black;
     font-size: 1rem;
     margin-bottom: 5px;
     white-space: nowrap;
@@ -604,7 +604,7 @@ $classPerformance = $classPerformance ?? [
 
 .btn-view {
     padding: 6px 15px;
-    background: #8B5CF6;
+    background: #f06724;
     color: white;
     text-decoration: none;
     border-radius: 30px;
@@ -639,7 +639,7 @@ $classPerformance = $classPerformance ?? [
 .btn-create {
     display: inline-block;
     padding: 10px 25px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724, #F97316);
     color: white;
     text-decoration: none;
     border-radius: 30px;
@@ -720,7 +720,7 @@ $classPerformance = $classPerformance ?? [
     .action-card,
     .performance-card,
     .recent-card {
-        background: #1E293B;
+        background: black;
     }
     
     .stat-value,

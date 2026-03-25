@@ -10,10 +10,11 @@ services:
     secrets:
       - db-password
     environment:
-      - PASSWORD_FILE_PATH=/run/secrets/db-password
-      - DB_HOST=db
-      - DB_NAME=example
-      - DB_USER=root
+      - APP_ENV=${APP_ENV}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD_FILE=${DB_PASSWORD_FILE}
 
   db:
     image: mariadb
@@ -25,7 +26,7 @@ services:
       - db-data:/var/lib/mysql
     environment:
       - MARIADB_ROOT_PASSWORD_FILE=/run/secrets/db-password
-      - MARIADB_DATABASE=example
+      - MARIADB_DATABASE=${DB_NAME}
     expose:
       - 3306
     healthcheck:
@@ -49,8 +50,8 @@ services:
     environment:
       - PMA_HOST=db
       - PMA_PORT=3306
-      - PMA_USER=root
-      - PMA_PASSWORD_FILE=/run/secrets/db-password
+      # - PMA_USER=root
+      # - PMA_PASSWORD_FILE=/run/secrets/db-password
       - UPLOAD_LIMIT=100M
     secrets:
       - db-password

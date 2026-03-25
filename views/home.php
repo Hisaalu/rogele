@@ -1,20 +1,20 @@
 <!-- File: /views/home.php -->
 <?php 
-$pageTitle = 'Rays of Grace - Quality Education Platform';
+$pageTitle = 'Home | ROGELE';
 require_once __DIR__ . '/layouts/header.php'; 
 ?>
 
 <style>
-/* Home Page Specific Styles - No Horizontal Scroll */
+/* Home Page Specific Styles - Using ROGELE Brand Colors */
 :root {
-    --primary-purple: #8B5CF6;
-    --primary-purple-dark: #7C3AED;
-    --primary-purple-light: #A78BFA;
-    --secondary-orange: #F97316;
-    --secondary-orange-dark: #EA580C;
-    --secondary-orange-light: #FB923C;
-    --gradient-primary: linear-gradient(135deg, #8B5CF6, #F97316);
-    --gradient-soft: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(249, 115, 22, 0.1));
+    --primary-orange: #f06724;
+    --primary-orange-dark: #e05a1a;
+    --primary-orange-light: #f27d43;
+    --secondary-purple: #7f2677;
+    --secondary-purple-dark: #6b1f64;
+    --secondary-purple-light: #943a8b;
+    --gradient-primary: linear-gradient(135deg, #7f2677);
+    --gradient-soft: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
 }
 
 /* Reset to prevent horizontal scroll */
@@ -77,7 +77,7 @@ body {
 .badge-pulse {
     width: 8px;
     height: 8px;
-    background: var(--secondary-orange);
+    background: green;
     border-radius: 50%;
     position: relative;
 }
@@ -87,7 +87,7 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: var(--secondary-orange);
+    background: #FFD700;
     border-radius: 50%;
     animation: pulse 2s infinite;
 }
@@ -116,7 +116,7 @@ body {
 }
 
 .hero-title .title-gradient {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
+    background: linear-gradient(135deg, #f06724);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -137,7 +137,7 @@ body {
 
 .btn-primary {
     background: white;
-    color: var(--primary-purple);
+    color: var(--primary-orange);
     padding: 14px 32px;
     border-radius: 50px;
     font-weight: 600;
@@ -169,7 +169,7 @@ body {
 
 .btn-outline:hover {
     background: white;
-    color: var(--primary-purple);
+    color: var(--primary-orange);
 }
 
 .hero-stats {
@@ -235,7 +235,7 @@ body {
 .section-subtitle {
     display: inline-block;
     background: var(--gradient-soft);
-    color: var(--primary-purple);
+    color: var(--primary-orange);
     padding: 5px 20px;
     border-radius: 50px;
     font-weight: 600;
@@ -256,7 +256,7 @@ body {
 }
 
 .section-description {
-    color: #64748B;
+    color: black;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -280,8 +280,8 @@ body {
 
 .step-card:hover {
     transform: translateY(-10px);
-    border-color: var(--primary-purple);
-    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
+    border-color: var(--primary-orange);
+    box-shadow: 0 20px 40px rgba(240, 103, 36, 0.1);
 }
 
 .step-number {
@@ -313,7 +313,7 @@ body {
 }
 
 .step-card p {
-    color: #64748B;
+    color: black;
     line-height: 1.6;
 }
 
@@ -342,8 +342,8 @@ body {
 
 .feature-card:hover {
     transform: translateY(-10px);
-    border-color: var(--primary-purple);
-    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
+    border-color: var(--primary-orange);
+    box-shadow: 0 20px 40px rgba(240, 103, 36, 0.1);
 }
 
 .feature-icon {
@@ -356,7 +356,7 @@ body {
     justify-content: center;
     margin: 0 auto 25px;
     font-size: 2rem;
-    color: var(--primary-purple);
+    color: var(--primary-orange);
     transition: all 0.3s ease;
 }
 
@@ -372,7 +372,7 @@ body {
 }
 
 .feature-card p {
-    color: #64748B;
+    color: black;
     line-height: 1.6;
 }
 
@@ -400,8 +400,8 @@ body {
 
 .class-card:hover {
     transform: translateY(-5px);
-    border-color: var(--primary-purple);
-    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.1);
+    border-color: var(--primary-orange);
+    box-shadow: 0 10px 30px rgba(240, 103, 36, 0.1);
 }
 
 .class-image {
@@ -431,7 +431,7 @@ body {
 
 .class-content p {
     font-size: 0.9rem;
-    color: #64748B;
+    color: black;
     margin-bottom: 15px;
 }
 
@@ -442,7 +442,7 @@ body {
 
 .class-features li {
     font-size: 0.85rem;
-    color: #64748B;
+    color: black;
     margin-bottom: 5px;
     display: flex;
     align-items: center;
@@ -450,13 +450,13 @@ body {
 }
 
 .class-features i {
-    color: var(--primary-purple);
+    color: var(--primary-orange);
     font-size: 0.8rem;
 }
 
 .btn-secondary {
     background: var(--gradient-soft);
-    color: var(--primary-purple);
+    color: var(--primary-orange);
     padding: 8px 16px;
     border-radius: 50px;
     text-decoration: none;
@@ -464,7 +464,7 @@ body {
     font-weight: 600;
     display: inline-block;
     transition: all 0.3s ease;
-    border: 1px solid var(--primary-purple-light);
+    border: 1px solid rgba(240, 103, 36, 0.3);
 }
 
 .btn-secondary:hover {
@@ -490,6 +490,16 @@ body {
     font-size: 1.1rem;
     color: rgba(255, 255, 255, 0.9);
     margin-bottom: 30px;
+}
+
+.cta-content .btn-primary {
+    background: white;
+    color: var(--primary-orange);
+}
+
+.cta-content .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 /* Responsive Breakpoints */
@@ -605,7 +615,7 @@ body {
                 <div class="hero-content animate-fade-in">
                     <div class="hero-badge">
                         <span class="badge-pulse"></span>
-                        <span class="badge-text">🎓 Welcome to Rays of Grace</span>
+                        <span class="badge-text">Welcome to ROGELE</span>
                     </div>
                     
                     <h1 class="hero-title">
@@ -648,8 +658,9 @@ body {
                 </div>
                 
                 <div class="hero-image animate-fade-in delay-2">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='150' fill='%238B5CF6' opacity='0.2'/%3E%3Ccircle cx='200' cy='200' r='100' fill='%23F97316' opacity='0.2'/%3E%3C/svg%3E" 
-                         alt="Learning Illustration">
+                    <img src="<?php echo BASE_URL; ?>/public/images/logo.jpg" 
+                        alt="ROGELE Logo" 
+                        style="width: 300px; height: auto; max-width: 100%;">
                 </div>
             </div>
         </div>

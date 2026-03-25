@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/student_progress.php
-$pageTitle = 'Student Progress - Teacher - Rays of Grace';
+$pageTitle = 'Student Progress | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $student = $student ?? [];

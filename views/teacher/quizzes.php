@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/quizzes.php
-$pageTitle = 'My Quizzes - Teacher - Rays of Grace';
+$pageTitle = 'My Quizzes | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $quizzes = $quizzes ?? [];
@@ -188,7 +188,7 @@ $search = $_GET['search'] ?? '';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -198,12 +198,12 @@ $search = $_GET['search'] ?? '';
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 12px 24px;
@@ -293,13 +293,13 @@ $search = $_GET['search'] ?? '';
 
 .search-box input:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #7f2677;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
 .btn-search {
     padding: 12px 30px;
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     border: none;
     border-radius: 12px;
@@ -315,7 +315,7 @@ $search = $_GET['search'] ?? '';
 .btn-clear {
     padding: 12px 30px;
     background: white;
-    color: #64748B;
+    color: black;
     border: 2px solid #E2E8F0;
     border-radius: 12px;
     font-weight: 600;
@@ -349,7 +349,7 @@ $search = $_GET['search'] ?? '';
 .quiz-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15);
-    border-color: #8B5CF6;
+    border-color: #7f2677;
 }
 
 .quiz-header {
@@ -375,7 +375,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .quiz-status.draft {
-    background: #64748B;
+    background: black;
     color: white;
 }
 
@@ -392,7 +392,7 @@ $search = $_GET['search'] ?? '';
     gap: 15px;
     margin-bottom: 15px;
     font-size: 0.85rem;
-    color: #64748B;
+    color: black;
     flex-wrap: wrap;
 }
 
@@ -403,11 +403,11 @@ $search = $_GET['search'] ?? '';
 }
 
 .quiz-meta i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .quiz-description {
-    color: #475569;
+    color: black;
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -422,7 +422,7 @@ $search = $_GET['search'] ?? '';
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.85rem;
-    color: #64748B;
+    color: black;
     flex-wrap: wrap;
 }
 
@@ -433,7 +433,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .quiz-stats i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .quiz-actions {
@@ -455,7 +455,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .action-btn.questions {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
 }
 
@@ -516,7 +516,7 @@ $search = $_GET['search'] ?? '';
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677, #F97316);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -535,7 +535,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .empty-state p {
-    color: #64748B;
+    color: black;
     margin-bottom: 25px;
 }
 
@@ -562,13 +562,13 @@ $search = $_GET['search'] ?? '';
 
 .page-link:hover {
     background: #F1F5F9;
-    border-color: #8B5CF6;
+    border-color: #7f2677;
 }
 
 .page-link.active {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
-    border-color: #8B5CF6;
+    border-color: #7f2677;
 }
 
 /* Responsive */

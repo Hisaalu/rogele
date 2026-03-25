@@ -1,292 +1,436 @@
-<?
+<?php
 // File: /views/auth/reset-password.php
 $hideHeader = true;
-$pageTitle = 'Reset Password - Rays of Grace';
-require_once __DIR__ . '/../layouts/header.php';
-
-$token = $_GET['token'] ?? '';
-if (empty($token)) {
-    header('Location: <?php echo BASE_URL; ?>/login');
-    exit;
-}
+$pageTitle = 'Reset Password | ROGELE';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $pageTitle; ?></title>
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <div class="auth-icon">
-                <i class="fas fa-lock"></i>
-            </div>
-            <h2>Reset Password 🔒</h2>
-            <p>Enter your new password below</p>
-        </div>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+        }
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-error">
-                <i class="fas fa-exclamation-circle"></i>
-                <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-            </div>
-        <?php endif; ?>
+        .reset-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: #f5f5f5;
+        }
 
-        <form action="<?php echo BASE_URL; ?>/reset-password" method="POST" class="auth-form" id="resetForm">
-            <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
+        .reset-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        /* Card */
+        .reset-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 40px 32px;
+            width: 100%;
+        }
+
+        /* Logo Section */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-section h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .logo-section p {
+            font-size: 0.85rem;
+            color: black;
+            margin-top: 4px;
+        }
+
+        /* Form */
+        .reset-form {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #f06724;
+            box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        /* Password Field */
+        .password-field {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-field input {
+            padding-right: 45px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-size: 1.1rem;
+            padding: 8px;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-password:hover {
+            color: #f06724;
+        }
+
+        /* Button */
+        .btn-reset {
+            width: 100%;
+            padding: 12px;
+            background: #f06724;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .btn-reset:hover {
+            background: #e05a1a;
+        }
+
+        .btn-reset:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Login Link */
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+            font-size: 0.85rem;
+            color: black;
+        }
+
+        .login-link a {
+            color: #7f2677;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Alert Messages */
+        .alert {
+            margin-bottom: 20px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #e6f4ea;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .alert i {
+            font-size: 1rem;
+        }
+
+        /* Loading State */
+        .btn-reset.loading {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .btn-reset.loading::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .reset-card {
+                padding: 32px 24px;
+            }
             
-            <div class="form-group">
-                <label for="password">
-                    <i class="fas fa-lock"></i>
-                    New Password
-                </label>
-                <div class="password-input-wrapper">
-                    <input type="password" id="password" name="password" required placeholder="Enter new password" minlength="8" onkeyup="checkPasswordStrength()">
-                    <button type="button" class="toggle-password" onclick="togglePassword('password')">
-                        <i class="fas fa-eye"></i>
-                    </button>
+            .logo {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .logo-section h1 {
+                font-size: 1.3rem;
+            }
+            
+            .form-group input {
+                padding: 10px 14px;
+            }
+            
+            .btn-reset {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="reset-page">
+    <div class="reset-container">
+        <div class="reset-card">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo">
+                    <?php 
+                    $logoPath = BASE_URL . '/public/images/logo.png';
+                    $logoFile = __DIR__ . '/../../public/images/logo.png';
+                    ?>
+                    <?php if (file_exists($logoFile)): ?>
+                        <img src="<?php echo $logoPath; ?>" alt="ROGELE Logo">
+                    <?php else: ?>
+                        <span style="font-size: 2.5rem; font-weight: 700; color: #f06724;">RG</span>
+                    <?php endif; ?>
                 </div>
-                <div class="password-strength" id="passwordStrength">
-                    <div class="strength-bar">
-                        <div class="strength-segment"></div>
-                        <div class="strength-segment"></div>
-                        <div class="strength-segment"></div>
-                        <div class="strength-segment"></div>
-                    </div>
-                    <span class="strength-text">Enter a strong password</span>
-                </div>
+                <h1>Reset password</h1>
+                <p>Enter your new password below</p>
             </div>
-
-            <div class="form-group">
-                <label for="confirm_password">
+            
+            <!-- Alert Messages -->
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+                </div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i>
-                    Confirm Password
-                </label>
-                <div class="password-input-wrapper">
-                    <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm new password" onkeyup="checkPasswordMatch()">
-                    <button type="button" class="toggle-password" onclick="togglePassword('confirm_password')">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
                 </div>
-                <div class="password-match" id="passwordMatch"></div>
-            </div>
-
-            <div class="password-requirements">
-                <p><i class="fas fa-info-circle"></i> Password must contain:</p>
-                <ul>
-                    <li id="req-length"><i class="fas fa-times"></i> At least 8 characters</li>
-                    <li id="req-uppercase"><i class="fas fa-times"></i> At least 1 uppercase letter</li>
-                    <li id="req-lowercase"><i class="fas fa-times"></i> At least 1 lowercase letter</li>
-                    <li id="req-number"><i class="fas fa-times"></i> At least 1 number</li>
-                </ul>
-            </div>
-
-            <button type="submit" class="btn-primary btn-block" id="submitBtn">
-                <span>Reset Password</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
-
-            <div class="auth-footer">
-                <p>Remember your password? <a href="<?php echo BASE_URL; ?>/login">Back to Login</a></p>
-            </div>
-        </form>
+            <?php endif; ?>
+            
+            <!-- Reset Password Form -->
+            <form action="<?php echo BASE_URL; ?>/reset-password" method="POST" class="reset-form" id="resetForm">
+                <input type="hidden" name="token" value="<?php echo htmlspecialchars($token ?? ''); ?>">
+                
+                <div class="form-group">
+                    <div class="password-field">
+                        <input type="password" name="password" id="password" placeholder="New password" required>
+                        <button type="button" class="toggle-password" data-target="password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="password-field">
+                        <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm password" required>
+                        <button type="button" class="toggle-password" data-target="confirm_password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-reset" id="resetButton">
+                    Reset password
+                </button>
+                
+                <div class="login-link">
+                    <span>Remember your password?</span>
+                    <a href="<?php echo BASE_URL; ?>/login">Back to login</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<style>
-/* Add these styles to the existing ones */
-.password-input-wrapper {
-    position: relative;
-}
-
-.toggle-password {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #94A3B8;
-    cursor: pointer;
-    padding: 5px;
-    transition: color 0.3s ease;
-}
-
-.toggle-password:hover {
-    color: #8B5CF6;
-}
-
-.password-strength {
-    margin-top: 8px;
-}
-
-.strength-bar {
-    display: flex;
-    gap: 5px;
-    margin-bottom: 5px;
-}
-
-.strength-segment {
-    flex: 1;
-    height: 4px;
-    background: #E2E8F0;
-    border-radius: 2px;
-    transition: all 0.3s ease;
-}
-
-.strength-text {
-    font-size: 0.85rem;
-    color: #64748B;
-}
-
-.password-match {
-    font-size: 0.85rem;
-    margin-top: 5px;
-}
-
-.password-requirements {
-    background: #F8FAFC;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 10px;
-}
-
-.password-requirements p {
-    font-weight: 600;
-    color: #1E293B;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.password-requirements ul {
-    list-style: none;
-}
-
-.password-requirements li {
-    font-size: 0.9rem;
-    color: #64748B;
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.password-requirements li i {
-    font-size: 0.8rem;
-}
-
-.password-requirements li.valid {
-    color: #10B981;
-}
-
-.password-requirements li.valid i {
-    color: #10B981;
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-    .password-requirements {
-        background: #334155;
-    }
-    
-    .password-requirements p {
-        color: #F1F5F9;
-    }
-}
-</style>
-
 <script>
-function togglePassword(inputId) {
-    const input = document.getElementById(inputId);
-    const icon = event.currentTarget.querySelector('i');
+document.addEventListener('DOMContentLoaded', function() {
+    const resetForm = document.getElementById('resetForm');
+    const resetButton = document.getElementById('resetButton');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm_password');
+    const token = document.querySelector('input[name="token"]').value;
     
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
+    // Check if token exists
+    if (!token) {
+        window.location.href = '<?php echo BASE_URL; ?>/login';
     }
-}
-
-function checkPasswordStrength() {
-    const password = document.getElementById('password').value;
-    const strengthBars = document.querySelectorAll('.strength-segment');
-    const strengthText = document.querySelector('.strength-text');
     
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (password.match(/[a-z]+/)) strength++;
-    if (password.match(/[A-Z]+/)) strength++;
-    if (password.match(/[0-9]+/)) strength++;
-    
-    strengthBars.forEach((bar, index) => {
-        if (index < strength) {
-            if (strength <= 1) bar.style.background = '#EF4444';
-            else if (strength <= 2) bar.style.background = '#F97316';
-            else if (strength <= 3) bar.style.background = '#EAB308';
-            else bar.style.background = '#10B981';
-        } else {
-            bar.style.background = '#E2E8F0';
-        }
+    // Password visibility toggle
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
     });
     
-    const texts = ['Weak', 'Fair', 'Good', 'Strong'];
-    strengthText.textContent = strength > 0 ? texts[strength - 1] : 'Enter a password';
-    strengthText.style.color = strength <= 1 ? '#EF4444' : strength <= 2 ? '#F97316' : strength <= 3 ? '#EAB308' : '#10B981';
+    // Auto-focus on password field
+    if (passwordInput) {
+        passwordInput.focus();
+    }
     
-    // Update requirements
-    document.getElementById('req-length').className = password.length >= 8 ? 'valid' : '';
-    document.getElementById('req-uppercase').className = /[A-Z]/.test(password) ? 'valid' : '';
-    document.getElementById('req-lowercase').className = /[a-z]/.test(password) ? 'valid' : '';
-    document.getElementById('req-number').className = /[0-9]/.test(password) ? 'valid' : '';
+    // Form validation
+    if (resetForm) {
+        resetForm.addEventListener('submit', function(e) {
+            const password = passwordInput.value;
+            const confirm = confirmInput.value;
+            
+            if (!password || !confirm) {
+                e.preventDefault();
+                showAlert('Please fill in all fields', 'error');
+                return;
+            }
+            
+            if (password !== confirm) {
+                e.preventDefault();
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (password.length < 8) {
+                e.preventDefault();
+                showAlert('Password must be at least 8 characters', 'error');
+                return;
+            }
+            
+            // Show loading state
+            resetButton.classList.add('loading');
+            resetButton.disabled = true;
+        });
+    }
     
-    document.querySelectorAll('.password-requirements li').forEach(li => {
-        const icon = li.querySelector('i');
-        if (li.classList.contains('valid')) {
-            icon.className = 'fas fa-check-circle';
-        } else {
-            icon.className = 'fas fa-times-circle';
+    // Show alert function
+    function showAlert(message, type) {
+        const existingAlert = document.querySelector('.alert');
+        if (existingAlert) {
+            existingAlert.remove();
         }
-    });
-}
-
-function checkPasswordMatch() {
-    const password = document.getElementById('password').value;
-    const confirm = document.getElementById('confirm_password').value;
-    const matchDiv = document.getElementById('passwordMatch');
-    
-    if (confirm === '') {
-        matchDiv.innerHTML = '';
-    } else if (password === confirm) {
-        matchDiv.innerHTML = '<span style="color: #10B981;"><i class="fas fa-check-circle"></i> Passwords match</span>';
-    } else {
-        matchDiv.innerHTML = '<span style="color: #EF4444;"><i class="fas fa-times-circle"></i> Passwords do not match</span>';
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        const resetCard = document.querySelector('.reset-card');
+        const logoSection = document.querySelector('.logo-section');
+        
+        if (resetCard && logoSection) {
+            resetCard.insertBefore(alertDiv, logoSection.nextSibling);
+        }
+        
+        setTimeout(() => {
+            alertDiv.style.opacity = '0';
+            setTimeout(() => alertDiv.remove(), 300);
+        }, 5000);
     }
-}
-
-// Form validation
-document.getElementById('resetForm')?.addEventListener('submit', function(e) {
-    const password = document.getElementById('password').value;
-    const confirm = document.getElementById('confirm_password').value;
-    const submitBtn = document.getElementById('submitBtn');
-    
-    if (password !== confirm) {
-        e.preventDefault();
-        alert('Passwords do not match!');
-        return;
-    }
-    
-    if (password.length < 8) {
-        e.preventDefault();
-        alert('Password must be at least 8 characters long');
-        return;
-    }
-    
-    // Add loading state
-    submitBtn.classList.add('loading');
-    submitBtn.disabled = true;
 });
 </script>
+</body>
+</html>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

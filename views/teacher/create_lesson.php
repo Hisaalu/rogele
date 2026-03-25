@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/create_lesson.php
-$pageTitle = 'Create Lesson - Teacher - Rays of Grace';
+$pageTitle = 'Create Lesson | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Get subjects and classes from controller
@@ -226,7 +226,7 @@ $classes = $classes ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -234,13 +234,13 @@ $classes = $classes ?? [];
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -250,7 +250,7 @@ $classes = $classes ?? [];
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -276,7 +276,7 @@ $classes = $classes ?? [];
 }
 
 .section-title {
-    color: #1E293B;
+    color: black;
     font-size: 1.2rem;
     margin-bottom: 25px;
     display: flex;
@@ -285,7 +285,7 @@ $classes = $classes ?? [];
 }
 
 .section-title i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 /* Form Groups */
@@ -306,12 +306,12 @@ $classes = $classes ?? [];
     gap: 8px;
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: black;
     margin-bottom: 8px;
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .required {
@@ -335,14 +335,14 @@ $classes = $classes ?? [];
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
 .form-group input:hover,
 .form-group select:hover,
 .form-group textarea:hover {
-    border-color: #8B5CF6;
+    border-color: #f06724;
 }
 
 .form-group textarea {
@@ -353,7 +353,7 @@ $classes = $classes ?? [];
 .input-hint {
     display: block;
     font-size: 0.8rem;
-    color: #64748B;
+    color: black;
     margin-top: 5px;
 }
 
@@ -369,18 +369,18 @@ $classes = $classes ?? [];
 }
 
 .file-upload-area:hover {
-    border-color: #8B5CF6;
+    border-color: #f06724;
     background: #F8FAFC;
 }
 
 .file-upload-area i {
     font-size: 3rem;
-    color: #8B5CF6;
+    color: #f06724;
     margin-bottom: 15px;
 }
 
 .file-upload-area p {
-    color: #1E293B;
+    color: black;
     font-weight: 500;
     margin-bottom: 10px;
 }
@@ -415,11 +415,11 @@ $classes = $classes ?? [];
 
 .file-item .file-name {
     flex: 1;
-    color: #1E293B;
+    color: black;
 }
 
 .file-item .file-size {
-    color: #64748B;
+    color: black;
     font-size: 0.85rem;
 }
 
@@ -443,12 +443,12 @@ $classes = $classes ?? [];
 .checkbox-label input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #8B5CF6;
+    accent-color: #f06724;
 }
 
 .checkbox-label span {
     font-weight: 500;
-    color: #1E293B;
+    color: black;
 }
 
 /* Form Actions */
@@ -460,7 +460,7 @@ $classes = $classes ?? [];
 
 .btn-primary {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 30px;
@@ -484,7 +484,7 @@ $classes = $classes ?? [];
 .btn-secondary {
     padding: 14px 30px;
     background: white;
-    color: #64748B;
+    color: black;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -501,7 +501,7 @@ $classes = $classes ?? [];
 .btn-secondary:hover {
     background: #F1F5F9;
     border-color: #94A3B8;
-    color: #1E293B;
+    color: black;
 }
 
 /* Alerts */
@@ -560,7 +560,7 @@ $classes = $classes ?? [];
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
     .form-card {
-        background: #1E293B;
+        background: black;
     }
     
     .section-title {

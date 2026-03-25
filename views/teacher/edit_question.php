@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/edit_question.php
-$pageTitle = 'Edit Question - Teacher - Rays of Grace';
+$pageTitle = 'Edit Question | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $question = $question ?? [];
@@ -113,7 +113,7 @@ $quiz = $quiz ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -127,7 +127,7 @@ $quiz = $quiz ?? [];
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -137,7 +137,7 @@ $quiz = $quiz ?? [];
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -203,7 +203,7 @@ $quiz = $quiz ?? [];
 
 .btn-primary {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 30px;
@@ -227,7 +227,7 @@ $quiz = $quiz ?? [];
 .btn-secondary {
     padding: 14px 30px;
     background: white;
-    color: #64748B;
+    color: #7f2677;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -242,9 +242,9 @@ $quiz = $quiz ?? [];
 }
 
 .btn-secondary:hover {
-    background: #F1F5F9;
+    background: #f06724;
     border-color: #94A3B8;
-    color: #1E293B;
+    color: white;
 }
 
 /* Alerts */

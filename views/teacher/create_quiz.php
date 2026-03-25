@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/create_quiz.php
-$pageTitle = 'Create Quiz - Teacher - Rays of Grace';
+$pageTitle = 'Create Quiz | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $classes = $classes ?? [];
@@ -230,7 +230,7 @@ $subjects = $subjects ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -238,13 +238,13 @@ $subjects = $subjects ?? [];
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -254,7 +254,7 @@ $subjects = $subjects ?? [];
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -280,7 +280,7 @@ $subjects = $subjects ?? [];
 }
 
 .section-title {
-    color: #1E293B;
+    color: #black;
     font-size: 1.2rem;
     margin-bottom: 25px;
     display: flex;
@@ -289,7 +289,7 @@ $subjects = $subjects ?? [];
 }
 
 .section-title i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .form-group {
@@ -309,12 +309,12 @@ $subjects = $subjects ?? [];
     gap: 8px;
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: #black;
     margin-bottom: 8px;
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .required {
@@ -338,14 +338,14 @@ $subjects = $subjects ?? [];
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
 .input-hint {
     display: block;
     font-size: 0.8rem;
-    color: #64748B;
+    color: black;
     margin-top: 5px;
 }
 
@@ -372,12 +372,12 @@ $subjects = $subjects ?? [];
 .checkbox-label input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #8B5CF6;
+    accent-color: #f06724;
 }
 
 .checkbox-label span {
     font-weight: 500;
-    color: #1E293B;
+    color: #black;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -415,7 +415,7 @@ $subjects = $subjects ?? [];
 
 .btn-primary {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 30px;
@@ -439,7 +439,7 @@ $subjects = $subjects ?? [];
 .btn-secondary {
     padding: 14px 30px;
     background: white;
-    color: #64748B;
+    color: black;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -456,7 +456,7 @@ $subjects = $subjects ?? [];
 .btn-secondary:hover {
     background: #F1F5F9;
     border-color: #94A3B8;
-    color: #1E293B;
+    color: #black;
 }
 
 @keyframes slideDown {
@@ -488,7 +488,7 @@ $subjects = $subjects ?? [];
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
     .form-card {
-        background: #1E293B;
+        background: #black;
     }
     
     .section-title {

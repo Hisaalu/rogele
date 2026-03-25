@@ -1,6 +1,6 @@
 <?php
 //views/external/take_quiz.php
-$pageTitle = $quiz['title'] . ' - Rays of Grace';
+$pageTitle = $quiz['title'] . ' | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Make sure questions exist
@@ -111,12 +111,12 @@ $attemptIdValue = $attemptId;
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 .quiz-header h1 {
-    color: #1E293B;
+    color: black;
     margin-bottom: 20px;
 }
 .quiz-warning {
     background: #FEF3C7;
-    border-left: 4px solid #F59E0B;
+    border-left: 4px solid #f06724;
     padding: 15px 20px;
     border-radius: 12px;
     margin-bottom: 25px;
@@ -125,15 +125,15 @@ $attemptIdValue = $attemptId;
 }
 .quiz-warning i {
     font-size: 1.2rem;
-    color: #F59E0B;
+    color: #f06724;
 }
 .quiz-warning strong {
-    color: #92400E;
+    color: #f06724;
     display: block;
     margin-bottom: 5px;
 }
 .quiz-warning p {
-    color: #B45309;
+    color: #f06724;
     font-size: 0.85rem;
     margin: 0;
 }
@@ -148,16 +148,16 @@ $attemptIdValue = $attemptId;
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
 }
 .stat i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 #timerDisplay {
     font-weight: 700;
     font-family: monospace;
     font-size: 1.1rem;
-    color: #1E293B;
+    color: black;
 }
 .questions-list {
     display: flex;
@@ -173,11 +173,11 @@ $attemptIdValue = $attemptId;
     transition: all 0.3s ease;
 }
 .question-item.answered {
-    border-left: 4px solid #10B981;
+    border-left: 4px solid #7f2677;
 }
 .question-number {
     font-size: 0.75rem;
-    color: #8B5CF6;
+    color: black;
     font-weight: 600;
     margin-bottom: 10px;
     text-transform: uppercase;
@@ -186,7 +186,7 @@ $attemptIdValue = $attemptId;
 .question-text {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #1E293B;
+    color: black;
     margin-bottom: 20px;
 }
 .options {
@@ -222,17 +222,17 @@ $attemptIdValue = $attemptId;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    color: #64748B;
+    color: black;
     transition: all 0.3s ease;
 }
 .option input[type="radio"]:checked + .option-letter {
-    background: #8B5CF6;
-    border-color: #8B5CF6;
+    background: #f06724;
+    border-color: #7f2677;
     color: white;
 }
 .option-text {
     flex: 1;
-    color: #1E293B;
+    color: black;
 }
 .quiz-footer {
     position: sticky;
@@ -262,7 +262,7 @@ $attemptIdValue = $attemptId;
     100% { opacity: 1; }
 }
 .btn-submit {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 40px;

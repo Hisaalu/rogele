@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Payment Successful - Rays of Grace';
+$pageTitle = 'Payment Successful | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 

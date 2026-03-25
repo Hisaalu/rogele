@@ -1,6 +1,6 @@
 <?php
 //File: views/teacher/preview_quiz.php
-$pageTitle = 'Preview: ' . ($quiz['title'] ?? 'Quiz') . ' - Teacher - Rays of Grace';
+$pageTitle = 'Preview: ' . ($quiz['title'] ?? 'Quiz') . ' | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 
@@ -150,7 +150,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .preview-header h1 {
-    color: #1E293B;
+    color: #7f2677;
     font-size: 1.8rem;
     margin-bottom: 5px;
     display: flex;
@@ -159,11 +159,11 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .preview-header h1 i {
-    color: #8B5CF6;
+    color: #7f2677;
 }
 
 .subtitle {
-    color: #64748B;
+    color: black;
     font-size: 0.9rem;
 }
 
@@ -182,11 +182,11 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .btn-back {
     background: #F1F5F9;
-    color: #1E293B;
+    color: black;
 }
 
 .btn-edit {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
 }
 
@@ -215,21 +215,21 @@ require_once __DIR__ . '/../layouts/header.php';
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
 }
 
 .stat i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .quiz-description {
-    color: #1E293B;
+    color: black;
     line-height: 1.6;
 }
 
 .quiz-description p {
     margin-top: 8px;
-    color: #64748B;
+    color: black;
 }
 
 .questions-preview {
@@ -237,7 +237,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .questions-preview h2 {
-    color: #1E293B;
+    color: black;
     font-size: 1.3rem;
     margin-bottom: 20px;
     display: flex;
@@ -263,18 +263,18 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .question-number {
     font-weight: 600;
-    color: #8B5CF6;
+    color: #7f2677;
 }
 
 .question-points {
-    color: #64748B;
+    color: black;
     font-size: 0.85rem;
 }
 
 .question-text {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #1E293B;
+    color: black;
     margin-bottom: 20px;
 }
 
@@ -431,12 +431,12 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-edit-questions {
-    background: #F1F5F9;
-    color: #1E293B;
+    background: #7f2677;
+    color: white;
 }
 
 .btn-done {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
 }
 

@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/students.php
-$pageTitle = 'My Students - Teacher - Rays of Grace';
+$pageTitle = 'Students | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $students = $students ?? [];
@@ -168,7 +168,7 @@ $search = $_GET['search'] ?? '';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -178,7 +178,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
@@ -257,7 +257,7 @@ $search = $_GET['search'] ?? '';
 
 .search-box input:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
@@ -273,7 +273,7 @@ $search = $_GET['search'] ?? '';
 
 .btn-filter {
     padding: 12px 30px;
-    background: #8B5CF6;
+    background: #f06724;
     color: white;
     border: none;
     border-radius: 12px;
@@ -289,7 +289,7 @@ $search = $_GET['search'] ?? '';
 .btn-clear {
     padding: 12px 30px;
     background: white;
-    color: #64748B;
+    color: black;
     border: 2px solid #E2E8F0;
     border-radius: 12px;
     font-weight: 600;
@@ -326,7 +326,7 @@ $search = $_GET['search'] ?? '';
 
 .student-avatar {
     height: 120px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724, #F97316);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -353,7 +353,7 @@ $search = $_GET['search'] ?? '';
     justify-content: center;
     font-size: 2rem;
     font-weight: 700;
-    color: #8B5CF6;
+    color: #f06724;
     border: 4px solid white;
     position: absolute;
     bottom: -40px;
@@ -373,7 +373,7 @@ $search = $_GET['search'] ?? '';
 
 .student-class,
 .student-email {
-    color: #64748B;
+    color: black;
     font-size: 0.9rem;
     margin-bottom: 5px;
     display: flex;
@@ -384,7 +384,7 @@ $search = $_GET['search'] ?? '';
 
 .student-class i,
 .student-email i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .student-stats {
@@ -403,7 +403,7 @@ $search = $_GET['search'] ?? '';
 
 .stat-label {
     display: block;
-    color: #64748B;
+    color: black;
     font-size: 0.7rem;
     margin-bottom: 3px;
     text-transform: uppercase;
@@ -423,7 +423,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-view {
-    background: #8B5CF6;
+    background: #f06724;
     color: white;
     text-decoration: none;
     padding: 10px 20px;
@@ -454,7 +454,7 @@ $search = $_GET['search'] ?? '';
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724, #F97316);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -473,7 +473,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .empty-state p {
-    color: #64748B;
+    color: black;
 }
 
 /* Role Badges */
@@ -500,7 +500,7 @@ $search = $_GET['search'] ?? '';
 
 .role-badge.external {
     background: #EFF6FF;
-    color: #1E40AF;
+    color: #7f2677;
 }
 
 .role-badge.external i {

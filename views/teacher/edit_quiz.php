@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/edit_quiz.php
-$pageTitle = 'Edit Quiz - Teacher - Rays of Grace';
+$pageTitle = 'Edit Quiz | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $quiz = $quiz ?? [];
@@ -337,7 +337,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -345,7 +345,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .page-header {
@@ -386,7 +386,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -396,7 +396,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
@@ -422,7 +422,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .section-title {
-    color: #1E293B;
+    color: black;
     font-size: 1.2rem;
     margin-bottom: 25px;
     display: flex;
@@ -431,12 +431,12 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .section-title i {
-    color: #8B5CF6;
+    color: #7f2677;
 }
 
 .question-count {
     font-size: 0.9rem;
-    color: #64748B;
+    color: black;
     font-weight: normal;
 }
 
@@ -457,12 +457,12 @@ $currentStatus = $quiz['status'] ?? 'draft';
     gap: 8px;
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: black;
     margin-bottom: 8px;
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .required {
@@ -486,14 +486,14 @@ $currentStatus = $quiz['status'] ?? 'draft';
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
 .input-hint {
     display: block;
     font-size: 0.8rem;
-    color: #64748B;
+    color: black;
     margin-top: 5px;
 }
 
@@ -520,12 +520,12 @@ $currentStatus = $quiz['status'] ?? 'draft';
 .checkbox-label input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #8B5CF6;
+    accent-color: #f06724;
 }
 
 .checkbox-label span {
     font-weight: 500;
-    color: #1E293B;
+    color: black;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -570,7 +570,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .btn-small {
-    background: #8B5CF6;
+    background: #f06724;
     color: white;
     padding: 6px 12px;
     border-radius: 8px;
@@ -589,7 +589,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 
 .btn-primary {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 30px;
@@ -613,7 +613,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 .btn-secondary {
     padding: 14px 30px;
     background: white;
-    color: #64748B;
+    color: black;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -630,7 +630,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 .btn-secondary:hover {
     background: #F1F5F9;
     border-color: #94A3B8;
-    color: #1E293B;
+    color: black;
 }
 
 /* Questions Section */
@@ -651,7 +651,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .btn-add-questions {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     text-decoration: none;
     padding: 10px 20px;
@@ -665,12 +665,12 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .btn-add-questions:hover {
-    background: #7C3AED;
+    background: #f06724;
     transform: translateY(-2px);
 }
 
 .btn-primary-small {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724, #F97316);
     color: white;
     text-decoration: none;
     padding: 10px 20px;
@@ -700,12 +700,12 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .empty-questions h3 {
-    color: #1E293B;
+    color: black;
     margin-bottom: 10px;
 }
 
 .empty-questions p {
-    color: #64748B;
+    color: black;
     margin-bottom: 25px;
 }
 
@@ -721,13 +721,13 @@ $currentStatus = $quiz['status'] ?? 'draft';
     padding: 20px;
     background: #F8FAFC;
     border-radius: 12px;
-    border-left: 4px solid #8B5CF6;
+    border-left: 4px solid #f06724;
 }
 
 .question-number {
     width: 40px;
     height: 40px;
-    background: #8B5CF6;
+    background: #f06724;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -743,7 +743,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .question-text {
-    color: #1E293B;
+    color: black;
     font-weight: 600;
     margin-bottom: 10px;
     font-size: 1.1rem;
@@ -777,7 +777,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .question-meta {
-    color: #64748B;
+    color: black;
     font-size: 0.85rem;
     display: flex;
     gap: 15px;
@@ -789,7 +789,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .edit-question-link {
-    color: #8B5CF6;
+    color: #f06724;
     text-decoration: none;
     transition: color 0.3s ease;
 }
@@ -850,7 +850,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 @media (prefers-color-scheme: dark) {
     .form-card,
     .questions-section {
-        background: #1E293B;
+        background: black;
     }
     
     .section-title {
@@ -878,7 +878,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
     }
     
     .option {
-        background: #1E293B;
+        background: black;
         color: #94A3B8;
     }
     

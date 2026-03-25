@@ -1,6 +1,6 @@
 <?php
 // File: /views/external/upgrade-success.php
-$pageTitle = 'Upgrade Successful - Rays of Grace';
+$pageTitle = 'Upgrade Successful | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $toPlan = $toPlan ?? '';
@@ -14,11 +14,11 @@ $newEndDate = $newEndDate ?? date('Y-m-d H:i:s');
             <i class="fas fa-check-circle" style="font-size: 60px; color: white;"></i>
         </div>
         
-        <h1 style="font-size: 2rem; color: #1E293B; margin-bottom: 10px;">Upgrade Successful! 🎉</h1>
-        <p style="color: #64748B; margin-bottom: 30px;">Your subscription has been successfully upgraded.</p>
+        <h1 style="font-size: 2rem; color: black; margin-bottom: 10px;">Upgrade Successful! 🎉</h1>
+        <p style="color: black; margin-bottom: 30px;">Your subscription has been successfully upgraded.</p>
         
         <div style="background: #F8FAFC; border-radius: 16px; padding: 25px; margin-bottom: 30px; text-align: left;">
-            <h3 style="color: #1E293B; margin-bottom: 15px;">Upgrade Summary</h3>
+            <h3 style="color: black; margin-bottom: 15px;">Upgrade Summary</h3>
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                 <span>New Plan:</span>
                 <strong><?php echo ucfirst($toPlan); ?></strong>
@@ -37,7 +37,7 @@ $newEndDate = $newEndDate ?? date('Y-m-d H:i:s');
             <a href="<?php echo BASE_URL; ?>/external/dashboard" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; text-decoration: none; border-radius: 12px; font-weight: 600;">
                 Go to Dashboard
             </a>
-            <a href="<?php echo BASE_URL; ?>/external/materials" style="flex: 1; padding: 14px; background: #F1F5F9; color: #1E293B; text-decoration: none; border-radius: 12px; font-weight: 600;">
+            <a href="<?php echo BASE_URL; ?>/external/materials" style="flex: 1; padding: 14px; background: #F1F5F9; color: black; text-decoration: none; border-radius: 12px; font-weight: 600;">
                 Start Learning
             </a>
         </div>

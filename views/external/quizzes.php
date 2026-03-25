@@ -1,6 +1,6 @@
 <?php
 // File: /views/external/quizzes.php
-$pageTitle = 'Practice Quizzes - Rays of Grace';
+$pageTitle = 'Do Quizzes | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $quizzes = $quizzes ?? [];
@@ -348,14 +348,14 @@ if (!empty($quizzes)) {
 .page-title {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1.1rem;
 }
 
@@ -372,7 +372,7 @@ if (!empty($quizzes)) {
 
 .alert-success {
     background: #F0FDF4;
-    color: #166534;
+    color: #096909;
     border: 1px solid #BBF7D0;
 }
 
@@ -491,7 +491,7 @@ if (!empty($quizzes)) {
 }
 
 .quiz-card.completed-quiz {
-    border: 2px solid #10B981;
+    border: 2px solid #079647;
     background: linear-gradient(135deg, white, #F0FDF4);
 }
 
@@ -509,7 +509,7 @@ if (!empty($quizzes)) {
 }
 
 .quiz-subject {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     padding: 4px 12px;
     border-radius: 30px;
@@ -518,22 +518,22 @@ if (!empty($quizzes)) {
 }
 
 .quiz-class {
-    background: #F1F5F9;
-    color: #64748B;
+    background: #f06724;
+    color: white;
     padding: 4px 12px;
     border-radius: 30px;
     font-size: 0.8rem;
 }
 
 .quiz-title {
-    color: #1E293B;
+    color: black;
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 10px;
 }
 
 .quiz-description {
-    color: #64748B;
+    color: black;
     font-size: 0.95rem;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -553,10 +553,11 @@ if (!empty($quizzes)) {
     display: flex;
     align-items: center;
     gap: 5px;
+    color: black;
 }
 
 .quiz-meta i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 /* Progress */
@@ -572,7 +573,7 @@ if (!empty($quizzes)) {
     justify-content: space-between;
     margin-bottom: 8px;
     font-size: 0.85rem;
-    color: #64748B;
+    color: black;
     flex-wrap: wrap;
     gap: 5px;
 }
@@ -597,7 +598,7 @@ if (!empty($quizzes)) {
 .passed-badge {
     margin-top: 8px;
     font-size: 0.75rem;
-    color: #10B981;
+    color: #079647;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -613,7 +614,7 @@ if (!empty($quizzes)) {
 
 .btn-start, .btn-resume {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     text-decoration: none;
     padding: 12px 20px;
@@ -641,7 +642,7 @@ if (!empty($quizzes)) {
     height: 45px;
     border-radius: 50%;
     background: #F1F5F9;
-    color: #8B5CF6;
+    color: #7f2677;
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -676,7 +677,7 @@ if (!empty($quizzes)) {
 
 .quiz-completed-badge {
     background: #F0FDF4;
-    color: #166534;
+    color: #079647;
 }
 
 .quiz-inprogress-badge {

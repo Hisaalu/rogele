@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/quiz_results.php
-$pageTitle = 'Quiz Results - Teacher - Rays of Grace';
+$pageTitle = 'Quiz Results | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $quiz = $quiz ?? [];
@@ -151,7 +151,7 @@ $stats = $stats ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -165,7 +165,7 @@ $stats = $stats ?? [];
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -175,7 +175,7 @@ $stats = $stats ?? [];
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -247,7 +247,7 @@ $stats = $stats ?? [];
 }
 
 .card-header h3 {
-    color: #1E293B;
+    color: black;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -255,7 +255,7 @@ $stats = $stats ?? [];
 }
 
 .card-header h3 i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .result-count {
@@ -263,7 +263,7 @@ $stats = $stats ?? [];
     padding: 5px 12px;
     border-radius: 30px;
     font-size: 0.85rem;
-    color: #1E293B;
+    color: black;
     font-weight: 600;
 }
 
@@ -291,12 +291,13 @@ $stats = $stats ?? [];
 
 .results-table th {
     background: #F8FAFC;
-    color: #1E293B;
+    color: black;
     font-weight: 600;
     font-size: 0.9rem;
     padding: 16px 20px;
     text-align: left;
     border-bottom: 2px solid #E2E8F0;
+    font-weight: bold;
 }
 
 .results-table td {

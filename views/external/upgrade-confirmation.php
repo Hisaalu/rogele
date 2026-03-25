@@ -1,6 +1,6 @@
 <?php
 // File: /views/external/upgrade-confirmation.php
-$pageTitle = 'Confirm Upgrade - Rays of Grace';
+$pageTitle = 'Confirm Upgrade | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Get data from controller

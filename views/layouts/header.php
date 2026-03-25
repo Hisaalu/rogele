@@ -21,13 +21,15 @@
     <meta property="og:url" content="<?php echo BASE_URL; ?>">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%238B5CF6'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-weight='bold'%3ERG%3C/text%3E%3C/svg%3E">
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
+    <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/YOUR-KIT-ID.css">
     
     <style>
         /* Reset and Base Styles */
@@ -48,7 +50,7 @@
         /* Header Styles */
         .site-header {
             background: white;
-            box-shadow: 0 2px 20px rgba(139, 92, 246, 0.1);
+            box-shadow: 0 2px 20px rgba(240, 103, 36, 0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -81,36 +83,41 @@
         .logo-icon {
             width: 45px;
             height: 45px;
-            background: linear-gradient(135deg, #8B5CF6, #F97316);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            transform: rotate(-5deg);
+            overflow: hidden;
             transition: transform 0.3s ease;
         }
 
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .logo:hover .logo-icon {
-            transform: rotate(0deg);
+            transform: scale(1.05);
         }
 
         .logo-text {
             display: flex;
             flex-direction: column;
+            font-family: "trajan-pro", serif;
+            font-weight: bold;
         }
 
         .logo-main {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #1E293B;
+            color: #7f2677;
             line-height: 1.2;
         }
 
         .logo-sub {
             font-size: 0.75rem;
-            color: #64748B;
+            color: #7f2677;
         }
 
         /* Desktop Navigation */
@@ -145,19 +152,19 @@
         }
 
         .nav-links a i {
-            color: #8B5CF6;
+            color: #f06724;
             font-size: 1.1rem;
             transition: transform 0.3s ease;
         }
 
         .nav-links a:hover {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(249, 115, 22, 0.1));
-            color: #8B5CF6;
+            background: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
+            color: #f06724;
         }
 
         .nav-links a:hover i {
             transform: translateY(-2px);
-            color: #F97316;
+            color: #7f2677;
         }
 
         /* Auth Buttons */
@@ -173,8 +180,8 @@
             border-radius: 50px;
             font-weight: 600;
             text-decoration: none;
-            color: #8B5CF6;
-            border: 2px solid #8B5CF6;
+            color: #f06724;
+            border: 2px solid #f06724;
             background: transparent;
             transition: all 0.3s ease;
             font-size: 0.95rem;
@@ -188,10 +195,10 @@
         }
 
         .btn-login:hover {
-            background: #8B5CF6;
+            background: #f06724;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 5px 15px rgba(240, 103, 36, 0.3);
         }
 
         .btn-register {
@@ -199,7 +206,7 @@
             border-radius: 50px;
             font-weight: 600;
             text-decoration: none;
-            background: linear-gradient(135deg, #8B5CF6, #F97316);
+            background: linear-gradient(135deg, #7f2677 );
             color: white;
             border: none;
             transition: all 0.3s ease;
@@ -211,15 +218,15 @@
             white-space: nowrap;
             line-height: 1;
             height: 45px;
-            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 4px 10px rgba(240, 103, 36, 0.2);
         }
 
         .btn-register:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 8px 20px rgba(127, 38, 119, 0.3);
         }
 
-        /* ===== UPDATED USER DROPDOWN MENU - CLICK TO OPEN ===== */
+        /* User Dropdown Menu */
         .user-menu {
             position: relative;
             display: inline-block;
@@ -234,7 +241,7 @@
         .user-initials {
             width: 45px;
             height: 45px;
-            background: linear-gradient(135deg, #8B5CF6, #F97316);
+            background: linear-gradient(135deg, #f06724);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -249,17 +256,16 @@
 
         .user-initials:hover {
             transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 5px 15px rgba(240, 103, 36, 0.3);
             border-color: white;
         }
 
         .user-initials.active {
             transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 5px 15px rgba(240, 103, 36, 0.3);
             border-color: white;
         }
 
-        /* Dropdown Content - Hidden by default */
         .dropdown-content {
             position: absolute;
             right: 0;
@@ -271,20 +277,18 @@
             z-index: 1000;
             overflow: hidden;
             border: 1px solid #E2E8F0;
-            display: none; /* Hidden by default */
+            display: none;
             opacity: 0;
             transform: translateY(-10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        /* Show dropdown when active class is added */
         .dropdown-content.show {
             display: block;
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Add a small triangle/arrow */
         .dropdown-content::before {
             content: '';
             position: absolute;
@@ -307,12 +311,12 @@
 
         .dropdown-header p {
             font-weight: 600;
-            color: #1E293B;
+            color: black;
             margin-bottom: 3px;
         }
 
         .dropdown-header small {
-            color: #64748B;
+            color: black;
             font-size: 0.8rem;
         }
 
@@ -327,7 +331,7 @@
             align-items: center;
             gap: 12px;
             padding: 14px 20px;
-            color: #1E293B;
+            color: black;
             text-decoration: none;
             transition: all 0.3s ease;
             font-size: 0.95rem;
@@ -335,21 +339,22 @@
 
         .dropdown-content a i {
             width: 20px;
-            color: #8B5CF6;
+            color: #f06724;
             font-size: 1.1rem;
         }
 
         .dropdown-content a:hover {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(249, 115, 22, 0.1));
+            background: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
             padding-left: 25px;
         }
 
         .dropdown-content a.logout {
-            color: #EF4444;
+            color: #e21414;
+            font-weight: bold
         }
 
         .dropdown-content a.logout i {
-            color: #EF4444;
+            color: #e21414;
         }
 
         /* Mobile Menu Button */
@@ -368,7 +373,7 @@
             display: block;
             width: 100%;
             height: 3px;
-            background: linear-gradient(135deg, #8B5CF6, #F97316);
+            background: linear-gradient(135deg, #7f2677 );
             border-radius: 3px;
             transition: all 0.3s ease;
         }
@@ -432,7 +437,6 @@
             .logo-icon {
                 width: 40px;
                 height: 40px;
-                font-size: 1.3rem;
             }
         }
 
@@ -459,7 +463,7 @@
 
         .mobile-menu-header {
             padding: 30px 20px;
-            background: linear-gradient(135deg, #8B5CF6, #F97316);
+            background: linear-gradient(135deg, #7f2677);
             color: white;
             position: relative;
         }
@@ -547,12 +551,12 @@
 
         .mobile-nav-links a i {
             width: 24px;
-            color: #8B5CF6;
+            color: #f06724;
             font-size: 1.2rem;
         }
 
         .mobile-nav-links a:hover {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(249, 115, 22, 0.1));
+            background: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
             transform: translateX(5px);
         }
 
@@ -588,13 +592,13 @@
         }
 
         .mobile-login {
-            color: #8B5CF6;
-            border: 2px solid #8B5CF6;
+            color: #f06724;
+            border: 2px solid #f06724;
             background: transparent;
         }
 
         .mobile-register {
-            background: linear-gradient(135deg, #8B5CF6, #F97316);
+            background: linear-gradient(135deg, #7f2677 );
             color: white;
             border: none;
         }
@@ -676,13 +680,13 @@
     <header class="site-header">
         <div class="container">
             <nav class="navbar">
-                <!-- Logo -->
+                <!-- Logo with Image - Completely replaced the icon with your logo -->
                 <a href="<?php echo BASE_URL; ?>/" class="logo">
                     <div class="logo-icon">
-                        <i class="fas fa-graduation-cap"></i>
+                        <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="ROGELE" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'font-size: 1.8rem; color: white;\'></i>'; this.parentElement.style.background='linear-gradient(135deg, #f06724, #7f2677)'">
                     </div>
                     <div class="logo-text">
-                        <span class="logo-main">Rays of Grace</span>
+                        <span class="logo-main">RAYS OF GRACE</span>
                         <span class="logo-sub">E-Learning Platform</span>
                     </div>
                 </a>
@@ -702,12 +706,11 @@
                             </a></li>
                         </ul>
                         
-                        <!-- ===== UPDATED USER MENU WITH DROPDOWN - CLICK TO OPEN ===== -->
+                        <!-- User Menu with Dropdown -->
                         <div class="user-menu">
                             <div class="user-dropdown">
                                 <div class="user-initials" id="userMenuButton">
                                     <?php 
-                                    // Get user initials
                                     $nameParts = explode(' ', $_SESSION['user_name'] ?? 'User');
                                     $initials = '';
                                     foreach ($nameParts as $part) {
@@ -743,7 +746,7 @@
                         <ul class="nav-links">
                             <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
                             <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
-                            <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/contact"><i class="fas fa-envelope"></i> Contact</a></li>
                         </ul>
                         
                         <div class="nav-auth">
@@ -812,7 +815,7 @@
                     <i class="fas fa-times"></i>
                 </div>
                 <div style="text-align: center; padding: 10px 0;">
-                    <i class="fas fa-graduation-cap" style="font-size: 3rem; color: white; margin-bottom: 10px;"></i>
+                    <img src="<?php echo BASE_URL; ?>/public/images/logo.jpg" alt="ROGELE" style="width: 60px; height: 60px; margin-bottom: 10px; border-radius: 12px;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'font-size: 3rem; color: white;\'></i>'">
                     <h3 style="color: white;">Welcome to</h3>
                     <h2 style="color: white;">Rays of Grace</h2>
                 </div>
@@ -821,7 +824,7 @@
                 <ul class="mobile-nav-links">
                     <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
-                    <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/contact"><i class="fas fa-envelope"></i> Contact</a></li>
                 </ul>
                 <div class="mobile-auth">
                     <a href="<?php echo BASE_URL; ?>/login" class="mobile-login">
@@ -859,3 +862,4 @@
         <?php endif; ?>
         
         <!-- Page content will be included here -->
+    

@@ -1,6 +1,6 @@
 <?php
 // File: /views/teacher/preview_lesson.php
-$pageTitle = 'Preview Lesson - Teacher - Rays of Grace';
+$pageTitle = 'Preview Lesson | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $lesson = $lesson ?? [];
@@ -89,13 +89,13 @@ function getYoutubeId($url) {
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .back-link {
-    color: #64748B;
+    color: black;
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -107,7 +107,7 @@ function getYoutubeId($url) {
 
 .back-link:hover {
     background: #F1F5F9;
-    color: #8B5CF6;
+    color: #7f2677;
 }
 
 .lesson-preview-card {
@@ -122,7 +122,7 @@ function getYoutubeId($url) {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: #F97316;
+    background: #f06724;
     color: white;
     padding: 5px 15px;
     border-radius: 30px;
@@ -133,7 +133,7 @@ function getYoutubeId($url) {
 }
 
 .lesson-title {
-    color: #1E293B;
+    color: black;
     font-size: 2rem;
     margin-bottom: 20px;
     padding-right: 100px;
@@ -152,11 +152,11 @@ function getYoutubeId($url) {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
 }
 
 .lesson-meta i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .status-badge {
@@ -185,7 +185,7 @@ function getYoutubeId($url) {
 .video-section h3,
 .content-section h3,
 .materials-section h3 {
-    color: #1E293B;
+    color: black;
     font-size: 1.2rem;
     margin-bottom: 15px;
     display: flex;
@@ -220,7 +220,7 @@ function getYoutubeId($url) {
     padding: 25px;
     border-radius: 12px;
     line-height: 1.8;
-    color: #1E293B;
+    color: black;
 }
 
 .materials-list {
@@ -236,7 +236,7 @@ function getYoutubeId($url) {
     background: #F8FAFC;
     border-radius: 10px;
     text-decoration: none;
-    color: #1E293B;
+    color: black;
     transition: all 0.3s ease;
 }
 
@@ -284,7 +284,7 @@ function getYoutubeId($url) {
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
     .lesson-preview-card {
-        background: #1E293B;
+        background: black;
     }
     
     .lesson-title {
