@@ -85,8 +85,23 @@ require_once __DIR__ . '/../layouts/header.php';
                 <div class="stat-item">
                     <i class="fas fa-gift stat-icon"></i>
                     <div class="stat-content">
-                        <span class="stat-label">Trial Ends</span>
-                        <span class="stat-value"><?php echo isset($profile['trial_end']) ? date('M d, Y', strtotime($profile['trial_end'])) : 'N/A'; ?></span>
+                        <span class="stat-label">Trial Status</span>
+                        <?php 
+                        $trialDays = $settings['trial_days'] ?? 60;
+                        $trialEndDate = $profile['trial_end'] ?? null;
+                        $remainingDays = $profile['trial_days_remaining'] ?? 0;
+                        $hasActiveSubscription = $profile['has_subscription'] ?? false;
+                        ?>
+                        
+                        <?php if ($hasActiveSubscription): ?>
+                            <span class="stat-value" style="color: #10B981;">Active Subscription</span>
+                            <span class="stat-sub">No trial needed</span>
+                        <?php elseif ($remainingDays > 0): ?>
+                            <span class="stat-value"><?php echo $remainingDays; ?> days left</span>
+                            <span class="stat-sub">Ends <?php echo $trialEndDate ? date('M d, Y', strtotime($trialEndDate)) : 'N/A'; ?></span>
+                        <?php else: ?>
+                            <span class="stat-value" style="color: #EF4444;">Trial Ended</span>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -363,6 +378,12 @@ require_once __DIR__ . '/../layouts/header.php';
     color: black;
 }
 
+.stat-sub {
+    font-size: 0.7rem;
+    color: #64748B;
+    display: block;
+    margin-top: 2px;
+}
 .profile-card-right {
     padding: 40px;
 }

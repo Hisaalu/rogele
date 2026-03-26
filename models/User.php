@@ -1119,7 +1119,7 @@ class User {
     }
 
     /**
-     * Calculate remaining trial days for a user
+     * Get remaining trial days for a user
      * 
      * @param int $userId The user ID
      * @param int $trialDays Total trial days (default 60)
@@ -1127,7 +1127,7 @@ class User {
      */
     public function getRemainingTrialDays($userId, $trialDays = 60) {
         try {
-            // Check if user has an active subscription first
+            // Check if user has an active subscription
             $subscriptionModel = new Subscription();
             $activeSubscription = $subscriptionModel->getCurrentSubscription($userId);
             
@@ -1145,7 +1145,7 @@ class User {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$result) {
-                return $trialDays; // Default if user not found
+                return $trialDays;
             }
             
             $createdAt = new DateTime($result['created_at']);
@@ -1161,15 +1161,15 @@ class User {
             
         } catch (Exception $e) {
             error_log("Error calculating remaining trial days: " . $e->getMessage());
-            return $trialDays; // Return default on error
+            return $trialDays;
         }
     }
 
     /**
-     * Get trial end date for a user
+     * Get user's trial end date
      * 
-     * @param int $userId The user ID
-     * @param int $trialDays Total trial days
+     * @param int $userId User ID
+     * @param int $trialDays Total trial days (default 60)
      * @return string|null Trial end date or null
      */
     public function getTrialEndDate($userId, $trialDays = 60) {

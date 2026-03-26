@@ -513,7 +513,21 @@ class ExternalController {
     public function profile() {
         $hideFooter = true;
         
+        // Get user profile
         $profile = $this->userModel->getProfile($_SESSION['user_id']);
+        
+        // Calculate trial end date
+        $trialDays = $this->settingsModel->get('trial_days', 60);
+        $trialEndDate = $this->userModel->getTrialEndDate($_SESSION['user_id'], $trialDays);
+        $remainingTrialDays = $this->userModel->getRemainingTrialDays($_SESSION['user_id'], $trialDays);
+        
+        // Add to profile array
+        if ($profile) {
+            $profile['trial_end'] = $trialEndDate;
+            $profile['trial_days_remaining'] = $remainingTrialDays;
+            $profile['trial_active'] = $remainingTrialDays > 0;
+        }
+        
         require_once __DIR__ . '/../views/external/profile.php';
     }
     
