@@ -384,69 +384,145 @@ class User {
     }
     
     /**
-     * Delete account (for users deleting their own account)
+     * Delete user account
+     * 
+     * @param int $userId User ID
+     * @param string $password User's password for verification
+     * @return array Result with success status and message
      */
     public function deleteAccount($userId, $password) {
         try {
-            // First, get the user to verify they exist
-            $user = $this->getById($userId);
+            error_log("=== deleteAccount method in User model called ===");
+            error_log("User ID: $userId");
+            
+            // Get user data to verify password
+            $sql = "SELECT password FROM users WHERE id = :user_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
             if (!$user) {
+                error_log("User not found for ID: $userId");
                 return ['success' => false, 'error' => 'User not found'];
             }
             
             // Verify password
             if (!password_verify($password, $user['password'])) {
-                return ['success' => false, 'error' => 'Current password is incorrect'];
+                error_log("Password verification failed for user: $userId");
+                return ['success' => false, 'error' => 'Incorrect password. Please try again.'];
             }
+            
+            error_log("Password verified, starting deletion...");
             
             // Start transaction
             $this->conn->beginTransaction();
             
-            // Delete related records
-            $tables = ['subscriptions', 'free_trials', 'payments', 'activity_logs', 'bookmarks', 'quiz_attempts'];
-            
-            foreach ($tables as $table) {
-                try {
-                    // Check if table exists
-                    $checkTable = $this->conn->query("SHOW TABLES LIKE '$table'");
-                    if ($checkTable->rowCount() > 0) {
-                        $deleteQuery = "DELETE FROM $table WHERE user_id = :user_id";
-                        $deleteStmt = $this->conn->prepare($deleteQuery);
-                        $deleteStmt->execute([':user_id' => $userId]);
-                    }
-                } catch (PDOException $e) {
-                    // Table might not exist, continue
-                    error_log("Warning: Could not delete from $table: " . $e->getMessage());
-                }
+            // Delete quiz attempt answers
+            try {
+                $sql = "DELETE qaa FROM quiz_attempt_answers qaa 
+                        INNER JOIN quiz_attempts qa ON qaa.attempt_id = qa.id 
+                        WHERE qa.user_id = :user_id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+                $stmt->execute();
+                $count = $stmt->rowCount();
+                error_log("Deleted $count quiz_attempt_answers records");
+            } catch (PDOException $e) {
+                error_log("Error deleting quiz_attempt_answers: " . $e->getMessage());
+                // Continue - table might not exist
             }
             
-            // Finally delete the user
-            $deleteUser = "DELETE FROM users WHERE id = :id";
-            $deleteUserStmt = $this->conn->prepare($deleteUser);
-            $deleteUserStmt->execute([':id' => $userId]);
+            // Delete quiz attempts
+            try {
+                $sql = "DELETE FROM quiz_attempts WHERE user_id = :user_id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+                $stmt->execute();
+                $count = $stmt->rowCount();
+                error_log("Deleted $count quiz_attempts records");
+            } catch (PDOException $e) {
+                error_log("Error deleting quiz_attempts: " . $e->getMessage());
+            }
             
-            // Check if user was actually deleted
-            if ($deleteUserStmt->rowCount() === 0) {
-                throw new Exception('Failed to delete user record');
+            // Delete subscriptions
+            try {
+                $sql = "DELETE FROM subscriptions WHERE user_id = :user_id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+                $stmt->execute();
+                $count = $stmt->rowCount();
+                error_log("Deleted $count subscriptions records");
+            } catch (PDOException $e) {
+                error_log("Error deleting subscriptions: " . $e->getMessage());
+            }
+            
+            // Delete payments
+            try {
+                $sql = "DELETE FROM payments WHERE user_id = :user_id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+                $stmt->execute();
+                $count = $stmt->rowCount();
+                error_log("Deleted $count payments records");
+            } catch (PDOException $e) {
+                error_log("Error deleting payments: " . $e->getMessage());
+            }
+            
+            // Delete bookmarks
+            try {
+                $sql = "DELETE FROM bookmarks WHERE user_id = :user_id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+                $stmt->execute();
+                $count = $stmt->rowCount();
+                error_log("Deleted $count bookmarks records");
+            } catch (PDOException $e) {
+                error_log("Error deleting bookmarks: " . $e->getMessage());
+            }
+            
+            // Delete lesson progress
+            try {
+                $sql = "DELETE FROM lesson_progress WHERE user_id = :user_id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+                $stmt->execute();
+                $count = $stmt->rowCount();
+                error_log("Deleted $count lesson_progress records");
+            } catch (PDOException $e) {
+                error_log("Error deleting lesson_progress: " . $e->getMessage());
+            }
+            
+            // Finally, delete the user
+            $sql = "DELETE FROM users WHERE id = :user_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            $count = $stmt->rowCount();
+            error_log("Deleted $count user record");
+            
+            if ($count == 0) {
+                error_log("User record not deleted - user might not exist");
+                throw new Exception("User record not deleted");
             }
             
             // Commit transaction
             $this->conn->commit();
             
+            error_log("Account deleted successfully for user: $userId");
+            
             return ['success' => true, 'message' => 'Account deleted successfully'];
             
         } catch (PDOException $e) {
-            if ($this->conn->inTransaction()) {
-                $this->conn->rollBack();
-            }
-            error_log("Delete account error: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Database error occurred. Please try again later.'];
+            $this->conn->rollBack();
+            error_log("PDOException in deleteAccount: " . $e->getMessage());
+            error_log("Error code: " . $e->getCode());
+            error_log("Error line: " . $e->getLine());
+            return ['success' => false, 'error' => 'Failed to delete account. Database error: ' . $e->getMessage()];
         } catch (Exception $e) {
-            if ($this->conn->inTransaction()) {
-                $this->conn->rollBack();
-            }
-            error_log("Delete account error: " . $e->getMessage());
-            return ['success' => false, 'error' => $e->getMessage()];
+            $this->conn->rollBack();
+            error_log("Exception in deleteAccount: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Failed to delete account. Error: ' . $e->getMessage()];
         }
     }
     

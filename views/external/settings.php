@@ -36,15 +36,15 @@ $activeTab = $_GET['tab'] ?? 'password';
             <i class="fas fa-lock"></i>
             <span>Change Password</span>
         </a>
-        <a href="?tab=notifications" class="tab <?php echo $activeTab === 'notifications' ? 'active' : ''; ?>">
+        <!-- <a href="?tab=notifications" class="tab <?php echo $activeTab === 'notifications' ? 'active' : ''; ?>">
             <i class="fas fa-bell"></i>
             <span>Notifications</span>
-        </a>
+        </a> -->
         <a href="?tab=privacy" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
             <i class="fas fa-shield-alt"></i>
             <span>Privacy</span>
         </a>
-        <a href="?tab=delete" class="tab <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
+        <a href="<?php echo BASE_URL; ?>/external/delete-account?test=1" class="tab <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
             <i class="fas fa-trash"></i>
             <span>Delete Account</span>
         </a>

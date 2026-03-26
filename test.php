@@ -1,37 +1,21 @@
 <?php
-// File: /test-contact-direct.php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
+// File: /test-delete-account.php
 require_once 'config/config.php';
-require_once 'controllers/HomeController.php';
+session_start();
 
-$controller = new HomeController();
+echo "<h2>Test Delete Account Route</h2>";
+echo "<p>Current User ID: " . ($_SESSION['user_id'] ?? 'Not logged in') . "</p>";
 
-// Manually set POST data
-$_SERVER['REQUEST_METHOD'] = 'POST';
-$_POST['name'] = 'Test User';
-$_POST['email'] = 'test@example.com';
-$_POST['subject'] = 'Test Subject';
-$_POST['message'] = 'Test message content';
+// Test POST to the delete-account endpoint
+?>
+<form method="POST" action="<?php echo BASE_URL; ?>/external/delete-account">
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Test Delete Account</button>
+</form>
 
-// Capture output
-ob_start();
-$controller->sendContact();
-$output = ob_get_clean();
-
-echo "<h2>Debug Output</h2>";
-echo "<h3>Raw Output:</h3>";
-echo "<pre>" . htmlspecialchars($output) . "</pre>";
-
-echo "<h3>JSON Decode Test:</h3>";
-$decoded = json_decode($output, true);
-if ($decoded === null) {
-    echo "JSON decode error: " . json_last_error_msg() . "<br>";
-    echo "First 100 chars: " . substr($output, 0, 100);
-} else {
-    echo "<pre>";
-    print_r($decoded);
-    echo "</pre>";
+<?php
+// Check if we have any response
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    echo "<p>Form submitted to: " . BASE_URL . "/external/delete-account</p>";
 }
 ?>

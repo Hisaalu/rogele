@@ -610,34 +610,54 @@ class ExternalController {
         exit;
     }
     
-    /**
+   /**
      * Delete account
      */
     public function deleteAccount() {
+        error_log("=== deleteAccount method called in Controller ===");
+        error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
+        error_log("POST data: " . print_r($_POST, true));
+        
         $hideFooter = true;
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            error_log("Not a POST request");
             header('Location: ' . BASE_URL . '/external/settings?tab=delete');
             exit;
         }
         
         $password = $_POST['password'] ?? '';
+        error_log("Password provided: " . ($password ? 'Yes (length: ' . strlen($password) . ')' : 'No'));
         
         if (empty($password)) {
-            $_SESSION['error'] = 'Please enter your password';
+            error_log("Password is empty");
+            $_SESSION['error'] = 'Please enter your password to confirm account deletion.';
             header('Location: ' . BASE_URL . '/external/settings?tab=delete');
             exit;
         }
         
+        // Check if user exists
+        $user = $this->userModel->getById($_SESSION['user_id']);
+        if (!$user) {
+            error_log("User not found: " . $_SESSION['user_id']);
+            $_SESSION['error'] = 'User not found.';
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        }
+        
+        error_log("Calling userModel->deleteAccount for user ID: " . $_SESSION['user_id']);
         $result = $this->userModel->deleteAccount($_SESSION['user_id'], $password);
+        error_log("Delete account result: " . print_r($result, true));
         
         if ($result['success']) {
+            error_log("Account deleted successfully, logging out");
             session_destroy();
             session_start();
-            $_SESSION['success'] = 'Your account has been successfully deleted.';
+            $_SESSION['success'] = 'Your account has been successfully deleted. We\'re sad to see you go!';
             header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
+            error_log("Account deletion failed: " . $result['error']);
             $_SESSION['error'] = $result['error'];
             header('Location: ' . BASE_URL . '/external/settings?tab=delete');
             exit;
