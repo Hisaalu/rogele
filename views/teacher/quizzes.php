@@ -375,7 +375,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .quiz-status.draft {
-    background: black;
+    background: #f06724;
     color: white;
 }
 
