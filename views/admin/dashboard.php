@@ -37,7 +37,7 @@ $recentActivity = $recentActivity ?? [];
     <!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-content">
@@ -50,7 +50,7 @@ $recentActivity = $recentActivity ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #F97316, #EA580C);">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
                 <i class="fas fa-chalkboard-teacher"></i>
             </div>
             <div class="stat-content">
@@ -63,7 +63,7 @@ $recentActivity = $recentActivity ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
                 <i class="fas fa-user-graduate"></i>
             </div>
             <div class="stat-content">
@@ -76,7 +76,7 @@ $recentActivity = $recentActivity ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
                 <i class="fas fa-globe"></i>
             </div>
             <div class="stat-content">
@@ -161,7 +161,7 @@ $recentActivity = $recentActivity ?? [];
                             <?php if (!empty($user['profile_photo'])): ?>
                                 <img src="<?php echo BASE_URL; ?>/<?php echo $user['profile_photo']; ?>" alt="<?php echo $user['first_name']; ?>">
                             <?php else: ?>
-                                <div class="avatar-placeholder" style="background: linear-gradient(135deg, #8B5CF6, #F97316);">
+                                <div class="avatar-placeholder" style="background: linear-gradient(135deg, #f06724);">
                                     <?php echo strtoupper(substr($user['first_name'] ?? 'U', 0, 1) . substr($user['last_name'] ?? 'S', 0, 1)); ?>
                                 </div>
                             <?php endif; ?>
@@ -232,7 +232,7 @@ $recentActivity = $recentActivity ?? [];
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -242,7 +242,7 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
@@ -251,7 +251,7 @@ $recentActivity = $recentActivity ?? [];
     padding: 12px 24px;
     border-radius: 50px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    color: #1E293B;
+    color: black;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -292,7 +292,7 @@ $recentActivity = $recentActivity ?? [];
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, #8B5CF6, #F97316);
+    background: linear-gradient(90deg, #7f2677);
 }
 
 .stat-icon {
@@ -318,12 +318,12 @@ $recentActivity = $recentActivity ?? [];
     display: block;
     font-size: 2.2rem;
     font-weight: 700;
-    color: #1E293B;
+    color: black;
     line-height: 1.2;
 }
 
 .stat-label {
-    color: #64748B;
+    color: black;
     font-size: 0.9rem;
 }
 
@@ -349,7 +349,7 @@ $recentActivity = $recentActivity ?? [];
 
 .section-title {
     font-size: 1.5rem;
-    color: #1E293B;
+    color: black;
     margin-bottom: 20px;
     font-weight: 600;
 }
@@ -375,7 +375,7 @@ $recentActivity = $recentActivity ?? [];
 
 .action-card:hover {
     transform: translateX(5px);
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
 }
 
@@ -407,7 +407,7 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .action-card i:last-child {
-    color: #8B5CF6;
+    color: #f06724;
     opacity: 0;
     transition: all 0.3s ease;
 }
@@ -448,7 +448,7 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .card-header h3 i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .view-all {

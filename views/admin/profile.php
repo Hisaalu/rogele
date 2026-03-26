@@ -186,7 +186,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -196,7 +196,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -250,7 +250,7 @@ require_once __DIR__ . '/../layouts/header.php';
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -273,7 +273,7 @@ require_once __DIR__ . '/../layouts/header.php';
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #8B5CF6;
+    color: black;
     font-size: 1.2rem;
     cursor: pointer;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -281,7 +281,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .photo-upload-btn:hover {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     transform: scale(1.1);
 }
@@ -294,7 +294,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .profile-role {
-    color: #8B5CF6;
+    color: #7f2677;
     font-weight: 500;
     margin-bottom: 15px;
 }
@@ -304,7 +304,7 @@ require_once __DIR__ . '/../layouts/header.php';
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     font-size: 0.85rem;
     background: #F8FAFC;
     padding: 8px 15px;
@@ -343,7 +343,7 @@ require_once __DIR__ . '/../layouts/header.php';
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #8B5CF6;
+    color: #f06724;
     font-size: 1.2rem;
 }
 
@@ -354,7 +354,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .stat-label {
     font-size: 0.85rem;
-    color: #64748B;
+    color: black;
 }
 
 .stat-value {
@@ -403,14 +403,14 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: black;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #f06724;
     font-size: 1rem;
 }
 
@@ -425,12 +425,12 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .form-group input:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
 .form-group input:hover {
-    border-color: #8B5CF6;
+    border-color: #f06724;
 }
 
 .form-actions {
@@ -441,7 +441,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .btn-save {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 30px;
@@ -463,8 +463,8 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .btn-cancel {
     padding: 14px 30px;
-    background: white;
-    color: #64748B;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -479,9 +479,9 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-cancel:hover {
-    background: #F1F5F9;
-    border-color: #94A3B8;
-    color: #1E293B;
+    background: #f06724;
+    border-color: #7f2677;
+    color: white;
 }
 
 /* Alert Styles */

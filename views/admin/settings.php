@@ -58,7 +58,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- General Settings Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
                     <i class="fas fa-globe"></i>
                 </div>
                 <div class="card-title">
@@ -141,7 +141,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- Subscription Plans Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #F97316, #EA580C);">
+                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
                     <i class="fas fa-credit-card"></i>
                 </div>
                 <div class="card-title">
@@ -246,7 +246,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- Email Configuration Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
                     <i class="fas fa-mail-bulk"></i>
                 </div>
                 <div class="card-title">
@@ -352,7 +352,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- Security Settings Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
+                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <div class="card-title">
@@ -423,7 +423,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- Appearance Settings Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #8B5CF6, #F97316);">
+                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
                     <i class="fas fa-paint-brush"></i>
                 </div>
                 <div class="card-title">
@@ -444,9 +444,9 @@ $appearanceSettings = $appearanceSettings ?? [];
                                 type="color" 
                                 id="theme_color" 
                                 name="theme_color" 
-                                value="<?php echo htmlspecialchars($appearanceSettings['theme_color'] ?? '#8B5CF6'); ?>"
+                                value="<?php echo htmlspecialchars($appearanceSettings['theme_color'] ?? '#7f2677'); ?>"
                             >
-                            <span class="color-value"><?php echo htmlspecialchars($appearanceSettings['theme_color'] ?? '#8B5CF6'); ?></span>
+                            <span class="color-value"><?php echo htmlspecialchars($appearanceSettings['theme_color'] ?? '#7f2677'); ?></span>
                         </div>
                     </div>
 
@@ -460,9 +460,9 @@ $appearanceSettings = $appearanceSettings ?? [];
                                 type="color" 
                                 id="accent_color" 
                                 name="accent_color" 
-                                value="<?php echo htmlspecialchars($appearanceSettings['accent_color'] ?? '#F97316'); ?>"
+                                value="<?php echo htmlspecialchars($appearanceSettings['accent_color'] ?? '#f06724'); ?>"
                             >
-                            <span class="color-value"><?php echo htmlspecialchars($appearanceSettings['accent_color'] ?? '#F97316'); ?></span>
+                            <span class="color-value"><?php echo htmlspecialchars($appearanceSettings['accent_color'] ?? '#f06724'); ?></span>
                         </div>
                     </div>
 
@@ -554,7 +554,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 8px;
@@ -564,12 +564,12 @@ $appearanceSettings = $appearanceSettings ?? [];
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
 .btn-save-all {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 32px;
@@ -652,7 +652,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 }
 
 .card-title p {
-    color: #64748B;
+    color: black;
     font-size: 0.85rem;
 }
 
@@ -697,14 +697,14 @@ $appearanceSettings = $appearanceSettings ?? [];
 .form-group label {
     font-weight: 600;
     font-size: 0.9rem;
-    color: #1E293B;
+    color: black;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #f06724;
     font-size: 1rem;
 }
 
@@ -751,7 +751,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 .input-hint {
     display: block;
     font-size: 0.8rem;
-    color: #64748B;
+    color: black;
     margin-top: 5px;
 }
 
@@ -785,7 +785,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 
 .currency-symbol {
     padding: 10px 15px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border-radius: 10px;
     font-weight: 600;
@@ -834,17 +834,17 @@ $appearanceSettings = $appearanceSettings ?? [];
 
 .toggle-label i {
     font-size: 1.3rem;
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .toggle-label strong {
     display: block;
-    color: #1E293B;
+    color: black;
     margin-bottom: 3px;
 }
 
 .toggle-label p {
-    color: #64748B;
+    color: black;
     font-size: 0.85rem;
 }
 
@@ -976,7 +976,7 @@ input:checked + .toggle-slider:before {
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #64748B;
+    color: black;
     pointer-events: none;
 }
 
@@ -992,7 +992,7 @@ input:checked + .toggle-slider:before {
 
 .btn-save {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 12px 20px;
@@ -1014,7 +1014,7 @@ input:checked + .toggle-slider:before {
 
 .btn-reset {
     background: white;
-    color: #64748B;
+    color: black;
     border: 2px solid #E2E8F0;
     padding: 10px 20px;
     border-radius: 10px;
@@ -1055,7 +1055,7 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-preview {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     border: none;
     padding: 12px 20px;
@@ -1070,7 +1070,7 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-preview:hover {
-    background: #7C3AED;
+    background: #f06724;
     transform: translateY(-2px);
 }
 
@@ -1341,7 +1341,7 @@ input:checked + .toggle-slider:before {
     }
     
     .card-title p {
-        color: #94A3B8;
+        color: black;
     }
     
     .form-group label {

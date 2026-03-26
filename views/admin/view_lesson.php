@@ -121,7 +121,7 @@ function getYoutubeId($url) {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -129,13 +129,13 @@ function getYoutubeId($url) {
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #7f2677;
 }
 
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 30px;
@@ -155,7 +155,7 @@ function getYoutubeId($url) {
 }
 
 .lesson-header h2 {
-    color: #1E293B;
+    color: black;
     font-size: 2rem;
     margin-bottom: 15px;
 }
@@ -171,12 +171,12 @@ function getYoutubeId($url) {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     font-size: 0.95rem;
 }
 
 .meta-item i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .lesson-status {

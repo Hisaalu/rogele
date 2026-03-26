@@ -106,7 +106,7 @@ $search = $_GET['search'] ?? '';
                                     <?php if (!empty($user['profile_photo'])): ?>
                                         <img src="<?php echo BASE_URL; ?>/<?php echo $user['profile_photo']; ?>" alt="<?php echo $user['first_name']; ?>">
                                     <?php else: ?>
-                                        <div class="avatar-placeholder" style="background: linear-gradient(135deg, #8B5CF6, #F97316);">
+                                        <div class="avatar-placeholder" style="background: linear-gradient(135deg, #f06724);">
                                             <?php 
                                             $initial1 = strtoupper(substr($user['first_name'] ?? 'U', 0, 1));
                                             $initial2 = strtoupper(substr($user['last_name'] ?? 'S', 0, 1));
@@ -214,7 +214,7 @@ $search = $_GET['search'] ?? '';
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -224,12 +224,12 @@ $search = $_GET['search'] ?? '';
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 12px 24px;
@@ -355,7 +355,7 @@ $search = $_GET['search'] ?? '';
 
 .search-box input:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
@@ -370,7 +370,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-filter {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     border: none;
     padding: 12px 25px;
@@ -381,12 +381,12 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-filter:hover {
-    background: #7C3AED;
+    background: #f06724;
     transform: translateY(-2px);
 }
 
 .btn-reset {
-    color: #64748B;
+    color: black;
     text-decoration: none;
     padding: 12px 20px;
     border-radius: 50px;
@@ -394,7 +394,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-reset:hover {
-    background: #F1F5F9;
+    background: #f06724;
     color: #1E293B;
 }
 
@@ -480,7 +480,7 @@ $search = $_GET['search'] ?? '';
 
 .user-meta {
     font-size: 0.8rem;
-    color: #64748B;
+    color: black;
 }
 
 /* Role Badges */
@@ -528,7 +528,7 @@ $search = $_GET['search'] ?? '';
 
 .status-badge.inactive {
     background: #F1F5F9;
-    color: #64748B;
+    color: black;
 }
 
 .status-badge.suspended {
@@ -557,11 +557,11 @@ $search = $_GET['search'] ?? '';
 
 .action-btn.edit {
     background: #EFF6FF;
-    color: #2563EB;
+    color: #7f2677;
 }
 
 .action-btn.edit:hover {
-    background: #2563EB;
+    background: #f06724;
     color: white;
     transform: translateY(-2px);
 }
@@ -633,7 +633,7 @@ $search = $_GET['search'] ?? '';
     justify-content: center;
     border-radius: 10px;
     text-decoration: none;
-    color: #1E293B;
+    color: black;
     transition: all 0.3s ease;
 }
 
@@ -642,7 +642,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .page-link.active {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
 }
 

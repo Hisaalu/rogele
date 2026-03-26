@@ -208,7 +208,7 @@ require_once __DIR__ . '/../layouts/header.php';
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -216,13 +216,13 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #7f2677;
 }
 
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -232,7 +232,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
@@ -257,7 +257,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .section-title {
-    color: #1E293B;
+    color: black;
     font-size: 1.3rem;
     margin-bottom: 25px;
     display: flex;
@@ -266,7 +266,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .section-title i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 /* Form Layout */
@@ -286,14 +286,14 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: black;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #f06724;
     font-size: 1rem;
 }
 
@@ -366,7 +366,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 32px;
@@ -389,8 +389,8 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-secondary {
-    background: white;
-    color: #64748B;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     padding: 12px 30px;
     border-radius: 50px;
@@ -406,9 +406,9 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-secondary:hover {
-    background: #F1F5F9;
+    background: #f06724;
     border-color: #94A3B8;
-    color: #1E293B;
+    color: white;
 }
 
 /* Alert */

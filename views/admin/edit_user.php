@@ -223,7 +223,7 @@ if (!isset($user) || empty($user)) {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748B;
+    color: black;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -231,13 +231,13 @@ if (!isset($user) || empty($user)) {
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #7f2677;
 }
 
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -247,12 +247,12 @@ if (!isset($user) || empty($user)) {
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
 .page-subtitle strong {
-    color: #1E293B;
+    color: black;
 }
 
 /* Alert Messages */
@@ -311,7 +311,7 @@ if (!isset($user) || empty($user)) {
 }
 
 .section-title {
-    color: #1E293B;
+    color: black;
     font-size: 1.3rem;
     margin-bottom: 25px;
     display: flex;
@@ -320,7 +320,7 @@ if (!isset($user) || empty($user)) {
 }
 
 .section-title i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .form-row {
@@ -339,14 +339,14 @@ if (!isset($user) || empty($user)) {
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: black;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .required {
@@ -374,7 +374,7 @@ if (!isset($user) || empty($user)) {
 
 .form-group input:hover,
 .form-group select:hover {
-    border-color: #8B5CF6;
+    border-color: #f06724;
 }
 
 /* Form Actions */
@@ -386,7 +386,7 @@ if (!isset($user) || empty($user)) {
 
 .btn-save {
     flex: 1;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
     border: none;
     padding: 14px 30px;
@@ -409,8 +409,8 @@ if (!isset($user) || empty($user)) {
 
 .btn-cancel {
     padding: 14px 30px;
-    background: white;
-    color: #64748B;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -425,9 +425,9 @@ if (!isset($user) || empty($user)) {
 }
 
 .btn-cancel:hover {
-    background: #F1F5F9;
-    border-color: #94A3B8;
-    color: #1E293B;
+    background: #f06724;
+    border-color: #7f2677;
+    color: white;
 }
 
 /* Danger Zone */

@@ -152,14 +152,14 @@ $statusFilter = $_GET['status'] ?? '';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
@@ -211,7 +211,7 @@ $statusFilter = $_GET['status'] ?? '';
 
 .btn-filter {
     padding: 12px 25px;
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     border: none;
     border-radius: 8px;
@@ -220,13 +220,13 @@ $statusFilter = $_GET['status'] ?? '';
 }
 
 .btn-filter:hover {
-    background: #7C3AED;
+    background: #f06724;
 }
 
 .btn-clear {
     padding: 12px 25px;
     background: white;
-    color: #64748B;
+    color: black;
     border: 2px solid #E2E8F0;
     border-radius: 8px;
     font-weight: 600;
@@ -234,7 +234,7 @@ $statusFilter = $_GET['status'] ?? '';
 }
 
 .btn-clear:hover {
-    background: #F1F5F9;
+    background: #f06724;
 }
 
 .table-card {
@@ -251,7 +251,7 @@ $statusFilter = $_GET['status'] ?? '';
 
 .data-table th {
     background: #F8FAFC;
-    color: #1E293B;
+    color: black;
     font-weight: 600;
     font-size: 0.9rem;
     padding: 15px;
@@ -262,7 +262,7 @@ $statusFilter = $_GET['status'] ?? '';
 .data-table td {
     padding: 12px 15px;
     border-bottom: 1px solid #F1F5F9;
-    color: #1E293B;
+    color: black;
 }
 
 .data-table tr:hover td {
@@ -315,11 +315,11 @@ $statusFilter = $_GET['status'] ?? '';
 
 .action-btn.view {
     background: #EFF6FF;
-    color: #2563EB;
+    color: #7f2677;
 }
 
 .action-btn.view:hover {
-    background: #2563EB;
+    background: #f06724;
     color: white;
 }
 
