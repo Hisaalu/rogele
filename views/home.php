@@ -771,7 +771,7 @@ body {
                             <li><i class="fas fa-check"></i> All subjects</li>
                             <li><i class="fas fa-check"></i> Practice quizzes</li>
                         </ul>
-                        <a href="#" class="btn-secondary">Explore</a>
+                        <a href="<?php echo BASE_URL; ?>/register" class="btn-secondary">Explore</a>
                     </div>
                 </div>
                 <?php endfor; ?>

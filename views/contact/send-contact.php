@@ -19,7 +19,7 @@ require_once __DIR__ . '/../layouts/header.php';
                     <i class="fas fa-envelope"></i>
                     <h3>Email</h3>
                     <p>info@raysofgrace.ac.ug</p>
-                    <p>support@raysofgrace.ac.ug</p>
+                    <p>rogele@raysofgrace.ac.ug</p>
                 </div>
                 
                 <div class="info-card">
@@ -32,7 +32,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 <div class="info-card">
                     <i class="fas fa-map-marker-alt"></i>
                     <h3>Address</h3>
-                    <p>Kampala, Uganda</p>
+                    <p>Njeru, Uganda</p>
                 </div>
                 
                 <div class="info-card">

@@ -464,8 +464,8 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .btn-cancel {
     padding: 14px 30px;
-    background: white;
-    color: #64748B;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -479,7 +479,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-cancel:hover {
-    background: #F1F5F9;
+    background: #f06724;
     border-color: #94A3B8;
 }
 
