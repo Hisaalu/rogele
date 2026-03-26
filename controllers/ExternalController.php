@@ -101,8 +101,8 @@ class ExternalController {
         }
         
         // Get filter parameters
-        $subject = $_GET['subject'] ?? null;
-        $search = $_GET['search'] ?? null;
+        $search = isset($_GET['search']) ? trim($_GET['search']) : null;
+        $subject = isset($_GET['subject']) ? (int)$_GET['subject'] : null;
         
         // Get all published lessons
         if ($search) {
@@ -111,26 +111,26 @@ class ExternalController {
             $lessons = $this->lessonModel->getPublishedLessons($subject);
         }
         
-        // Get unique subjects for filter dropdown
+        // Get all subjects for filter dropdown
         $allSubjects = $this->subjectModel->getAll();
         
-        // Filter to get unique subject names (remove duplicates)
-        $uniqueSubjects = [];
-        $seen = [];
-        foreach ($allSubjects as $subject) {
-            if (!in_array($subject['name'], $seen)) {
-                $uniqueSubjects[] = $subject;
-                $seen[] = $subject['name'];
-            }
-        }
-        
         // Sort subjects alphabetically
-        usort($uniqueSubjects, function($a, $b) {
+        usort($allSubjects, function($a, $b) {
             return strcmp($a['name'], $b['name']);
         });
         
-        $subjects = $uniqueSubjects;
+        // Get selected subject name for display
+        $selectedSubjectName = '';
+        if ($subject) {
+            foreach ($allSubjects as $sub) {
+                if ($sub['id'] == $subject) {
+                    $selectedSubjectName = $sub['name'];
+                    break;
+                }
+            }
+        }
         
+        // Pass to view
         require_once __DIR__ . '/../views/external/materials.php';
     }
     

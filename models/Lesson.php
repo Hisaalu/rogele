@@ -12,6 +12,15 @@ class Lesson {
     }
     
     // ============= MAIN METHODS =============
+
+    /**
+     * Get database connection
+     * 
+     * @return PDO Database connection
+     */
+    public function getConnection() {
+        return $this->conn;
+    }
     
     /**
      * Create lesson with files
@@ -289,25 +298,25 @@ class Lesson {
     public function searchByTeacher($teacherId, $keyword) {
         try {
             $query = "SELECT l.*, s.name as subject_name, c.name as class_name,
-                      (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
-                      FROM lessons l
-                      LEFT JOIN subjects s ON l.subject_id = s.id
-                      LEFT JOIN classes c ON l.class_id = c.id
-                      WHERE l.teacher_id = :teacher_id 
-                      AND (l.title LIKE :keyword OR l.content LIKE :keyword)
-                      ORDER BY l.created_at DESC
-                      LIMIT 50";
+                        (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                    FROM lessons l
+                    LEFT JOIN subjects s ON l.subject_id = s.id
+                    LEFT JOIN classes c ON l.class_id = c.id
+                    WHERE l.teacher_id = :teacher_id 
+                    AND (l.title LIKE :keyword OR l.content LIKE :keyword)
+                    ORDER BY l.created_at DESC
+                    LIMIT 50";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([
+            $stmt->execute(array(
                 ':teacher_id' => $teacherId,
                 ':keyword' => '%' . $keyword . '%'
-            ]);
+            ));
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             error_log("Search lessons by teacher error: " . $e->getMessage());
-            return [];
+            return array();
         }
     }
     
@@ -665,39 +674,39 @@ class Lesson {
     }
 
     /**
-     * Get all published lessons for external users (filter by subject name)
+     * Get published lessons with optional subject filter
      */
-    public function getPublishedLessons($subjectName = null) {
+    public function getPublishedLessons($subjectId = null) {
         try {
-            $query = "SELECT l.*, 
-                    s.name as subject_name, 
-                    s.id as subject_id,
-                    c.name as class_name,
-                    u.first_name as teacher_name,
-                    u.last_name as teacher_last_name,
-                    (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+            $sql = "SELECT l.*, 
+                        s.name as subject_name,
+                        c.name as class_name,
+                        u.first_name as teacher_name,
+                        u.last_name as teacher_last_name,
+                        (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as material_count
                     FROM lessons l
                     LEFT JOIN subjects s ON l.subject_id = s.id
                     LEFT JOIN classes c ON l.class_id = c.id
                     LEFT JOIN users u ON l.teacher_id = u.id
                     WHERE l.is_published = 1";
             
-            $params = [];
+            $params = array();
             
-            if ($subjectName && $subjectName !== '') {
-                $query .= " AND s.name = :subject_name";
-                $params[':subject_name'] = $subjectName;
+            if ($subjectId) {
+                $sql .= " AND l.subject_id = :subject_id";
+                $params[':subject_id'] = $subjectId;
             }
             
-            $query .= " ORDER BY l.created_at DESC";
+            $sql .= " ORDER BY l.created_at DESC";
             
-            $stmt = $this->conn->prepare($query);
+            $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
             
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
         } catch (PDOException $e) {
-            error_log("Get published lessons error: " . $e->getMessage());
-            return [];
+            error_log("Error getting published lessons: " . $e->getMessage());
+            return array();
         }
     }
 
@@ -746,40 +755,45 @@ class Lesson {
     }
 
     /**
-     * Search published lessons
+     * Search published lessons - CORRECTED VERSION
      */
-    public function searchPublished($keyword, $subjectId = null) {
+    public function searchPublished($searchTerm, $subjectId = null) {
         try {
-            $query = "SELECT l.*, 
-                    s.name as subject_name,
-                    s.id as subject_id,
-                    c.name as class_name,
-                    u.first_name as teacher_name,
-                    u.last_name as teacher_last_name,
-                    (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+            $searchPattern = '%' . $searchTerm . '%';
+            
+            $sql = "SELECT l.*, 
+                        s.name as subject_name,
+                        c.name as class_name,
+                        u.first_name as teacher_name,
+                        u.last_name as teacher_last_name
                     FROM lessons l
                     LEFT JOIN subjects s ON l.subject_id = s.id
                     LEFT JOIN classes c ON l.class_id = c.id
                     LEFT JOIN users u ON l.teacher_id = u.id
-                    WHERE l.is_published = 1
-                    AND (l.title LIKE :keyword OR l.content LIKE :keyword)";
+                    WHERE l.is_published = 1 
+                    AND (l.title LIKE :search1 
+                        OR l.content LIKE :search2)";
             
-            $params = [':keyword' => '%' . $keyword . '%'];
+            $params = array(
+                ':search1' => $searchPattern,
+                ':search2' => $searchPattern
+            );
             
-            if ($subjectId && $subjectId !== '') {
-                $query .= " AND l.subject_id = :subject_id";
+            if ($subjectId) {
+                $sql .= " AND l.subject_id = :subject_id";
                 $params[':subject_id'] = $subjectId;
             }
             
-            $query .= " ORDER BY l.views DESC LIMIT 50";
+            $sql .= " ORDER BY l.created_at DESC";
             
-            $stmt = $this->conn->prepare($query);
+            $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
             
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
         } catch (PDOException $e) {
-            error_log("Search published lessons error: " . $e->getMessage());
-            return [];
+            error_log("Error searching published lessons: " . $e->getMessage());
+            return array();
         }
     }
 

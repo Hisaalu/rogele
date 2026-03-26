@@ -375,12 +375,12 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .stat-value {
     font-weight: 600;
-    color: black;
+    color: #7f2677;
 }
 
 .stat-sub {
     font-size: 0.7rem;
-    color: #64748B;
+    color: green;
     display: block;
     margin-top: 2px;
 }

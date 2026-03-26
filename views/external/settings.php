@@ -382,7 +382,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .tab i {
     font-size: 1.2rem;
-    color: blak;
+    color: #f06724;
 }
 
 .tab:hover {
