@@ -263,7 +263,7 @@ $search = $_GET['search'] ?? '';
 
 .filter-group select {
     padding: 12px 20px;
-    border: 2px solid #E2E8F0;
+    border: 2px solid #f06724;
     border-radius: 12px;
     font-size: 0.95rem;
     background: white;
@@ -273,7 +273,7 @@ $search = $_GET['search'] ?? '';
 
 .btn-filter {
     padding: 12px 30px;
-    background: #f06724;
+    background: #7f2677;
     color: white;
     border: none;
     border-radius: 12px;
@@ -283,13 +283,13 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-filter:hover {
-    background: #7C3AED;
+    background: #f06724;
 }
 
 .btn-clear {
     padding: 12px 30px;
-    background: white;
-    color: black;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 12px;
     font-weight: 600;
@@ -298,8 +298,8 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-clear:hover {
-    background: #F1F5F9;
-    border-color: #94A3B8;
+    background: #f06724;
+    border-color: #f06724;
 }
 
 /* Students Grid */

@@ -361,7 +361,7 @@ $search = $_GET['search'] ?? '';
 
 .filter-group select {
     padding: 12px 20px;
-    border: 2px solid #E2E8F0;
+    border: 2px solid #f06724;
     border-radius: 50px;
     font-size: 0.95rem;
     background: white;
@@ -386,16 +386,17 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-reset {
-    color: black;
+    color: white;
     text-decoration: none;
     padding: 12px 20px;
     border-radius: 50px;
     transition: all 0.3s ease;
+    background: #7f2677;
 }
 
 .btn-reset:hover {
     background: #f06724;
-    color: #1E293B;
+    color: white;
 }
 
 /* Table Card */

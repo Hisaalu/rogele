@@ -452,7 +452,7 @@ $profile = $profile ?? [];
 
 .stat-value {
     font-weight: 600;
-    color: black;
+    color: #7f2677;
 }
 
 /* Right Column */

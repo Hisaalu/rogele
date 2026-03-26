@@ -293,7 +293,7 @@ $search = $_GET['search'] ?? '';
 
 .search-box input:focus {
     outline: none;
-    border-color: #7f2677;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
@@ -309,13 +309,13 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-search:hover {
-    background: #7C3AED;
+    background: #f06724;
 }
 
 .btn-clear {
     padding: 12px 30px;
-    background: white;
-    color: black;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 12px;
     font-weight: 600;
@@ -324,8 +324,8 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-clear:hover {
-    background: #F1F5F9;
-    border-color: #94A3B8;
+    background: #f06724;
+    border-color: #f06724;
 }
 
 /* Quizzes Grid */
@@ -380,7 +380,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .quiz-title {
-    color: #1E293B;
+    color: black;
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 10px;
@@ -516,7 +516,7 @@ $search = $_GET['search'] ?? '';
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #7f2677, #F97316);
+    background: linear-gradient(135deg, #f06724);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -529,7 +529,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .empty-state h3 {
-    color: #1E293B;
+    color: black;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }

@@ -564,27 +564,28 @@ class Quiz {
      */
     public function searchByTeacher($teacherId, $keyword) {
         try {
+            $searchPattern = '%' . $keyword . '%';
+            
             $query = "SELECT q.*, 
-                    COUNT(DISTINCT qa.id) as attempt_count,
-                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                        s.name as subject_name,
+                        c.name as class_name,
+                        (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
                     FROM quizzes q
-                    LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id
-                    WHERE q.teacher_id = :teacher_id 
-                    AND (q.title LIKE :keyword OR q.description LIKE :keyword)
-                    GROUP BY q.id
+                    LEFT JOIN subjects s ON q.subject_id = s.id
+                    LEFT JOIN classes c ON q.class_id = c.id
+                    WHERE q.teacher_id = ? 
+                    AND (q.title LIKE ? OR q.description LIKE ?)
                     ORDER BY q.created_at DESC
                     LIMIT 50";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                ':teacher_id' => $teacherId,
-                ':keyword' => '%' . $keyword . '%'
-            ]);
+            $stmt->execute(array($teacherId, $searchPattern, $searchPattern));
             
             return $stmt->fetchAll();
+            
         } catch (PDOException $e) {
             error_log("Search quizzes by teacher error: " . $e->getMessage());
-            return [];
+            return array();
         }
     }
 
@@ -886,31 +887,41 @@ class Quiz {
      */
     public function countAllQuizzes($search = null, $teacherId = null, $status = null) {
         try {
-            $query = "SELECT COUNT(*) as total FROM quizzes q WHERE 1=1";
+            $sql = "SELECT COUNT(*) as total FROM quizzes q 
+                    LEFT JOIN subjects s ON q.subject_id = s.id
+                    WHERE 1=1";
+            $params = array();
             
-            $params = [];
-            
-            if ($search) {
-                $query .= " AND (q.title LIKE :search OR q.description LIKE :search)";
-                $params[':search'] = '%' . $search . '%';
+            // ADD SEARCH FILTER
+            if ($search && !empty($search)) {
+                $searchPattern = '%' . $search . '%';
+                $sql .= " AND (q.title LIKE ? OR q.description LIKE ? OR s.name LIKE ?)";
+                $params[] = $searchPattern;
+                $params[] = $searchPattern;
+                $params[] = $searchPattern;
             }
             
-            if ($teacherId) {
-                $query .= " AND q.teacher_id = :teacher_id";
-                $params[':teacher_id'] = $teacherId;
+            // Add teacher filter
+            if ($teacherId && !empty($teacherId)) {
+                $sql .= " AND q.teacher_id = ?";
+                $params[] = $teacherId;
             }
             
+            // Add status filter
             if ($status === 'published') {
-                $query .= " AND q.is_published = 1";
+                $sql .= " AND q.is_published = 1";
             } elseif ($status === 'draft') {
-                $query .= " AND q.is_published = 0";
+                $sql .= " AND q.is_published = 0";
             }
             
-            $stmt = $this->conn->prepare($query);
+            $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
             $result = $stmt->fetch();
             
+            error_log("Count all quizzes - Search: " . ($search ?: 'none') . ", Total: " . ($result['total'] ?? 0));
+            
             return $result['total'] ?? 0;
+            
         } catch (PDOException $e) {
             error_log("Count all quizzes error: " . $e->getMessage());
             return 0;

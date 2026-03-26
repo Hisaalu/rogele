@@ -906,24 +906,44 @@ class User {
     }
     
     /**
-     * Search users by name or email
+     * Search users by name, email, or ID - FIXED VERSION
      */
-    public function searchUsers($keyword) {
+    public function searchUsers($searchTerm) {
         try {
-            $query = "SELECT u.*, c.name as class_name 
-                      FROM users u 
-                      LEFT JOIN classes c ON u.class_id = c.id 
-                      WHERE u.first_name LIKE :keyword 
-                         OR u.last_name LIKE :keyword 
-                         OR u.email LIKE :keyword
-                         OR CONCAT(u.first_name, ' ', u.last_name) LIKE :keyword
-                      ORDER BY u.created_at DESC
-                      LIMIT 50";
+            $searchPattern = '%' . $searchTerm . '%';
             
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':keyword' => '%' . $keyword . '%']);
+            $sql = "SELECT * FROM users 
+                    WHERE (first_name LIKE :search1 
+                        OR last_name LIKE :search2 
+                        OR CONCAT(first_name, ' ', last_name) LIKE :search3 
+                        OR email LIKE :search4 
+                        OR registration_number LIKE :search5)";
             
-            return $stmt->fetchAll();
+            // Also search by ID if numeric
+            if (is_numeric($searchTerm)) {
+                $sql .= " OR id = :id_search";
+            }
+            
+            $sql .= " ORDER BY created_at DESC";
+            
+            $stmt = $this->conn->prepare($sql);
+            
+            // Bind the LIKE parameters
+            $stmt->bindValue(':search1', $searchPattern);
+            $stmt->bindValue(':search2', $searchPattern);
+            $stmt->bindValue(':search3', $searchPattern);
+            $stmt->bindValue(':search4', $searchPattern);
+            $stmt->bindValue(':search5', $searchPattern);
+            
+            // Bind ID parameter if numeric
+            if (is_numeric($searchTerm)) {
+                $stmt->bindValue(':id_search', (int)$searchTerm, PDO::PARAM_INT);
+            }
+            
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
         } catch (PDOException $e) {
             error_log("Search users error: " . $e->getMessage());
             return [];
@@ -1082,42 +1102,62 @@ class User {
     }
 
     /**
-     * Get students by teacher - SIMPLIFIED VERSION
-     */
+    * Get students (learners and external users) taught by a teacher
+    */
     public function getStudentsByTeacher($teacherId, $classId = null, $search = null) {
         try {
-            $query = "SELECT u.*, c.name as class_name 
+            $sql = "SELECT DISTINCT u.*, 
+                        s.name as class_name,
+                        (SELECT COUNT(*) FROM quiz_attempts qa 
+                            JOIN quizzes q ON qa.quiz_id = q.id 
+                            WHERE qa.user_id = u.id AND q.teacher_id = :teacher_id1) as quiz_attempts,
+                        (SELECT COUNT(*) FROM lesson_progress lp 
+                            JOIN lessons l ON lp.lesson_id = l.id 
+                            WHERE lp.user_id = u.id AND l.teacher_id = :teacher_id2) as lessons_completed
                     FROM users u
-                    LEFT JOIN classes c ON u.class_id = c.id
-                    WHERE (u.role = 'learner' OR u.role = 'external')
-                    AND u.is_active = 1";
+                    LEFT JOIN classes s ON u.class_id = s.id
+                    WHERE (u.role = 'learner' OR u.role = 'external')";
             
-            $params = [];
+            $params = array(
+                ':teacher_id1' => $teacherId,
+                ':teacher_id2' => $teacherId
+            );
             
+            // Add class filter
             if ($classId) {
-                $query .= " AND u.class_id = :class_id";
+                $sql .= " AND u.class_id = :class_id";
                 $params[':class_id'] = $classId;
             }
             
+            // Add search filter
             if ($search && !empty($search)) {
-                $query .= " AND (
-                            u.first_name LIKE :search 
-                            OR u.last_name LIKE :search 
-                            OR u.email LIKE :search
-                            OR CONCAT(u.first_name, ' ', u.last_name) LIKE :search
-                        )";
-                $params[':search'] = '%' . $search . '%';
+                $searchPattern = '%' . $search . '%';
+                $sql .= " AND (u.first_name LIKE :search1 
+                            OR u.last_name LIKE :search2 
+                            OR u.email LIKE :search3 
+                            OR u.registration_number LIKE :search4)";
+                $params[':search1'] = $searchPattern;
+                $params[':search2'] = $searchPattern;
+                $params[':search3'] = $searchPattern;
+                $params[':search4'] = $searchPattern;
             }
             
-            $query .= " ORDER BY u.role, u.first_name, u.last_name LIMIT 100";
+            $sql .= " ORDER BY u.created_at DESC";
             
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute($params);
+            $stmt = $this->conn->prepare($sql);
             
-            return $stmt->fetchAll();
+            // Bind all parameters
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
         } catch (PDOException $e) {
             error_log("Get students by teacher error: " . $e->getMessage());
-            return [];
+            return array();
         }
     }
 

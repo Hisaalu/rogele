@@ -662,7 +662,7 @@ window.addEventListener('resize', function() {
     align-items: center;
     gap: 5px;
     padding: 6px 12px;
-    background: #f06724;
+    background: #7f2677;
     color: white;
     text-decoration: none;
     border-radius: 6px;
@@ -671,7 +671,7 @@ window.addEventListener('resize', function() {
 }
 
 .btn-view:hover {
-    background: #7C3AED;
+    background: #f06724;
 }
 
 /* Lessons Section */

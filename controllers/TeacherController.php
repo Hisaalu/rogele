@@ -108,16 +108,17 @@ class TeacherController {
         $hideFooter = true;
         
         $teacherId = $_SESSION['user_id'];
-        $page = $_GET['page'] ?? 1;
-        $search = $_GET['search'] ?? null;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $search = isset($_GET['search']) ? trim($_GET['search']) : null;
         
         $limit = 10;
         $offset = ($page - 1) * $limit;
         
         // Debug - log what's happening
         error_log("TeacherController@lessons called for teacher ID: " . $teacherId);
+        error_log("Search term: " . ($search ?: 'none'));
         
-        // Get lessons for this teacher
+        // Get lessons for this teacher with search functionality
         if ($search) {
             $lessons = $this->lessonModel->searchByTeacher($teacherId, $search);
             $totalLessons = count($lessons);

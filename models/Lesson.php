@@ -297,21 +297,23 @@ class Lesson {
      */
     public function searchByTeacher($teacherId, $keyword) {
         try {
+            $searchPattern = '%' . $keyword . '%';
+            
             $query = "SELECT l.*, s.name as subject_name, c.name as class_name,
                         (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
                     FROM lessons l
                     LEFT JOIN subjects s ON l.subject_id = s.id
                     LEFT JOIN classes c ON l.class_id = c.id
                     WHERE l.teacher_id = :teacher_id 
-                    AND (l.title LIKE :keyword OR l.content LIKE :keyword)
+                    AND (l.title LIKE :search1 OR l.content LIKE :search2)
                     ORDER BY l.created_at DESC
                     LIMIT 50";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute(array(
-                ':teacher_id' => $teacherId,
-                ':keyword' => '%' . $keyword . '%'
-            ));
+            $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
+            $stmt->bindValue(':search1', $searchPattern);
+            $stmt->bindValue(':search2', $searchPattern);
+            $stmt->execute();
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
@@ -817,16 +819,20 @@ class Lesson {
             
             $params = [];
             
-            if ($search) {
-                $query .= " AND (l.title LIKE :search OR l.content LIKE :search)";
-                $params[':search'] = '%' . $search . '%';
+            // Handle search - use positional placeholders for multiple occurrences
+            if (!empty($search)) {
+                $query .= " AND (l.title LIKE ? OR l.content LIKE ?)";
+                $params[] = '%' . $search . '%';
+                $params[] = '%' . $search . '%';
             }
             
-            if ($teacherId) {
-                $query .= " AND l.teacher_id = :teacher_id";
-                $params[':teacher_id'] = $teacherId;
+            // Handle teacher ID
+            if (!empty($teacherId)) {
+                $query .= " AND l.teacher_id = ?";
+                $params[] = $teacherId;
             }
             
+            // Handle status
             if ($status === 'published') {
                 $query .= " AND l.is_published = 1";
             } elseif ($status === 'draft') {
@@ -837,21 +843,20 @@ class Lesson {
                 $query .= " AND l.is_approved = 0";
             }
             
-            $query .= " ORDER BY l.created_at DESC LIMIT :limit OFFSET :offset";
+            $query .= " ORDER BY l.created_at DESC LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+            
+            // Debug: Log the query and params
+            error_log("Lessons Query: " . $query);
+            error_log("Lessons Params: " . json_encode($params));
             
             $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
             
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
-            }
-            
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-            
-            $stmt->execute();
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             error_log("Get all lessons error: " . $e->getMessage());
+            error_log("Query: " . $query);
+            error_log("Params: " . json_encode($params));
             return [];
         }
     }
@@ -865,16 +870,20 @@ class Lesson {
             
             $params = [];
             
-            if ($search) {
-                $query .= " AND (l.title LIKE :search OR l.content LIKE :search)";
-                $params[':search'] = '%' . $search . '%';
+            // Handle search - use positional placeholders for multiple occurrences
+            if (!empty($search)) {
+                $query .= " AND (l.title LIKE ? OR l.content LIKE ?)";
+                $params[] = '%' . $search . '%';
+                $params[] = '%' . $search . '%';
             }
             
-            if ($teacherId) {
-                $query .= " AND l.teacher_id = :teacher_id";
-                $params[':teacher_id'] = $teacherId;
+            // Handle teacher ID
+            if (!empty($teacherId)) {
+                $query .= " AND l.teacher_id = ?";
+                $params[] = $teacherId;
             }
             
+            // Handle status
             if ($status === 'published') {
                 $query .= " AND l.is_published = 1";
             } elseif ($status === 'draft') {
@@ -885,13 +894,20 @@ class Lesson {
                 $query .= " AND l.is_approved = 0";
             }
             
+            // Debug: Log the query and params
+            error_log("Count Query: " . $query);
+            error_log("Count Params: " . json_encode($params));
+            
             $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
+            
             $result = $stmt->fetch();
             
             return $result['total'] ?? 0;
         } catch (PDOException $e) {
             error_log("Count all lessons error: " . $e->getMessage());
+            error_log("Query: " . $query);
+            error_log("Params: " . json_encode($params));
             return 0;
         }
     }

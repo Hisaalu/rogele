@@ -304,7 +304,7 @@ function getYoutubeId($url) {
 
 .search-box input:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
@@ -320,13 +320,13 @@ function getYoutubeId($url) {
 }
 
 .btn-search:hover {
-    background: #7C3AED;
+    background: #f06724;
 }
 
 .btn-clear {
     padding: 12px 30px;
-    background: white;
-    color: black;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 12px;
     font-weight: 600;
@@ -335,8 +335,8 @@ function getYoutubeId($url) {
 }
 
 .btn-clear:hover {
-    background: #F1F5F9;
-    border-color: #94A3B8;
+    background: #f06724;
+    border-color: #f06724;
 }
 
 /* Lessons Grid */
@@ -464,7 +464,7 @@ function getYoutubeId($url) {
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.85rem;
-    color: black;
+    color: #f06724;
 }
 
 .lesson-stats span {
@@ -533,7 +533,7 @@ function getYoutubeId($url) {
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724);
     border-radius: 50%;
     display: flex;
     align-items: center;

@@ -193,7 +193,7 @@ $statusFilter = $_GET['status'] ?? '';
 
 .filters-form select {
     padding: 12px 20px;
-    border: 2px solid #E2E8F0;
+    border: 2px solid #f06724;
     border-radius: 8px;
     font-size: 0.95rem;
     min-width: 150px;
