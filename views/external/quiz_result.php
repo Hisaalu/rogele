@@ -111,14 +111,6 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
             <h2 style="color: black; margin: 0;">
                 <i class="fas fa-list-check"></i> Detailed Review
             </h2>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="showAllExplanations()" class="toggle-btn" style="background: #F1F5F9; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
-                    <i class="fas fa-eye"></i> Show All Explanations
-                </button>
-                <button onclick="hideAllExplanations()" class="toggle-btn" style="background: #F1F5F9; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
-                    <i class="fas fa-eye-slash"></i> Hide All Explanations
-                </button>
-            </div>
         </div>
         
         <p style="color: black; margin-bottom: 30px;">
@@ -326,17 +318,5 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
         }
     }
 </style>
-
-<script>
-function showAllExplanations() {
-    const explanations = document.querySelectorAll('.explanation');
-    explanations.forEach(el => el.style.display = 'block');
-}
-
-function hideAllExplanations() {
-    const explanations = document.querySelectorAll('.explanation');
-    explanations.forEach(el => el.style.display = 'none');
-}
-</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

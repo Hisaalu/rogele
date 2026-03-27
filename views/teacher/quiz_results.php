@@ -21,6 +21,19 @@ $stats = $stats ?? [];
             </h1>
             <p class="page-subtitle">View student performance and statistics</p>
         </div>
+        
+        <!-- Download Buttons -->
+        <div class="download-actions">
+            <button onclick="downloadResults('csv')" class="btn-download csv">
+                <i class="fas fa-file-csv"></i> Download CSV
+            </button>
+            <button onclick="downloadResults('excel')" class="btn-download excel">
+                <i class="fas fa-file-excel"></i> Download Excel
+            </button>
+            <button onclick="window.print()" class="btn-download print">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
     </div>
 
     <!-- Stats Overview -->
@@ -84,7 +97,12 @@ $stats = $stats ?? [];
     <div class="results-card">
         <div class="card-header">
             <h3><i class="fas fa-list"></i> Student Attempts</h3>
-            <span class="result-count"><?php echo count($results); ?> attempts</span>
+            <div class="header-actions">
+                <span class="result-count"><?php echo count($results); ?> attempts</span>
+                <button onclick="copyTableToClipboard()" class="btn-icon" title="Copy to clipboard">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
         </div>
 
         <?php if (empty($results)): ?>
@@ -95,26 +113,28 @@ $stats = $stats ?? [];
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="results-table">
+                <table class="results-table" id="resultsTable">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Student</th>
                             <th>Email</th>
-                            <th>Score</th>
+                            <th>Score (%)</th>
                             <th>Result</th>
-                            <th>Time Taken</th>
                             <th>Date</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <?php $counter = 1; ?>
                         <?php foreach ($results as $result): ?>
                         <tr>
+                            <td><?php echo $counter++; ?></td>
                             <td class="student-cell">
                                 <strong><?php echo htmlspecialchars($result['first_name'] . ' ' . $result['last_name']); ?></strong>
                             </td>
                             <td><?php echo htmlspecialchars($result['email']); ?></td>
                             <td class="score-cell <?php echo $result['score'] >= ($quiz['passing_score'] ?? 50) ? 'passed' : 'failed'; ?>">
-                                <?php echo $result['score']; ?>%
+                                <?php echo number_format($result['score'], 1); ?>%
                             </td>
                             <td>
                                 <?php if ($result['score'] >= ($quiz['passing_score'] ?? 50)): ?>
@@ -122,13 +142,6 @@ $stats = $stats ?? [];
                                 <?php else: ?>
                                     <span class="badge failed">Failed</span>
                                 <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php 
-                                $minutes = floor($result['time_taken'] / 60);
-                                $seconds = $result['time_taken'] % 60;
-                                echo $minutes . 'm ' . $seconds . 's';
-                                ?>
                             </td>
                             <td><?php echo date('M d, Y H:i', strtotime($result['completed_at'])); ?></td>
                         </tr>
@@ -142,7 +155,7 @@ $stats = $stats ?? [];
 
 <style>
 .results-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 30px 20px;
 }
@@ -159,7 +172,16 @@ $stats = $stats ?? [];
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #7f2677;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .page-title {
@@ -177,7 +199,76 @@ $stats = $stats ?? [];
 .page-subtitle {
     color: black;
     font-size: 1rem;
-    margin-bottom: 30px;
+}
+
+/* Download Buttons */
+.download-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-download {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-download.csv {
+    background: #F1F5F9;
+    color: #1E293B;
+    border: 1px solid #E2E8F0;
+}
+
+.btn-download.csv:hover {
+    background: #E2E8F0;
+    transform: translateY(-2px);
+}
+
+.btn-download.excel {
+    background: #10B981;
+    color: white;
+}
+
+.btn-download.excel:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.btn-download.print {
+    background: #8B5CF6;
+    color: white;
+}
+
+.btn-download.print:hover {
+    background: #7C3AED;
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background: #F1F5F9;
+    transform: scale(1.05);
 }
 
 /* Stats Grid */
@@ -258,6 +349,12 @@ $stats = $stats ?? [];
     color: #f06724;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .result-count {
     background: #F1F5F9;
     padding: 5px 12px;
@@ -293,11 +390,13 @@ $stats = $stats ?? [];
     background: #F8FAFC;
     color: black;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     padding: 16px 20px;
     text-align: left;
     border-bottom: 2px solid #E2E8F0;
     font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .results-table td {
@@ -324,6 +423,11 @@ $stats = $stats ?? [];
 
 .score-cell.failed {
     color: #EF4444;
+}
+
+.time-cell {
+    font-family: monospace;
+    font-size: 0.9rem;
 }
 
 .badge {
@@ -368,13 +472,44 @@ $stats = $stats ?? [];
 
 /* Responsive */
 @media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+    }
+    
     .stats-grid {
         grid-template-columns: 1fr;
     }
     
     .results-table th,
     .results-table td {
-        padding: 12px 15px;
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .download-actions {
+        width: 100%;
+    }
+    
+    .btn-download {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+@media print {
+    .download-actions,
+    .back-link,
+    .btn-icon,
+    .chart-card {
+        display: none;
+    }
+    
+    .results-container {
+        padding: 0;
+    }
+    
+    .results-table {
+        border: 1px solid #ddd;
     }
 }
 
@@ -414,6 +549,16 @@ $stats = $stats ?? [];
     
     .student-cell strong {
         color: #F1F5F9;
+    }
+    
+    .btn-icon {
+        background: #1E293B;
+        border-color: #334155;
+        color: #F1F5F9;
+    }
+    
+    .btn-icon:hover {
+        background: #334155;
     }
 }
 </style>
@@ -457,6 +602,147 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 <?php endif; ?>
+
+// Download results as CSV
+function downloadResults(format) {
+    const table = document.getElementById('resultsTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = [];
+    
+    // Get headers
+    const headers = [];
+    const headerCells = rows[0].querySelectorAll('th');
+    headerCells.forEach(cell => {
+        headers.push(cell.innerText.trim());
+    });
+    csvContent.push(headers.join(','));
+    
+    // Get data rows
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.querySelectorAll('td');
+        const rowData = [];
+        
+        cells.forEach(cell => {
+            let content = cell.innerText.trim();
+            // Remove any HTML tags and clean up
+            content = content.replace(/<[^>]*>/g, '');
+            // Escape quotes and wrap in quotes if contains comma
+            if (content.includes(',') || content.includes('"') || content.includes('\n')) {
+                content = content.replace(/"/g, '""');
+                content = `"${content}"`;
+            }
+            rowData.push(content);
+        });
+        csvContent.push(rowData.join(','));
+    }
+    
+    const csvString = csvContent.join('\n');
+    const blob = new Blob(["\uFEFF" + csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    const quizTitle = "<?php echo preg_replace('/[^a-zA-Z0-9]/', '_', $quiz['title'] ?? 'quiz_results'); ?>";
+    const filename = `${quizTitle}_results_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.csv`;
+    
+    if (format === 'excel') {
+        // For Excel, we use the same CSV format but with .xls extension
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename.replace('.csv', '.xls'));
+    } else {
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+    }
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Show success message
+    showToast('Results downloaded successfully!', 'success');
+}
+
+// Copy table to clipboard
+async function copyTableToClipboard() {
+    const table = document.getElementById('resultsTable');
+    const range = document.createRange();
+    range.selectNode(table);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    
+    try {
+        await navigator.clipboard.writeText(window.getSelection().toString());
+        showToast('Table copied to clipboard!', 'success');
+    } catch (err) {
+        document.execCommand('copy');
+        showToast('Table copied to clipboard!', 'success');
+    }
+    
+    window.getSelection().removeAllRanges();
+}
+
+// Toast notification
+function showToast(message, type = 'success') {
+    // Create toast element if it doesn't exist
+    let toast = document.getElementById('toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        document.body.appendChild(toast);
+        
+        // Add styles for toast
+        const style = document.createElement('style');
+        style.textContent = `
+            #toast {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 24px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 9999;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+            }
+            #toast.success {
+                background: #10B981;
+            }
+            #toast.error {
+                background: #EF4444;
+            }
+            #toast.info {
+                background: #3B82F6;
+            }
+            #toast.show {
+                opacity: 1;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    toast.className = `${type} show`;
+    toast.textContent = message;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// Add keyboard shortcut (Ctrl+D for download)
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        downloadResults('csv');
+    } else if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault();
+        downloadResults('excel');
+    } else if (e.ctrlKey && e.key === 'p') {
+        e.preventDefault();
+        window.print();
+    }
+});
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
