@@ -624,7 +624,7 @@ body {
                     </h1>
                     
                     <p class="hero-description">
-                        Join our innovative e-learning platform from Primary 1 to Primary 7. 
+                        Join our innovative Rays of Grace E-learning Environment (ROGELE) from Primary 1 to Primary 7. 
                         Interactive lessons, smart quizzes, and progress tracking all in one place.
                     </p>
                     
