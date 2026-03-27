@@ -728,21 +728,32 @@ class User {
     }
     
     /**
-     * Save reset token
+     * Save password reset token
      */
     public function saveResetToken($userId, $token, $expires) {
         try {
-            $query = "UPDATE users SET 
-                      reset_token = :token, 
-                      reset_expires = :expires 
-                      WHERE id = :id";
+            error_log("=== SAVE RESET TOKEN ===");
+            error_log("User ID: " . $userId);
+            error_log("Token: " . $token);
+            error_log("Expires: " . $expires);
             
-            $stmt = $this->conn->prepare($query);
-            return $stmt->execute([
-                ':token' => $token,
-                ':expires' => $expires,
-                ':id' => $userId
-            ]);
+            $stmt = $this->conn->prepare("DELETE FROM password_resets WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            error_log("Deleted existing tokens for user: " . $userId);
+            
+            $stmt = $this->conn->prepare("
+                INSERT INTO password_resets (user_id, token, expires_at) 
+                VALUES (?, ?, ?)
+            ");
+            $result = $stmt->execute([$userId, $token, $expires]);
+            error_log("Insert result: " . ($result ? "SUCCESS" : "FAILED"));
+            
+            if ($result) {
+                $insertId = $this->conn->lastInsertId();
+                error_log("Inserted token ID: " . $insertId);
+            }
+            
+            return $result;
         } catch (PDOException $e) {
             error_log("Save reset token error: " . $e->getMessage());
             return false;
@@ -754,67 +765,86 @@ class User {
      */
     public function getUserByResetToken($token) {
         try {
-            $query = "SELECT * FROM users 
-                      WHERE reset_token = :token 
-                      AND reset_expires > NOW() 
-                      LIMIT 1";
+            error_log("=== GET USER BY RESET TOKEN ===");
+            error_log("Token to check: " . $token);
             
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':token' => $token]);
+            $stmt = $this->conn->prepare("
+                SELECT pr.*, u.*, pr.token as reset_token, pr.expires_at 
+                FROM password_resets pr
+                INNER JOIN users u ON pr.user_id = u.id
+                WHERE pr.token = ? 
+                AND pr.expires_at > NOW()
+                AND pr.used = 0
+            ");
+            $stmt->execute([$token]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result) {
+                error_log("Token found and valid for user: " . $result['email']);
+                error_log("Token expires at: " . $result['expires_at']);
+                error_log("Current time: " . date('Y-m-d H:i:s'));
+                return $result;
+            } else {
+                $stmt2 = $this->conn->prepare("
+                    SELECT * FROM password_resets 
+                    WHERE token = ?
+                ");
+                $stmt2->execute([$token]);
+                $tokenRecord = $stmt2->fetch(PDO::FETCH_ASSOC);
+                
+                if ($tokenRecord) {
+                    error_log("Token found but expired or used");
+                    error_log("Token expires at: " . $tokenRecord['expires_at']);
+                    error_log("Token used: " . $tokenRecord['used']);
+                } else {
+                    error_log("Token not found in database");
+                }
+                
+                return null;
+            }
         } catch (PDOException $e) {
-            error_log("Get user by token error: " . $e->getMessage());
+            error_log("Get user by reset token error: " . $e->getMessage());
             return null;
         }
     }
     
     /**
-     * Clear reset token
+     * Clear reset token after password change
      */
     public function clearResetToken($userId) {
         try {
-            $query = "UPDATE users SET 
-                      reset_token = NULL, 
-                      reset_expires = NULL 
-                      WHERE id = :id";
-            
-            $stmt = $this->conn->prepare($query);
-            return $stmt->execute([':id' => $userId]);
+            $stmt = $this->conn->prepare("
+                UPDATE password_resets 
+                SET used = 1 
+                WHERE user_id = ?
+            ");
+            return $stmt->execute([$userId]);
         } catch (PDOException $e) {
             error_log("Clear reset token error: " . $e->getMessage());
             return false;
         }
     }
     
-    /**
-     * Update password (without current password verification)
+     /**
+     * Update user password
      */
     public function updatePassword($userId, $newPassword) {
         try {
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             
-            $query = "UPDATE users SET 
-                      password = :password,
-                      updated_at = NOW()
-                      WHERE id = :id";
+            $stmt = $this->conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $success = $stmt->execute([$hashedPassword, $userId]);
             
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([
-                ':password' => $hashedPassword,
-                ':id' => $userId
-            ]);
-            
-            if ($result) {
-                $this->logActivity($userId, 'PASSWORD_RESET', 'User reset password via email');
-                return ['success' => true, 'message' => 'Password updated successfully'];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to update password'];
-            
+            return [
+                'success' => $success,
+                'error' => $success ? null : 'Failed to update password'
+            ];
         } catch (PDOException $e) {
             error_log("Update password error: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Database error occurred'];
+            return [
+                'success' => false,
+                'error' => 'Database error occurred'
+            ];
         }
     }
     
@@ -854,7 +884,170 @@ class User {
      */
     private function sendResetEmail($email, $token, $name) {
         $resetLink = BASE_URL . "/reset-password?token=" . $token;
-        error_log("Reset email would be sent to: $email with link: $resetLink");
+        
+        $subject = "Password Reset Request - Rays of Grace";
+        
+        $message = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <style>
+                body {
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    background: #f8fafc;
+                    margin: 0;
+                    padding: 40px 20px;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: white;
+                    border-radius: 30px;
+                    overflow: hidden;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                }
+                .email-header {
+                    background: linear-gradient(135deg, #7f2677);
+                    padding: 40px 30px;
+                    text-align: center;
+                }
+                .email-header h1 {
+                    color: white;
+                    margin: 0;
+                    font-size: 2rem;
+                    font-weight: 700;
+                }
+                .email-header p {
+                    color: rgba(255,255,255,0.9);
+                    margin: 10px 0 0;
+                    font-size: 1.1rem;
+                }
+                .email-body {
+                    padding: 40px 30px;
+                }
+                .greeting {
+                    font-size: 1.2rem;
+                    color: #1E293B;
+                    margin-bottom: 20px;
+                    font-weight: 600;
+                }
+                .message {
+                    color: #64748B;
+                    line-height: 1.6;
+                    margin-bottom: 30px;
+                }
+                .reset-button {
+                    text-align: center;
+                    margin: 35px 0;
+                }
+                .reset-button a {
+                    display: inline-block;
+                    background: linear-gradient(135deg, #7f2677, #f06724);
+                    color: white;
+                    text-decoration: none;
+                    padding: 16px 40px;
+                    border-radius: 50px;
+                    font-weight: 600;
+                    font-size: 1.1rem;
+                    box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3);
+                    transition: all 0.3s ease;
+                }
+                .reset-button a:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+                }
+                .expiry-note {
+                    background: #FEF2F2;
+                    border: 1px solid #FECACA;
+                    border-radius: 12px;
+                    padding: 15px;
+                    margin: 30px 0;
+                    color: #B91C1C;
+                    font-size: 0.95rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .footer-note {
+                    border-top: 2px solid #F1F5F9;
+                    padding-top: 25px;
+                    margin-top: 25px;
+                    color: #94A3B8;
+                    font-size: 0.9rem;
+                }
+                .footer-note a {
+                    color: #7f2677;
+                    text-decoration: none;
+                    font-weight: 600;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='email-container'>
+                <div class='email-header'>
+                    <h1>🔐 Password Reset Request</h1>
+                    <p>Rays of Grace E-Learning</p>
+                </div>
+                
+                <div class='email-body'>
+                    <div class='greeting'>
+                        Hello " . htmlspecialchars($name) . "! 👋
+                    </div>
+                    
+                    <div class='message'>
+                        We received a request to reset the password for your Rays of Grace E-Learning account. 
+                        No changes have been made to your account yet.
+                    </div>
+                    
+                    <div class='message'>
+                        To reset your password, click the button below:
+                    </div>
+                    
+                    <div class='reset-button'>
+                        <a href='" . $resetLink . "'>🔓 Reset Your Password</a>
+                    </div>
+                    
+                    <div class='expiry-note'>
+                        <span>⏰</span>
+                        <strong>Note:</strong> This password reset link will expire in 20 minutes for security reasons.
+                    </div>
+                    
+                    <div class='message'>
+                        If you didn't request a password reset, you can safely ignore this email. 
+                        Your account is still secure and no changes have been made.
+                    </div>
+                    
+                    <div class='footer-note'>
+                        <p>For security assistance, please contact our support team at 
+                        <a href='mailto:support@raysofgrace.com'>support@raysofgrace.com</a>
+                        </p>
+                        <p style='margin-top: 15px;'>© " . date('Y') . " Rays of Grace Junior School. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+        
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        $headers .= "From: Rays of Grace <noreply@raysofgrace.com>" . "\r\n";
+        $headers .= "Reply-To: support@raysofgrace.com" . "\r\n";
+        $headers .= "X-Mailer: PHP/" . phpversion();
+        
+        $mailSent = mail($email, $subject, $message, $headers);
+        
+        if ($mailSent) {
+            error_log("Password reset email sent successfully to: $email");
+            error_log("Reset link: $resetLink");
+        } else {
+            error_log("Failed to send password reset email to: $email");
+            error_log("Reset link (would have been sent): $resetLink");
+        }
+        
+        return $mailSent;
     }
     
     /**
@@ -919,7 +1112,6 @@ class User {
                         OR email LIKE :search4 
                         OR registration_number LIKE :search5)";
             
-            // Also search by ID if numeric
             if (is_numeric($searchTerm)) {
                 $sql .= " OR id = :id_search";
             }
@@ -928,14 +1120,12 @@ class User {
             
             $stmt = $this->conn->prepare($sql);
             
-            // Bind the LIKE parameters
             $stmt->bindValue(':search1', $searchPattern);
             $stmt->bindValue(':search2', $searchPattern);
             $stmt->bindValue(':search3', $searchPattern);
             $stmt->bindValue(':search4', $searchPattern);
             $stmt->bindValue(':search5', $searchPattern);
             
-            // Bind ID parameter if numeric
             if (is_numeric($searchTerm)) {
                 $stmt->bindValue(':id_search', (int)$searchTerm, PDO::PARAM_INT);
             }
@@ -1243,16 +1433,13 @@ class User {
      */
     public function getRemainingTrialDays($userId, $trialDays = 60) {
         try {
-            // Check if user has an active subscription
             $subscriptionModel = new Subscription();
             $activeSubscription = $subscriptionModel->getCurrentSubscription($userId);
             
-            // If user has an active subscription, no trial days remaining
             if ($activeSubscription) {
                 return 0;
             }
             
-            // Get user's creation date (trial start date)
             $sql = "SELECT created_at FROM users WHERE id = :user_id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -1267,10 +1454,8 @@ class User {
             $createdAt = new DateTime($result['created_at']);
             $now = new DateTime();
             
-            // Calculate days passed since creation
             $daysPassed = $createdAt->diff($now)->days;
             
-            // Calculate remaining days
             $remainingDays = max(0, $trialDays - $daysPassed);
             
             return $remainingDays;
@@ -1321,16 +1506,13 @@ class User {
      */
     public function isInTrialPeriod($userId, $trialDays = 60) {
         try {
-            // First check if user has active subscription
             $subscriptionModel = new Subscription();
             $activeSubscription = $subscriptionModel->getCurrentSubscription($userId);
             
-            // If they have an active subscription, they're not in trial
             if ($activeSubscription) {
                 return false;
             }
             
-            // Get user's creation date
             $sql = "SELECT created_at FROM users WHERE id = :user_id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);

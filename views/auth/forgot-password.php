@@ -319,7 +319,7 @@ $pageTitle = 'Forgot Password | ROGELE';
                 </div>
             <?php else: ?>
                 <!-- Forgot Password Form -->
-                <form action="<?php echo BASE_URL; ?>/forgot-password" method="POST" class="forgot-form" id="forgotForm">
+                <form action="<?php echo BASE_URL; ?>/auth/process-forgot-password" method="POST" class="forgot-form" id="forgotForm">
                     <div class="form-group">
                         <input 
                             type="email" 

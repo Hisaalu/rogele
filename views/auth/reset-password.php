@@ -2,6 +2,7 @@
 // File: /views/auth/reset-password.php
 $hideHeader = true;
 $pageTitle = 'Reset Password | ROGELE';
+$token = $token ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -301,7 +302,7 @@ $pageTitle = 'Reset Password | ROGELE';
             <?php endif; ?>
             
             <!-- Reset Password Form -->
-            <form action="<?php echo BASE_URL; ?>/reset-password" method="POST" class="reset-form" id="resetForm">
+            <form action="<?php echo BASE_URL; ?>/auth/process-reset-password" method="POST" class="reset-form" id="resetForm">
                 <input type="hidden" name="token" value="<?php echo htmlspecialchars($token ?? ''); ?>">
                 
                 <div class="form-group">

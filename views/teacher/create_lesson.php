@@ -483,8 +483,8 @@ $classes = $classes ?? [];
 
 .btn-secondary {
     padding: 14px 30px;
-    background: white;
-    color: black;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -499,9 +499,9 @@ $classes = $classes ?? [];
 }
 
 .btn-secondary:hover {
-    background: #F1F5F9;
-    border-color: #94A3B8;
-    color: black;
+    background: #f06724;
+    border-color: #f06724;
+    color: white;
 }
 
 /* Alerts */

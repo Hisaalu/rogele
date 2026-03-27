@@ -326,7 +326,7 @@ $search = $_GET['search'] ?? '';
 
 .student-avatar {
     height: 120px;
-    background: linear-gradient(135deg, #f06724, #F97316);
+    background: linear-gradient(135deg, #f06724);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -365,7 +365,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .student-name {
-    color: #1E293B;
+    color: black;
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 10px;
@@ -403,7 +403,7 @@ $search = $_GET['search'] ?? '';
 
 .stat-label {
     display: block;
-    color: black;
+    color: #7f2677;
     font-size: 0.7rem;
     margin-bottom: 3px;
     text-transform: uppercase;
@@ -414,7 +414,7 @@ $search = $_GET['search'] ?? '';
     display: block;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #1E293B;
+    color: black;
 }
 
 .student-actions {
@@ -423,7 +423,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-view {
-    background: #f06724;
+    background: #7f2677;
     color: white;
     text-decoration: none;
     padding: 10px 20px;
@@ -437,7 +437,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-view:hover {
-    background: #7C3AED;
+    background: #f06724;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
 }

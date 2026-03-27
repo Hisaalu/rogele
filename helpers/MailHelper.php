@@ -1,106 +1,206 @@
 <?php
 // File: /helpers/MailHelper.php
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 class MailHelper {
+    private $mail;
+    
+    public function __construct() {
+        $this->mail = new PHPMailer(true);
+        
+        // Server settings - Using your exact configuration
+        $this->mail->SMTPDebug = SMTP::DEBUG_OFF;
+        $this->mail->isSMTP();
+        $this->mail->Host       = 'mail.privateemail.com';
+        $this->mail->SMTPAuth   = true;
+        $this->mail->Username   = 'info@raysofgrace.ac.ug';
+        $this->mail->Password   = MAIL_PASSWORD;
+        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $this->mail->Port       = 587;
+        $this->mail->setFrom('info@raysofgrace.ac.ug', 'ROGELE');
+        $this->mail->addReplyTo('info@raysofgrace.ac.ug', 'ROGELE');
+        $this->mail->CharSet = 'UTF-8';
+        $this->mail->Timeout = 30;
+        
+        error_log("MailHelper initialized");
+    }
     
     /**
-     * Send an email
+     * Send password reset email
      */
-    public static function send($to, $subject, $message, $from = null) {
-        $from = $from ?? 'noreply@raysofgrace.com';
-        $fromName = 'Rays of Grace E-Learning';
-        
-        $headers = [
-            'MIME-Version: 1.0',
-            'Content-type: text/html; charset=utf-8',
-            'From: ' . $fromName . ' <' . $from . '>',
-            'Reply-To: support@raysofgrace.com',
-            'X-Mailer: PHP/' . phpversion()
-        ];
-        
+    public function sendResetEmail($to, $name, $resetLink) {
         try {
-            if (mail($to, $subject, $message, implode("\r\n", $headers))) {
-                error_log("Email sent successfully to: " . $to);
-                return ['success' => true, 'message' => 'Email sent'];
-            } else {
-                error_log("Failed to send email to: " . $to);
-                return ['success' => false, 'message' => 'Failed to send email'];
-            }
+            $this->mail->clearAddresses();
+            $this->mail->addAddress($to, $name);
+            
+            $this->mail->isHTML(true);
+            $this->mail->Subject = 'Password Reset Request - Rays of Grace';
+            
+            $this->mail->Body = $this->getResetEmailTemplate($name, $resetLink);
+            $this->mail->AltBody = "Hello $name,\n\nClick this link to reset your password: $resetLink\n\nThis link expires in 20 minutes.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nRays of Grace Team";
+            
+            $this->mail->send();
+            error_log("Password reset email sent successfully to: $to");
+            return true;
+            
         } catch (Exception $e) {
-            error_log("Error sending email: " . $e->getMessage());
-            return ['success' => false, 'message' => $e->getMessage()];
+            error_log("Password reset email failed. Error: {$this->mail->ErrorInfo}");
+            return false;
         }
     }
     
     /**
-     * Send upgrade confirmation email
+     * Test email connection
      */
-    public static function sendUpgradeConfirmation($user, $fromPlan, $toPlan, $amount, $newEndDate) {
-        $subject = "🎉 Your Subscription Has Been Upgraded!";
-        
-        $message = "
+    public function testConnection() {
+        try {
+            $this->mail->smtpConnect();
+            error_log("SMTP Connection successful!");
+            return true;
+        } catch (Exception $e) {
+            error_log("SMTP Connection failed: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get password reset email template
+     */
+    private function getResetEmailTemplate($name, $resetLink) {
+        return '
         <!DOCTYPE html>
         <html>
         <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-                .details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-                .detail-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
-                .label { font-weight: bold; color: #666; }
-                .value { color: #333; }
-                .total { font-size: 1.2em; font-weight: bold; color: #667eea; }
-                .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 50px; margin-top: 20px; }
-                .footer { text-align: center; margin-top: 30px; color: #999; font-size: 0.9em; }
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+                    background: #f8fafc;
+                    margin: 0;
+                    padding: 40px 20px;
+                    line-height: 1.6;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: white;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                }
+                .header {
+                    background: linear-gradient(135deg, #7f2677);
+                    padding: 40px 30px;
+                    text-align: center;
+                }
+                .header h1 {
+                    color: white;
+                    margin: 0;
+                    font-size: 28px;
+                    font-weight: 700;
+                }
+                .header p {
+                    color: rgba(255,255,255,0.9);
+                    margin: 10px 0 0;
+                    font-size: 18px;
+                }
+                .content {
+                    padding: 40px 30px;
+                }
+                .greeting {
+                    font-size: 20px;
+                    font-weight: 600;
+                    color: black;
+                    margin-bottom: 20px;
+                }
+                .message {
+                    color: black;
+                    font-size: 15px;
+                    margin-bottom: 20px;
+                }
+                .button-container {
+                    text-align: center;
+                    margin: 30px 0;
+                    color: white;
+                }
+                .button {
+                    display: inline-block;
+                    padding: 14px 35px;
+                    background: #f06724;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 50px;
+                    font-weight: 600;
+                    font-size: 16px;
+                    transition: all 0.3s ease;
+                }
+                .button:hover {
+                    background: #f06724;
+                    transform: translateY(-2px);
+                }
+                .footer {
+                    padding: 20px 30px;
+                    background: #f8fafc;
+                    text-align: center;
+                    font-size: 12px;
+                    color: black;
+                    border-top: 1px solid #e2e8f0;
+                }
+                .footer a {
+                    color: #f06724;
+                    text-decoration: none;
+                }
+                @media (max-width: 600px) {
+                    .header h1 { font-size: 24px; }
+                    .content { padding: 30px 20px; }
+                    .button { display: block; text-align: center; }
+                }
             </style>
         </head>
         <body>
-            <div class='container'>
-                <div class='header'>
-                    <h2>Subscription Upgrade Confirmation</h2>
+            <div class="container">
+                <div class="header">
+                    <h1>ROGELE</h1>
+                    <p>Password Reset Request</p>
                 </div>
-                <div class='content'>
-                    <h3>Hello " . htmlspecialchars($user['first_name']) . "! 👋</h3>
-                    <p>Great news! Your subscription has been successfully upgraded.</p>
-                    
-                    <div class='details'>
-                        <div class='detail-row'>
-                            <span class='label'>Previous Plan:</span>
-                            <span class='value'>" . ucfirst($fromPlan) . "</span>
-                        </div>
-                        <div class='detail-row'>
-                            <span class='label'>New Plan:</span>
-                            <span class='value'>" . ucfirst($toPlan) . "</span>
-                        </div>
-                        <div class='detail-row'>
-                            <span class='label'>Upgrade Amount:</span>
-                            <span class='value total'>UGX " . number_format($amount) . "</span>
-                        </div>
-                        <div class='detail-row'>
-                            <span class='label'>New Expiry Date:</span>
-                            <span class='value'>" . date('F j, Y', strtotime($newEndDate)) . "</span>
-                        </div>
+                <div class="content">
+                    <div class="greeting">
+                        Hi ' . htmlspecialchars($name) . '!
                     </div>
-                    
-                    <p>You now have access to all premium features of the <strong>" . ucfirst($toPlan) . "</strong> plan!</p>
-                    
-                    <div style='text-align: center;'>
-                        <a href='" . BASE_URL . "/external/dashboard' class='button'>Go to Dashboard</a>
+                    <div class="message">
+                        A password reset for your account was requested.
                     </div>
-                    
-                    <p>Thank you for choosing Rays of Grace E-Learning!</p>
+                    <div class="message">
+                        Please click the button below to change your password. 
+                    </div>
+                    <div class="message">
+                        Note that this link is valid for 20 minutes. 
+                        After the time limit has expired, you will 
+                        have to resubmit the request for a password reset
+                    </div>
+                    <div class="message">
+                        Click the link below to reset your password:
+                    </div>
+                    <div class="button-container">
+                        <a href="' . $resetLink . '" class="button" style="color: white;">Reset Your Password</a>
+                    </div>
+                    <div class="message">
+                        If you did not make this request, please contact Support and ignore this email! 
+                    </div>
                 </div>
-                <div class='footer'>
-                    <p>© " . date('Y') . " Rays of Grace E-Learning. All rights reserved.</p>
-                    <p>This is an automated message, please do not reply.</p>
+                <div class="footer">
+                    <p>&copy; ' . date('Y') . ' ROGELE | All rights reserved.</p>
+                    <p>This is an automated message, please do not reply to this email.</p>
+                    <p>Need help? Contact us at <a href="mailto:info@raysofgrace.ac.ug">info@raysofgrace.ac.ug</a></p>
                 </div>
             </div>
         </body>
         </html>
-        ";
-        
-        return self::send($user['email'], $subject, $message);
+        ';
     }
 }

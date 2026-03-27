@@ -1,5 +1,6 @@
 <?php
 // File: /index.php
+require_once __DIR__ . '/config/env.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -59,6 +60,8 @@ $routes = [
     '/forgot-password' => 'AuthController@forgotPassword',
     '/reset-password' => 'AuthController@resetPassword',
     '/change-password' => 'AuthController@changePassword',
+    '/auth/process-forgot-password' => 'AuthController@processForgotPassword',
+    '/auth/process-reset-password' => 'AuthController@processResetPassword',
 
     '/contact' => 'HomeController@contact',
     
