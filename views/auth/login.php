@@ -317,7 +317,7 @@ $pageTitle = 'Login | ROGELE';
                     $logoFile = __DIR__ . '/../../public/images/logo.png';
                     ?>
                     <?php if (file_exists($logoFile)): ?>
-                        <img src="<?php echo $logoPath; ?>" alt="ROGELE Logo" style="width: 100px; height: 100px; object-fit: contain;">
+                        <img src="<?php echo $logoPath; ?>" alt="ROGELE Logo">
                     <?php else: ?>
                         <span style="font-size: 3rem; font-weight: 700; color: #f06724;">RG</span>
                     <?php endif; ?>
