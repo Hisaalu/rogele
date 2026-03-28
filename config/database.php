@@ -16,7 +16,7 @@ class Database {
             
             error_log("Connecting to: $host:$port");
             
-            // Use MySQLi for the actual connection (reliable SSL)
+            // Create MySQLi connection
             $this->connection = new mysqli();
             
             // Set SSL options
@@ -43,9 +43,7 @@ class Database {
             // Verify SSL
             $result = $this->connection->query("SHOW STATUS LIKE 'Ssl_cipher'");
             if ($result && $row = $result->fetch_assoc()) {
-                if ($row['Value']) {
-                    error_log("✓ SSL connection established with cipher: " . $row['Value']);
-                }
+                error_log("✓ SSL connection established with cipher: " . $row['Value']);
                 $result->free();
             }
             
@@ -53,7 +51,6 @@ class Database {
             
         } catch (Exception $e) {
             error_log("✗ Database connection failed: " . $e->getMessage());
-            error_log("Connection details - Host: $host:$port, DB: $dbname, User: $user");
             die("Database connection failed. Please check your configuration.");
         }
     }
@@ -69,33 +66,23 @@ class Database {
         return $this->connection;
     }
     
-    /**
-     * PDO-like prepare method that returns a wrapper
-     */
+    // PDO-compatible wrapper methods
     public function prepare($sql) {
         $stmt = $this->connection->prepare($sql);
         if (!$stmt) {
-            error_log("Prepare failed: " . $this->connection->error);
             return false;
         }
         return new MySQLiStatementWrapper($stmt);
     }
     
-    /**
-     * PDO-like query method
-     */
     public function query($sql) {
         $result = $this->connection->query($sql);
         if ($result === false) {
-            error_log("Query failed: " . $this->connection->error);
             return false;
         }
         return new MySQLiResultWrapper($result);
     }
     
-    /**
-     * PDO-like lastInsertId method
-     */
     public function lastInsertId() {
         return $this->connection->insert_id;
     }
@@ -105,7 +92,7 @@ class Database {
 }
 
 /**
- * Wrapper class to make MySQLi statements behave like PDO statements
+ * PDO-compatible wrapper for MySQLi statements
  */
 class MySQLiStatementWrapper {
     private $stmt;
@@ -116,23 +103,15 @@ class MySQLiStatementWrapper {
         $this->stmt = $stmt;
     }
     
-    /**
-     * PDO-like bindValue method
-     */
     public function bindValue($param, $value, $type = null) {
-        // Remove colon if present (PDO uses :param)
         $param = ltrim($param, ':');
         $this->params[$param] = $value;
-        $this->paramTypes .= 's'; // Treat all as strings for simplicity
+        $this->paramTypes .= 's';
         return true;
     }
     
-    /**
-     * PDO-like execute method with optional parameters array
-     */
     public function execute($params = null) {
         if ($params !== null) {
-            // Handle array of parameters
             $this->params = [];
             $this->paramTypes = '';
             foreach ($params as $key => $value) {
@@ -141,25 +120,18 @@ class MySQLiStatementWrapper {
             }
         }
         
-        // Prepare binding array
-        $bindParams = [];
-        $bindParams[] = &$this->paramTypes;
-        
-        foreach ($this->params as $key => &$value) {
-            $bindParams[] = &$value;
-        }
-        
-        // Bind parameters
         if (!empty($this->params)) {
+            $bindParams = [];
+            $bindParams[] = &$this->paramTypes;
+            foreach ($this->params as &$value) {
+                $bindParams[] = &$value;
+            }
             call_user_func_array([$this->stmt, 'bind_param'], $bindParams);
         }
         
         return $this->stmt->execute();
     }
     
-    /**
-     * PDO-like fetch method
-     */
     public function fetch($mode = null) {
         $result = $this->stmt->get_result();
         if (!$result) {
@@ -168,9 +140,6 @@ class MySQLiStatementWrapper {
         return $result->fetch_assoc();
     }
     
-    /**
-     * PDO-like fetchAll method
-     */
     public function fetchAll($mode = null) {
         $result = $this->stmt->get_result();
         if (!$result) {
@@ -179,23 +148,17 @@ class MySQLiStatementWrapper {
         return $result->fetch_all(MYSQLI_ASSOC);
     }
     
-    /**
-     * PDO-like rowCount method
-     */
     public function rowCount() {
         return $this->stmt->affected_rows;
     }
     
-    /**
-     * Close the statement
-     */
     public function close() {
         $this->stmt->close();
     }
 }
 
 /**
- * Wrapper class to make MySQLi results behave like PDO results
+ * PDO-compatible wrapper for MySQLi results
  */
 class MySQLiResultWrapper {
     private $result;
