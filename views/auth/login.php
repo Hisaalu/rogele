@@ -287,8 +287,8 @@ $pageTitle = 'Login | ROGELE';
         }
         
         .logo {
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
         }
         
         .logo-section h1 {
