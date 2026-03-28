@@ -16,43 +16,46 @@ class Database {
             
             error_log("Connecting to: $host:$port");
             
-            // For TiDB Cloud Serverless, we need to force SSL
-            // Create DSN with SSL parameters in the connection string
-            $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+            // Use MySQLi with forced SSL
+            $this->connection = mysqli_init();
             
-            // SSL options - FORCE SSL connection
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false,
-                // Critical SSL settings
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,  // Set to false for testing
-                PDO::MYSQL_ATTR_SSL_KEY => '',
-                PDO::MYSQL_ATTR_SSL_CERT => '',
-                PDO::MYSQL_ATTR_SSL_CA => '',
-            ];
+            // Set SSL options - critical for TiDB Cloud
+            mysqli_ssl_set(
+                $this->connection,
+                NULL,           // key file
+                NULL,           // cert file
+                NULL,           // CA certificate (NULL to use default)
+                NULL,           // capath
+                NULL            // cipher
+            );
             
-            // Try to add CA certificate if available
-            if (defined('DB_SSL_CA') && file_exists(DB_SSL_CA)) {
-                $options[PDO::MYSQL_ATTR_SSL_CA] = DB_SSL_CA;
+            // Connect with SSL
+            if (!mysqli_real_connect(
+                $this->connection,
+                $host,
+                $user,
+                $pass,
+                $dbname,
+                $port,
+                NULL,
+                MYSQLI_CLIENT_SSL  // This forces SSL
+            )) {
+                throw new Exception(mysqli_connect_error());
             }
             
-            $this->connection = new PDO($dsn, $user, $pass, $options);
+            // Set charset
+            mysqli_set_charset($this->connection, 'utf8mb4');
             
-            // Verify SSL is actually being used
-            $stmt = $this->connection->query("SHOW STATUS LIKE 'Ssl_cipher'");
-            $sslStatus = $stmt->fetch();
-            if ($sslStatus && $sslStatus['Value']) {
-                error_log("✓ SSL connection established with cipher: " . $sslStatus['Value']);
-            } else {
-                error_log("⚠ SSL connection may not be active");
+            // Verify SSL
+            $ssl_cipher = mysqli_fetch_assoc(mysqli_query($this->connection, "SHOW STATUS LIKE 'Ssl_cipher'"));
+            if ($ssl_cipher && $ssl_cipher['Value']) {
+                error_log("✓ SSL connection established with cipher: " . $ssl_cipher['Value']);
             }
             
             error_log("✓ Database connection successful!");
             
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             error_log("✗ Database connection failed: " . $e->getMessage());
-            error_log("Connection details - Host: $host, DB: $dbname, User: $user");
             die("Database connection failed. Please check your configuration.");
         }
     }
