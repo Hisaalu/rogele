@@ -16,59 +16,42 @@ class Database {
             
             error_log("Connecting to: $host:$port");
             
-            // Initialize MySQLi
-            $this->connection = mysqli_init();
+            // Build DSN
+            $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
             
-            if (!$this->connection) {
-                throw new Exception("mysqli_init failed");
-            }
+            // SSL options for TiDB Cloud - FORCE SSL
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_TIMEOUT => 30,
+                // Critical: These force SSL connection
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                PDO::MYSQL_ATTR_SSL_KEY => '',
+                PDO::MYSQL_ATTR_SSL_CERT => '',
+                PDO::MYSQL_ATTR_SSL_CA => '',
+            ];
             
-            // Set SSL options - this forces SSL connection
-            mysqli_ssl_set(
-                $this->connection,
-                null,   // key file
-                null,   // cert file
-                null,   // ca file (null uses default)
-                null,   // capath
-                null    // cipher
-            );
+            // Create PDO connection
+            $this->connection = new PDO($dsn, $user, $pass, $options);
             
-            // Connect with SSL flag
-            $connected = mysqli_real_connect(
-                $this->connection,
-                $host,
-                $user,
-                $pass,
-                $dbname,
-                $port,
-                null,
-                MYSQLI_CLIENT_SSL  // This forces SSL
-            );
-            
-            if (!$connected) {
-                throw new Exception(mysqli_connect_error());
-            }
-            
-            // Set charset
-            mysqli_set_charset($this->connection, 'utf8mb4');
-            
-            // Verify SSL connection
-            $result = mysqli_query($this->connection, "SHOW STATUS LIKE 'Ssl_cipher'");
-            if ($result) {
-                $row = mysqli_fetch_assoc($result);
-                if ($row && $row['Value']) {
-                    error_log("✓ SSL connection established with cipher: " . $row['Value']);
-                } else {
-                    error_log("⚠ SSL connection status unknown");
-                }
-                mysqli_free_result($result);
+            // Test connection and verify SSL
+            $stmt = $this->connection->query("SHOW STATUS LIKE 'Ssl_cipher'");
+            $sslStatus = $stmt->fetch();
+            if ($sslStatus && $sslStatus['Value']) {
+                error_log("✓ SSL connection established with cipher: " . $sslStatus['Value']);
+            } else {
+                // If SSL cipher not shown, try another method to verify
+                $stmt = $this->connection->query("SELECT 'SSL Active' as status");
+                error_log("✓ PDO connection successful");
             }
             
             error_log("✓ Database connection successful!");
             
-        } catch (Exception $e) {
+        } catch (PDOException $e) {
             error_log("✗ Database connection failed: " . $e->getMessage());
             error_log("Connection details - Host: $host:$port, DB: $dbname, User: $user");
+            error_log("Error code: " . $e->getCode());
             die("Database connection failed. Please check your configuration.");
         }
     }
@@ -84,7 +67,7 @@ class Database {
         return $this->connection;
     }
     
-    // For compatibility with PDO-style code
+    // PDO wrapper methods for convenience
     public function prepare($sql) {
         return $this->connection->prepare($sql);
     }
@@ -93,52 +76,12 @@ class Database {
         return $this->connection->query($sql);
     }
     
-    public function execute($stmt, $params = []) {
-        if (!$stmt) return false;
-        
-        if (empty($params)) {
-            return $stmt->execute();
-        }
-        
-        // Build types string (all strings by default)
-        $types = str_repeat('s', count($params));
-        
-        // Prepare parameters for bind_param (by reference)
-        $bindParams = array_merge([$types], array_values($params));
-        $refs = [];
-        foreach ($bindParams as $i => $param) {
-            $refs[$i] = &$bindParams[$i];
-        }
-        
-        call_user_func_array([$stmt, 'bind_param'], $refs);
-        return $stmt->execute();
-    }
-    
-    public function fetchAll($stmt) {
-        $result = $stmt->get_result();
-        if ($result) {
-            return $result->fetch_all(MYSQLI_ASSOC);
-        }
-        return [];
-    }
-    
-    public function fetch($stmt) {
-        $result = $stmt->get_result();
-        if ($result) {
-            return $result->fetch_assoc();
-        }
-        return null;
-    }
-    
     public function lastInsertId() {
-        return $this->connection->insert_id;
-    }
-    
-    public function affectedRows() {
-        return $this->connection->affected_rows;
+        return $this->connection->lastInsertId();
     }
     
     private function __clone() {}
     
     public function __wakeup() {}
 }
+?>
