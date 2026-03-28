@@ -10,7 +10,7 @@ RUN --mount=type=bind,source=composer.json,target=composer.json \
 FROM php:8.0.30-apache
 
 #Installing the pdo and pdo_mysql extensions
-RUN docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
 # Enable Apache modules
 RUN a2enmod rewrite
