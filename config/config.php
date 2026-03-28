@@ -2,10 +2,14 @@
 // File: /config/config.php
 
 // Database Configuration - Using environment variables from Render
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_HOST', getenv('DB_HOST') ?: 'production');
 define('DB_NAME', getenv('DB_NAME') ?: 'ROGELEDB');
 define('DB_USER', getenv('DB_USER') ?: 'root');
 define('DB_PASS', getenv('DB_PASSWORD') ?: '');
+
+// TiDB SSL Configuration
+define('DB_SSL_CA', getenv('DB_SSL_CA') ?: '/etc/ssl/certs/tidb-ca.pem');
+define('DB_SSL_VERIFY', getenv('DB_SSL_VERIFY') ?: 'true');
 
 // Application Configuration - Using environment variables
 define('BASE_URL', getenv('APP_URL') ?: 'http://rogele.onrender.com');
@@ -13,14 +17,14 @@ define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
 define('ROOT_PATH', dirname(__DIR__));
 
 // File Upload Configuration
-define('MAX_FILE_SIZE', 10485760); // 10MB
+define('MAX_FILE_SIZE', 10485760); 
 define('ALLOWED_EXTENSIONS', ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'mp4', 'jpg', 'jpeg', 'png']);
 define('UPLOAD_PATH', ROOT_PATH . '/public/uploads/');
 
 // Subscription Plans
-define('FREE_TRIAL_DAYS', 60); // 2 months
+define('FREE_TRIAL_DAYS', 60); 
 define('SUBSCRIPTION_PLANS', [
-    'monthly' => 15000, // UGX
+    'monthly' => 15000, 
     'termly' => 40000,
     'yearly' => 120000
 ]);

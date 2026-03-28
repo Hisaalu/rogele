@@ -8,19 +8,50 @@ class Database {
     
     private function __construct() {
         try {
+            // Prepare SSL options for TiDB Cloud
+            $sslOptions = [];
+            
+            // Check if we're connecting to TiDB Cloud
+            if (strpos(DB_HOST, 'tidbcloud.com') !== false || getenv('TIDB_CLOUD') === 'true') {
+                $sslOptions = [
+                    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => defined('DB_SSL_VERIFY') ? (DB_SSL_VERIFY === 'true') : true,
+                    PDO::MYSQL_ATTR_SSL_CA => defined('DB_SSL_CA') ? DB_SSL_CA : '/etc/ssl/certs/tidb-ca.pem',
+                ];
+                
+                // Required for TiDB Serverless
+                $sslOptions[PDO::MYSQL_ATTR_SSL_KEY] = '';
+                $sslOptions[PDO::MYSQL_ATTR_SSL_CERT] = '';
+                
+                error_log("TiDB Cloud detected - enabling SSL connection");
+            }
+            
+            // Merge default options with SSL options
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false
+            ] + $sslOptions;
+            
             $this->connection = new PDO(
                 "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
                 DB_USER,
                 DB_PASS,
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => false
-                ]
+                $options
             );
+            
+            // Test the connection with a simple query to verify SSL
+            $stmt = $this->connection->query("SHOW STATUS LIKE 'Ssl_cipher'");
+            $sslStatus = $stmt->fetch();
+            if ($sslStatus && $sslStatus['Value']) {
+                error_log("SSL connection established with cipher: " . $sslStatus['Value']);
+            }
+            
         } catch (PDOException $e) {
             // Log error and show user-friendly message
             error_log("Database connection failed: " . $e->getMessage());
+            error_log("DB_HOST: " . DB_HOST);
+            error_log("DB_NAME: " . DB_NAME);
+            error_log("DB_USER: " . DB_USER);
             die("Database connection failed. Please check your configuration.");
         }
     }
