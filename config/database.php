@@ -16,57 +16,60 @@ class Database {
             
             error_log("Connecting to: $host:$port");
             
-            // TiDB Cloud Serverless requires specific DSN format
-            // Use the full hostname exactly as provided by TiDB Cloud
-            $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+            // Initialize MySQLi
+            $this->connection = mysqli_init();
             
-            // SSL options - critical for TiDB Cloud
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_TIMEOUT => 30,  // Increase timeout
-                PDO::ATTR_PERSISTENT => false,
-                // SSL settings - force SSL but don't verify cert for now
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-                PDO::MYSQL_ATTR_SSL_KEY => '',
-                PDO::MYSQL_ATTR_SSL_CERT => '',
-                PDO::MYSQL_ATTR_SSL_CA => '',
-            ];
-            
-            // Create connection with longer timeout
-            $this->connection = new PDO($dsn, $user, $pass, $options);
-            
-            // Test the connection
-            $stmt = $this->connection->query("SELECT 1 as test");
-            $result = $stmt->fetch();
-            
-            if ($result && $result['test'] == 1) {
-                error_log("✓ Database connection successful!");
+            if (!$this->connection) {
+                throw new Exception("mysqli_init failed");
             }
             
-            // Check SSL status
-            $stmt = $this->connection->query("SHOW STATUS LIKE 'Ssl_cipher'");
-            $sslStatus = $stmt->fetch();
-            if ($sslStatus && $sslStatus['Value']) {
-                error_log("✓ SSL connection established with cipher: " . $sslStatus['Value']);
+            // Set SSL options - this forces SSL connection
+            mysqli_ssl_set(
+                $this->connection,
+                null,   // key file
+                null,   // cert file
+                null,   // ca file (null uses default)
+                null,   // capath
+                null    // cipher
+            );
+            
+            // Connect with SSL flag
+            $connected = mysqli_real_connect(
+                $this->connection,
+                $host,
+                $user,
+                $pass,
+                $dbname,
+                $port,
+                null,
+                MYSQLI_CLIENT_SSL  // This forces SSL
+            );
+            
+            if (!$connected) {
+                throw new Exception(mysqli_connect_error());
             }
             
-        } catch (PDOException $e) {
-            $errorCode = $e->getCode();
-            $errorMsg = $e->getMessage();
-            error_log("✗ Database connection failed: Code: $errorCode, Message: $errorMsg");
+            // Set charset
+            mysqli_set_charset($this->connection, 'utf8mb4');
+            
+            // Verify SSL connection
+            $result = mysqli_query($this->connection, "SHOW STATUS LIKE 'Ssl_cipher'");
+            if ($result) {
+                $row = mysqli_fetch_assoc($result);
+                if ($row && $row['Value']) {
+                    error_log("✓ SSL connection established with cipher: " . $row['Value']);
+                } else {
+                    error_log("⚠ SSL connection status unknown");
+                }
+                mysqli_free_result($result);
+            }
+            
+            error_log("✓ Database connection successful!");
+            
+        } catch (Exception $e) {
+            error_log("✗ Database connection failed: " . $e->getMessage());
             error_log("Connection details - Host: $host:$port, DB: $dbname, User: $user");
-            
-            // Provide more helpful error messages
-            if ($errorCode == 2002) {
-                error_log("TIP: Connection timeout - Check if the host and port are correct and the IP is allowlisted");
-            } elseif ($errorCode == 1045) {
-                error_log("TIP: Access denied - Check username and password");
-            } elseif ($errorCode == 1049) {
-                error_log("TIP: Database not found - Check database name");
-            }
-            
-            die("Database connection failed. Please try again later.");
+            die("Database connection failed. Please check your configuration.");
         }
     }
     
@@ -79,6 +82,15 @@ class Database {
     
     public function getConnection() {
         return $this->connection;
+    }
+    
+    // For backward compatibility with PDO-style code
+    public function prepare($sql) {
+        return $this->connection->prepare($sql);
+    }
+    
+    public function query($sql) {
+        return $this->connection->query($sql);
     }
     
     private function __clone() {}
