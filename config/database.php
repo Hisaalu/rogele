@@ -8,13 +8,21 @@ class Database {
     
     private function __construct() {
         try {
+            // Define the port (TiDB Cloud Serverless uses 4000)
+            $port = getenv('DB_PORT') ?: '4000';
+            
+            // Build DSN with port
+            $dsn = "mysql:host=" . DB_HOST . ";port=" . $port . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+            
+            error_log("Connecting to: " . DB_HOST . ":" . $port);
+            
             // Prepare SSL options for TiDB Cloud
             $sslOptions = [];
             
             // Check if we're connecting to TiDB Cloud
             if (strpos(DB_HOST, 'tidbcloud.com') !== false || getenv('TIDB_CLOUD') === 'true') {
                 $sslOptions = [
-                    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => defined('DB_SSL_VERIFY') ? (DB_SSL_VERIFY === 'true') : true,
+                    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => defined('DB_SSL_VERIFY') ? (DB_SSL_VERIFY === 'true') : false,
                     PDO::MYSQL_ATTR_SSL_CA => defined('DB_SSL_CA') ? DB_SSL_CA : '/etc/ssl/certs/tidb-ca.pem',
                 ];
                 
@@ -33,7 +41,7 @@ class Database {
             ] + $sslOptions;
             
             $this->connection = new PDO(
-                "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+                $dsn,
                 DB_USER,
                 DB_PASS,
                 $options
@@ -46,12 +54,12 @@ class Database {
                 error_log("SSL connection established with cipher: " . $sslStatus['Value']);
             }
             
+            error_log("Database connection successful!");
+            
         } catch (PDOException $e) {
             // Log error and show user-friendly message
             error_log("Database connection failed: " . $e->getMessage());
-            error_log("DB_HOST: " . DB_HOST);
-            error_log("DB_NAME: " . DB_NAME);
-            error_log("DB_USER: " . DB_USER);
+            error_log("Connection details - Host: " . DB_HOST . ", DB: " . DB_NAME . ", User: " . DB_USER);
             die("Database connection failed. Please check your configuration.");
         }
     }
@@ -67,10 +75,8 @@ class Database {
         return $this->connection;
     }
     
-    // Prevent cloning of the instance
     private function __clone() {}
     
-    // Prevent unserializing of the instance
     public function __wakeup() {}
 }
 ?>
