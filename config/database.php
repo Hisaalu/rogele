@@ -16,41 +16,38 @@ class Database {
             
             error_log("Connecting to: $host:$port");
             
-            // Create MySQLi connection
-            $this->connection = new mysqli();
+            // Build DSN with port
+            $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
             
-            // Set SSL options
-            $this->connection->ssl_set(null, null, null, null, null);
+            // SSL options for TiDB Cloud - FORCE SSL
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_TIMEOUT => 30,
+                // Critical: These force SSL connection
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                PDO::MYSQL_ATTR_SSL_KEY => '',
+                PDO::MYSQL_ATTR_SSL_CERT => '',
+                PDO::MYSQL_ATTR_SSL_CA => '',
+            ];
             
-            // Connect with SSL
-            $this->connection->real_connect(
-                $host,
-                $user,
-                $pass,
-                $dbname,
-                $port,
-                null,
-                MYSQLI_CLIENT_SSL
-            );
+            // Create PDO connection
+            $this->connection = new PDO($dsn, $user, $pass, $options);
             
-            if ($this->connection->connect_errno) {
-                throw new Exception($this->connection->connect_error);
-            }
-            
-            // Set charset
-            $this->connection->set_charset('utf8mb4');
-            
-            // Verify SSL
-            $result = $this->connection->query("SHOW STATUS LIKE 'Ssl_cipher'");
-            if ($result && $row = $result->fetch_assoc()) {
-                error_log("✓ SSL connection established with cipher: " . $row['Value']);
-                $result->free();
+            // Test connection and verify SSL
+            $stmt = $this->connection->query("SHOW STATUS LIKE 'Ssl_cipher'");
+            $sslStatus = $stmt->fetch();
+            if ($sslStatus && $sslStatus['Value']) {
+                error_log("✓ SSL connection established with cipher: " . $sslStatus['Value']);
             }
             
             error_log("✓ Database connection successful!");
             
-        } catch (Exception $e) {
+        } catch (PDOException $e) {
             error_log("✗ Database connection failed: " . $e->getMessage());
+            error_log("Connection details - Host: $host:$port, DB: $dbname, User: $user");
+            error_log("Error code: " . $e->getCode());
             die("Database connection failed. Please check your configuration.");
         }
     }
@@ -66,117 +63,21 @@ class Database {
         return $this->connection;
     }
     
-    // PDO-compatible wrapper methods
+    // PDO wrapper methods for convenience
     public function prepare($sql) {
-        $stmt = $this->connection->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
-        return new MySQLiStatementWrapper($stmt);
+        return $this->connection->prepare($sql);
     }
     
     public function query($sql) {
-        $result = $this->connection->query($sql);
-        if ($result === false) {
-            return false;
-        }
-        return new MySQLiResultWrapper($result);
+        return $this->connection->query($sql);
     }
     
     public function lastInsertId() {
-        return $this->connection->insert_id;
+        return $this->connection->lastInsertId();
     }
     
     private function __clone() {}
+    
     public function __wakeup() {}
-}
-
-/**
- * PDO-compatible wrapper for MySQLi statements
- */
-class MySQLiStatementWrapper {
-    private $stmt;
-    private $params = [];
-    private $paramTypes = '';
-    
-    public function __construct($stmt) {
-        $this->stmt = $stmt;
-    }
-    
-    public function bindValue($param, $value, $type = null) {
-        $param = ltrim($param, ':');
-        $this->params[$param] = $value;
-        $this->paramTypes .= 's';
-        return true;
-    }
-    
-    public function execute($params = null) {
-        if ($params !== null) {
-            $this->params = [];
-            $this->paramTypes = '';
-            foreach ($params as $key => $value) {
-                $this->params[$key] = $value;
-                $this->paramTypes .= 's';
-            }
-        }
-        
-        if (!empty($this->params)) {
-            $bindParams = [];
-            $bindParams[] = &$this->paramTypes;
-            foreach ($this->params as &$value) {
-                $bindParams[] = &$value;
-            }
-            call_user_func_array([$this->stmt, 'bind_param'], $bindParams);
-        }
-        
-        return $this->stmt->execute();
-    }
-    
-    public function fetch($mode = null) {
-        $result = $this->stmt->get_result();
-        if (!$result) {
-            return false;
-        }
-        return $result->fetch_assoc();
-    }
-    
-    public function fetchAll($mode = null) {
-        $result = $this->stmt->get_result();
-        if (!$result) {
-            return [];
-        }
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-    
-    public function rowCount() {
-        return $this->stmt->affected_rows;
-    }
-    
-    public function close() {
-        $this->stmt->close();
-    }
-}
-
-/**
- * PDO-compatible wrapper for MySQLi results
- */
-class MySQLiResultWrapper {
-    private $result;
-    
-    public function __construct($result) {
-        $this->result = $result;
-    }
-    
-    public function fetch($mode = null) {
-        return $this->result->fetch_assoc();
-    }
-    
-    public function fetchAll($mode = null) {
-        return $this->result->fetch_all(MYSQLI_ASSOC);
-    }
-    
-    public function rowCount() {
-        return $this->result->num_rows;
-    }
 }
 ?>
