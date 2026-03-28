@@ -7,16 +7,35 @@ echo "<h2>Network Connectivity Test</h2>";
 $host = getenv('DB_HOST') ?: 'gateway01.eu-central-1.prod.aws.tidbcloud.com';
 $port = getenv('DB_PORT') ?: '4000';
 $user = getenv('DB_USER') ?: '2VcYykLWVZacLnw.root';
-$pass = getenv('DB_PASSWORD') ?: '';
+$pass = getenv('DB_PASS') ?: '';
 
 echo "<p><strong>Testing connection to:</strong> $host:$port</p>";
+echo "<p><strong>User:</strong> $user</p>";
+echo "<p><strong>Password:</strong> " . (!empty($pass) ? "✓ SET (length: " . strlen($pass) . ")" : "✗ NOT SET") . "</p>";
 
-// Test 1: DNS Resolution
+// Also check $_ENV
+$pass_env = $_ENV['DB_PASS'] ?? '';
+echo "<p><strong>Password from \$_ENV:</strong> " . (!empty($pass_env) ? "✓ SET" : "✗ NOT SET") . "</p>";
+
+// List all environment variables (without sensitive values)
+echo "<h3>Environment Variables:</h3><ul>";
+foreach ($_SERVER as $key => $value) {
+    if (strpos($key, 'DB_') === 0) {
+        if (strpos($key, 'PASSWORD') === false) {
+            echo "<li>$key = $value</li>";
+        } else {
+            echo "<li>$key = [SET]</li>";
+        }
+    }
+}
+echo "</ul>";
+
+// Test DNS
 echo "<h3>1. DNS Lookup:</h3>";
 $ip = gethostbyname($host);
 echo "<p>Resolved to: $ip</p>";
 
-// Test 2: Socket Connection
+// Test Socket
 echo "<h3>2. Socket Test:</h3>";
 $timeout = 10;
 $fp = @fsockopen($host, $port, $errno, $errstr, $timeout);
@@ -27,38 +46,29 @@ if ($fp) {
     echo "<p style='color:red'>✗ Socket failed: $errstr ($errno)</p>";
 }
 
-// Test 3: MySQLi Connection
+// Test MySQLi Connection WITH PASSWORD
 echo "<h3>3. MySQLi Connection Test:</h3>";
 $conn = new mysqli();
 $conn->ssl_set(null, null, null, null, null);
-$conn->real_connect($host, $user, $pass, null, $port, null, MYSQLI_CLIENT_SSL);
 
-if ($conn->connect_errno) {
-    echo "<p style='color:red'>✗ MySQLi connection failed: " . $conn->connect_error . " (Error code: " . $conn->connect_errno . ")</p>";
+// Make sure we're using the password
+if (empty($pass)) {
+    echo "<p style='color:red'>✗ Password is empty! Please set DB_PASS in Render environment variables.</p>";
 } else {
-    echo "<p style='color:green'>✓ MySQLi connection successful!</p>";
-    $result = $conn->query("SHOW STATUS LIKE 'Ssl_cipher'");
-    if ($result && $row = $result->fetch_assoc()) {
-        echo "<p>SSL Cipher: " . $row['Value'] . "</p>";
+    @$conn->real_connect($host, $user, $pass, null, $port, null, MYSQLI_CLIENT_SSL);
+    
+    if ($conn->connect_errno) {
+        echo "<p style='color:red'>✗ MySQLi connection failed: " . $conn->connect_error . " (Error code: " . $conn->connect_errno . ")</p>";
+        if ($conn->connect_errno == 1045) {
+            echo "<p>This means the username or password is incorrect.</p>";
+        }
+    } else {
+        echo "<p style='color:green'>✓ MySQLi connection successful!</p>";
+        $result = $conn->query("SHOW STATUS LIKE 'Ssl_cipher'");
+        if ($result && $row = $result->fetch_assoc()) {
+            echo "<p>SSL Cipher: " . $row['Value'] . "</p>";
+        }
+        $conn->close();
     }
-    $conn->close();
-}
-
-// Test 4: Check if database exists
-echo "<h3>4. Database Check:</h3>";
-$conn = new mysqli();
-$conn->ssl_set(null, null, null, null, null);
-$conn->real_connect($host, $user, $pass, null, $port, null, MYSQLI_CLIENT_SSL);
-
-if (!$conn->connect_errno) {
-    $result = $conn->query("SHOW DATABASES");
-    echo "<p>Available databases:</p><ul>";
-    while ($row = $result->fetch_assoc()) {
-        echo "<li>" . $row['Database'] . "</li>";
-    }
-    echo "</ul>";
-    $conn->close();
-} else {
-    echo "<p style='color:red'>Cannot check databases - connection failed</p>";
 }
 ?>
