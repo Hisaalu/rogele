@@ -8,11 +8,6 @@ define('DB_NAME', getenv('DB_NAME') ?: 'ROGELEDB');
 define('DB_USER', getenv('DB_USER') ?: '2VcYykLWVZacLnw.root');
 define('DB_PASS', getenv('DB_PASS') ?: '');
 
-if (getenv('RENDER')) {
-    $hasPassword = !empty(DB_PASS);
-    error_log("Database password is " . ($hasPassword ? "SET" : "NOT SET"));
-}
-
 // Application Configuration
 define('BASE_URL', getenv('APP_URL') ?: 'https://rogele.onrender.com');
 define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');

@@ -84,7 +84,7 @@ class Database {
         return $this->connection;
     }
     
-    // For backward compatibility with PDO-style code
+    // For compatibility with PDO-style code
     public function prepare($sql) {
         return $this->connection->prepare($sql);
     }
@@ -93,8 +93,52 @@ class Database {
         return $this->connection->query($sql);
     }
     
+    public function execute($stmt, $params = []) {
+        if (!$stmt) return false;
+        
+        if (empty($params)) {
+            return $stmt->execute();
+        }
+        
+        // Build types string (all strings by default)
+        $types = str_repeat('s', count($params));
+        
+        // Prepare parameters for bind_param (by reference)
+        $bindParams = array_merge([$types], array_values($params));
+        $refs = [];
+        foreach ($bindParams as $i => $param) {
+            $refs[$i] = &$bindParams[$i];
+        }
+        
+        call_user_func_array([$stmt, 'bind_param'], $refs);
+        return $stmt->execute();
+    }
+    
+    public function fetchAll($stmt) {
+        $result = $stmt->get_result();
+        if ($result) {
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+        return [];
+    }
+    
+    public function fetch($stmt) {
+        $result = $stmt->get_result();
+        if ($result) {
+            return $result->fetch_assoc();
+        }
+        return null;
+    }
+    
+    public function lastInsertId() {
+        return $this->connection->insert_id;
+    }
+    
+    public function affectedRows() {
+        return $this->connection->affected_rows;
+    }
+    
     private function __clone() {}
     
     public function __wakeup() {}
 }
-?>
