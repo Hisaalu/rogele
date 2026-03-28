@@ -6,7 +6,12 @@ define('DB_HOST', getenv('DB_HOST') ?: 'gateway01.eu-central-1.prod.aws.tidbclou
 define('DB_PORT', getenv('DB_PORT') ?: '4000');
 define('DB_NAME', getenv('DB_NAME') ?: 'ROGELEDB');
 define('DB_USER', getenv('DB_USER') ?: '2VcYykLWVZacLnw.root');
-define('DB_PASS', getenv('DB_PASSWORD') ?: '');
+define('DB_PASS', getenv('DB_PASS') ?: '');
+
+if (getenv('RENDER')) {
+    $hasPassword = !empty(DB_PASS);
+    error_log("Database password is " . ($hasPassword ? "SET" : "NOT SET"));
+}
 
 // Application Configuration
 define('BASE_URL', getenv('APP_URL') ?: 'https://rogele.onrender.com');
