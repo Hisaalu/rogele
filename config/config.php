@@ -4,7 +4,7 @@
 // Database Configuration - Using environment variables from Render
 define('DB_HOST', getenv('DB_HOST') ?: 'production');
 define('DB_NAME', getenv('DB_NAME') ?: 'ROGELEDB');
-define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_USER', getenv('DB_USER') ?: '2VcYykLWVZacLnw.root');
 define('DB_PASS', getenv('DB_PASSWORD') ?: '');
 define('DB_PORT', getenv('DB_PORT') ?: '4000');
 
