@@ -461,7 +461,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .form-card {
         background: #1E293B;
     }
@@ -495,7 +495,7 @@ require_once __DIR__ . '/../layouts/header.php';
         background: #334155;
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

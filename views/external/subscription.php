@@ -897,7 +897,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .pricing-card {
         background: #f06724;
     }
@@ -979,7 +979,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         background: #334155;
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

@@ -508,7 +508,7 @@ $search = $_GET['search'] ?? '';
 }
 
 /* Dark mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .role-badge.learner {
         background: #1E3A5F;
         color: #93C5FD;
@@ -518,7 +518,7 @@ $search = $_GET['search'] ?? '';
         background: #2D3A4F;
         color: #94A3B8;
     }
-}
+} */
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -539,7 +539,7 @@ $search = $_GET['search'] ?? '';
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .filters-section,
     .student-card,
     .empty-state {
@@ -570,7 +570,7 @@ $search = $_GET['search'] ?? '';
         background: #334155;
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

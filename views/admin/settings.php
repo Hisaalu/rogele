@@ -1327,7 +1327,7 @@ input:checked + .toggle-slider:before {
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .settings-card {
         background: #1E293B;
     }
@@ -1393,7 +1393,7 @@ input:checked + .toggle-slider:before {
     .danger-item {
         background: #1E293B;
     }
-}
+} */
 </style>
 
 <script>

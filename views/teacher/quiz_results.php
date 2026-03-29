@@ -514,7 +514,7 @@ $stats = $stats ?? [];
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .stat-card,
     .chart-card,
     .results-card {
@@ -560,7 +560,7 @@ $stats = $stats ?? [];
     .btn-icon:hover {
         background: #334155;
     }
-}
+} */
 </style>
 
 <!-- Chart.js -->

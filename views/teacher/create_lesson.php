@@ -558,7 +558,7 @@ $classes = $classes ?? [];
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .form-card {
         background: black;
     }
@@ -605,7 +605,7 @@ $classes = $classes ?? [];
         background: #334155;
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

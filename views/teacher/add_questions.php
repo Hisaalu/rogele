@@ -457,7 +457,7 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .form-card {
         background: #1E293B;
     }
@@ -503,7 +503,7 @@ $quizId = $quiz['id'] ?? 0;
         background: #f06724;
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

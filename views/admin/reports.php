@@ -1605,7 +1605,7 @@ body {
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     body {
         background: #0F172A;
     }
@@ -1688,7 +1688,7 @@ body {
     .empty-state {
         background: #334155;
     }
-}
+} */
 </style>
 
 <script>

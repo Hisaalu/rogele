@@ -663,7 +663,7 @@ $profile = $profile ?? [];
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .profile-card {
         background: black;
     }
@@ -706,7 +706,7 @@ $profile = $profile ?? [];
         background: #475569;
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

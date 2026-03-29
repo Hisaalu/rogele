@@ -830,7 +830,7 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .info-card,
     .payment-history-card,
     .user-history-card {
@@ -859,7 +859,7 @@ $paymentHistory = $paymentHistory ?? [];
     .history-table tr:hover td {
         background: #334155;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>

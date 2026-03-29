@@ -772,7 +772,7 @@ window.addEventListener('resize', function() {
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .stat-card,
     .chart-card,
     .performance-section,
@@ -814,7 +814,7 @@ window.addEventListener('resize', function() {
         border-color: #334155;
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

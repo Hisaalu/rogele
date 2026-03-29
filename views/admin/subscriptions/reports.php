@@ -671,7 +671,7 @@ function ucfirst(string) {
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .stat-card,
     .chart-card,
     .expiring-section,
@@ -710,7 +710,7 @@ function ucfirst(string) {
     .stat-value {
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
