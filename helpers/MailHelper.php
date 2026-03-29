@@ -15,20 +15,18 @@ class MailHelper {
         // Server settings - Using your exact configuration
         $this->mail->SMTPDebug = SMTP::DEBUG_OFF;
         $this->mail->isSMTP();
-        $this->mail->Host       = MAIL_HOST;
+        $this->mail->Host       = 'mail.privateemail.com';
         $this->mail->SMTPAuth   = true;
-        $this->mail->Username   = MAIL_USERNAME;
+        $this->mail->Username   = 'info@raysofgrace.ac.ug';
         $this->mail->Password   = MAIL_PASSWORD;
-        $this->mail->SMTPSecure = MAIL_ENCRYPTION == 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mail->Port       = MAIL_PORT;
-        $this->mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
-        $this->mail->addReplyTo(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
+        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $this->mail->Port       = 587;
+        $this->mail->setFrom('info@raysofgrace.ac.ug', 'ROGELE');
+        $this->mail->addReplyTo('info@raysofgrace.ac.ug', 'ROGELE');
         $this->mail->CharSet = 'UTF-8';
         $this->mail->Timeout = 30;
         
-        error_log("MailHelper initialized with host: " . MAIL_HOST);
-        error_log("Mail username: " . MAIL_USERNAME);
-        error_log("Mail password: " . (MAIL_PASSWORD ? "SET" : "NOT SET"));
+        error_log("MailHelper initialized");
     }
     
     /**
