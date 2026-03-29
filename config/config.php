@@ -1,16 +1,50 @@
 <?php
 // File: /config/config.php
+/**
+ * Simple .env Loader
+ * Reads the .env file and puts variables into getenv()
+ */
+$env = [];
+$envPath = __DIR__ . '/../.env';
 
-// Database Configuration - Using environment variables from Render
-define('DB_HOST', getenv('DB_HOST') ?: 'gateway01.eu-central-1.prod.aws.tidbcloud.com');
-define('DB_PORT', getenv('DB_PORT') ?: '4000'); 
-define('DB_NAME', getenv('DB_NAME') ?: 'ROGELEDB');
-define('DB_USER', getenv('DB_USER') ?: '2VcYykLWVZacLnw.root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+if (file_exists($envPath)) {
+    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $env[trim($name)] = trim($value);
+        }
+    }
+}
 
-// Application Configuration - Using environment variables
-define('BASE_URL', getenv('APP_URL') ?: 'https://rogele.onrender.com');
-define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
+// Database Configuration
+if (getenv('RENDER')) {
+    // PRODUCTION (Render)
+    define('DB_HOST', getenv('DB_HOST'));
+    define('DB_PORT', getenv('DB_PORT') ?: '4000');
+    define('DB_NAME', getenv('DB_NAME'));
+    define('DB_USER', getenv('DB_USER'));
+    define('DB_PASS', getenv('DB_PASS'));
+} else {
+    // LOCAL SETTINGS (XAMPP - using your .env loader)
+    define('DB_HOST', $env['DB_HOST'] ?? 'gateway01.eu-central-1.prod.aws.tidbcloud.com');
+    define('DB_PORT', $env['DB_PORT'] ?? '4000'); 
+    define('DB_NAME', $env['DB_NAME'] ?? 'ROGELEDB');
+    define('DB_USER', $env['DB_USER'] ?? '2VcYykLWVZacLnw.root');
+    define('DB_PASS', $env['DB_PASS'] ?? ''); 
+}
+
+//Application Configuration
+if (getenv('RENDER')) {
+    define('BASE_URL', getenv('APP_URL') ?: 'https://rogele.onrender.com');
+    define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
+} else {
+    define('BASE_URL', $env['APP_URL'] ?? 'http://localhost/rogele-prod');
+    define('SITE_NAME', $env['APP_NAME'] ?? 'ROGELE');
+}
+
+// Define ROOT_PATH once for both environments
 define('ROOT_PATH', dirname(__DIR__));
 
 // File Upload Configuration
@@ -28,7 +62,7 @@ define('SUBSCRIPTION_PLANS', [
 
 // Error Reporting - Production settings
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', ROOT_PATH . '/logs/error.log');
 
