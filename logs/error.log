@@ -259,3 +259,21 @@ Stack trace:
 [29-Mar-2026 22:18:47 Africa/Kampala] hasCompletedQuiz - User: 25, Quiz: 30, Count: 2
 [29-Mar-2026 22:18:49 Africa/Kampala] hasCompletedQuiz - User: 25, Quiz: 32, Count: 1
 [29-Mar-2026 22:18:52 Africa/Kampala] === getAllQuizzes END - Returning 5 quizzes ===
+[29-Mar-2026 22:42:28 Africa/Kampala] MailHelper initialized
+[29-Mar-2026 22:42:45 Africa/Kampala] MailHelper initialized
+[29-Mar-2026 22:42:52 Africa/Kampala] MailHelper initialized
+[29-Mar-2026 22:42:56 Africa/Kampala] MailHelper initialized
+[29-Mar-2026 22:43:11 Africa/Kampala] MailHelper initialized
+[29-Mar-2026 22:43:11 Africa/Kampala] === PROCESS FORGOT PASSWORD START ===
+[29-Mar-2026 22:43:11 Africa/Kampala] Email submitted: nelson.hisaalu@gmail.com
+[29-Mar-2026 22:43:11 Africa/Kampala] User found: YES
+[29-Mar-2026 22:43:11 Africa/Kampala] Token generated: 198e9a7d955558caec14014b5308a676805e7eb6162626a964db7ff19a108f30
+[29-Mar-2026 22:43:11 Africa/Kampala] === SAVE RESET TOKEN ===
+[29-Mar-2026 22:43:11 Africa/Kampala] User ID: 25
+[29-Mar-2026 22:43:11 Africa/Kampala] Token: 198e9a7d955558caec14014b5308a676805e7eb6162626a964db7ff19a108f30
+[29-Mar-2026 22:43:11 Africa/Kampala] Expires: 2026-03-29 23:03:11
+[29-Mar-2026 22:43:12 Africa/Kampala] Deleted existing tokens for user: 25
+[29-Mar-2026 22:43:12 Africa/Kampala] Save reset token error: SQLSTATE[HY000]: General error: 1364 Field 'id' doesn't have a default value
+[29-Mar-2026 22:43:12 Africa/Kampala] Token saved: NO
+[29-Mar-2026 22:43:12 Africa/Kampala] Failed to save reset token
+[29-Mar-2026 22:43:14 Africa/Kampala] MailHelper initialized
