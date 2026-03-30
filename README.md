@@ -42,5 +42,5 @@ ROGELE (Rays of Grace E-Learning) is a comprehensive Learning Management System 
 - PHP 8.1 or higher
 - MySQL 8.0 or higher
 - Composer
-- Node.js (for asset compilation, optional)
-- Web server (Apache/Nginx) or Docker
+- .env for storing your environmental variables
+- Web server (Apache) and Docker for render deployment
