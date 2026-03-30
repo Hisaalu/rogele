@@ -715,7 +715,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .stat-card,
     .action-card,
     .performance-card,
@@ -754,7 +754,7 @@ $classPerformance = $classPerformance ?? [
     .empty-state i {
         color: #475569;
     }
-}
+} */
 </style>
 
 <!-- Chart.js -->

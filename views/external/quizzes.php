@@ -739,7 +739,7 @@ if (!empty($quizzes)) {
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .quiz-card {
         background: #1E293B;
     }
@@ -782,7 +782,7 @@ if (!empty($quizzes)) {
         background: #8B5CF6;
         color: white;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -589,7 +589,7 @@ $recentActivity = $recentActivity ?? [];
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .stat-card,
     .action-card,
     .dashboard-card,
@@ -612,7 +612,7 @@ $recentActivity = $recentActivity ?? [];
     .activity-item {
         border-bottom-color: #334155;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

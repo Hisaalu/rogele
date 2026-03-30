@@ -693,7 +693,7 @@ input:checked + .slider:before {
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .settings-card {
         background: black;
     }
@@ -744,7 +744,7 @@ input:checked + .slider:before {
     .tab:hover {
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

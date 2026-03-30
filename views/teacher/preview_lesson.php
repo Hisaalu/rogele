@@ -282,7 +282,7 @@ function getYoutubeId($url) {
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .lesson-preview-card {
         background: black;
     }
@@ -304,7 +304,7 @@ function getYoutubeId($url) {
     .material-item:hover {
         background: #475569;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

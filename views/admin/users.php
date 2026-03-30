@@ -672,7 +672,7 @@ $search = $_GET['search'] ?? '';
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .filters-card,
     .table-card {
         background: #1E293B;
@@ -709,7 +709,7 @@ $search = $_GET['search'] ?? '';
         background: #334155;
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

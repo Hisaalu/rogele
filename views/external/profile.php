@@ -613,7 +613,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .profile-card {
         background: #1E293B;
     }
@@ -658,7 +658,7 @@ require_once __DIR__ . '/../layouts/header.php';
     .btn-cancel:hover {
         background: #475569;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -340,7 +340,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .purchase-card {
         background: #1E293B;
     }
@@ -371,7 +371,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
         border-color: #2563EB;
         color: #93C5FD;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

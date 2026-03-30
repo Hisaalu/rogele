@@ -596,7 +596,7 @@ $search = $_GET['search'] ?? '';
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .quiz-card {
         background: #1E293B;
         border-color: #334155;
@@ -627,7 +627,7 @@ $search = $_GET['search'] ?? '';
     .page-link:hover {
         background: #334155;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

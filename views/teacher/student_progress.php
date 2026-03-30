@@ -426,7 +426,7 @@ $lessonProgress = $lessonProgress ?? [];
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .student-info-card,
     .section-card {
         background: #1E293B;
@@ -478,7 +478,7 @@ $lessonProgress = $lessonProgress ?? [];
         background: #334155;
         color: #94A3B8;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -847,7 +847,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .form-card,
     .questions-section {
         background: black;
@@ -896,7 +896,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
     .empty-questions h3 {
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

@@ -486,7 +486,7 @@ $subjects = $subjects ?? [];
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .form-card {
         background: #black;
     }
@@ -527,7 +527,7 @@ $subjects = $subjects ?? [];
         color: #90CDF4;
         border-color: #2B6CB0;
     }
-}
+} */
 </style>
 
 <script>

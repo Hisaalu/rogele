@@ -598,7 +598,7 @@ if (!isset($user) || empty($user)) {
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .form-card {
         background: #1E293B;
     }
@@ -636,7 +636,7 @@ if (!isset($user) || empty($user)) {
     .danger-item {
         background: #1E293B;
     }
-}
+} */
 </style>
 
 <script>

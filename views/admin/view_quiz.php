@@ -398,7 +398,7 @@ $questions = $quiz['questions'] ?? [];
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .quiz-card {
         background: #1E293B;
     }
@@ -436,7 +436,7 @@ $questions = $quiz['questions'] ?? [];
         background: #334155;
         color: #94A3B8;
     }
-}
+} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
