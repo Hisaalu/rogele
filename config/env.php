@@ -4,7 +4,7 @@
 // These will be populated by Render's environment variables
 define('APP_NAME', getenv('APP_NAME') ?: 'ROGELE');
 define('APP_ENV', getenv('APP_ENV') ?: 'production');
-define('APP_URL', getenv('APP_URL') ?: 'http://rogele.onrender.com');
+define('APP_URL', getenv('APP_URL') ?: 'http://rogele.raysofgrace.ac.ug');
 
 // Mail configuration constants
 define('MAIL_HOST', getenv('MAIL_HOST') ?: 'mail.privateemail.com');

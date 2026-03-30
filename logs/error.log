@@ -277,3 +277,411 @@ Stack trace:
 [29-Mar-2026 22:43:12 Africa/Kampala] Token saved: NO
 [29-Mar-2026 22:43:12 Africa/Kampala] Failed to save reset token
 [29-Mar-2026 22:43:14 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 16:42:13 Africa/Kampala] Database connection failed: SQLSTATE[HY000] [2002] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+[30-Mar-2026 16:42:13 Africa/Kampala] Target DSN: mysql:host=gateway01.eu-central-1.prod.aws.tidbcloud.com;port=4000;dbname=ROGELEDB
+[30-Mar-2026 16:42:13 Africa/Kampala] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond in C:\xampp\htdocs\rogele-prod\config\database.php:37
+Stack trace:
+#0 C:\xampp\htdocs\rogele-prod\config\database.php(37): PDO->__construct('mysql:host=gate...', '2VcYykLWVZacLnw...', 'AsaszC528Im6Q13...', Array)
+#1 C:\xampp\htdocs\rogele-prod\config\database.php(49): Database->__construct()
+#2 C:\xampp\htdocs\rogele-prod\models\User.php(10): Database::getInstance()
+#3 C:\xampp\htdocs\rogele-prod\controllers\AuthController.php(11): User->__construct()
+#4 C:\xampp\htdocs\rogele-prod\index.php(189): AuthController->__construct()
+#5 {main}
+  thrown in C:\xampp\htdocs\rogele-prod\config\database.php on line 37
+[30-Mar-2026 16:42:34 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 16:42:42 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 16:42:42 Africa/Kampala] Login POST request received
+[30-Mar-2026 16:42:42 Africa/Kampala] Username: nelson.hisaalu@gmail.com
+[30-Mar-2026 16:42:42 Africa/Kampala] Password length: 10
+[30-Mar-2026 16:42:42 Africa/Kampala] Login attempt for username: nelson.hisaalu@gmail.com
+[30-Mar-2026 16:42:43 Africa/Kampala] Password verification failed for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 16:42:43 Africa/Kampala] Login result: FAILED
+[30-Mar-2026 16:42:43 Africa/Kampala] Error message: Invalid password
+[30-Mar-2026 16:42:45 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 16:42:58 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 16:42:58 Africa/Kampala] Login POST request received
+[30-Mar-2026 16:42:58 Africa/Kampala] Username: nelson.hisaalu@gmail.com
+[30-Mar-2026 16:42:58 Africa/Kampala] Password length: 10
+[30-Mar-2026 16:42:58 Africa/Kampala] Login attempt for username: nelson.hisaalu@gmail.com
+[30-Mar-2026 16:43:07 Africa/Kampala] Activity log error: SQLSTATE[HY000]: General error: 1364 Field 'id' doesn't have a default value
+[30-Mar-2026 16:43:07 Africa/Kampala] Login result: SUCCESS
+[30-Mar-2026 16:43:07 Africa/Kampala] Session set for user ID: 25
+[30-Mar-2026 16:43:27 Africa/Kampala] Database connection failed: SQLSTATE[HY000] [2002] 
+[30-Mar-2026 16:43:27 Africa/Kampala] Target DSN: mysql:host=gateway01.eu-central-1.prod.aws.tidbcloud.com;port=4000;dbname=ROGELEDB
+[30-Mar-2026 16:43:27 Africa/Kampala] PHP Fatal error:  Uncaught PDOException: PDO::__construct(): SSL: Handshake timed out in C:\xampp\htdocs\rogele-prod\config\database.php:37
+Stack trace:
+#0 C:\xampp\htdocs\rogele-prod\config\database.php(37): PDO->__construct('mysql:host=gate...', '2VcYykLWVZacLnw...', 'AsaszC528Im6Q13...', Array)
+#1 C:\xampp\htdocs\rogele-prod\config\database.php(49): Database->__construct()
+#2 C:\xampp\htdocs\rogele-prod\models\Subscription.php(10): Database::getInstance()
+#3 C:\xampp\htdocs\rogele-prod\controllers\ExternalController.php(34): Subscription->__construct()
+#4 C:\xampp\htdocs\rogele-prod\index.php(189): ExternalController->__construct()
+#5 {main}
+
+Next PDOException: SQLSTATE[HY000] [2002]  in C:\xampp\htdocs\rogele-prod\config\database.php:37
+Stack trace:
+#0 C:\xampp\htdocs\rogele-prod\config\database.php(37): PDO->__construct('mysql:host=gate...', '2VcYykLWVZacLnw...', 'AsaszC528Im6Q13...', Array)
+#1 C:\xampp\htdocs\rogele-prod\config\database.php(49): Database->__construct()
+#2 C:\xampp\htdocs\rogele-prod\models\Subscription.php(10): Database::getInstance()
+#3 C:\xampp\htdocs\rogele-prod\controllers\ExternalController.php(34): Subscription->__construct()
+#4 C:\xampp\htdocs\rogele-prod\index.php(189): ExternalController->__construct()
+#5 {main}
+  thrown in C:\xampp\htdocs\rogele-prod\config\database.php on line 37
+[30-Mar-2026 16:43:42 Africa/Kampala] === getAllQuizzes START ===
+[30-Mar-2026 16:43:43 Africa/Kampala] SIMPLE QUERY (no filters):
+[30-Mar-2026 16:43:43 Africa/Kampala]   ID: 27 - Mathematics 001
+[30-Mar-2026 16:43:43 Africa/Kampala]   ID: 28 - Science Quizz 001
+[30-Mar-2026 16:43:43 Africa/Kampala]   ID: 29 - English Quiz 001
+[30-Mar-2026 16:43:43 Africa/Kampala]   ID: 30 - Social Studies 001
+[30-Mar-2026 16:43:43 Africa/Kampala]   ID: 32 - Computer Studies 001
+[30-Mar-2026 16:43:43 Africa/Kampala] EXECUTING SQL: SELECT DISTINCT q.id, q.*, 
+                            (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
+                            (SELECT name FROM subjects WHERE id = q.subject_id) as subject_name,
+                            (SELECT name FROM classes WHERE id = q.class_id) as class_name
+                        FROM quizzes q
+                        WHERE q.is_published = 1 
+                        AND (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) > 0
+                        GROUP BY q.id
+                        ORDER BY q.id ASC
+[30-Mar-2026 16:43:45 Africa/Kampala] SQL RESULT COUNT: 5
+[30-Mar-2026 16:43:45 Africa/Kampala]   SQL Result: ID=27, Title=Mathematics 001, QCount=5
+[30-Mar-2026 16:43:45 Africa/Kampala]   SQL Result: ID=28, Title=Science Quizz 001, QCount=5
+[30-Mar-2026 16:43:45 Africa/Kampala]   SQL Result: ID=29, Title=English Quiz 001, QCount=5
+[30-Mar-2026 16:43:45 Africa/Kampala]   SQL Result: ID=30, Title=Social Studies 001, QCount=5
+[30-Mar-2026 16:43:45 Africa/Kampala]   SQL Result: ID=32, Title=Computer Studies 001, QCount=10
+[30-Mar-2026 16:43:45 Africa/Kampala]   >>> QUIZ 30 FOUND in SQL result!
+[30-Mar-2026 16:43:46 Africa/Kampala] hasCompletedQuiz - User: 25, Quiz: 27, Count: 1
+[30-Mar-2026 16:43:52 Africa/Kampala] hasCompletedQuiz - User: 25, Quiz: 28, Count: 1
+[30-Mar-2026 16:43:57 Africa/Kampala] hasCompletedQuiz - User: 25, Quiz: 29, Count: 2
+[30-Mar-2026 16:44:05 Africa/Kampala] hasCompletedQuiz - User: 25, Quiz: 30, Count: 2
+[30-Mar-2026 16:44:12 Africa/Kampala] hasCompletedQuiz - User: 25, Quiz: 32, Count: 1
+[30-Mar-2026 16:44:21 Africa/Kampala] === getAllQuizzes END - Returning 5 quizzes ===
+[30-Mar-2026 16:47:14 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 16:47:20 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 16:47:27 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 16:47:52 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 16:47:52 Africa/Kampala] === PROCESS FORGOT PASSWORD START ===
+[30-Mar-2026 16:47:52 Africa/Kampala] Email submitted: nelson.hisaalu@gmail.com
+[30-Mar-2026 16:47:52 Africa/Kampala] User found: YES
+[30-Mar-2026 16:47:52 Africa/Kampala] Token generated: b2c496031a9eae0cd201e7ec6b2725a535a986464185f8e37c8826c2690ec660
+[30-Mar-2026 16:47:52 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 16:47:52 Africa/Kampala] User ID: 25
+[30-Mar-2026 16:47:53 Africa/Kampala] Token: b2c496031a9eae0cd201e7ec6b2725a535a986464185f8e37c8826c2690ec660
+[30-Mar-2026 16:47:53 Africa/Kampala] Expires: 2026-03-30 17:07:52
+[30-Mar-2026 16:47:54 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 16:47:55 Africa/Kampala] Save reset token error: SQLSTATE[HY000]: General error: 1364 Field 'id' doesn't have a default value
+[30-Mar-2026 16:47:55 Africa/Kampala] Token saved: NO
+[30-Mar-2026 16:47:55 Africa/Kampala] Failed to save reset token
+[30-Mar-2026 16:47:57 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:20:41 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:20:41 Africa/Kampala] === PROCESS FORGOT PASSWORD START ===
+[30-Mar-2026 18:20:41 Africa/Kampala] Email submitted: nelson.hisaalu@gmail.com
+[30-Mar-2026 18:20:42 Africa/Kampala] User found: YES
+[30-Mar-2026 18:20:42 Africa/Kampala] Token generated: f51f3e691a4afdc4c2785825d72a32d22fca47c206b09fcd143cfd93917b2a54
+[30-Mar-2026 18:20:42 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 18:20:42 Africa/Kampala] User ID: 25
+[30-Mar-2026 18:20:42 Africa/Kampala] Token: f51f3e691a4afdc4c2785825d72a32d22fca47c206b09fcd143cfd93917b2a54
+[30-Mar-2026 18:20:42 Africa/Kampala] Expires: 2026-03-30 18:40:42
+[30-Mar-2026 18:20:43 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 18:20:44 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 18:20:44 Africa/Kampala] Inserted token ID: 41
+[30-Mar-2026 18:20:44 Africa/Kampala] Token saved: YES
+[30-Mar-2026 18:20:44 Africa/Kampala] Reset link: http://localhost/rogele-prod/reset-password?token=f51f3e691a4afdc4c2785825d72a32d22fca47c206b09fcd143cfd93917b2a54
+[30-Mar-2026 18:20:51 Africa/Kampala] Password reset email failed. Error: SMTP Error: Could not authenticate.
+[30-Mar-2026 18:20:51 Africa/Kampala] Email sent: NO
+[30-Mar-2026 18:20:53 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:20:59 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:21:08 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:21:58 Africa/Kampala] Database connection failed: SQLSTATE[HY000] [2002] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+[30-Mar-2026 18:21:58 Africa/Kampala] Target DSN: mysql:host=gateway01.eu-central-1.prod.aws.tidbcloud.com;port=4000;dbname=ROGELEDB
+[30-Mar-2026 18:21:58 Africa/Kampala] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond in C:\xampp\htdocs\rogele-prod\config\database.php:37
+Stack trace:
+#0 C:\xampp\htdocs\rogele-prod\config\database.php(37): PDO->__construct('mysql:host=gate...', '2VcYykLWVZacLnw...', 'AsaszC528Im6Q13...', Array)
+#1 C:\xampp\htdocs\rogele-prod\config\database.php(49): Database->__construct()
+#2 C:\xampp\htdocs\rogele-prod\models\User.php(10): Database::getInstance()
+#3 C:\xampp\htdocs\rogele-prod\controllers\AuthController.php(11): User->__construct()
+#4 C:\xampp\htdocs\rogele-prod\index.php(189): AuthController->__construct()
+#5 {main}
+  thrown in C:\xampp\htdocs\rogele-prod\config\database.php on line 37
+[30-Mar-2026 18:22:24 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:22:58 Africa/Kampala] === deleteAccount method called in Controller ===
+[30-Mar-2026 18:22:58 Africa/Kampala] Request Method: GET
+[30-Mar-2026 18:22:58 Africa/Kampala] POST data: Array
+(
+)
+
+[30-Mar-2026 18:22:58 Africa/Kampala] Not a POST request
+[30-Mar-2026 18:23:04 Africa/Kampala] === deleteAccount method called in Controller ===
+[30-Mar-2026 18:23:04 Africa/Kampala] Request Method: GET
+[30-Mar-2026 18:23:04 Africa/Kampala] POST data: Array
+(
+)
+
+[30-Mar-2026 18:23:04 Africa/Kampala] Not a POST request
+[30-Mar-2026 18:23:34 Africa/Kampala] === deleteAccount method called in Controller ===
+[30-Mar-2026 18:23:34 Africa/Kampala] Request Method: POST
+[30-Mar-2026 18:23:34 Africa/Kampala] POST data: Array
+(
+    [password] => Password123
+    [confirm_delete] => on
+)
+
+[30-Mar-2026 18:23:34 Africa/Kampala] Password provided: Yes (length: 11)
+[30-Mar-2026 18:23:34 Africa/Kampala] Calling userModel->deleteAccount for user ID: 41
+[30-Mar-2026 18:23:34 Africa/Kampala] === deleteAccount method in User model called ===
+[30-Mar-2026 18:23:34 Africa/Kampala] User ID: 41
+[30-Mar-2026 18:23:35 Africa/Kampala] Password verified, starting deletion...
+[30-Mar-2026 18:23:37 Africa/Kampala] Deleted 0 quiz_attempt_answers records
+[30-Mar-2026 18:23:38 Africa/Kampala] Deleted 0 quiz_attempts records
+[30-Mar-2026 18:23:39 Africa/Kampala] Deleted 0 subscriptions records
+[30-Mar-2026 18:23:40 Africa/Kampala] Deleted 0 payments records
+[30-Mar-2026 18:23:41 Africa/Kampala] Deleted 0 bookmarks records
+[30-Mar-2026 18:23:42 Africa/Kampala] Deleted 0 lesson_progress records
+[30-Mar-2026 18:23:43 Africa/Kampala] Deleted 1 user record
+[30-Mar-2026 18:23:43 Africa/Kampala] Account deleted successfully for user: 41
+[30-Mar-2026 18:23:43 Africa/Kampala] Delete account result: Array
+(
+    [success] => 1
+    [message] => Account deleted successfully
+)
+
+[30-Mar-2026 18:23:43 Africa/Kampala] Account deleted successfully, logging out
+[30-Mar-2026 18:23:46 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:26:04 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:26:59 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:26:59 Africa/Kampala] === PROCESS FORGOT PASSWORD START ===
+[30-Mar-2026 18:26:59 Africa/Kampala] Email submitted: nelson.hisaalu@gmail.com
+[30-Mar-2026 18:26:59 Africa/Kampala] User found: YES
+[30-Mar-2026 18:26:59 Africa/Kampala] Token generated: de391e3ca6c157be818d3e973ce2c1bff53000995b618bae01b0d1c6933ffbdf
+[30-Mar-2026 18:26:59 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 18:26:59 Africa/Kampala] User ID: 25
+[30-Mar-2026 18:26:59 Africa/Kampala] Token: de391e3ca6c157be818d3e973ce2c1bff53000995b618bae01b0d1c6933ffbdf
+[30-Mar-2026 18:26:59 Africa/Kampala] Expires: 2026-03-30 18:46:59
+[30-Mar-2026 18:27:00 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 18:27:01 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 18:27:01 Africa/Kampala] Inserted token ID: 43
+[30-Mar-2026 18:27:01 Africa/Kampala] Token saved: YES
+[30-Mar-2026 18:27:01 Africa/Kampala] Reset link: http://localhost/rogele-prod/reset-password?token=de391e3ca6c157be818d3e973ce2c1bff53000995b618bae01b0d1c6933ffbdf
+[30-Mar-2026 18:27:18 Africa/Kampala] Password reset email failed. Error: SMTP Error: Could not authenticate.
+[30-Mar-2026 18:27:18 Africa/Kampala] Email sent: NO
+[30-Mar-2026 18:27:21 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:37:52 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 18:37:52 Africa/Kampala] User ID: 25
+[30-Mar-2026 18:37:52 Africa/Kampala] Token: 9d2cf5b33db911023eeeadb82dc8725aa5cbf238d5a6aa83487d4c6ee2c150a6
+[30-Mar-2026 18:37:52 Africa/Kampala] Expires: 2026-03-30 18:57:52
+[30-Mar-2026 18:37:52 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 18:37:53 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 18:37:53 Africa/Kampala] Inserted token ID: 30020
+[30-Mar-2026 18:37:53 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 18:37:53 Africa/Kampala] Token to check: 9d2cf5b33db911023eeeadb82dc8725aa5cbf238d5a6aa83487d4c6ee2c150a6
+[30-Mar-2026 18:37:53 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 18:37:53 Africa/Kampala] Token expires at: 2026-03-30 18:57:52
+[30-Mar-2026 18:37:53 Africa/Kampala] Current time: 2026-03-30 18:37:53
+[30-Mar-2026 18:38:55 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:39:01 Africa/Kampala] Password reset email failed. Error: SMTP Error: Could not authenticate.
+[30-Mar-2026 18:39:44 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 18:39:44 Africa/Kampala] User ID: 25
+[30-Mar-2026 18:39:44 Africa/Kampala] Token: 1132955ed9cd8b297b51aa7baebb88c30187100feddfc6f4e9b171794c2b91eb
+[30-Mar-2026 18:39:44 Africa/Kampala] Expires: 2026-03-30 18:59:44
+[30-Mar-2026 18:39:45 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 18:39:45 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 18:39:45 Africa/Kampala] Inserted token ID: 30022
+[30-Mar-2026 18:39:45 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 18:39:45 Africa/Kampala] Token to check: 1132955ed9cd8b297b51aa7baebb88c30187100feddfc6f4e9b171794c2b91eb
+[30-Mar-2026 18:39:46 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 18:39:46 Africa/Kampala] Token expires at: 2026-03-30 18:59:44
+[30-Mar-2026 18:39:46 Africa/Kampala] Current time: 2026-03-30 18:39:46
+[30-Mar-2026 18:41:06 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 18:41:12 Africa/Kampala] Password reset email failed. Error: SMTP Error: Could not authenticate.
+[30-Mar-2026 18:48:49 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 18:48:49 Africa/Kampala] === PROCESS FORGOT PASSWORD START ===
+[30-Mar-2026 18:48:49 Africa/Kampala] Email submitted: nelson.hisaalu@gmail.com
+[30-Mar-2026 18:48:50 Africa/Kampala] User found: YES
+[30-Mar-2026 18:48:50 Africa/Kampala] Token generated: 6282947ecfaa3384a430ca4733fbb7936159ee443a8cdfecfc67b6f84cc630a3
+[30-Mar-2026 18:48:50 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 18:48:50 Africa/Kampala] User ID: 25
+[30-Mar-2026 18:48:50 Africa/Kampala] Token: 6282947ecfaa3384a430ca4733fbb7936159ee443a8cdfecfc67b6f84cc630a3
+[30-Mar-2026 18:48:50 Africa/Kampala] Expires: 2026-03-30 19:08:50
+[30-Mar-2026 18:48:50 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 18:48:52 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 18:48:52 Africa/Kampala] Inserted token ID: 60020
+[30-Mar-2026 18:48:52 Africa/Kampala] Token saved: YES
+[30-Mar-2026 18:48:52 Africa/Kampala] Reset link: http://localhost/rogele-prod/reset-password?token=6282947ecfaa3384a430ca4733fbb7936159ee443a8cdfecfc67b6f84cc630a3
+[30-Mar-2026 18:48:52 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 18:48:52 Africa/Kampala] Email sent: NO
+[30-Mar-2026 18:48:53 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 18:49:21 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 18:49:21 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 18:50:09 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 18:50:09 Africa/Kampala] User ID: 25
+[30-Mar-2026 18:50:09 Africa/Kampala] Token: d504326fa26e3efd1ce839a8b90ee49887504003da0190d518c95ad972c23c4f
+[30-Mar-2026 18:50:09 Africa/Kampala] Expires: 2026-03-30 19:10:09
+[30-Mar-2026 18:50:09 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 18:50:11 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 18:50:11 Africa/Kampala] Inserted token ID: 60022
+[30-Mar-2026 18:50:11 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 18:50:11 Africa/Kampala] Token to check: d504326fa26e3efd1ce839a8b90ee49887504003da0190d518c95ad972c23c4f
+[30-Mar-2026 18:50:14 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 18:50:14 Africa/Kampala] Token expires at: 2026-03-30 19:10:09
+[30-Mar-2026 18:50:14 Africa/Kampala] Current time: 2026-03-30 18:50:14
+[30-Mar-2026 18:50:43 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 18:50:43 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 19:16:22 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 19:16:22 Africa/Kampala] PHP Fatal error:  Uncaught Error: Call to undefined method MailHelper::testMail() in C:\xampp\htdocs\rogele-prod\test.php:16
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\rogele-prod\test.php on line 16
+[30-Mar-2026 19:16:46 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 19:16:46 Africa/Kampala] PHP Fatal error:  Uncaught Error: Call to undefined method MailHelper::testMail() in C:\xampp\htdocs\rogele-prod\test.php:16
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\rogele-prod\test.php on line 16
+[30-Mar-2026 19:18:27 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 19:18:31 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 19:18:31 Africa/Kampala] User ID: 25
+[30-Mar-2026 19:18:31 Africa/Kampala] Token: 49196fd01c5d93e3b6626d9606ab1be38b3db5a2592bb4ce3710222725df0dc9
+[30-Mar-2026 19:18:31 Africa/Kampala] Expires: 2026-03-30 19:38:31
+[30-Mar-2026 19:18:32 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 19:18:33 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 19:18:33 Africa/Kampala] Inserted token ID: 120020
+[30-Mar-2026 19:18:33 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 19:18:33 Africa/Kampala] Token to check: 49196fd01c5d93e3b6626d9606ab1be38b3db5a2592bb4ce3710222725df0dc9
+[30-Mar-2026 19:18:34 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 19:18:34 Africa/Kampala] Token expires at: 2026-03-30 19:38:31
+[30-Mar-2026 19:18:34 Africa/Kampala] Current time: 2026-03-30 19:18:34
+[30-Mar-2026 19:18:34 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 19:19:29 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 19:19:32 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 19:19:32 Africa/Kampala] User ID: 25
+[30-Mar-2026 19:19:32 Africa/Kampala] Token: 3c1c999249bd5f5c83526295dcf1cea52e133252eeb3cae3638c8e4c9ef5bdfb
+[30-Mar-2026 19:19:32 Africa/Kampala] Expires: 2026-03-30 19:39:32
+[30-Mar-2026 19:19:33 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 19:19:34 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 19:19:34 Africa/Kampala] Inserted token ID: 120022
+[30-Mar-2026 19:19:34 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 19:19:34 Africa/Kampala] Token to check: 3c1c999249bd5f5c83526295dcf1cea52e133252eeb3cae3638c8e4c9ef5bdfb
+[30-Mar-2026 19:19:34 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 19:19:34 Africa/Kampala] Token expires at: 2026-03-30 19:39:32
+[30-Mar-2026 19:19:34 Africa/Kampala] Current time: 2026-03-30 19:19:34
+[30-Mar-2026 19:19:34 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 19:22:03 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 19:22:05 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 19:22:05 Africa/Kampala] User ID: 25
+[30-Mar-2026 19:22:05 Africa/Kampala] Token: cf3691db3b9d52db7db0db776fb2eca835ac3d1c0eb4ef48acd8db1b19555102
+[30-Mar-2026 19:22:05 Africa/Kampala] Expires: 2026-03-30 19:42:05
+[30-Mar-2026 19:22:06 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 19:22:06 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 19:22:06 Africa/Kampala] Inserted token ID: 120024
+[30-Mar-2026 19:22:06 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 19:22:06 Africa/Kampala] Token to check: cf3691db3b9d52db7db0db776fb2eca835ac3d1c0eb4ef48acd8db1b19555102
+[30-Mar-2026 19:22:07 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 19:22:07 Africa/Kampala] Token expires at: 2026-03-30 19:42:05
+[30-Mar-2026 19:22:07 Africa/Kampala] Current time: 2026-03-30 19:22:07
+[30-Mar-2026 19:22:07 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 19:35:19 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 19:35:28 Africa/Kampala] Database connection failed: SQLSTATE[HY000] [2002] 
+[30-Mar-2026 19:35:28 Africa/Kampala] Target DSN: mysql:host=gateway01.eu-central-1.prod.aws.tidbcloud.com;port=4000;dbname=ROGELEDB
+[30-Mar-2026 19:35:31 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 19:35:31 Africa/Kampala] User ID: 25
+[30-Mar-2026 19:35:31 Africa/Kampala] Token: 2f32b94d003d826118e0c0d2ebb8bec88ebbe75f11d2f07e80ce854fcaf2ac07
+[30-Mar-2026 19:35:31 Africa/Kampala] Expires: 2026-03-30 19:55:31
+[30-Mar-2026 19:35:32 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 19:35:33 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 19:35:33 Africa/Kampala] Inserted token ID: 150020
+[30-Mar-2026 19:35:33 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 19:35:33 Africa/Kampala] Token to check: 2f32b94d003d826118e0c0d2ebb8bec88ebbe75f11d2f07e80ce854fcaf2ac07
+[30-Mar-2026 19:35:34 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 19:35:34 Africa/Kampala] Token expires at: 2026-03-30 19:55:31
+[30-Mar-2026 19:35:34 Africa/Kampala] Current time: 2026-03-30 19:35:34
+[30-Mar-2026 19:35:34 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 19:35:50 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 19:35:57 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 19:35:57 Africa/Kampala] User ID: 25
+[30-Mar-2026 19:35:57 Africa/Kampala] Token: a67f490559c97768bab45e74e6f4df33e841f9ba6b5fd6a77c44707cba8eaa04
+[30-Mar-2026 19:35:57 Africa/Kampala] Expires: 2026-03-30 19:55:57
+[30-Mar-2026 19:35:58 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 19:35:59 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 19:35:59 Africa/Kampala] Inserted token ID: 150022
+[30-Mar-2026 19:35:59 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 19:35:59 Africa/Kampala] Token to check: a67f490559c97768bab45e74e6f4df33e841f9ba6b5fd6a77c44707cba8eaa04
+[30-Mar-2026 19:36:09 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 19:36:09 Africa/Kampala] Token expires at: 2026-03-30 19:55:57
+[30-Mar-2026 19:36:09 Africa/Kampala] Current time: 2026-03-30 19:36:09
+[30-Mar-2026 19:36:09 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 19:37:21 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 19:37:25 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 19:37:25 Africa/Kampala] User ID: 25
+[30-Mar-2026 19:37:25 Africa/Kampala] Token: ec8b469e9ee6d4b952a2381acdd9a41dea3df3cc5feaaad64d9fd18744f55b11
+[30-Mar-2026 19:37:25 Africa/Kampala] Expires: 2026-03-30 19:57:25
+[30-Mar-2026 19:37:26 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 19:37:27 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 19:37:27 Africa/Kampala] Inserted token ID: 150024
+[30-Mar-2026 19:37:27 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 19:37:27 Africa/Kampala] Token to check: ec8b469e9ee6d4b952a2381acdd9a41dea3df3cc5feaaad64d9fd18744f55b11
+[30-Mar-2026 19:37:28 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 19:37:28 Africa/Kampala] Token expires at: 2026-03-30 19:57:25
+[30-Mar-2026 19:37:28 Africa/Kampala] Current time: 2026-03-30 19:37:28
+[30-Mar-2026 19:37:28 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 19:38:46 Africa/Kampala] Mail not configured - missing credentials. MAIL_USERNAME: empty, MAIL_PASSWORD: empty
+[30-Mar-2026 19:38:50 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 19:38:50 Africa/Kampala] User ID: 25
+[30-Mar-2026 19:38:50 Africa/Kampala] Token: ab965b09c58b67d96773d7101b1c51ad5249e67df96ecfe663c5b7874a6a3cf1
+[30-Mar-2026 19:38:50 Africa/Kampala] Expires: 2026-03-30 19:58:50
+[30-Mar-2026 19:38:50 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 19:38:53 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 19:38:53 Africa/Kampala] Inserted token ID: 150026
+[30-Mar-2026 19:38:53 Africa/Kampala] === GET USER BY RESET TOKEN ===
+[30-Mar-2026 19:38:53 Africa/Kampala] Token to check: ab965b09c58b67d96773d7101b1c51ad5249e67df96ecfe663c5b7874a6a3cf1
+[30-Mar-2026 19:38:54 Africa/Kampala] Token found and valid for user: nelson.hisaalu@gmail.com
+[30-Mar-2026 19:38:54 Africa/Kampala] Token expires at: 2026-03-30 19:58:50
+[30-Mar-2026 19:38:54 Africa/Kampala] Current time: 2026-03-30 19:38:54
+[30-Mar-2026 19:38:54 Africa/Kampala] Cannot send email - mail not configured
+[30-Mar-2026 20:11:33 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 20:11:33 Africa/Kampala] === PROCESS FORGOT PASSWORD START ===
+[30-Mar-2026 20:11:33 Africa/Kampala] Email submitted: nelson.hisaalu@gmail.com
+[30-Mar-2026 20:11:33 Africa/Kampala] User found: YES
+[30-Mar-2026 20:11:33 Africa/Kampala] Token generated: 6f763b0278b4fa43f4af7f625b3916401799b61c2cab3805e97ff10a91173c42
+[30-Mar-2026 20:11:33 Africa/Kampala] === SAVE RESET TOKEN ===
+[30-Mar-2026 20:11:33 Africa/Kampala] User ID: 25
+[30-Mar-2026 20:11:33 Africa/Kampala] Token: 6f763b0278b4fa43f4af7f625b3916401799b61c2cab3805e97ff10a91173c42
+[30-Mar-2026 20:11:33 Africa/Kampala] Expires: 2026-03-30 20:31:33
+[30-Mar-2026 20:11:34 Africa/Kampala] Deleted existing tokens for user: 25
+[30-Mar-2026 20:11:34 Africa/Kampala] Insert result: SUCCESS
+[30-Mar-2026 20:11:34 Africa/Kampala] Inserted token ID: 180022
+[30-Mar-2026 20:11:34 Africa/Kampala] Token saved: YES
+[30-Mar-2026 20:11:34 Africa/Kampala] Reset link: http://localhost/rogele-prod/reset-password?token=6f763b0278b4fa43f4af7f625b3916401799b61c2cab3805e97ff10a91173c42
+[30-Mar-2026 20:11:44 Africa/Kampala] Password reset email failed. Error: SMTP Error: Could not authenticate.
+[30-Mar-2026 20:11:44 Africa/Kampala] Email sent: NO
+[30-Mar-2026 20:11:45 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 20:12:15 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 20:12:15 Africa/Kampala] PHP Fatal error:  Uncaught Error: Call to undefined method MailHelper::isConfigured() in C:\xampp\htdocs\rogele-prod\test.php:31
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\rogele-prod\test.php on line 31
+[30-Mar-2026 20:33:09 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 20:33:09 Africa/Kampala] PHP Fatal error:  Uncaught Error: Call to undefined method MailHelper::isConfigured() in C:\xampp\htdocs\rogele-prod\test.php:31
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\rogele-prod\test.php on line 31
+[30-Mar-2026 20:33:18 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 20:33:24 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 20:33:24 Africa/Kampala] Login POST request received
+[30-Mar-2026 20:33:24 Africa/Kampala] Username: admin@gmail.com
+[30-Mar-2026 20:33:24 Africa/Kampala] Password length: 9
+[30-Mar-2026 20:33:24 Africa/Kampala] Login attempt for username: admin@gmail.com
+[30-Mar-2026 20:33:26 Africa/Kampala] Login result: SUCCESS
+[30-Mar-2026 20:33:26 Africa/Kampala] Session set for user ID: 8
+[30-Mar-2026 20:33:28 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons
+[30-Mar-2026 20:33:30 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons
+[30-Mar-2026 20:43:25 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons
+[30-Mar-2026 20:43:26 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons
+[30-Mar-2026 21:20:08 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 21:21:42 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 21:21:46 Africa/Kampala] MailHelper initialized
+[30-Mar-2026 21:21:46 Africa/Kampala] Login POST request received
+[30-Mar-2026 21:21:46 Africa/Kampala] Username: admin@gmail.com
+[30-Mar-2026 21:21:46 Africa/Kampala] Password length: 9
+[30-Mar-2026 21:21:46 Africa/Kampala] Login attempt for username: admin@gmail.com
+[30-Mar-2026 21:21:48 Africa/Kampala] Login result: SUCCESS
+[30-Mar-2026 21:21:48 Africa/Kampala] Session set for user ID: 8
+[30-Mar-2026 21:21:50 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons
+[30-Mar-2026 21:21:52 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons

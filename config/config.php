@@ -37,7 +37,7 @@ if (getenv('RENDER')) {
 
 //Application Configuration
 if (getenv('RENDER')) {
-    define('BASE_URL', getenv('APP_URL') ?: 'https://rogele.onrender.com');
+    define('BASE_URL', getenv('APP_URL') ?: 'https://rogele.raysofgrace.ac.ug');
     define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
 } else {
     define('BASE_URL', $env['APP_URL'] ?? 'http://localhost/rogele-prod');
