@@ -685,3 +685,5 @@ Stack trace:
 [30-Mar-2026 21:21:48 Africa/Kampala] Session set for user ID: 8
 [30-Mar-2026 21:21:50 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons
 [30-Mar-2026 21:21:52 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons
+[30-Mar-2026 22:02:09 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons
+[30-Mar-2026 22:02:10 Africa/Kampala] Lesson Model - getByTeacher for teacher 8 found 5 lessons
