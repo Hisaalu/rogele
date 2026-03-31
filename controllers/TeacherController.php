@@ -560,37 +560,87 @@ class TeacherController {
     }
     
     /**
-     * Update Profile
+     * Update teacher profile
      */
     public function updateProfile() {
         $hideFooter = true;
         
+        error_log("=== UPDATE PROFILE START ===");
+        
+        // Check if it's a POST request
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            error_log("Not a POST request");
             header('Location: ' . BASE_URL . '/teacher/profile');
             exit;
         }
         
-        $data = [
-            'first_name' => $_POST['first_name'] ?? '',
-            'last_name' => $_POST['last_name'] ?? '',
-            'email' => $_POST['email'] ?? '',
-            'phone' => $_POST['phone'] ?? ''
-        ];
+        // Get teacher ID from session
+        $teacherId = $_SESSION['user_id'] ?? null;
         
-        if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
+        if (!$teacherId) {
+            error_log("No teacher ID in session");
+            $_SESSION['error'] = 'Please login to update your profile';
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        }
+        
+        error_log("Teacher ID: " . $teacherId);
+        
+        // Get form data
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $bio = trim($_POST['bio'] ?? '');
+        $qualification = trim($_POST['qualification'] ?? '');
+        $specialization = trim($_POST['specialization'] ?? '');
+        
+        error_log("First Name: $firstName");
+        error_log("Last Name: $lastName");
+        error_log("Email: $email");
+        
+        // Validate required fields
+        if (empty($firstName) || empty($lastName) || empty($email)) {
+            error_log("Missing required fields");
             $_SESSION['error'] = 'Please fill in all required fields';
             header('Location: ' . BASE_URL . '/teacher/profile');
             exit;
         }
         
-        $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
+        // Validate email format
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            error_log("Invalid email format");
+            $_SESSION['error'] = 'Please enter a valid email address';
+            header('Location: ' . BASE_URL . '/teacher/profile');
+            exit;
+        }
+        
+        // Prepare data for update
+        $data = [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+            'phone' => $phone,
+            'bio' => $bio,
+            'qualification' => $qualification,
+            'specialization' => $specialization
+        ];
+        
+        // Update profile
+        $result = $this->userModel->updateProfile($teacherId, $data);
+        
+        error_log("Update result: " . ($result['success'] ? "SUCCESS" : "FAILED"));
         
         if ($result['success']) {
-            $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
-            $_SESSION['user_email'] = $data['email'];
-            $_SESSION['success'] = $result['message'];
+            // Update session data
+            $_SESSION['user_name'] = $firstName . ' ' . $lastName;
+            $_SESSION['user_email'] = $email;
+            
+            $_SESSION['success'] = 'Profile updated successfully!';
+            error_log("Profile updated successfully for teacher: $teacherId");
         } else {
-            $_SESSION['error'] = $result['error'];
+            $_SESSION['error'] = $result['error'] ?? 'Failed to update profile. Please try again.';
+            error_log("Profile update failed: " . ($result['error'] ?? 'Unknown error'));
         }
         
         header('Location: ' . BASE_URL . '/teacher/profile');

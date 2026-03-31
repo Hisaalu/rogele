@@ -239,13 +239,23 @@ class User {
     }
     
     /**
-     * Update profile
+     * Update user profile
      */
     public function updateProfile($userId, $data) {
         try {
+            error_log("=== UPDATE PROFILE IN MODEL ===");
+            error_log("User ID: $userId");
+            error_log("Data: " . json_encode($data));
+            
+            // Check if user exists
+            $user = $this->getById($userId);
+            if (!$user) {
+                error_log("User not found: $userId");
+                return ['success' => false, 'error' => 'User not found'];
+            }
+            
             // Check if email is being changed and if it's already taken
-            $currentUser = $this->getById($userId);
-            if ($currentUser && $currentUser['email'] !== $data['email']) {
+            if ($user['email'] !== $data['email']) {
                 $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
                 $checkStmt = $this->conn->prepare($checkQuery);
                 $checkStmt->execute([
@@ -253,16 +263,21 @@ class User {
                     ':id' => $userId
                 ]);
                 if ($checkStmt->fetch()) {
+                    error_log("Email already taken: " . $data['email']);
                     return ['success' => false, 'error' => 'Email already taken by another user'];
                 }
             }
             
+            // Build the update query
             $query = "UPDATE users SET 
                     first_name = :first_name,
                     last_name = :last_name,
                     email = :email,
                     phone = :phone,
-                    updated_at = NOW()
+                    bio = :bio,
+                    qualification = :qualification,
+                    specialization = :specialization,
+                    updated_at = NOW() 
                     WHERE id = :id";
             
             $stmt = $this->conn->prepare($query);
@@ -270,18 +285,20 @@ class User {
                 ':first_name' => $data['first_name'],
                 ':last_name' => $data['last_name'],
                 ':email' => $data['email'],
-                ':phone' => $data['phone'],
+                ':phone' => $data['phone'] ?? null,
+                ':bio' => $data['bio'] ?? null,
+                ':qualification' => $data['qualification'] ?? null,
+                ':specialization' => $data['specialization'] ?? null,
                 ':id' => $userId
             ]);
             
             if ($result) {
-                // REMOVED: Session update code - this should NOT be here
-                // Session updates should be handled in the controller only for the logged-in user
-                
+                error_log("Profile updated successfully for user: $userId");
                 $this->logActivity($userId, 'PROFILE_UPDATE', 'User updated profile');
                 return ['success' => true, 'message' => 'Profile updated successfully'];
             }
             
+            error_log("Failed to update profile for user: $userId");
             return ['success' => false, 'error' => 'Failed to update profile'];
             
         } catch (PDOException $e) {
