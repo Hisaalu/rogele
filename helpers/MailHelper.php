@@ -6,19 +6,29 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
+//load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
+
 class MailHelper {
     private $mail;
     
     public function __construct() {
         $this->mail = new PHPMailer(true);
         
-        // Server settings - Using your exact configuration
-        $this->mail->SMTPDebug = SMTP::DEBUG_OFF;
+        // Server settings - Using the exact configuration
+        $this->mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        
+        $this->mail->Debugoutput = function($str, $level) {
+            error_log("SMTP DEBUG: $str");
+        };
+
         $this->mail->isSMTP();
         $this->mail->Host       = 'mail.privateemail.com';
         $this->mail->SMTPAuth   = true;
         $this->mail->Username   = 'info@raysofgrace.ac.ug';
-        $this->mail->Password   = MAIL_PASSWORD;
+        $password = getenv('MAIL_PASSWORD') ?: ($_ENV['MAIL_PASSWORD'] ?? null);
+        $this->mail->Password   = $password;
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mail->Port       = 587;
         $this->mail->setFrom('info@raysofgrace.ac.ug', 'ROGELE');

@@ -9,3 +9,8 @@
 # database files
 /database
 /db
+
+# other files and folders
+/logs
+/test
+test.php
