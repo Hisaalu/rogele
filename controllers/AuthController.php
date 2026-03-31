@@ -10,6 +10,7 @@ class AuthController {
     public function __construct() {
         $this->userModel = new User();
         $this->mailHelper = new MailHelper();
+        $this->classes = new Classes();
     }
     
     // Handle login
@@ -72,89 +73,73 @@ class AuthController {
         require_once __DIR__ . '/../views/auth/login.php';
     }
     
-    // Handle registration
+    /**
+     * Process registration
+     */
     public function register() {
-        // Set flag to hide footer
         $hideFooter = true;
         
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Validate input
-            $errors = [];
-            
-            if (empty($_POST['first_name'])) {
-                $errors[] = 'First name is required';
-            }
-            
-            if (empty($_POST['last_name'])) {
-                $errors[] = 'Last name is required';
-            }
-            
-            if (empty($_POST['email'])) {
-                $errors[] = 'Email is required';
-            } elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-                $errors[] = 'Invalid email format';
-            }
-            
-            if (empty($_POST['phone'])) {
-                $errors[] = 'Phone number is required';
-            }
-            
-            if (empty($_POST['password'])) {
-                $errors[] = 'Password is required';
-            } elseif (strlen($_POST['password']) < 8) {
-                $errors[] = 'Password must be at least 8 characters';
-            }
-            
-            if ($_POST['password'] !== $_POST['confirm_password']) {
-                $errors[] = 'Passwords do not match';
-            }
-            
-            if (!isset($_POST['terms'])) {
-                $errors[] = 'You must accept the Terms and Conditions';
-            }
-            
-            if (empty($errors)) {
-                $data = [
-                    'first_name' => $_POST['first_name'],
-                    'last_name' => $_POST['last_name'],
-                    'email' => $_POST['email'],
-                    'phone' => $_POST['phone'],
-                    'password' => $_POST['password'],
-                    'class' => $_POST['class'] ?? null,
-                    'role' => 'external' // Default role, you can modify based on user type
-                ];
-                
-                // Check if user selected a specific type (you can add a hidden field or radio buttons)
-                if (isset($_POST['user_type'])) {
-                    $data['role'] = $_POST['user_type'];
-                }
-                
-                $result = $this->userModel->register($data);
-                
-                if ($result['success']) {
-                    // Auto-login the user
-                    $_SESSION['user_id'] = $result['user']['id'];
-                    $_SESSION['user_role'] = $result['user']['role'];
-                    $_SESSION['user_name'] = $result['user']['first_name'] . ' ' . $result['user']['last_name'];
-                    $_SESSION['user_email'] = $result['user']['email'];
-                    
-                    // Redirect to appropriate dashboard based on role
-                    $this->redirectToDashboard();
-                    exit;
-                } else {
-                    $_SESSION['error'] = $result['error'];
-                    header('Location: ' . BASE_URL . '/register');
-                    exit;
-                }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            // Get classes for the form
+            if (isset($this->classModel)) {
+                $classes = $this->classModel->getAllClasses();
             } else {
-                $_SESSION['error'] = implode('<br>', $errors);
-                header('Location: ' . BASE_URL . '/register');
-                exit;
+                $classes = [];
             }
+            require_once __DIR__ . '/../views/auth/register.php';
+            return;
         }
         
-        // Show registration form with footer hidden
-        require_once __DIR__ . '/../views/auth/register.php';
+        // Get form data
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $classId = trim($_POST['class_id'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        
+        // Validation
+        if (empty($firstName) || empty($lastName) || empty($email) || empty($phone) || empty($classId) || empty($password)) {
+            $_SESSION['error'] = 'Please fill in all fields';
+            header('Location: ' . BASE_URL . '/register');
+            exit;
+        }
+        
+        if ($password !== $confirmPassword) {
+            $_SESSION['error'] = 'Passwords do not match';
+            header('Location: ' . BASE_URL . '/register');
+            exit;
+        }
+        
+        if (strlen($password) < 8) {
+            $_SESSION['error'] = 'Password must be at least 8 characters';
+            header('Location: ' . BASE_URL . '/register');
+            exit;
+        }
+        
+        // Register user with class_id
+        $userData = [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+            'phone' => $phone,
+            'class_id' => $classId,
+            'password' => $password,
+            'role' => 'external'
+        ];
+        
+        $result = $this->userModel->register($userData);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Registration successful! Please login.';
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Registration failed. Please try again.';
+            header('Location: ' . BASE_URL . '/register');
+            exit;
+        }
     }
     
     // Handle logout

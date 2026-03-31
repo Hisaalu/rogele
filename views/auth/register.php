@@ -2,6 +2,24 @@
 // File: /views/auth/register.php
 $hideHeader = true;
 $pageTitle = 'Create Account | ROGELE';
+
+// Get classes from the controller instead of directly from database
+// The controller should pass the classes to the view
+$classes = $classes ?? [];
+
+// If no classes were passed, use empty array
+if (empty($classes)) {
+    // Provide default classes as fallback
+    $classes = [
+        ['id' => 1, 'name' => 'Primary 1'],
+        ['id' => 2, 'name' => 'Primary 2'],
+        ['id' => 3, 'name' => 'Primary 3'],
+        ['id' => 4, 'name' => 'Primary 4'],
+        ['id' => 5, 'name' => 'Primary 5'],
+        ['id' => 6, 'name' => 'Primary 6'],
+        ['id' => 7, 'name' => 'Primary 7']
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -43,7 +61,6 @@ $pageTitle = 'Create Account | ROGELE';
             margin: 0 auto;
         }
 
-        /* Card */
         .register-card {
             background: white;
             border-radius: 16px;
@@ -52,7 +69,6 @@ $pageTitle = 'Create Account | ROGELE';
             width: 100%;
         }
 
-        /* Logo Section */
         .logo-section {
             text-align: center;
             margin-bottom: 32px;
@@ -86,7 +102,6 @@ $pageTitle = 'Create Account | ROGELE';
             margin-top: 4px;
         }
 
-        /* Form */
         .register-form {
             width: 100%;
         }
@@ -119,12 +134,6 @@ $pageTitle = 'Create Account | ROGELE';
             box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.1);
         }
 
-        .form-group input::placeholder,
-        .form-group select::placeholder {
-            color: #999;
-        }
-
-        /* Phone Number Field - Special styling */
         .phone-field {
             display: flex;
             align-items: center;
@@ -147,7 +156,6 @@ $pageTitle = 'Create Account | ROGELE';
             flex: 1;
         }
 
-        /* Password Field */
         .password-field {
             position: relative;
             width: 100%;
@@ -168,14 +176,12 @@ $pageTitle = 'Create Account | ROGELE';
             color: #999;
             font-size: 1.1rem;
             padding: 8px;
-            transition: color 0.2s ease;
         }
 
         .toggle-password:hover {
             color: #f06724;
         }
 
-        /* Button */
         .btn-register {
             width: 100%;
             padding: 12px;
@@ -194,12 +200,6 @@ $pageTitle = 'Create Account | ROGELE';
             background: #e05a1a;
         }
 
-        .btn-register:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Terms */
         .terms-group {
             display: flex;
             align-items: flex-start;
@@ -225,11 +225,6 @@ $pageTitle = 'Create Account | ROGELE';
             text-decoration: none;
         }
 
-        .terms-group a:hover {
-            text-decoration: underline;
-        }
-
-        /* Login Link */
         .login-link {
             text-align: center;
             margin-top: 24px;
@@ -245,11 +240,6 @@ $pageTitle = 'Create Account | ROGELE';
             font-weight: 500;
         }
 
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-
-        /* Alert Messages */
         .alert {
             margin-bottom: 20px;
             padding: 10px 14px;
@@ -266,17 +256,6 @@ $pageTitle = 'Create Account | ROGELE';
             border: 1px solid #fecaca;
         }
 
-        .alert-success {
-            background: #e6f4ea;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-        }
-
-        .alert i {
-            font-size: 1rem;
-        }
-
-        /* Loading State */
         .btn-register.loading {
             position: relative;
             color: transparent;
@@ -301,40 +280,22 @@ $pageTitle = 'Create Account | ROGELE';
             to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* Responsive */
         @media (max-width: 480px) {
             .register-card {
                 padding: 32px 24px;
             }
-            
             .logo {
                 width: 55px;
                 height: 55px;
             }
-            
-            .logo-section h1 {
-                font-size: 1.3rem;
-            }
-            
             .form-row {
                 grid-template-columns: 1fr;
                 gap: 0;
             }
-            
-            .form-group input,
-            .form-group select {
-                padding: 10px 14px;
-            }
-            
-            .btn-register {
-                padding: 10px;
-            }
-            
             .phone-field {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
             .country-code {
                 width: 100%;
             }
@@ -345,7 +306,6 @@ $pageTitle = 'Create Account | ROGELE';
 <div class="register-page">
     <div class="register-container">
         <div class="register-card">
-            <!-- Logo Section -->
             <div class="logo-section">
                 <div class="logo">
                     <?php 
@@ -362,7 +322,6 @@ $pageTitle = 'Create Account | ROGELE';
                 <p>Let's create your account</p>
             </div>
             
-            <!-- Alert Messages -->
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-circle"></i>
@@ -370,13 +329,11 @@ $pageTitle = 'Create Account | ROGELE';
                 </div>
             <?php endif; ?>
             
-            <!-- Register Form -->
             <form action="<?php echo BASE_URL; ?>/register" method="POST" class="register-form" id="registerForm">
                 <div class="form-row">
                     <div class="form-group">
                         <input type="text" name="first_name" id="first_name" placeholder="First name" required>
                     </div>
-                    
                     <div class="form-group">
                         <input type="text" name="last_name" id="last_name" placeholder="Last name" required>
                     </div>
@@ -386,7 +343,6 @@ $pageTitle = 'Create Account | ROGELE';
                     <input type="email" name="email" id="email" placeholder="Email address" required>
                 </div>
                 
-                <!-- Phone Number Field -->
                 <div class="form-group">
                     <div class="phone-field">
                         <span class="country-code">+256</span>
@@ -395,15 +351,13 @@ $pageTitle = 'Create Account | ROGELE';
                 </div>
                 
                 <div class="form-group">
-                    <select name="class_id" id="class_id">
+                    <select name="class_id" id="class_id" required>
                         <option value="">Select your class</option>
-                        <option value="1">Primary 1</option>
-                        <option value="2">Primary 2</option>
-                        <option value="3">Primary 3</option>
-                        <option value="4">Primary 4</option>
-                        <option value="5">Primary 5</option>
-                        <option value="6">Primary 6</option>
-                        <option value="7">Primary 7</option>
+                        <?php foreach ($classes as $class): ?>
+                            <option value="<?php echo $class['id']; ?>">
+                                <?php echo htmlspecialchars($class['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 
@@ -452,6 +406,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const confirmInput = document.getElementById('confirm_password');
     const phoneInput = document.getElementById('phone');
+    const classSelect = document.getElementById('class_id');
     
     // Password visibility toggle
     document.querySelectorAll('.toggle-password').forEach(btn => {
@@ -472,16 +427,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Format phone number as user types
+    // Format phone number
     if (phoneInput) {
         phoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 0) {
-                // Remove leading zero if present
                 if (value.startsWith('0')) {
                     value = value.substring(1);
                 }
-                // Format as XXX XXX XXX
                 if (value.length > 3) {
                     value = value.slice(0, 3) + ' ' + value.slice(3);
                 }
@@ -493,95 +446,66 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Auto-focus on first name field
-    const firstNameInput = document.getElementById('first_name');
-    if (firstNameInput) {
-        firstNameInput.focus();
-    }
-    
     // Form validation
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
             const firstName = document.getElementById('first_name').value.trim();
             const lastName = document.getElementById('last_name').value.trim();
             const email = document.getElementById('email').value.trim();
-            const phone = phoneInput ? phoneInput.value.trim() : '';
+            const phone = phoneInput.value.trim();
             const password = passwordInput.value;
             const confirm = confirmInput.value;
+            const classId = classSelect.value;
             const terms = document.getElementById('terms').checked;
             
             if (!firstName || !lastName || !email || !phone || !password || !confirm) {
                 e.preventDefault();
-                showAlert('Please fill in all fields', 'error');
+                alert('Please fill in all fields');
                 return;
             }
             
-            // Email validation
+            if (!classId) {
+                e.preventDefault();
+                alert('Please select your class');
+                return;
+            }
+            
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 e.preventDefault();
-                showAlert('Please enter a valid email address', 'error');
+                alert('Please enter a valid email address');
                 return;
             }
             
-            // Phone validation (Ugandan format)
             const cleanPhone = phone.replace(/\s/g, '');
             const phoneRegex = /^[0-9]{9}$/;
             if (!phoneRegex.test(cleanPhone)) {
                 e.preventDefault();
-                showAlert('Please enter a valid 9-digit phone number (e.g., 701234567)', 'error');
+                alert('Please enter a valid 9-digit phone number');
                 return;
             }
             
             if (password !== confirm) {
                 e.preventDefault();
-                showAlert('Passwords do not match', 'error');
+                alert('Passwords do not match');
                 return;
             }
             
             if (password.length < 8) {
                 e.preventDefault();
-                showAlert('Password must be at least 8 characters', 'error');
+                alert('Password must be at least 8 characters');
                 return;
             }
             
             if (!terms) {
                 e.preventDefault();
-                showAlert('Please accept the Terms of Service', 'error');
+                alert('Please accept the Terms of Service');
                 return;
             }
             
-            // Show loading state
             registerButton.classList.add('loading');
             registerButton.disabled = true;
         });
-    }
-    
-    // Show alert function
-    function showAlert(message, type) {
-        const existingAlert = document.querySelector('.alert');
-        if (existingAlert) {
-            existingAlert.remove();
-        }
-        
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type}`;
-        alertDiv.innerHTML = `
-            <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-            <span>${message}</span>
-        `;
-        
-        const registerCard = document.querySelector('.register-card');
-        const logoSection = document.querySelector('.logo-section');
-        
-        if (registerCard && logoSection) {
-            registerCard.insertBefore(alertDiv, logoSection.nextSibling);
-        }
-        
-        setTimeout(() => {
-            alertDiv.style.opacity = '0';
-            setTimeout(() => alertDiv.remove(), 300);
-        }, 5000);
     }
 });
 </script>

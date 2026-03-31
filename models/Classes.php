@@ -217,5 +217,19 @@ class Classes {
             return 0;
         }
     }
+
+    /**
+     * Get ALL classes
+     */
+    public function getAllClasses() {
+        try {
+            $stmt = $this->conn->prepare("SELECT id, name FROM classes ORDER BY name");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Get all classes error: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

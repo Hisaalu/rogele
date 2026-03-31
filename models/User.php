@@ -31,9 +31,9 @@ class User {
         
         return $prefix . '-' . $classCode . '-' . $unique;
     }
-    
+
     /**
-     * Register new user
+     * Registration of new users
      */
     public function register($data) {
         try {
@@ -52,25 +52,10 @@ class User {
             // Generate registration number for learners
             $registrationNumber = null;
             if (isset($data['role']) && $data['role'] === 'learner') {
-                $registrationNumber = $this->generateRegistrationNumber($data['class'] ?? 'P1');
+                $registrationNumber = $this->generateRegistrationNumber($data['class_id'] ?? 'P1');
             }
             
-            // Get class_id if class is provided
-            $classId = null;
-            if (isset($data['class']) && !empty($data['class'])) {
-                $classQuery = "SELECT id FROM classes WHERE level = :level OR name LIKE :name";
-                $classStmt = $this->conn->prepare($classQuery);
-                $classStmt->execute([
-                    ':level' => strtoupper($data['class']),
-                    ':name' => '%' . $data['class'] . '%'
-                ]);
-                $class = $classStmt->fetch();
-                if ($class) {
-                    $classId = $class['id'];
-                }
-            }
-            
-            // Insert user (auto-verify for now)
+            // Insert user with class_id
             $query = "INSERT INTO users (
                 registration_number, email, password, first_name, last_name, 
                 phone, role, class_id, email_verified, is_active, created_at
@@ -84,24 +69,19 @@ class User {
                 ':registration_number' => $registrationNumber,
                 ':email' => $data['email'],
                 ':password' => $hashedPassword,
-                ':first_name' => $data['first_name'] ?? null,
-                ':last_name' => $data['last_name'] ?? null,
-                ':phone' => $data['phone'] ?? null,
-                ':role' => $data['role'] ?? 'external',
-                ':class_id' => $classId
+                ':first_name' => $data['first_name'],
+                ':last_name' => $data['last_name'],
+                ':phone' => $data['phone'],
+                ':role' => $data['role'] ?? 'learner',
+                ':class_id' => $data['class_id'] ?? null
             ]);
             
             $userId = $this->conn->lastInsertId();
             
-            // Start free trial for external users
-            if (($data['role'] ?? 'external') === 'external') {
-                $this->startFreeTrial($userId);
-            }
-            
             // Log activity
             $this->logActivity($userId, 'REGISTRATION', 'User registered successfully');
             
-            // Return user data for auto-login
+            // Return user data
             $userData = $this->getById($userId);
             unset($userData['password']);
             
@@ -1616,6 +1596,113 @@ class User {
                 'trial_ended' => true,
                 'message' => 'Error checking trial status'
             ];
+        }
+    }
+
+    /**
+     * Get ALL students with their statistics (for teacher view)
+     */
+    public function getStudentsWithStats($teacherId, $classId = null, $search = null) {
+        try {
+            error_log("=== GET ALL STUDENTS WITH STATS ===");
+            error_log("Teacher ID: " . $teacherId);
+            
+            $conn = $this->conn;
+            
+            // Query to get ALL students (learners and external users)
+            $query = "
+                SELECT DISTINCT 
+                    u.id,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.phone,
+                    u.role,
+                    u.profile_photo,
+                    u.class_id,
+                    c.name as class_name,
+                    COALESCE((
+                        SELECT COUNT(DISTINCT qa.id) 
+                        FROM quiz_attempts qa
+                        INNER JOIN quizzes q ON qa.quiz_id = q.id
+                        WHERE qa.user_id = u.id 
+                        AND q.teacher_id = ?
+                        AND qa.completed_at IS NOT NULL
+                    ), 0) as quizzes_taken,
+                    COALESCE((
+                        SELECT AVG(qa.score) 
+                        FROM quiz_attempts qa
+                        INNER JOIN quizzes q ON qa.quiz_id = q.id
+                        WHERE qa.user_id = u.id 
+                        AND q.teacher_id = ?
+                        AND qa.completed_at IS NOT NULL
+                    ), 0) as avg_score,
+                    COALESCE((
+                        SELECT COUNT(DISTINCT lv.lesson_id) 
+                        FROM lesson_views lv
+                        INNER JOIN lessons l ON lv.lesson_id = l.id
+                        WHERE lv.user_id = u.id 
+                        AND l.teacher_id = ?
+                    ), 0) as lessons_viewed
+                FROM users u
+                LEFT JOIN classes c ON u.class_id = c.id
+                WHERE u.role IN ('learner', 'external')
+                AND u.is_active = 1
+            ";
+            
+            $params = [$teacherId, $teacherId, $teacherId];
+            
+            // Add class filter if specified
+            if ($classId) {
+                $query .= " AND u.class_id = ?";
+                $params[] = $classId;
+            }
+            
+            // Add search filter if specified
+            if ($search) {
+                $query .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ?)";
+                $searchTerm = "%$search%";
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+            }
+            
+            $query .= " ORDER BY u.first_name ASC";
+            
+            error_log("Query: " . $query);
+            
+            $stmt = $conn->prepare($query);
+            $stmt->execute($params);
+            
+            $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Round average scores
+            foreach ($students as &$student) {
+                $student['avg_score'] = round($student['avg_score'] ?? 0, 1);
+            }
+            
+            error_log("Total students found: " . count($students));
+            
+            return $students;
+            
+        } catch (PDOException $e) {
+            error_log("Get students with stats error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Add student to class (for backward compatibility)
+     */
+    public function addStudentToClass($userId, $classId) {
+        try {
+            // Update the user's class_id directly
+            $stmt = $this->conn->prepare("UPDATE users SET class_id = ? WHERE id = ?");
+            $stmt->execute([$classId, $userId]);
+            return true;
+        } catch (PDOException $e) {
+            error_log("Add student to class error: " . $e->getMessage());
+            return false;
         }
     }
 }

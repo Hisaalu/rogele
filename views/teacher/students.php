@@ -19,6 +19,35 @@ $search = $_GET['search'] ?? '';
             </h1>
             <p class="page-subtitle">View and track your students' progress</p>
         </div>
+        
+        <!-- Quick Stats -->
+        <?php if (!empty($students)): ?>
+        <div class="quick-stats">
+            <div class="quick-stat-card">
+                <div class="quick-stat-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="quick-stat-info">
+                    <span class="quick-stat-label">Total Students</span>
+                    <span class="quick-stat-value"><?php echo count($students); ?></span>
+                </div>
+            </div>
+            <div class="quick-stat-card">
+                <div class="quick-stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="quick-stat-info">
+                    <span class="quick-stat-label">Avg. Performance</span>
+                    <span class="quick-stat-value">
+                        <?php 
+                        $avgScores = array_filter(array_column($students, 'avg_score'));
+                        echo !empty($avgScores) ? round(array_sum($avgScores) / count($avgScores), 1) . '%' : '0%';
+                        ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 
     <!-- Alert Messages -->
@@ -36,7 +65,7 @@ $search = $_GET['search'] ?? '';
         </div>
     <?php endif; ?>
 
-    <!-- Filters -->
+    <!-- Filters Section -->
     <div class="filters-section">
         <form method="GET" class="filters-form">
             <div class="search-box">
@@ -77,14 +106,21 @@ $search = $_GET['search'] ?? '';
     <?php if (empty($students)): ?>
         <div class="empty-state">
             <div class="empty-icon">
-                <i class="fas fa-users"></i>
+                <i class="fas fa-users-slash"></i>
             </div>
             <h3>No Students Found</h3>
             <p>You don't have any students assigned to your classes yet.</p>
+            <p class="empty-hint">Students will appear here once they register and select your class.</p>
         </div>
     <?php else: ?>
         <div class="students-grid">
-            <?php foreach ($students as $student): ?>
+            <?php foreach ($students as $student): 
+                $quizzesTaken = $student['quizzes_taken'] ?? 0;
+                $avgScore = $student['avg_score'] ?? 0;
+                $lessonsViewed = $student['lessons_viewed'] ?? 0;
+                $scoreClass = $avgScore >= 70 ? 'high' : ($avgScore >= 50 ? 'medium' : 'low');
+                $performanceLevel = $avgScore >= 80 ? 'Excellent' : ($avgScore >= 60 ? 'Good' : ($avgScore >= 40 ? 'Average' : 'Needs Improvement'));
+            ?>
                 <div class="student-card">
                     <div class="student-avatar">
                         <?php if (!empty($student['profile_photo'])): ?>
@@ -97,6 +133,16 @@ $search = $_GET['search'] ?? '';
                                 ?>
                             </div>
                         <?php endif; ?>
+                        
+                        <?php if ($avgScore >= 80): ?>
+                            <div class="student-badge top-performer" title="Top Performer">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                        <?php elseif ($avgScore >= 60): ?>
+                            <div class="student-badge good-performer" title="Good Performer">
+                                <i class="fas fa-star"></i>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     
                     <div class="student-info">
@@ -104,9 +150,8 @@ $search = $_GET['search'] ?? '';
                             <?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?>
                         </h3>
                         
-                        <!-- Add role badge -->
                         <div class="student-role">
-                            <?php if ($student['role'] == 'learner'): ?>
+                            <?php if (($student['role'] ?? '') == 'learner'): ?>
                                 <span class="role-badge learner">
                                     <i class="fas fa-user-graduate"></i> Student
                                 </span>
@@ -126,18 +171,37 @@ $search = $_GET['search'] ?? '';
                             <?php echo htmlspecialchars($student['email']); ?>
                         </p>
                         
+                        <!-- Performance Bar -->
+                        <div class="performance-bar">
+                            <div class="performance-label">
+                                <span>Performance: <?php echo $performanceLevel; ?></span>
+                                <span><?php echo number_format($avgScore, 1); ?>%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: <?php echo $avgScore; ?>%; background: <?php echo $avgScore >= 70 ? '#10B981' : ($avgScore >= 50 ? '#F59E0B' : '#EF4444'); ?>"></div>
+                            </div>
+                        </div>
+                        
                         <div class="student-stats">
                             <div class="stat">
-                                <span class="stat-label">Quizzes Taken</span>
-                                <span class="stat-value">0</span>
+                                <span class="stat-label">
+                                    <i class="fas fa-pencil-alt"></i> Quizzes Taken
+                                </span>
+                                <span class="stat-value"><?php echo number_format($quizzesTaken); ?></span>
                             </div>
                             <div class="stat">
-                                <span class="stat-label">Avg. Score</span>
-                                <span class="stat-value">0%</span>
+                                <span class="stat-label">
+                                    <i class="fas fa-chart-line"></i> Avg. Score
+                                </span>
+                                <span class="stat-value <?php echo $scoreClass; ?>">
+                                    <?php echo number_format($avgScore, 1); ?>%
+                                </span>
                             </div>
                             <div class="stat">
-                                <span class="stat-label">Lessons Viewed</span>
-                                <span class="stat-value">0</span>
+                                <span class="stat-label">
+                                    <i class="fas fa-book-open"></i> Lessons
+                                </span>
+                                <span class="stat-value">N/A</span>
                             </div>
                         </div>
                         
@@ -162,7 +226,12 @@ $search = $_GET['search'] ?? '';
 
 /* Page Header */
 .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .page-title {
@@ -180,6 +249,52 @@ $search = $_GET['search'] ?? '';
 .page-subtitle {
     color: black;
     font-size: 1rem;
+}
+
+/* Quick Stats */
+.quick-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.quick-stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.quick-stat-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #f06724);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.quick-stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.quick-stat-label {
+    font-size: 0.7rem;
+    color: black;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quick-stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: black;
 }
 
 /* Alerts */
@@ -263,12 +378,17 @@ $search = $_GET['search'] ?? '';
 
 .filter-group select {
     padding: 12px 20px;
-    border: 2px solid #f06724;
+    border: 2px solid #E2E8F0;
     border-radius: 12px;
     font-size: 0.95rem;
     background: white;
     min-width: 150px;
     cursor: pointer;
+}
+
+.filter-group select:focus {
+    outline: none;
+    border-color: #f06724;
 }
 
 .btn-filter {
@@ -299,13 +419,12 @@ $search = $_GET['search'] ?? '';
 
 .btn-clear:hover {
     background: #f06724;
-    border-color: #f06724;
 }
 
 /* Students Grid */
 .students-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
     gap: 25px;
 }
 
@@ -326,7 +445,7 @@ $search = $_GET['search'] ?? '';
 
 .student-avatar {
     height: 120px;
-    background: linear-gradient(135deg, #f06724);
+    background: linear-gradient(135deg,#f06724);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -353,10 +472,33 @@ $search = $_GET['search'] ?? '';
     justify-content: center;
     font-size: 2rem;
     font-weight: 700;
-    color: #f06724;
+    color: #7f2677;
     border: 4px solid white;
     position: absolute;
     bottom: -40px;
+}
+
+.student-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.student-badge.top-performer {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+}
+
+.student-badge.good-performer {
+    background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
 }
 
 .student-info {
@@ -365,10 +507,32 @@ $search = $_GET['search'] ?? '';
 }
 
 .student-name {
-    color: black;
+    color: #1E293B;
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 10px;
+}
+
+.student-role {
+    margin-bottom: 10px;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.role-badge.learner {
+    background: #F0FDF4;
+    color: #166534;
+}
+
+.role-badge.external {
+    background: #EFF6FF;
+    color: #1E40AF;
 }
 
 .student-class,
@@ -387,6 +551,36 @@ $search = $_GET['search'] ?? '';
     color: #f06724;
 }
 
+/* Performance Bar */
+.performance-bar {
+    margin: 15px 0;
+    padding: 10px;
+    background: #F8FAFC;
+    border-radius: 8px;
+}
+
+.performance-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    margin-bottom: 5px;
+    color: black;
+}
+
+.progress-bar {
+    height: 6px;
+    background: #E2E8F0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* Student Stats */
 .student-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -403,18 +597,35 @@ $search = $_GET['search'] ?? '';
 
 .stat-label {
     display: block;
-    color: #7f2677;
+    color: black;
     font-size: 0.7rem;
-    margin-bottom: 3px;
+    margin-bottom: 5px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
+.stat-label i {
+    color: #f06724;
+    margin-right: 3px;
+}
+
 .stat-value {
     display: block;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: black;
+}
+
+.stat-value.high {
+    color: #10B981;
+}
+
+.stat-value.medium {
+    color: #F59E0B;
+}
+
+.stat-value.low {
+    color: #EF4444;
 }
 
 .student-actions {
@@ -454,7 +665,7 @@ $search = $_GET['search'] ?? '';
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f06724, #F97316);
+    background: linear-gradient(135deg, #f06724);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -467,61 +678,35 @@ $search = $_GET['search'] ?? '';
 }
 
 .empty-state h3 {
-    color: #1E293B;
+    color: black;
     font-size: 1.3rem;
     margin-bottom: 10px;
 }
 
 .empty-state p {
     color: black;
+    margin-bottom: 5px;
 }
 
-/* Role Badges */
-.student-role {
-    margin-bottom: 10px;
+.empty-hint {
+    font-size: 0.85rem;
+    color: #94A3B8;
 }
-
-.role-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 30px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.role-badge.learner {
-    background: #F0FDF4;
-    color: #166534;
-}
-
-.role-badge.learner i {
-    color: #10B981;
-}
-
-.role-badge.external {
-    background: #EFF6FF;
-    color: #7f2677;
-}
-
-.role-badge.external i {
-    color: #3B82F6;
-}
-
-/* Dark mode */
-/* @media (prefers-color-scheme: dark) {
-    .role-badge.learner {
-        background: #1E3A5F;
-        color: #93C5FD;
-    }
-    
-    .role-badge.external {
-        background: #2D3A4F;
-        color: #94A3B8;
-    }
-} */
 
 /* Responsive */
 @media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+    }
+    
+    .quick-stats {
+        width: 100%;
+    }
+    
+    .quick-stat-card {
+        flex: 1;
+    }
+    
     .filters-form {
         flex-direction: column;
     }
@@ -536,14 +721,24 @@ $search = $_GET['search'] ?? '';
     .students-grid {
         grid-template-columns: 1fr;
     }
+    
+    .student-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
 }
 
 /* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
+    .quick-stat-card,
     .filters-section,
     .student-card,
     .empty-state {
         background: #1E293B;
+    }
+    
+    .quick-stat-value {
+        color: #F1F5F9;
     }
     
     .student-name {
@@ -554,23 +749,32 @@ $search = $_GET['search'] ?? '';
         color: #F1F5F9;
     }
     
-    .student-class,
-    .student-email,
-    .stat-label {
-        color: #94A3B8;
+    .performance-bar {
+        background: #334155;
     }
     
     .btn-clear {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #334155;
+        background: #334155;
+        color: #F1F5F9;
+        border-color: #475569;
     }
     
     .btn-clear:hover {
-        background: #334155;
+        background: #475569;
+    }
+    
+    .filter-group select {
+        background: #1E293B;
+        border-color: #334155;
         color: #F1F5F9;
     }
-} */
+    
+    .search-box input {
+        background: #1E293B;
+        border-color: #334155;
+        color: #F1F5F9;
+    }
+}
 </style>
 
 <script>
@@ -588,7 +792,7 @@ document.addEventListener('DOMContentLoaded', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 filterForm.submit();
-            }, 500); // Wait 500ms after user stops typing
+            }, 500);
         });
     }
     
@@ -598,11 +802,7 @@ document.addEventListener('DOMContentLoaded', function() {
             filterForm.submit();
         });
     }
-    
-    // Preserve scroll position after form submit
-    if (window.history.replaceState) {
-        window.history.replaceState(null, null, window.location.href);
-    }
 });
 </script>
+
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

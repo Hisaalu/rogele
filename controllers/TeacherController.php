@@ -408,36 +408,22 @@ class TeacherController {
     }
     
     /**
-     * Students Management
+     * Show all students (teacher view)
      */
     public function students() {
         $hideFooter = true;
-        
         $teacherId = $_SESSION['user_id'];
+        
         $classId = $_GET['class_id'] ?? null;
         $search = $_GET['search'] ?? null;
         
-        // Debug logging
-        error_log("========== STUDENTS METHOD CALLED ==========");
-        error_log("Teacher ID: " . $teacherId);
-        error_log("Class ID: " . ($classId ?? 'none'));
-        error_log("Search: " . ($search ?? 'none'));
+        // Get ALL students with stats
+        $students = $this->userModel->getStudentsWithStats($teacherId, $classId, $search);
         
-        // Get classes taught by this teacher
-        $classes = $this->classModel->getByTeacher($teacherId);
-        error_log("Classes found: " . count($classes));
+        // Get all classes for filter
+        $classes = $this->classModel->getAllClasses(); // Get ALL classes, not just teacher's
         
-        // Get students
-        $students = $this->userModel->getStudentsByTeacher($teacherId, $classId, $search);
-        error_log("Students found: " . count($students));
-        
-        // If no students found, try a simpler query to see if any students exist
-        if (empty($students)) {
-            error_log("WARNING: No students found! Checking if any students exist in database...");
-            $allStudents = $this->userModel->getAllStudents();
-            error_log("Total students in database: " . count($allStudents));
-        }
-        
+        // Pass data to view
         require_once __DIR__ . '/../views/teacher/students.php';
     }
     
