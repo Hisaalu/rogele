@@ -728,7 +728,7 @@ $search = $_GET['search'] ?? '';
     }
 }
 
-/* Dark Mode */
+/* Dark Mode
 @media (prefers-color-scheme: dark) {
     .quick-stat-card,
     .filters-section,
@@ -774,7 +774,7 @@ $search = $_GET['search'] ?? '';
         border-color: #334155;
         color: #F1F5F9;
     }
-}
+} */
 </style>
 
 <script>

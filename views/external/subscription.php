@@ -250,7 +250,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
             
             <div class="secure-badge">
                 <i class="fas fa-shield-alt"></i>
-                <span>Secured by MoneyUnify</span>
+                <span>Secured by PesaPal</span>
             </div>
             
             <div class="modal-buttons">

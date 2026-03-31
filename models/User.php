@@ -46,16 +46,13 @@ class User {
                 return ['success' => false, 'error' => 'Email already registered'];
             }
             
-            // Hash password
             $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
             
-            // Generate registration number for learners
             $registrationNumber = null;
             if (isset($data['role']) && $data['role'] === 'learner') {
                 $registrationNumber = $this->generateRegistrationNumber($data['class_id'] ?? 'P1');
             }
             
-            // Insert user with class_id
             $query = "INSERT INTO users (
                 registration_number, email, password, first_name, last_name, 
                 phone, role, class_id, email_verified, is_active, created_at
@@ -78,10 +75,8 @@ class User {
             
             $userId = $this->conn->lastInsertId();
             
-            // Log activity
             $this->logActivity($userId, 'REGISTRATION', 'User registered successfully');
             
-            // Return user data
             $userData = $this->getById($userId);
             unset($userData['password']);
             
@@ -135,15 +130,12 @@ class User {
                 return ['success' => false, 'error' => 'Your account has been suspended. Please contact support.'];
             }
             
-            // Update last login
             $updateQuery = "UPDATE users SET last_login = NOW() WHERE id = :id";
             $updateStmt = $this->conn->prepare($updateQuery);
             $updateStmt->execute([':id' => $user['id']]);
             
-            // Log activity
             $this->logActivity($user['id'], 'LOGIN', 'User logged in successfully');
             
-            // Remove password from result
             unset($user['password']);
             
             return ['success' => true, 'user' => $user];
@@ -227,14 +219,12 @@ class User {
             error_log("User ID: $userId");
             error_log("Data: " . json_encode($data));
             
-            // Check if user exists
             $user = $this->getById($userId);
             if (!$user) {
                 error_log("User not found: $userId");
                 return ['success' => false, 'error' => 'User not found'];
             }
             
-            // Check if email is being changed and if it's already taken
             if ($user['email'] !== $data['email']) {
                 $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
                 $checkStmt = $this->conn->prepare($checkQuery);
@@ -248,7 +238,6 @@ class User {
                 }
             }
             
-            // Build the update query
             $query = "UPDATE users SET 
                     first_name = :first_name,
                     last_name = :last_name,
@@ -292,7 +281,6 @@ class User {
      */
     public function updateUserAsAdmin($userId, $data) {
         try {
-            // Check if email is being changed and if it's already taken
             $currentUser = $this->getById($userId);
             if ($currentUser && $currentUser['email'] !== $data['email']) {
                 $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
@@ -326,7 +314,6 @@ class User {
             ]);
             
             if ($result) {
-                // DO NOT update session - this is for admin editing another user
                 $this->logActivity($userId, 'ADMIN_UPDATE', 'User updated by admin');
                 return ['success' => true, 'message' => 'User updated successfully'];
             }
@@ -344,7 +331,6 @@ class User {
      */
     public function changePassword($userId, $currentPassword, $newPassword) {
         try {
-            // Verify current password
             $query = "SELECT password FROM users WHERE id = :id";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([':id' => $userId]);
@@ -358,7 +344,6 @@ class User {
                 return ['success' => false, 'error' => 'Current password is incorrect'];
             }
             
-            // Update password
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $updateQuery = "UPDATE users SET password = :password, updated_at = NOW() WHERE id = :id";
             $updateStmt = $this->conn->prepare($updateQuery);
@@ -392,7 +377,6 @@ class User {
             error_log("=== deleteAccount method in User model called ===");
             error_log("User ID: $userId");
             
-            // Get user data to verify password
             $sql = "SELECT password FROM users WHERE id = :user_id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -404,7 +388,6 @@ class User {
                 return ['success' => false, 'error' => 'User not found'];
             }
             
-            // Verify password
             if (!password_verify($password, $user['password'])) {
                 error_log("Password verification failed for user: $userId");
                 return ['success' => false, 'error' => 'Incorrect password. Please try again.'];
@@ -412,7 +395,6 @@ class User {
             
             error_log("Password verified, starting deletion...");
             
-            // Start transaction
             $this->conn->beginTransaction();
             
             // Delete quiz attempt answers
@@ -427,10 +409,8 @@ class User {
                 error_log("Deleted $count quiz_attempt_answers records");
             } catch (PDOException $e) {
                 error_log("Error deleting quiz_attempt_answers: " . $e->getMessage());
-                // Continue - table might not exist
             }
             
-            // Delete quiz attempts
             try {
                 $sql = "DELETE FROM quiz_attempts WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
@@ -442,7 +422,6 @@ class User {
                 error_log("Error deleting quiz_attempts: " . $e->getMessage());
             }
             
-            // Delete subscriptions
             try {
                 $sql = "DELETE FROM subscriptions WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
@@ -454,7 +433,6 @@ class User {
                 error_log("Error deleting subscriptions: " . $e->getMessage());
             }
             
-            // Delete payments
             try {
                 $sql = "DELETE FROM payments WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
@@ -466,7 +444,6 @@ class User {
                 error_log("Error deleting payments: " . $e->getMessage());
             }
             
-            // Delete bookmarks
             try {
                 $sql = "DELETE FROM bookmarks WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
@@ -478,7 +455,6 @@ class User {
                 error_log("Error deleting bookmarks: " . $e->getMessage());
             }
             
-            // Delete lesson progress
             try {
                 $sql = "DELETE FROM lesson_progress WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
@@ -490,7 +466,6 @@ class User {
                 error_log("Error deleting lesson_progress: " . $e->getMessage());
             }
             
-            // Finally, delete the user
             $sql = "DELETE FROM users WHERE id = :user_id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -503,7 +478,6 @@ class User {
                 throw new Exception("User record not deleted");
             }
             
-            // Commit transaction
             $this->conn->commit();
             
             error_log("Account deleted successfully for user: $userId");
@@ -537,18 +511,15 @@ class User {
             $fileName = time() . '_' . basename($file['name']);
             $targetFile = $targetDir . $fileName;
             
-            // Validate image
             $check = getimagesize($file['tmp_name']);
             if ($check === false) {
                 return ['success' => false, 'error' => 'File is not an image'];
             }
             
-            // Check file size (max 2MB)
             if ($file['size'] > 2097152) {
                 return ['success' => false, 'error' => 'File size must be less than 2MB'];
             }
             
-            // Allow certain file formats
             $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
             $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
             
@@ -614,12 +585,10 @@ class User {
                 return false;
             }
             
-            // Learners, teachers, and admins always have access
             if (in_array($user['role'], ['learner', 'teacher', 'admin'])) {
                 return true;
             }
             
-            // Check free trial
             $trialQuery = "SELECT * FROM free_trials WHERE user_id = :user_id AND end_date > NOW()";
             $trialStmt = $this->conn->prepare($trialQuery);
             $trialStmt->execute([':user_id' => $userId]);
@@ -627,7 +596,6 @@ class User {
                 return true;
             }
             
-            // Check active subscription
             $subQuery = "SELECT * FROM subscriptions WHERE user_id = :user_id AND status = 'active' AND end_date > NOW()";
             $subStmt = $this->conn->prepare($subQuery);
             $subStmt->execute([':user_id' => $userId]);
@@ -1186,16 +1154,13 @@ class User {
      */
     public function deleteUser($userId) {
         try {
-            // Check if user exists
             $user = $this->getById($userId);
             if (!$user) {
                 return ['success' => false, 'error' => 'User not found'];
             }
             
-            // Start transaction
             $this->conn->beginTransaction();
             
-            // Delete related records
             $tables = ['subscriptions', 'free_trials', 'payments', 'activity_logs', 'bookmarks', 'quiz_attempts'];
             
             foreach ($tables as $table) {
@@ -1204,7 +1169,6 @@ class User {
                 $deleteStmt->execute([':user_id' => $userId]);
             }
             
-            // Finally delete user
             $deleteUser = "DELETE FROM users WHERE id = :id";
             $deleteUserStmt = $this->conn->prepare($deleteUser);
             $deleteUserStmt->execute([':id' => $userId]);
@@ -1310,13 +1274,11 @@ class User {
                 ':teacher_id2' => $teacherId
             );
             
-            // Add class filter
             if ($classId) {
                 $sql .= " AND u.class_id = :class_id";
                 $params[':class_id'] = $classId;
             }
             
-            // Add search filter
             if ($search && !empty($search)) {
                 $searchPattern = '%' . $search . '%';
                 $sql .= " AND (u.first_name LIKE :search1 
@@ -1333,7 +1295,6 @@ class User {
             
             $stmt = $this->conn->prepare($sql);
             
-            // Bind all parameters
             foreach ($params as $key => $value) {
                 $stmt->bindValue($key, $value);
             }
@@ -1600,18 +1561,16 @@ class User {
     }
 
     /**
-     * Get ALL students with their statistics (for teacher view)
+     * Get ALL students with their statistics
      */
     public function getStudentsWithStats($teacherId, $classId = null, $search = null) {
         try {
-            error_log("=== GET ALL STUDENTS WITH STATS ===");
-            error_log("Teacher ID: " . $teacherId);
+            error_log("=== GET STUDENTS WITH STATS ===");
             
             $conn = $this->conn;
             
-            // Query to get ALL students (learners and external users)
             $query = "
-                SELECT DISTINCT 
+                SELECT 
                     u.id,
                     u.first_name,
                     u.last_name,
@@ -1621,44 +1580,27 @@ class User {
                     u.profile_photo,
                     u.class_id,
                     c.name as class_name,
-                    COALESCE((
-                        SELECT COUNT(DISTINCT qa.id) 
-                        FROM quiz_attempts qa
-                        INNER JOIN quizzes q ON qa.quiz_id = q.id
-                        WHERE qa.user_id = u.id 
-                        AND q.teacher_id = ?
-                        AND qa.completed_at IS NOT NULL
-                    ), 0) as quizzes_taken,
-                    COALESCE((
-                        SELECT AVG(qa.score) 
-                        FROM quiz_attempts qa
-                        INNER JOIN quizzes q ON qa.quiz_id = q.id
-                        WHERE qa.user_id = u.id 
-                        AND q.teacher_id = ?
-                        AND qa.completed_at IS NOT NULL
-                    ), 0) as avg_score,
-                    COALESCE((
-                        SELECT COUNT(DISTINCT lv.lesson_id) 
-                        FROM lesson_views lv
-                        INNER JOIN lessons l ON lv.lesson_id = l.id
-                        WHERE lv.user_id = u.id 
-                        AND l.teacher_id = ?
-                    ), 0) as lessons_viewed
+                    COUNT(DISTINCT qa.id) as quizzes_taken,
+                    COALESCE(AVG(qa.score), 0) as avg_score,
+                    MAX(qa.score) as highest_score,
+                    MIN(qa.score) as lowest_score,
+                    COUNT(DISTINCT lv.id) as lessons_viewed
                 FROM users u
                 LEFT JOIN classes c ON u.class_id = c.id
+                LEFT JOIN quiz_attempts qa ON u.id = qa.user_id 
+                    AND qa.completed_at IS NOT NULL
+                LEFT JOIN lesson_views lv ON u.id = lv.user_id
                 WHERE u.role IN ('learner', 'external')
                 AND u.is_active = 1
             ";
             
-            $params = [$teacherId, $teacherId, $teacherId];
+            $params = [];
             
-            // Add class filter if specified
             if ($classId) {
                 $query .= " AND u.class_id = ?";
                 $params[] = $classId;
             }
             
-            // Add search filter if specified
             if ($search) {
                 $query .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ?)";
                 $searchTerm = "%$search%";
@@ -1667,7 +1609,8 @@ class User {
                 $params[] = $searchTerm;
             }
             
-            $query .= " ORDER BY u.first_name ASC";
+            $query .= " GROUP BY u.id, u.first_name, u.last_name, u.email, u.phone, u.role, u.profile_photo, u.class_id, c.name
+                        ORDER BY u.first_name ASC";
             
             error_log("Query: " . $query);
             
@@ -1676,17 +1619,19 @@ class User {
             
             $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Round average scores
             foreach ($students as &$student) {
                 $student['avg_score'] = round($student['avg_score'] ?? 0, 1);
+                $student['quizzes_taken'] = (int)$student['quizzes_taken'];
+                $student['lessons_viewed'] = (int)$student['lessons_viewed'];
             }
             
-            error_log("Total students found: " . count($students));
+            error_log("Students found: " . count($students));
             
             return $students;
             
         } catch (PDOException $e) {
             error_log("Get students with stats error: " . $e->getMessage());
+            error_log("Error code: " . $e->getCode());
             return [];
         }
     }
@@ -1696,13 +1641,32 @@ class User {
      */
     public function addStudentToClass($userId, $classId) {
         try {
-            // Update the user's class_id directly
             $stmt = $this->conn->prepare("UPDATE users SET class_id = ? WHERE id = ?");
             $stmt->execute([$classId, $userId]);
             return true;
         } catch (PDOException $e) {
             error_log("Add student to class error: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Count total students (learners and external users)
+     */
+    public function countTotalStudents() {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT COUNT(*) as total 
+                FROM users 
+                WHERE role IN ('learner', 'external') 
+                AND is_active = 1
+            ");
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Count total students error: " . $e->getMessage());
+            return 0;
         }
     }
 }
