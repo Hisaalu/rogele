@@ -33,14 +33,14 @@ class MailHelper {
         $this->mail->Username   = 'info@raysofgrace.ac.ug';
         $password = $_ENV['MAIL_PASSWORD'] ?? getenv('MAIL_PASSWORD') ?? $_SERVER['MAIL_PASSWORD'];
         $this->mail->Password   = $password;
-        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mail->Port       = 587;
+        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $this->mail->Port       = 465;
         $this->mail->setFrom('info@raysofgrace.ac.ug', 'ROGELE');
         $this->mail->addReplyTo('info@raysofgrace.ac.ug', 'ROGELE');
         $this->mail->CharSet = 'UTF-8';
         $this->mail->Timeout = 30;
         
-        error_log("MailHelper initialized");
+        error_log("MailHelper initialized with Port 465");
     }
     
     /**
