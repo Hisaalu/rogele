@@ -31,7 +31,7 @@ class MailHelper {
         $this->mail->Host       = 'mail.privateemail.com';
         $this->mail->SMTPAuth   = true;
         $this->mail->Username   = 'info@raysofgrace.ac.ug';
-        $password = getenv('MAIL_PASSWORD') ?: ($_ENV['MAIL_PASSWORD'] ?? null);
+        $password = $_ENV['MAIL_PASSWORD'] ?? getenv('MAIL_PASSWORD') ?? $_SERVER['MAIL_PASSWORD'];
         $this->mail->Password   = $password;
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mail->Port       = 587;
@@ -166,7 +166,7 @@ class MailHelper {
                     border-top: 1px solid #e2e8f0;
                 }
                 .footer a {
-                    color: #f06724;
+                    color: #7f2677;
                     text-decoration: none;
                 }
                 @media (max-width: 600px) {
