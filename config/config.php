@@ -19,6 +19,23 @@ if (file_exists($envPath)) {
 }
 
 // Database Configuration
+// if (getenv('RENDER')) {
+//     // PRODUCTION (Render)
+//     define('DB_HOST', getenv('DB_HOST'));
+//     define('DB_PORT', getenv('DB_PORT') ?: '4000');
+//     define('DB_NAME', getenv('DB_NAME'));
+//     define('DB_USER', getenv('DB_USER'));
+//     define('DB_PASS', getenv('DB_PASS'));
+// } else {
+//     // LOCAL SETTINGS (XAMPP - using your .env loader)
+//     define('DB_HOST', $env['DB_HOST'] ?? 'gateway01.eu-central-1.prod.aws.tidbcloud.com');
+//     define('DB_PORT', $env['DB_PORT'] ?? '4000'); 
+//     define('DB_NAME', $env['DB_NAME'] ?? 'ROGELEDB');
+//     define('DB_USER', $env['DB_USER'] ?? '2VcYykLWVZacLnw.root');
+//     define('DB_PASS', $env['DB_PASS'] ?? ''); 
+// }
+
+// Database Configuration
 if (getenv('RENDER')) {
     // PRODUCTION (Render)
     define('DB_HOST', getenv('DB_HOST'));
@@ -28,11 +45,10 @@ if (getenv('RENDER')) {
     define('DB_PASS', getenv('DB_PASS'));
 } else {
     // LOCAL SETTINGS (XAMPP - using your .env loader)
-    define('DB_HOST', $env['DB_HOST'] ?? 'gateway01.eu-central-1.prod.aws.tidbcloud.com');
-    define('DB_PORT', $env['DB_PORT'] ?? '4000'); 
-    define('DB_NAME', $env['DB_NAME'] ?? 'ROGELEDB');
-    define('DB_USER', $env['DB_USER'] ?? '2VcYykLWVZacLnw.root');
-    define('DB_PASS', $env['DB_PASS'] ?? ''); 
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'rays_of_grace_elearning');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
 }
 
 //Application Configuration

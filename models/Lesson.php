@@ -931,5 +931,21 @@ class Lesson {
             return ['success' => false, 'error' => 'Database error'];
         }
     }
+
+    /**
+     * Get total lessons count by teacher
+     */
+    public function getTotalLessonsByTeacher($teacherId) {
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as total FROM lessons WHERE teacher_id = ?");
+            $stmt->execute([$teacherId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            error_log("getTotalLessonsByTeacher - Teacher: $teacherId, Count: " . ($result['total'] ?? 0));
+            return $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("getTotalLessonsByTeacher error: " . $e->getMessage());
+            return 0;
+        }
+    }
 }
 ?>

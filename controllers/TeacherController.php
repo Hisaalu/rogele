@@ -496,31 +496,66 @@ class TeacherController {
     public function profile() {
         $hideFooter = true;
         
-        $userId = $_SESSION['user_id'];
+        $teacherId = $_SESSION['user_id']; // Changed from $userId to $teacherId
+        error_log("Teacher Profile - ID: " . $teacherId);
+        
+        // Get total lessons count - Fix this line
+        $totalLessons = 0;
+        if (method_exists($this->lessonModel, 'getTotalLessonsByTeacher')) {
+            $totalLessons = $this->lessonModel->getTotalLessonsByTeacher($teacherId);
+        } elseif (method_exists($this->lessonModel, 'getByTeacher')) {
+            $lessons = $this->lessonModel->getByTeacher($teacherId);
+            $totalLessons = is_array($lessons) ? count($lessons) : 0;
+        }
+        error_log("Total Lessons: " . $totalLessons);
+        
+        // Get published lessons for display
+        $publishedLessons = [];
+        if (method_exists($this->lessonModel, 'getPublishedLessonsByTeacher')) {
+            $publishedLessons = $this->lessonModel->getPublishedLessonsByTeacher($teacherId, 10);
+            error_log("Published Lessons Count: " . count($publishedLessons));
+        }
         
         // Get user profile
-        $profile = $this->userModel->getProfile($userId);
+        $profile = $this->userModel->getProfile($teacherId);
         
         if (!$profile) {
+            error_log("Profile not found, creating from session");
             $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Teacher');
             $profile = [
-                'id' => $userId,
+                'id' => $teacherId,
                 'first_name' => $nameParts[0] ?? '',
                 'last_name' => $nameParts[1] ?? '',
                 'email' => $_SESSION['user_email'] ?? '',
                 'phone' => '',
                 'role' => 'teacher',
+                'bio' => '',
+                'qualification' => '',
+                'specialization' => '',
                 'created_at' => date('Y-m-d H:i:s'),
+                'last_login' => date('Y-m-d H:i:s'),
                 'profile_photo' => null
             ];
         }
         
         // Get actual students count (learners and external users)
-        $profile['students_count'] = $this->userModel->countStudentsByTeacher($userId);
+        $studentsCount = 0;
+        if (method_exists($this->userModel, 'countStudentsByTeacher')) {
+            $studentsCount = $this->userModel->countStudentsByTeacher($teacherId);
+        }
+        error_log("Students Count: " . $studentsCount);
+        $profile['students_count'] = $studentsCount;
         
-        // Get classes count
-        $profile['classes_count'] = count($this->classModel->getByTeacher($userId));
+        // Get classes count - check if classModel exists
+        $classesCount = 0;
+        if (isset($this->classModel) && method_exists($this->classModel, 'getByTeacher')) {
+            $classes = $this->classModel->getByTeacher($teacherId);
+            $classesCount = is_array($classes) ? count($classes) : 0;
+        }
+        error_log("Classes Count: " . $classesCount);
+        $profile['classes_count'] = $classesCount;
         
+        // Pass data to view
         require_once __DIR__ . '/../views/teacher/profile.php';
     }
     
