@@ -6,9 +6,13 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-//load environment variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();
+//load environment variables from .env file
+$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+
+// Only try to load if the .env file actually exists
+if (file_exists(__DIR__ . '/../.env')) {
+    $dotenv->load();
+}
 
 class MailHelper {
     private $mail;

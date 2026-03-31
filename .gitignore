@@ -12,5 +12,5 @@
 
 # other files and folders
 /logs
-/test
+/tests
 test.php
