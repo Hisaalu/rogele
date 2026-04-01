@@ -85,30 +85,29 @@ class ExternalController {
             exit;
         }
         
+        // Get the logged-in user's class
+        $user = $this->userModel->getById($_SESSION['user_id']);
+        $userClassId = $user['class_id'] ?? null;
+        
         $search = isset($_GET['search']) ? trim($_GET['search']) : null;
         $subject = isset($_GET['subject']) ? (int)$_GET['subject'] : null;
         
+        // Get lessons filtered by user's class
         if ($search) {
-            $lessons = $this->lessonModel->searchPublished($search, $subject);
+            $lessons = $this->lessonModel->searchPublishedByClass($search, $userClassId, $subject);
         } else {
-            $lessons = $this->lessonModel->getPublishedLessons($subject);
+            $lessons = $this->lessonModel->getPublishedLessonsByClass($userClassId, $subject);
         }
         
-        $allSubjects = $this->subjectModel->getAll();
+        // Get subjects ONLY for the user's class
+        $subjects = $this->subjectModel->getByClassId($userClassId);
         
-        usort($allSubjects, function($a, $b) {
+        // Sort subjects
+        usort($subjects, function($a, $b) {
             return strcmp($a['name'], $b['name']);
         });
         
-        $selectedSubjectName = '';
-        if ($subject) {
-            foreach ($allSubjects as $sub) {
-                if ($sub['id'] == $subject) {
-                    $selectedSubjectName = $sub['name'];
-                    break;
-                }
-            }
-        }
+        $selectedSubject = $subject;
         
         require_once __DIR__ . '/../views/external/materials.php';
     }

@@ -876,5 +876,89 @@ class Lesson {
             return 0;
         }
     }
+
+    /**
+     * Get published lessons by class
+     */
+    public function getPublishedLessonsByClass($classId, $subjectId = null) {
+        try {
+            $sql = "SELECT l.*, 
+                        s.name as subject_name,
+                        c.name as class_name,
+                        u.first_name as teacher_name,
+                        u.last_name as teacher_last_name,
+                        (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                    FROM lessons l
+                    LEFT JOIN subjects s ON l.subject_id = s.id
+                    LEFT JOIN classes c ON l.class_id = c.id
+                    LEFT JOIN users u ON l.teacher_id = u.id
+                    WHERE l.is_published = 1 
+                    AND l.class_id = :class_id";
+            
+            $params = [':class_id' => $classId];
+            
+            if ($subjectId) {
+                $sql .= " AND l.subject_id = :subject_id";
+                $params[':subject_id'] = $subjectId;
+            }
+            
+            $sql .= " ORDER BY l.created_at DESC";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute($params);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error getting published lessons by class: " . $e->getMessage());
+            return array();
+        }
+    }
+
+    /**
+     * Search published lessons by class
+     */
+    public function searchPublishedByClass($searchTerm, $classId, $subjectId = null) {
+        try {
+            $searchPattern = '%' . $searchTerm . '%';
+            
+            $sql = "SELECT l.*, 
+                        s.name as subject_name,
+                        c.name as class_name,
+                        u.first_name as teacher_name,
+                        u.last_name as teacher_last_name,
+                        (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
+                    FROM lessons l
+                    LEFT JOIN subjects s ON l.subject_id = s.id
+                    LEFT JOIN classes c ON l.class_id = c.id
+                    LEFT JOIN users u ON l.teacher_id = u.id
+                    WHERE l.is_published = 1 
+                    AND l.class_id = :class_id
+                    AND (l.title LIKE :search1 
+                        OR l.content LIKE :search2)";
+            
+            $params = array(
+                ':class_id' => $classId,
+                ':search1' => $searchPattern,
+                ':search2' => $searchPattern
+            );
+            
+            if ($subjectId) {
+                $sql .= " AND l.subject_id = :subject_id";
+                $params[':subject_id'] = $subjectId;
+            }
+            
+            $sql .= " ORDER BY l.created_at DESC";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute($params);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error searching published lessons by class: " . $e->getMessage());
+            return array();
+        }
+    }
 }
 ?>

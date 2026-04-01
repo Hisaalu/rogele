@@ -6,15 +6,12 @@ require_once __DIR__ . '/../layouts/header.php';
 $quizzes = $quizzes ?? [];
 $results = $results ?? [];
 
-// Group results by quiz for quick lookup
 $userResults = [];
 foreach ($results as $result) {
     $userResults[$result['quiz_id']][] = $result;
 }
 
-// Debug info (visible in page source) - FIXED: moved inside the foreach loop
 echo "<!-- Total quizzes loaded: " . count($quizzes) . " -->\n";
-// Only loop through quizzes if they exist
 if (!empty($quizzes)) {
     foreach ($quizzes as $quiz) {
         echo "<!-- Quiz: ID={$quiz['id']} - Title={$quiz['title']} - Max Attempts: " . ($quiz['max_attempts'] ?? 3) . " -->\n";
@@ -23,7 +20,6 @@ if (!empty($quizzes)) {
 ?>
 
 <div class="quizzes-container">
-    <!-- Header -->
     <div class="quizzes-header">
         <h1 class="page-title">
             <i class="fas fa-pencil-alt"></i>
@@ -32,7 +28,6 @@ if (!empty($quizzes)) {
         <p class="page-subtitle">Test your knowledge with interactive quizzes</p>
     </div>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -47,7 +42,6 @@ if (!empty($quizzes)) {
         </div>
     <?php endif; ?>
 
-    <!-- Quizzes Grid -->
     <?php if (empty($quizzes)): ?>
         <div class="empty-state">
             <div class="empty-icon">
@@ -89,16 +83,13 @@ if (!empty($quizzes)) {
                 $hasQuestions = (isset($quiz['question_count']) ? $quiz['question_count'] : 0) > 0;
                 $endDate = isset($quiz['end_date']) ? $quiz['end_date'] : null;
                 
-                // Check if quiz is expired
                 $isExpired = false;
                 if (!empty($endDate) && strtotime($endDate) < time()) {
                     $isExpired = true;
                 }
                 
-                // Check if user has used all attempts (no attempts left)
                 $noAttemptsLeft = ($remainingAttempts <= 0 && $attemptCount > 0);
                 
-                // Get subject and class names with defaults
                 $subjectName = isset($quiz['subject_name']) ? $quiz['subject_name'] : 'General';
                 $className = isset($quiz['class_name']) ? $quiz['class_name'] : 'All Levels';
                 $questionCount = isset($quiz['question_count']) ? $quiz['question_count'] : 0;
