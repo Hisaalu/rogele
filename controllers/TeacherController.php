@@ -463,7 +463,7 @@ class TeacherController {
         $stats = [
             'total_lessons' => count($this->lessonModel->getByTeacher($teacherId)),
             'total_quizzes' => count($this->quizModel->getByTeacher($teacherId)),
-            'total_students' => $this->userModel->countStudentsByTeacher($teacherId),
+            'total_students' => $this->userModel->countTotalStudents(),
             'avg_score' => $this->quizModel->getAverageScoreByTeacher($teacherId)
         ];
         

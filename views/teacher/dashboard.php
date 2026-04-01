@@ -73,7 +73,7 @@ $classPerformance = $classPerformance ?? [
             </div>
             <div class="stat-content">
                 <span class="stat-label">Total Students</span>
-                <span class="stat-value"><?php echo number_format($classPerformance['total_students']); ?></span>
+                <span class="stat-value"><?php echo number_format($totalStudents); ?></span>
                 <span class="stat-trend positive">
                     <i class="fas fa-arrow-up"></i> +12% vs last month
                 </span>

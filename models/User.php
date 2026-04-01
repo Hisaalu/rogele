@@ -1223,93 +1223,6 @@ class User {
     }
 
     /**
-     * Get user registration statistics for a date range
-     */
-    public function getUserRegistrationStats($start_date, $end_date) {
-        try {
-            $query = "SELECT 
-                        DATE(created_at) as date,
-                        COUNT(*) as total,
-                        SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
-                        SUM(CASE WHEN role = 'teacher' THEN 1 ELSE 0 END) as teachers,
-                        SUM(CASE WHEN role = 'learner' THEN 1 ELSE 0 END) as learners,
-                        SUM(CASE WHEN role = 'external' THEN 1 ELSE 0 END) as external
-                    FROM users
-                    WHERE DATE(created_at) BETWEEN :start_date AND :end_date
-                    GROUP BY DATE(created_at)
-                    ORDER BY date DESC";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                ':start_date' => $start_date,
-                ':end_date' => $end_date
-            ]);
-            
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log("Get user registration stats error: " . $e->getMessage());
-            return [];
-        }
-    }
-
-    /**
-    * Get students (learners and external users) taught by a teacher
-    */
-    public function getStudentsByTeacher($teacherId, $classId = null, $search = null) {
-        try {
-            $sql = "SELECT DISTINCT u.*, 
-                        s.name as class_name,
-                        (SELECT COUNT(*) FROM quiz_attempts qa 
-                            JOIN quizzes q ON qa.quiz_id = q.id 
-                            WHERE qa.user_id = u.id AND q.teacher_id = :teacher_id1) as quiz_attempts,
-                        (SELECT COUNT(*) FROM lesson_progress lp 
-                            JOIN lessons l ON lp.lesson_id = l.id 
-                            WHERE lp.user_id = u.id AND l.teacher_id = :teacher_id2) as lessons_completed
-                    FROM users u
-                    LEFT JOIN classes s ON u.class_id = s.id
-                    WHERE (u.role = 'learner' OR u.role = 'external')";
-            
-            $params = array(
-                ':teacher_id1' => $teacherId,
-                ':teacher_id2' => $teacherId
-            );
-            
-            if ($classId) {
-                $sql .= " AND u.class_id = :class_id";
-                $params[':class_id'] = $classId;
-            }
-            
-            if ($search && !empty($search)) {
-                $searchPattern = '%' . $search . '%';
-                $sql .= " AND (u.first_name LIKE :search1 
-                            OR u.last_name LIKE :search2 
-                            OR u.email LIKE :search3 
-                            OR u.registration_number LIKE :search4)";
-                $params[':search1'] = $searchPattern;
-                $params[':search2'] = $searchPattern;
-                $params[':search3'] = $searchPattern;
-                $params[':search4'] = $searchPattern;
-            }
-            
-            $sql .= " ORDER BY u.created_at DESC";
-            
-            $stmt = $this->conn->prepare($sql);
-            
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
-            }
-            
-            $stmt->execute();
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-        } catch (PDOException $e) {
-            error_log("Get students by teacher error: " . $e->getMessage());
-            return array();
-        }
-    }
-
-    /**
      * Get students count by teacher with filters
      */
     public function countStudentsByTeacher($teacherId, $classId = null, $search = null) {
@@ -1357,28 +1270,6 @@ class User {
         } catch (PDOException $e) {
             error_log("Count students by teacher error: " . $e->getMessage());
             return 0;
-        }
-    }
-
-    /**
-     * Get all students (for debugging)
-     */
-    public function getAllStudents() {
-        try {
-            $query = "SELECT u.*, c.name as class_name 
-                    FROM users u
-                    LEFT JOIN classes c ON u.class_id = c.id
-                    WHERE (u.role = 'learner' OR u.role = 'external')
-                    AND u.is_active = 1
-                    ORDER BY u.role, u.first_name";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute();
-            
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log("Get all students error: " . $e->getMessage());
-            return [];
         }
     }
 
