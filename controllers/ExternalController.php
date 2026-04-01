@@ -85,24 +85,20 @@ class ExternalController {
             exit;
         }
         
-        // Get the logged-in user's class
         $user = $this->userModel->getById($_SESSION['user_id']);
         $userClassId = $user['class_id'] ?? null;
         
         $search = isset($_GET['search']) ? trim($_GET['search']) : null;
         $subject = isset($_GET['subject']) ? (int)$_GET['subject'] : null;
         
-        // Get lessons filtered by user's class
         if ($search) {
             $lessons = $this->lessonModel->searchPublishedByClass($search, $userClassId, $subject);
         } else {
             $lessons = $this->lessonModel->getPublishedLessonsByClass($userClassId, $subject);
         }
         
-        // Get subjects ONLY for the user's class
         $subjects = $this->subjectModel->getByClassId($userClassId);
         
-        // Sort subjects
         usort($subjects, function($a, $b) {
             return strcmp($a['name'], $b['name']);
         });
@@ -180,42 +176,29 @@ class ExternalController {
     }
     
     /**
-     * Show available quizzes
+     * Display quizzes for external users
      */
     public function quizzes() {
+        $this->checkAccess();
         $hideFooter = true;
         
-        $this->checkAccess();
-        
-        $quizzes = $this->quizModel->getAllQuizzes($_SESSION['user_id']);
-        
-        foreach ($quizzes as &$quiz) {
-            $availability = $this->quizModel->getQuizAvailabilityStatus($quiz['id']);
-            $quiz['available'] = $availability['available'];
-            $quiz['availability_message'] = $availability['message'];
-            $quiz['days_remaining'] = isset($availability['days_remaining']) ? $availability['days_remaining'] : null;
-            $quiz['end_date'] = isset($availability['end_date']) ? $availability['end_date'] : (isset($quiz['end_date']) ? $quiz['end_date'] : null);
-        }
-        unset($quiz);
-        
-        $completedAttempts = $this->quizModel->getUserCompletedAttempts($_SESSION['user_id']);
-        $attemptMap = [];
-        foreach ($completedAttempts as $attempt) {
-            if (!isset($attemptMap[$attempt['quiz_id']])) {
-                $attemptMap[$attempt['quiz_id']] = $attempt['id'];
-            }
+        if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
         }
         
-        foreach ($quizzes as &$quiz) {
-            $quiz['attempt_id'] = isset($attemptMap[$quiz['id']]) ? $attemptMap[$quiz['id']] : null;
+        $user = $this->userModel->getById($_SESSION['user_id']);
+        $userClassId = $user['class_id'] ?? null;
+        
+        if (!$userClassId) {
+            $this->setFlashMessage('warning', 'Please select a class in your profile to access quizzes.');
+            header('Location: ' . BASE_URL . '/profile');
+            exit;
         }
-        unset($quiz); 
+
+        $quizzes = $this->quizModel->getQuizzesByClass($userClassId);
         
         $results = $this->quizModel->getUserQuizResults($_SESSION['user_id']);
-        $userResults = [];
-        foreach ($results as $result) {
-            $userResults[$result['quiz_id']][] = $result;
-        }
         
         require_once __DIR__ . '/../views/external/quizzes.php';
     }

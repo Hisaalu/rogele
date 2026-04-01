@@ -397,7 +397,7 @@ if (!empty($quizzes)) {
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -416,7 +416,7 @@ if (!empty($quizzes)) {
 }
 
 .empty-state p {
-    color: #64748B;
+    color: black;
     margin-bottom: 30px;
     max-width: 500px;
     margin-left: auto;
@@ -444,7 +444,7 @@ if (!empty($quizzes)) {
 
 .feature-card i {
     font-size: 2rem;
-    color: #8B5CF6;
+    color: #f06724;
     margin-bottom: 15px;
 }
 
