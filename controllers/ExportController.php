@@ -19,7 +19,6 @@ class ExportController {
     private $settingsModel;
     
     public function __construct() {
-        // Check if user is logged in and is admin
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
             header('Location: ' . BASE_URL . '/login');
             exit;
@@ -31,7 +30,6 @@ class ExportController {
         $this->subscriptionModel = new Subscription();
         $this->settingsModel = new Settings();
         
-        // VERY IMPORTANT: Clean output buffer to prevent any previous output
         if (ob_get_length()) ob_clean();
     }
     
@@ -39,7 +37,6 @@ class ExportController {
      * Export report as PDF
      */
     public function exportReport() {
-        // Clean all output buffers
         while (ob_get_level() > 0) {
             ob_end_clean();
         }
@@ -49,7 +46,6 @@ class ExportController {
         $end_date = $_GET['end_date'] ?? date('Y-m-d');
         $days = $_GET['days'] ?? 30;
         
-        // Get data based on type
         switch ($type) {
             case 'overview':
                 $this->exportOverview($start_date, $end_date, $days);
@@ -76,7 +72,7 @@ class ExportController {
      * Export Overview Report
      */
     private function exportOverview($start_date, $end_date, $days) {
-        // Get statistics
+        
         $totalUsers = count($this->userModel->getAllUsers(null, 0, 0));
         $totalTeachers = count($this->userModel->getAllUsers('teacher', 0, 0));
         $totalLearners = count($this->userModel->getAllUsers('learner', 0, 0));
@@ -87,45 +83,37 @@ class ExportController {
         $userGrowthData = $this->reportModel->getUserGrowthData($days);
         $revenueData = $this->reportModel->getRevenueData($days);
         
-        // Get settings for site name
         $settings = $this->settingsModel->getGeneralSettings();
         $siteName = $settings['site_name'] ?? 'Rays of Grace';
         
-        // Create PDF document
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         
-        // Set document information
-        $pdf->SetCreator('Rays of Grace');
+        $pdf->SetCreator('ROGELE');
         $pdf->SetAuthor('Admin');
         $pdf->SetTitle('Overview Report');
         $pdf->SetSubject('Platform Analytics');
         $pdf->SetKeywords('report, analytics, overview');
         
-        // Remove default header/footer
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         
-        // Add a page
         $pdf->AddPage();
         
-        // Set font
         $pdf->SetFont('helvetica', '', 11);
         
-        // Logo and Title
         $pdf->SetFont('helvetica', 'B', 20);
-        $pdf->SetTextColor(139, 92, 246); // Purple
+        $pdf->SetTextColor(139, 92, 246); 
         $pdf->Cell(0, 20, $siteName, 0, 1, 'C');
         $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->SetTextColor(249, 115, 22); // Orange
+        $pdf->SetTextColor(249, 115, 22); 
         $pdf->Cell(0, 10, 'Overview Report', 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 11);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->Cell(0, 8, 'Date Range: ' . date('M d, Y', strtotime($start_date)) . ' - ' . date('M d, Y', strtotime($end_date)), 0, 1, 'C');
         $pdf->Ln(10);
         
-        // Statistics Table
         $pdf->SetFont('helvetica', 'B', 14);
-        $pdf->SetTextColor(249, 115, 22); // Orange
+        $pdf->SetTextColor(249, 115, 22); 
         $pdf->Cell(0, 10, 'Platform Statistics', 0, 1, 'L');
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', '', 11);
@@ -171,7 +159,6 @@ class ExportController {
         $pdf->writeHTML($html, true, false, true, false, '');
         $pdf->Ln(10);
         
-        // User Growth Data
         if (!empty($userGrowthData)) {
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(249, 115, 22);
@@ -200,7 +187,6 @@ class ExportController {
             $pdf->Ln(10);
         }
         
-        // Revenue Data
         if (!empty($revenueData)) {
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(249, 115, 22);
@@ -229,7 +215,6 @@ class ExportController {
             $pdf->Ln(10);
         }
         
-        // Recent Activity
         if (!empty($recentActivity)) {
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(249, 115, 22);
@@ -259,13 +244,11 @@ class ExportController {
             $pdf->writeHTML($html, true, false, true, false, '');
         }
         
-        // Footer
         $pdf->Ln(10);
         $pdf->SetFont('helvetica', 'I', 8);
         $pdf->SetTextColor(100, 100, 100);
         $pdf->Cell(0, 5, 'Generated on ' . date('F j, Y H:i:s'), 0, 1, 'C');
         
-        // Output PDF - Use 'D' for download, 'I' for inline, 'F' for file
         $pdf->Output('Overview_Report_' . date('Y-m-d') . '.pdf', 'D');
         exit;
     }
@@ -284,7 +267,6 @@ class ExportController {
         $pdf->setPrintFooter(false);
         $pdf->AddPage();
         
-        // Title
         $pdf->SetFont('helvetica', 'B', 20);
         $pdf->SetTextColor(139, 92, 246);
         $pdf->Cell(0, 20, $siteName, 0, 1, 'C');
@@ -297,14 +279,12 @@ class ExportController {
         $pdf->Ln(10);
         
         if (!empty($data)) {
-            // Calculate totals
             $totalAttempts = array_sum(array_column($data, 'total_attempts'));
             $uniqueStudents = array_sum(array_column($data, 'unique_students'));
             $avgScore = count($data) > 0 ? round(array_sum(array_column($data, 'avg_score')) / count($data), 1) : 0;
             $totalPassed = array_sum(array_column($data, 'passed_count'));
             $overallPassRate = $totalAttempts > 0 ? round(($totalPassed / $totalAttempts) * 100, 1) : 0;
             
-            // Summary
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(249, 115, 22);
             $pdf->Cell(0, 10, 'Summary Statistics', 0, 1, 'L');
@@ -334,7 +314,6 @@ class ExportController {
             $pdf->writeHTML($html, true, false, true, false, '');
             $pdf->Ln(10);
             
-            // Detailed Data
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(249, 115, 22);
             $pdf->Cell(0, 10, 'Quiz Details', 0, 1, 'L');
@@ -375,7 +354,6 @@ class ExportController {
             $pdf->Cell(0, 10, 'No quiz data available for the selected date range.', 0, 1, 'C');
         }
         
-        // Footer
         $pdf->Ln(10);
         $pdf->SetFont('helvetica', 'I', 8);
         $pdf->SetTextColor(100, 100, 100);
@@ -399,7 +377,6 @@ class ExportController {
         $pdf->setPrintFooter(false);
         $pdf->AddPage();
         
-        // Title
         $pdf->SetFont('helvetica', 'B', 20);
         $pdf->SetTextColor(139, 92, 246);
         $pdf->Cell(0, 20, $siteName, 0, 1, 'C');
@@ -416,7 +393,6 @@ class ExportController {
             $totalTransactions = array_sum(array_column($data, 'transaction_count'));
             $avgAmount = $totalTransactions > 0 ? round($totalRevenue / $totalTransactions) : 0;
             
-            // Summary
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(249, 115, 22);
             $pdf->Cell(0, 10, 'Revenue Summary', 0, 1, 'L');
@@ -442,7 +418,6 @@ class ExportController {
             $pdf->writeHTML($html, true, false, true, false, '');
             $pdf->Ln(10);
             
-            // Detailed Data
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(249, 115, 22);
             $pdf->Cell(0, 10, 'Transaction Details', 0, 1, 'L');
@@ -478,7 +453,6 @@ class ExportController {
             $pdf->Cell(0, 10, 'No payment data available for the selected date range.', 0, 1, 'C');
         }
         
-        // Footer
         $pdf->Ln(10);
         $pdf->SetFont('helvetica', 'I', 8);
         $pdf->SetTextColor(100, 100, 100);
@@ -502,7 +476,6 @@ class ExportController {
         $pdf->setPrintFooter(false);
         $pdf->AddPage();
         
-        // Title
         $pdf->SetFont('helvetica', 'B', 20);
         $pdf->SetTextColor(139, 92, 246);
         $pdf->Cell(0, 20, $siteName, 0, 1, 'C');
@@ -515,7 +488,6 @@ class ExportController {
         $pdf->Ln(10);
         
         if (!empty($data)) {
-            // Calculate totals by action type
             $actionCounts = [];
             foreach ($data as $row) {
                 if (!isset($actionCounts[$row['action']])) {
@@ -524,7 +496,6 @@ class ExportController {
                 $actionCounts[$row['action']] += $row['count'];
             }
             
-            // Summary by action type
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(249, 115, 22);
             $pdf->Cell(0, 10, 'Activity Summary', 0, 1, 'L');
@@ -551,7 +522,6 @@ class ExportController {
             $pdf->writeHTML($html, true, false, true, false, '');
             $pdf->Ln(10);
             
-            // Detailed Timeline
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(249, 115, 22);
             $pdf->Cell(0, 10, 'Activity Timeline', 0, 1, 'L');
@@ -583,7 +553,6 @@ class ExportController {
             $pdf->Cell(0, 10, 'No activity data available for the selected date range.', 0, 1, 'C');
         }
         
-        // Footer
         $pdf->Ln(10);
         $pdf->SetFont('helvetica', 'I', 8);
         $pdf->SetTextColor(100, 100, 100);

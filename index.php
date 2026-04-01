@@ -4,10 +4,8 @@ require_once __DIR__ . '/config/env.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Load configuration
 require_once __DIR__ . '/config/config.php';
 
-// Simple autoloader
 spl_autoload_register(function ($class) {
     $paths = [
         __DIR__ . '/controllers/' . $class . '.php',
@@ -23,33 +21,22 @@ spl_autoload_register(function ($class) {
     return false;
 });
 
-// Get the request URI
 $request = $_SERVER['REQUEST_URI'];
 
-// Remove query string
 $request = strtok($request, '?');
-
-// --- FIXED BASE PATH REMOVAL ---
-// Get the script directory (empty for root installation)
 $scriptName = $_SERVER['SCRIPT_NAME'];
 $basePath = dirname($scriptName);
 
-// Remove base path if it exists and isn't just '/'
 if ($basePath != '/' && $basePath != '\\' && $basePath != '.') {
     $basePath = rtrim($basePath, '/');
     if (strpos($request, $basePath) === 0) {
         $request = substr($request, strlen($basePath));
     }
 }
-// --- END OF FIX ---
 
-// Ensure request starts with /
 if (empty($request) || $request == '') {
     $request = '/';
 }
-
-// Debug (remove in production)
-// echo "<!-- Request: $request -->";
 
 // Define routes
 $routes = [
@@ -63,6 +50,9 @@ $routes = [
     '/auth/process-forgot-password' => 'AuthController@processForgotPassword',
     '/auth/process-reset-password' => 'AuthController@processResetPassword',
 
+    //public routes
+    '/privacy-policy' => 'PageController@privacyPolicy',
+    '/terms-of-service' => 'PageController@termsOfService',
     '/contact' => 'HomeController@contact',
     
     // Admin routes

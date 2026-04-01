@@ -3,13 +3,9 @@
 $hideHeader = true;
 $pageTitle = 'Create Account | ROGELE';
 
-// Get classes from the controller instead of directly from database
-// The controller should pass the classes to the view
 $classes = $classes ?? [];
 
-// If no classes were passed, use empty array
 if (empty($classes)) {
-    // Provide default classes as fallback
     $classes = [
         ['id' => 1, 'name' => 'Primary 1'],
         ['id' => 2, 'name' => 'Primary 2'],
@@ -382,7 +378,7 @@ if (empty($classes)) {
                 <div class="terms-group">
                     <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms">
-                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                        I agree to the <a href="<?php echo BASE_URL; ?>/terms-of-service" target="_blank" target="_blank">Terms of Service</a> and <a href="<?php echo BASE_URL; ?>/privacy-policy">Privacy Policy</a>
                     </label>
                 </div>
                 

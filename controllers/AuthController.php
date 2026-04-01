@@ -15,46 +15,34 @@ class AuthController {
     
     // Handle login
     public function login() {
-        // If already logged in, redirect to appropriate dashboard
         if (isset($_SESSION['user_id'])) {
             $this->redirectToDashboard();
             return;
         }
         
-        // Set flag to hide footer
         $hideFooter = true;
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = trim($_POST['username'] ?? '');
             $password = $_POST['password'] ?? '';
             
-            // Debug logging
-            error_log("Login POST request received");
-            error_log("Username: " . $username);
-            error_log("Password length: " . strlen($password));
-            
             if (empty($username) || empty($password)) {
-                error_log("Empty username or password");
                 $_SESSION['error'] = 'Please enter both username and password';
                 header('Location: ' . BASE_URL . '/login');
                 exit;
             }
             
             $result = $this->userModel->login($username, $password);
-            
-            error_log("Login result: " . ($result['success'] ? 'SUCCESS' : 'FAILED'));
             if (!$result['success']) {
                 error_log("Error message: " . ($result['error'] ?? 'Unknown error'));
             }
             
             if ($result['success']) {
-                // Set session variables
                 $_SESSION['user_id'] = $result['user']['id'];
                 $_SESSION['user_role'] = $result['user']['role'];
                 $_SESSION['user_name'] = $result['user']['first_name'] . ' ' . $result['user']['last_name'];
                 $_SESSION['user_email'] = $result['user']['email'];
                 
-                error_log("Session set for user ID: " . $_SESSION['user_id']);
                 
                 if (isset($result['user']['force_password_change']) && $result['user']['force_password_change']) {
                     $_SESSION['force_password_change'] = true;
@@ -69,7 +57,6 @@ class AuthController {
             }
         }
         
-        // Show login form
         require_once __DIR__ . '/../views/auth/login.php';
     }
     
@@ -80,7 +67,6 @@ class AuthController {
         $hideFooter = true;
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            // Get classes for the form
             if (isset($this->classModel)) {
                 $classes = $this->classModel->getAllClasses();
             } else {
@@ -90,7 +76,6 @@ class AuthController {
             return;
         }
         
-        // Get form data
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName = trim($_POST['last_name'] ?? '');
         $email = trim($_POST['email'] ?? '');
@@ -99,7 +84,6 @@ class AuthController {
         $password = $_POST['password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
         
-        // Validation
         if (empty($firstName) || empty($lastName) || empty($email) || empty($phone) || empty($classId) || empty($password)) {
             $_SESSION['error'] = 'Please fill in all fields';
             header('Location: ' . BASE_URL . '/register');
@@ -118,7 +102,6 @@ class AuthController {
             exit;
         }
         
-        // Register user with class_id
         $userData = [
             'first_name' => $firstName,
             'last_name' => $lastName,
@@ -142,14 +125,12 @@ class AuthController {
         }
     }
     
-    // Handle logout
     public function logout() {
         session_destroy();
         header('Location: ' . BASE_URL . '/');
         exit;
     }
     
-    // Handle password change
     public function changePassword() {
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/login');
@@ -177,11 +158,9 @@ class AuthController {
             }
         }
         
-        // Show change password form
         require_once __DIR__ . '/../views/auth/change_password.php';
     }
     
-    // Redirect to appropriate dashboard based on role
     private function redirectToDashboard() {
         switch ($_SESSION['user_role']) {
             case 'admin':
@@ -216,7 +195,6 @@ class AuthController {
     public function processForgotPassword() {
         $hideFooter = true;
         
-        error_log("=== PROCESS FORGOT PASSWORD START ===");
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . BASE_URL . '/forgot-password');
@@ -224,39 +202,31 @@ class AuthController {
         }
         
         $email = $_POST['email'] ?? '';
-        error_log("Email submitted: " . $email);
         
         if (empty($email)) {
             $_SESSION['error'] = 'Please enter your email address';
             header('Location: ' . BASE_URL . '/forgot-password');
             exit;
         }
-        
-        // Validate email format
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = 'Please enter a valid email address';
             header('Location: ' . BASE_URL . '/forgot-password');
             exit;
         }
         
-        // Check if user exists
         $user = $this->userModel->getByEmail($email);
-        error_log("User found: " . ($user ? "YES" : "NO"));
         
         if ($user) {
             $token = bin2hex(random_bytes(32));
             $expires = date('Y-m-d H:i:s', strtotime('+20 minutes'));
-            error_log("Token generated: " . $token);
             
             $saved = $this->userModel->saveResetToken($user['id'], $token, $expires);
-            error_log("Token saved: " . ($saved ? "YES" : "NO"));
             
             if ($saved) {
                 $resetLink = BASE_URL . "/reset-password?token=" . $token;
-                error_log("Reset link: " . $resetLink);
                 
                 $sent = $this->mailHelper->sendResetEmail($email, $user['first_name'], $resetLink);
-                error_log("Email sent: " . ($sent ? "YES" : "NO"));
                 
                 if ($sent) {
                     $_SESSION['success'] = 'Password reset link sent to email.';
@@ -266,11 +236,9 @@ class AuthController {
                 }
             } else {
                 $_SESSION['error'] = 'Failed to process request. Please try again.';
-                error_log("Failed to save reset token");
             }
         } else {
             $_SESSION['success'] = 'If an account exists with this email, you will receive a password reset link.';
-            error_log("No user found with email: $email");
         }
         
         header('Location: ' . BASE_URL . '/forgot-password');
@@ -283,7 +251,6 @@ class AuthController {
     public function processResetPassword() {
         $hideFooter = true;
         
-        error_log("=== PROCESS RESET PASSWORD ===");
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . BASE_URL . '/login');
@@ -294,25 +261,20 @@ class AuthController {
         $password = $_POST['password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
         
-        error_log("Token from POST: " . $token);
-        error_log("Password length: " . strlen($password));
         
         if (empty($token) || empty($password) || empty($confirmPassword)) {
-            error_log("Missing fields");
             $_SESSION['error'] = 'All fields are required';
             header('Location: ' . BASE_URL . '/reset-password?token=' . urlencode($token));
             exit;
         }
         
         if ($password !== $confirmPassword) {
-            error_log("Passwords do not match");
             $_SESSION['error'] = 'Passwords do not match';
             header('Location: ' . BASE_URL . '/reset-password?token=' . urlencode($token));
             exit;
         }
         
         if (strlen($password) < 8) {
-            error_log("Password too short");
             $_SESSION['error'] = 'Password must be at least 8 characters long';
             header('Location: ' . BASE_URL . '/reset-password?token=' . urlencode($token));
             exit;
@@ -320,31 +282,23 @@ class AuthController {
         
         // Verify token and get user
         $user = $this->userModel->getUserByResetToken($token);
-        error_log("User found with token: " . ($user ? "YES" : "NO"));
         
         if (!$user) {
-            error_log("No user found with token: " . $token);
             $_SESSION['error'] = 'Invalid or expired reset link. Please request a new one.';
             header('Location: ' . BASE_URL . '/forgot-password');
             exit;
         }
         
-        error_log("User found: " . $user['email']);
-        
         // Update password
         $result = $this->userModel->updatePassword($user['id'], $password);
-        error_log("Password update result: " . ($result['success'] ? "SUCCESS" : "FAILED"));
         
         if ($result['success']) {
-            // Clear reset token
             $this->userModel->clearResetToken($user['id']);
             
             $_SESSION['success'] = 'Password reset successful! You can now login with your new password.';
-            error_log("Password reset successful for user: " . $user['email']);
             header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
-            error_log("Failed to reset password: " . ($result['error'] ?? 'Unknown error'));
             $_SESSION['error'] = 'Failed to reset password. Please try again.';
             header('Location: ' . BASE_URL . '/reset-password?token=' . urlencode($token));
             exit;
@@ -366,13 +320,6 @@ class AuthController {
         $headers .= "From: Rays of Grace <noreply@raysofgrace.com>" . "\r\n";
         $headers .= "Reply-To: support@raysofgrace.com" . "\r\n";
         
-        // For local development using XAMPP, we need to configure sendmail
-        // or use SMTP. Let's use a simple mail() function first
-        
-        error_log("Attempting to send email to: " . $email);
-        error_log("Reset link: " . $resetLink);
-        
-        // Try to send email
         $mailSent = mail($email, $subject, $message, $headers);
         
         if ($mailSent) {
@@ -541,51 +488,33 @@ class AuthController {
     public function resetPassword($token = null) {
         $hideFooter = true;
         
-        error_log("=== RESET PASSWORD FORM ===");
-        
-        // If token is passed as a parameter (from route), use it
         if ($token) {
             $resetToken = $token;
-            error_log("Token from route parameter: " . $resetToken);
         } else {
-            // Fallback: try to get from GET or URL
             $resetToken = $_GET['token'] ?? '';
-            error_log("Token from GET: " . $resetToken);
             
-            // If still empty, try to get from REQUEST_URI
             if (empty($resetToken)) {
                 $requestUri = $_SERVER['REQUEST_URI'];
                 if (preg_match('/reset-password\/([a-f0-9]+)/', $requestUri, $matches)) {
                     $resetToken = $matches[1];
-                    error_log("Token from URI regex: " . $resetToken);
                 }
             }
         }
         
-        error_log("Final token: " . $resetToken);
-        error_log("Token length: " . strlen($resetToken));
-        
         if (empty($resetToken)) {
-            error_log("Token is empty - redirecting to login");
             $_SESSION['error'] = 'Invalid reset link';
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
-        // Verify token is valid and not expired
         $user = $this->userModel->getUserByResetToken($resetToken);
-        error_log("User found with token: " . ($user ? "YES" : "NO"));
         
         if (!$user) {
-            error_log("No user found or token expired/invalid");
             $_SESSION['error'] = 'Invalid or expired reset link. Please request a new one.';
             header('Location: ' . BASE_URL . '/forgot-password');
             exit;
         }
         
-        error_log("Token verified for user: " . $user['email']);
-        
-        // Pass token to the view
         $token = $resetToken;
         require_once __DIR__ . '/../views/auth/reset-password.php';
     }

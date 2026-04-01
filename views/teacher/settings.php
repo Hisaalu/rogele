@@ -41,7 +41,7 @@ $activeTab = $_GET['tab'] ?? 'password';
             <i class="fas fa-bell"></i>
             <span>Notifications</span>
         </a>
-        <a href="?tab=privacy" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
+        <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
             <i class="fas fa-shield-alt"></i>
             <span>Privacy</span>
         </a>

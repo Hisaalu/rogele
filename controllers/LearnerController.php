@@ -10,13 +10,11 @@ class LearnerController {
     private $userModel;
     
     public function __construct() {
-        // Check if user is logged in
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
-        // Check if user has learner role
         if ($_SESSION['user_role'] !== 'learner') {
             $this->redirectToRoleDashboard();
             exit;
@@ -45,7 +43,6 @@ class LearnerController {
     }
     
     public function dashboard() {
-        // Get learner's class materials
         $user = $this->userModel->getById($_SESSION['user_id']);
         $lessons = $this->lessonModel->getByClass($user['class_id'] ?? null, 5);
         $quizResults = $this->quizModel->getUserResults($_SESSION['user_id']);
@@ -64,7 +61,6 @@ class LearnerController {
             $lessons = $this->lessonModel->getByClass($user['class_id'] ?? null);
         }
         
-        // You'll need to create this view
         require_once __DIR__ . '/../views/learner/materials.php';
     }
     
@@ -72,12 +68,10 @@ class LearnerController {
         $user = $this->userModel->getById($_SESSION['user_id']);
         $results = $this->quizModel->getUserResults($_SESSION['user_id']);
         
-        // You'll need to create this view
         require_once __DIR__ . '/../views/learner/quizzes.php';
     }
     
     public function progress() {
-        // You'll need to create this view
         require_once __DIR__ . '/../views/learner/progress.php';
     }
 }

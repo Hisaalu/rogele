@@ -10,7 +10,6 @@ class AdminSubscriptionController {
     private $settingsModel;
     
     public function __construct() {
-        // Check if user is logged in and is admin
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
             header('Location: ' . BASE_URL . '/login');
             exit;
@@ -31,7 +30,6 @@ class AdminSubscriptionController {
         $limit = 20;
         $offset = ($page - 1) * $limit;
         
-        // Get filters from request
         $filters = [
             'status' => $_GET['status'] ?? '',
             'plan_type' => $_GET['plan_type'] ?? '',
@@ -40,17 +38,10 @@ class AdminSubscriptionController {
             'date_to' => $_GET['date_to'] ?? ''
         ];
         
-        // Get subscriptions
         $subscriptions = $this->subscriptionModel->getAllSubscriptions($filters, $limit, $offset);
-        
-        // Get total count for pagination
         $totalSubscriptions = $this->subscriptionModel->countAllSubscriptions($filters);
         $totalPages = ceil($totalSubscriptions / $limit);
-        
-        // Get statistics
         $stats = $this->subscriptionModel->getSubscriptionStats();
-        
-        // Get all users for filter dropdown
         $users = $this->userModel->getAllUsers(null, 100, 0);
         
         require_once __DIR__ . '/../views/admin/subscriptions/index.php';
@@ -62,7 +53,6 @@ class AdminSubscriptionController {
     public function view($id) {
         $hideFooter = true;
         
-        // Get subscription details
         $subscription = $this->subscriptionModel->getSubscriptionById($id);
         
         if (!$subscription) {
@@ -71,23 +61,13 @@ class AdminSubscriptionController {
             exit;
         }
         
-        // Get user's subscription history
         $filters = ['user_id' => $subscription['user_id']];
         $userHistory = $this->subscriptionModel->getAllSubscriptions($filters, 0, 0);
-        
-        // Get payment history for this subscription - this now returns an array
         $paymentHistory = $this->subscriptionModel->getPaymentForSubscription($id);
         
-        // Ensure paymentHistory is an array
         if (!is_array($paymentHistory)) {
             $paymentHistory = [];
         }
-        
-        // Debug logging
-        error_log("View Subscription ID: $id");
-        error_log("User ID: " . $subscription['user_id']);
-        error_log("User History count: " . count($userHistory));
-        error_log("Payment History count: " . count($paymentHistory));
         
         require_once __DIR__ . '/../views/admin/subscriptions/view.php';
     }
@@ -152,20 +132,17 @@ class AdminSubscriptionController {
         
         $subscriptions = $this->subscriptionModel->getAllSubscriptions($filters, 0, 0);
         
-        // Set headers for CSV download
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="subscriptions_' . date('Y-m-d') . '.csv"');
         
         $output = fopen('php://output', 'w');
         
-        // Add CSV headers
         fputcsv($output, [
             'ID', 'User', 'Email', 'Plan', 'Amount', 'Start Date', 
             'End Date', 'Status', 'Payment Method', 'Transaction ID', 
             'Is Upgrade', 'Created At'
         ]);
         
-        // Add data rows
         foreach ($subscriptions as $sub) {
             fputcsv($output, [
                 $sub['id'],
@@ -194,11 +171,7 @@ class AdminSubscriptionController {
         $hideFooter = true;
         
         $stats = $this->subscriptionModel->getSubscriptionStats();
-        
-        // Get expiring subscriptions
         $expiring = $this->subscriptionModel->getExpiringSubscriptions(30);
-        
-        // Get revenue by month for chart
         $revenueByMonth = $this->getRevenueByMonth();
         
         require_once __DIR__ . '/../views/admin/subscriptions/reports.php';
@@ -209,7 +182,6 @@ class AdminSubscriptionController {
      */
     private function getRevenueByMonth() {
         try {
-            // Get the connection from the subscription model
             $conn = $this->subscriptionModel->getConnection();
             
             $sql = "SELECT 
@@ -226,7 +198,6 @@ class AdminSubscriptionController {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting revenue by month: " . $e->getMessage());
             return [];
         }
     }
