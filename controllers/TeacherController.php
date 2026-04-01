@@ -484,12 +484,8 @@ class TeacherController {
                 'profile_photo' => null
             ];
         }
-        
-        $studentsCount = 0;
-        if (method_exists($this->userModel, 'countStudentsByTeacher')) {
-            $studentsCount = $this->userModel->countStudentsByTeacher($teacherId);
-        }
-        $profile['students_count'] = $studentsCount;
+
+        $students = $this->userModel->getStudentsWithStats($teacherId);
         
         $classesCount = 0;
         if (isset($this->classModel) && method_exists($this->classModel, 'getByTeacher')) {

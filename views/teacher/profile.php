@@ -5,6 +5,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 $profile = $profile ?? [];
 $totalLessons = $totalLessons ?? 0;
+$students = $students ?? [];
 ?>
 
 <div class="profile-container">
@@ -98,7 +99,7 @@ $totalLessons = $totalLessons ?? 0;
                     <i class="fas fa-users stat-icon"></i>
                     <div class="stat-content">
                         <span class="stat-label">Total Students</span>
-                        <span class="stat-value"><?php echo $profile['students_count'] ?? 0; ?></span>
+                        <span class="stat-value"><?php echo count($students); ?></span>
                     </div>
                 </div>
             </div>

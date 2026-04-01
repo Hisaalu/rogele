@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/Subscription.php';
 require_once __DIR__ . '/../models/Lesson.php';
 require_once __DIR__ . '/../models/Quiz.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Classes.php';
 require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../models/Subject.php';
 require_once __DIR__ . '/../helpers/MailHelper.php';
@@ -17,6 +18,7 @@ class ExternalController {
     private $userModel;
     private $settingsModel;
     private $subjectModel;
+    private $classesModel; 
     
     public function __construct() {
         if (!isset($_SESSION['user_id'])) {
@@ -35,6 +37,7 @@ class ExternalController {
         $this->userModel = new User();
         $this->settingsModel = new Settings();
         $this->subjectModel = new Subject();
+        $this->classesModel = new Classes();
     }
     
     private function redirectToRoleDashboard() {
@@ -446,9 +449,15 @@ class ExternalController {
      * Display profile page
      */
     public function profile() {
+        $this->checkAccess();
         $hideFooter = true;
         
-        $profile = $this->userModel->getProfile($_SESSION['user_id']);
+        $userId = $_SESSION['user_id'];
+        $profile = $this->userModel->getProfile($userId);
+        
+        $classes = $this->classesModel->getAll();
+        
+        $userClassId = $profile['class_id'] ?? null;
         
         $trialDays = $this->settingsModel->get('trial_days', 60);
         $trialEndDate = $this->userModel->getTrialEndDate($_SESSION['user_id'], $trialDays);
@@ -462,33 +471,58 @@ class ExternalController {
         
         require_once __DIR__ . '/../views/external/profile.php';
     }
-    
+
     /**
-     * Update profile
+     * Update profile with class selection
      */
     public function updateProfile() {
-        $hideFooter = true;
+        $this->checkAccess();
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . BASE_URL . '/external/profile');
             exit;
         }
         
+        $userId = $_SESSION['user_id'];
+        
         $data = [
-            'first_name' => $_POST['first_name'] ?? '',
-            'last_name' => $_POST['last_name'] ?? '',
-            'email' => $_POST['email'] ?? '',
-            'phone' => $_POST['phone'] ?? ''
+            'first_name' => trim($_POST['first_name'] ?? ''),
+            'last_name' => trim($_POST['last_name'] ?? ''),
+            'email' => trim($_POST['email'] ?? ''),
+            'phone' => trim($_POST['phone'] ?? ''),
+            'class_id' => !empty($_POST['class_id']) ? (int)$_POST['class_id'] : null
         ];
         
-        $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
+        // Validate
+        $errors = [];
+        if (empty($data['first_name'])) $errors[] = 'First name is required';
+        if (empty($data['last_name'])) $errors[] = 'Last name is required';
+        if (empty($data['email'])) $errors[] = 'Email is required';
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email format';
+        
+        if (!empty($errors)) {
+            $_SESSION['error'] = implode(', ', $errors);
+            header('Location: ' . BASE_URL . '/external/profile');
+            exit;
+        }
+        
+        // Update profile
+        $result = $this->userModel->updateProfile($userId, $data);
         
         if ($result['success']) {
+            // Update session name if changed
             $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
             $_SESSION['user_email'] = $data['email'];
-            $_SESSION['success'] = $result['message'];
+            
+            // If class changed, update session or show message
+            $oldClassId = $this->userModel->getById($userId)['class_id'] ?? null;
+            if ($oldClassId != $data['class_id']) {
+                $_SESSION['success'] = 'Profile updated successfully! Your class has been updated.';
+            } else {
+                $_SESSION['success'] = 'Profile updated successfully!';
+            }
         } else {
-            $_SESSION['error'] = $result['error'];
+            $_SESSION['error'] = $result['error'] ?? 'Failed to update profile';
         }
         
         header('Location: ' . BASE_URL . '/external/profile');

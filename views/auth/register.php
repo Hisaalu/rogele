@@ -342,7 +342,7 @@ if (empty($classes)) {
                 <div class="form-group">
                     <div class="phone-field">
                         <span class="country-code">+256</span>
-                        <input type="tel" name="phone" id="phone" placeholder="Phone number (e.g., 701234567)" required>
+                        <input type="tel" name="phone" id="phone" placeholder="Contact No. (e.g, 701234567)" required>
                     </div>
                 </div>
                 

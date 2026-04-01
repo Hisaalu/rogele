@@ -29,7 +29,6 @@ class Settings {
             
             return $settings;
         } catch (PDOException $e) {
-            error_log("Get all settings error: " . $e->getMessage());
             return [];
         }
     }
@@ -46,7 +45,6 @@ class Settings {
             
             return $result ? $result['setting_value'] : null;
         } catch (PDOException $e) {
-            error_log("Get setting error: " . $e->getMessage());
             return null;
         }
     }
@@ -56,16 +54,13 @@ class Settings {
      */
     public function setSetting($key, $value) {
         try {
-            // Check if setting exists
             $checkQuery = "SELECT id FROM settings WHERE setting_key = :key";
             $checkStmt = $this->conn->prepare($checkQuery);
             $checkStmt->execute([':key' => $key]);
             
             if ($checkStmt->fetch()) {
-                // Update existing
                 $query = "UPDATE settings SET setting_value = :value, updated_at = NOW() WHERE setting_key = :key";
             } else {
-                // Insert new
                 $query = "INSERT INTO settings (setting_key, setting_value, created_at, updated_at) VALUES (:key, :value, NOW(), NOW())";
             }
             
@@ -75,7 +70,6 @@ class Settings {
                 ':value' => $value
             ]);
         } catch (PDOException $e) {
-            error_log("Set setting error: " . $e->getMessage());
             return false;
         }
     }
@@ -95,7 +89,6 @@ class Settings {
             return true;
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("Update settings error: " . $e->getMessage());
             return false;
         }
     }
@@ -170,10 +163,8 @@ class Settings {
         try {
             $this->conn->beginTransaction();
             
-            // Delete all settings
             $this->conn->exec("DELETE FROM settings");
             
-            // Insert defaults
             $defaults = [
                 ['site_name', 'Rays of Grace E-Learning'],
                 ['site_description', 'Quality education for every child, anywhere, anytime.'],
@@ -209,7 +200,6 @@ class Settings {
             return true;
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("Reset to defaults error: " . $e->getMessage());
             return false;
         }
     }
@@ -218,8 +208,6 @@ class Settings {
      * Clear cache (you can implement your cache clearing logic here)
      */
     public function clearCache() {
-        // Implement your cache clearing logic
-        // For example, delete temporary files, clear session data, etc.
         return true;
     }
 
@@ -246,7 +234,6 @@ class Settings {
             return $default;
             
         } catch (PDOException $e) {
-            error_log("Error getting setting: " . $e->getMessage());
             return $default;
         }
     }
@@ -274,7 +261,6 @@ class Settings {
             return $settings;
             
         } catch (PDOException $e) {
-            error_log("Error getting settings by group: " . $e->getMessage());
             return [];
         }
     }

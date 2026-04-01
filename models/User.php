@@ -203,17 +203,13 @@ class User {
     }
     
     /**
-     * Update user profile
+     * Update user profile with class selection
      */
     public function updateProfile($userId, $data) {
         try {
-            
-            $user = $this->getById($userId);
-            if (!$user) {
-                return ['success' => false, 'error' => 'User not found'];
-            }
-            
-            if ($user['email'] !== $data['email']) {
+            // Check if email is being changed and if it's already taken
+            $currentUser = $this->getById($userId);
+            if ($currentUser && $currentUser['email'] !== $data['email']) {
                 $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
                 $checkStmt = $this->conn->prepare($checkQuery);
                 $checkStmt->execute([
@@ -230,10 +226,8 @@ class User {
                     last_name = :last_name,
                     email = :email,
                     phone = :phone,
-                    bio = :bio,
-                    qualification = :qualification,
-                    specialization = :specialization,
-                    updated_at = NOW() 
+                    class_id = :class_id,
+                    updated_at = NOW()
                     WHERE id = :id";
             
             $stmt = $this->conn->prepare($query);
@@ -241,14 +235,18 @@ class User {
                 ':first_name' => $data['first_name'],
                 ':last_name' => $data['last_name'],
                 ':email' => $data['email'],
-                ':phone' => $data['phone'] ?? null,
-                ':bio' => $data['bio'] ?? null,
-                ':qualification' => $data['qualification'] ?? null,
-                ':specialization' => $data['specialization'] ?? null,
+                ':phone' => $data['phone'],
+                ':class_id' => $data['class_id'],
                 ':id' => $userId
             ]);
             
             if ($result) {
+                if ($currentUser && $currentUser['class_id'] != $data['class_id']) {
+                    $oldClass = $this->getClassName($currentUser['class_id']);
+                    $newClass = $this->getClassName($data['class_id']);
+                    $this->logActivity($userId, 'CLASS_CHANGE', "Class changed from {$oldClass} to {$newClass}");
+                }
+                
                 $this->logActivity($userId, 'PROFILE_UPDATE', 'User updated profile');
                 return ['success' => true, 'message' => 'Profile updated successfully'];
             }
@@ -257,6 +255,22 @@ class User {
             
         } catch (PDOException $e) {
             return ['success' => false, 'error' => 'Database error occurred'];
+        }
+    }
+
+    /**
+     * Get class name by ID
+     */
+    private function getClassName($classId) {
+        if (!$classId) return 'None';
+        try {
+            $query = "SELECT name FROM classes WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':id' => $classId]);
+            $result = $stmt->fetch();
+            return $result ? $result['name'] : 'Unknown';
+        } catch (PDOException $e) {
+            return 'Unknown';
         }
     }
 
