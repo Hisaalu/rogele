@@ -100,26 +100,14 @@ class TeacherController {
         $limit = 10;
         $offset = ($page - 1) * $limit;
         
-        error_log("TeacherController@lessons called for teacher ID: " . $teacherId);
-        error_log("Search term: " . ($search ?: 'none'));
-        
         if ($search) {
             $lessons = $this->lessonModel->searchByTeacher($teacherId, $search);
             $totalLessons = count($lessons);
             $totalPages = 1;
-            error_log("Search results: " . count($lessons) . " lessons found for search: " . $search);
         } else {
             $lessons = $this->lessonModel->getByTeacher($teacherId, $limit, $offset);
             $totalLessons = count($this->lessonModel->getByTeacher($teacherId));
             $totalPages = ceil($totalLessons / $limit);
-            error_log("Total lessons for teacher: " . $totalLessons);
-            error_log("Current page lessons count: " . count($lessons));
-        }
-        
-        if (empty($lessons)) {
-            error_log("No lessons found for teacher ID: " . $teacherId);
-        } else {
-            error_log("First lesson data: " . print_r($lessons[0], true));
         }
         
         require_once __DIR__ . '/../views/teacher/lessons.php';
@@ -129,18 +117,12 @@ class TeacherController {
      * Create Lesson Form
      */
     public function createLesson() {
-        error_log("========== CREATE LESSON METHOD CALLED ==========");
-        error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-        error_log("Session user_id: " . ($_SESSION['user_id'] ?? 'NOT SET'));
-        error_log("Session user_role: " . ($_SESSION['user_role'] ?? 'NOT SET'));
         
         $hideFooter = true;
         
         $classes = $this->classModel->getActive();
-        error_log("Classes found: " . count($classes));
         
         $allSubjects = $this->subjectModel->getAll();
-        error_log("Subjects found: " . count($allSubjects));
         
         $subjectsByClass = [];
         foreach ($allSubjects as $subject) {
@@ -152,25 +134,19 @@ class TeacherController {
         }
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            error_log("========== PROCESSING POST REQUEST ==========");
-            error_log("POST data: " . print_r($_POST, true));
-            error_log("FILES data: " . print_r($_FILES, true));
             
             $errors = [];
             
             if (empty($_POST['title'])) {
                 $errors[] = 'Title is required';
-                error_log("ERROR: Title is empty");
             }
             
             if (empty($_POST['class_id'])) {
                 $errors[] = 'Class is required';
-                error_log("ERROR: Class ID is empty");
             }
             
             if (empty($_POST['subject_id'])) {
                 $errors[] = 'Subject is required';
-                error_log("ERROR: Subject ID is empty");
             }
             
             if (empty($errors)) {
@@ -185,27 +161,21 @@ class TeacherController {
                     'is_published' => isset($_POST['is_published']) ? 1 : 0
                 ];
                 
-                error_log("Data prepared for lesson creation: " . print_r($data, true));
                 
                 $files = $_FILES['materials'] ?? null;
                 
-                error_log("Calling lessonModel->create()");
                 $result = $this->lessonModel->create($data, $files);
                 
-                error_log("Create lesson result: " . print_r($result, true));
                 
                 if ($result['success']) {
                     $_SESSION['success'] = 'Lesson created successfully!';
-                    error_log("SUCCESS: Lesson created with ID: " . $result['lesson_id']);
                     header('Location: ' . BASE_URL . '/teacher/lessons');
                     exit;
                 } else {
                     $_SESSION['error'] = $result['error'] ?? 'Failed to create lesson.';
-                    error_log("ERROR: " . ($result['error'] ?? 'Unknown error'));
                 }
             } else {
                 $_SESSION['error'] = implode('<br>', $errors);
-                error_log("Validation errors: " . implode(', ', $errors));
             }
         }
         
@@ -481,7 +451,6 @@ class TeacherController {
         $hideFooter = true;
         
         $teacherId = $_SESSION['user_id']; 
-        error_log("Teacher Profile - ID: " . $teacherId);
         
         $totalLessons = 0;
         if (method_exists($this->lessonModel, 'getTotalLessonsByTeacher')) {
@@ -490,18 +459,15 @@ class TeacherController {
             $lessons = $this->lessonModel->getByTeacher($teacherId);
             $totalLessons = is_array($lessons) ? count($lessons) : 0;
         }
-        error_log("Total Lessons: " . $totalLessons);
         
         $publishedLessons = [];
         if (method_exists($this->lessonModel, 'getPublishedLessonsByTeacher')) {
             $publishedLessons = $this->lessonModel->getPublishedLessonsByTeacher($teacherId, 10);
-            error_log("Published Lessons Count: " . count($publishedLessons));
         }
         
         $profile = $this->userModel->getProfile($teacherId);
         
         if (!$profile) {
-            error_log("Profile not found, creating from session");
             $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Teacher');
             $profile = [
                 'id' => $teacherId,
@@ -523,7 +489,6 @@ class TeacherController {
         if (method_exists($this->userModel, 'countStudentsByTeacher')) {
             $studentsCount = $this->userModel->countStudentsByTeacher($teacherId);
         }
-        error_log("Students Count: " . $studentsCount);
         $profile['students_count'] = $studentsCount;
         
         $classesCount = 0;
@@ -531,7 +496,6 @@ class TeacherController {
             $classes = $this->classModel->getByTeacher($teacherId);
             $classesCount = is_array($classes) ? count($classes) : 0;
         }
-        error_log("Classes Count: " . $classesCount);
         $profile['classes_count'] = $classesCount;
         
         require_once __DIR__ . '/../views/teacher/profile.php';
@@ -543,10 +507,7 @@ class TeacherController {
     public function updateProfile() {
         $hideFooter = true;
         
-        error_log("=== UPDATE PROFILE START ===");
-        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            error_log("Not a POST request");
             header('Location: ' . BASE_URL . '/teacher/profile');
             exit;
         }
@@ -554,13 +515,11 @@ class TeacherController {
         $teacherId = $_SESSION['user_id'] ?? null;
         
         if (!$teacherId) {
-            error_log("No teacher ID in session");
             $_SESSION['error'] = 'Please login to update your profile';
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
-        error_log("Teacher ID: " . $teacherId);
         
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName = trim($_POST['last_name'] ?? '');
@@ -570,19 +529,13 @@ class TeacherController {
         $qualification = trim($_POST['qualification'] ?? '');
         $specialization = trim($_POST['specialization'] ?? '');
         
-        error_log("First Name: $firstName");
-        error_log("Last Name: $lastName");
-        error_log("Email: $email");
-        
         if (empty($firstName) || empty($lastName) || empty($email)) {
-            error_log("Missing required fields");
             $_SESSION['error'] = 'Please fill in all required fields';
             header('Location: ' . BASE_URL . '/teacher/profile');
             exit;
         }
         
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            error_log("Invalid email format");
             $_SESSION['error'] = 'Please enter a valid email address';
             header('Location: ' . BASE_URL . '/teacher/profile');
             exit;
@@ -600,17 +553,14 @@ class TeacherController {
         
         $result = $this->userModel->updateProfile($teacherId, $data);
         
-        error_log("Update result: " . ($result['success'] ? "SUCCESS" : "FAILED"));
         
         if ($result['success']) {
             $_SESSION['user_name'] = $firstName . ' ' . $lastName;
             $_SESSION['user_email'] = $email;
             
             $_SESSION['success'] = 'Profile updated successfully!';
-            error_log("Profile updated successfully for teacher: $teacherId");
         } else {
             $_SESSION['error'] = $result['error'] ?? 'Failed to update profile. Please try again.';
-            error_log("Profile update failed: " . ($result['error'] ?? 'Unknown error'));
         }
         
         header('Location: ' . BASE_URL . '/teacher/profile');
@@ -805,8 +755,6 @@ class TeacherController {
         $quiz['questions'] = $questions;
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            error_log("=== EDIT QUIZ POST DEBUG ===");
-            error_log("POST data: " . print_r($_POST, true));
             
             $title = trim($_POST['title'] ?? '');
             $description = trim($_POST['description'] ?? '');
@@ -817,9 +765,6 @@ class TeacherController {
             $max_attempts = (int)($_POST['max_attempts'] ?? 3);
             
             $is_published = isset($_POST['is_published']) && $_POST['is_published'] == '1' ? 1 : 0;
-            
-            error_log("is_published value from POST: " . ($_POST['is_published'] ?? 'not set'));
-            error_log("is_published after processing: " . $is_published);
             
             $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
             
@@ -849,7 +794,6 @@ class TeacherController {
                     'end_date' => $end_date
                 ];
                 
-                error_log("Data to update: " . print_r($data, true));
                 
                 $result = $this->quizModel->updateQuiz($quizId, $data);
                 
@@ -907,7 +851,6 @@ class TeacherController {
 
         $questions = $this->quizModel->getQuestions($quizId);
         
-        error_log("Preview Quiz ID: $quizId - Questions found: " . count($questions));
         
         if (empty($questions)) {
             $_SESSION['error'] = 'This quiz has no questions yet. Please add questions before previewing.';

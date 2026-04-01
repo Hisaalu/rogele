@@ -106,7 +106,6 @@ $routes = [
     '/teacher/quizzes/publish/{id}' => 'TeacherController@publishQuiz',
     '/teacher/quizzes/unpublish/{id}' => 'TeacherController@unpublishQuiz',
     '/teacher/quizzes/edit-question/{id}' => 'TeacherController@editQuestion',
-    '/teacher/debug-students' => 'TeacherController@debugAllStudents',
     
      // Teacher API routes
     '/teacher/api/quiz-performance' => 'TeacherApiController@quizPerformance',

@@ -19,13 +19,11 @@ class ExternalController {
     private $subjectModel;
     
     public function __construct() {
-        // Check if user is logged in
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
-        // Check if user has external role
         if ($_SESSION['user_role'] !== 'external') {
             $this->redirectToRoleDashboard();
             exit;
@@ -56,34 +54,22 @@ class ExternalController {
         exit;
     }
     
-    /**
+   /**
      * External User Dashboard
      */
     public function dashboard() {
         $hideFooter = true;
-        
-        // Check if user has active subscription
-        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
-        $hasActiveSubscription = !empty($currentSubscription);
-        
-        // Get trial days from settings
+        $userId = $_SESSION['user_id'];
         $trialDays = $this->settingsModel->get('trial_days', 60);
-        
-        // Calculate remaining trial days dynamically
-        $remainingTrialDays = $this->userModel->getRemainingTrialDays($_SESSION['user_id'], $trialDays);
-        
-        // Get trial end date
-        $trialEndDate = $this->userModel->getTrialEndDate($_SESSION['user_id'], $trialDays);
-        
-        // Calculate percentage of trial used (for progress bar)
+        $remainingTrialDays = $this->userModel->getRemainingTrialDays($userId, $trialDays);
+        $isInTrial = $remainingTrialDays > 0;
+        $trialEndDate = $this->userModel->getTrialEndDate($userId, $trialDays);
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($userId);
+        $hasActiveSubscription = !empty($currentSubscription);
         $daysPassed = $trialDays - $remainingTrialDays;
         $trialPercentage = $trialDays > 0 ? min(100, round(($daysPassed / $trialDays) * 100)) : 0;
-        
-        // Get current plan if subscribed
         $currentPlan = $currentSubscription['plan_type'] ?? null;
         $subscriptionEndDate = $currentSubscription['end_date'] ?? null;
-        
-        // Pass to view
         require_once __DIR__ . '/../views/external/dashboard.php';
     }
     
@@ -94,32 +80,26 @@ class ExternalController {
         $this->checkAccess();
         $hideFooter = true;
         
-        // Check if user has access
         if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
-        // Get filter parameters
         $search = isset($_GET['search']) ? trim($_GET['search']) : null;
         $subject = isset($_GET['subject']) ? (int)$_GET['subject'] : null;
         
-        // Get all published lessons
         if ($search) {
             $lessons = $this->lessonModel->searchPublished($search, $subject);
         } else {
             $lessons = $this->lessonModel->getPublishedLessons($subject);
         }
         
-        // Get all subjects for filter dropdown
         $allSubjects = $this->subjectModel->getAll();
         
-        // Sort subjects alphabetically
         usort($allSubjects, function($a, $b) {
             return strcmp($a['name'], $b['name']);
         });
         
-        // Get selected subject name for display
         $selectedSubjectName = '';
         if ($subject) {
             foreach ($allSubjects as $sub) {
@@ -130,7 +110,6 @@ class ExternalController {
             }
         }
         
-        // Pass to view
         require_once __DIR__ . '/../views/external/materials.php';
     }
     
@@ -209,10 +188,8 @@ class ExternalController {
         
         $this->checkAccess();
         
-        // Get quizzes from model
         $quizzes = $this->quizModel->getAllQuizzes($_SESSION['user_id']);
         
-        // Add availability status
         foreach ($quizzes as &$quiz) {
             $availability = $this->quizModel->getQuizAvailabilityStatus($quiz['id']);
             $quiz['available'] = $availability['available'];
@@ -220,9 +197,8 @@ class ExternalController {
             $quiz['days_remaining'] = isset($availability['days_remaining']) ? $availability['days_remaining'] : null;
             $quiz['end_date'] = isset($availability['end_date']) ? $availability['end_date'] : (isset($quiz['end_date']) ? $quiz['end_date'] : null);
         }
-        unset($quiz); // Break reference
+        unset($quiz);
         
-        // Get completed attempts
         $completedAttempts = $this->quizModel->getUserCompletedAttempts($_SESSION['user_id']);
         $attemptMap = [];
         foreach ($completedAttempts as $attempt) {
@@ -231,13 +207,11 @@ class ExternalController {
             }
         }
         
-        // Add attempt_id
         foreach ($quizzes as &$quiz) {
             $quiz['attempt_id'] = isset($attemptMap[$quiz['id']]) ? $attemptMap[$quiz['id']] : null;
         }
-        unset($quiz); // Break reference
+        unset($quiz); 
         
-        // Get user results
         $results = $this->quizModel->getUserQuizResults($_SESSION['user_id']);
         $userResults = [];
         foreach ($results as $result) {
@@ -265,7 +239,6 @@ class ExternalController {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting user quiz results: " . $e->getMessage());
             return [];
         }
     }
@@ -282,7 +255,6 @@ class ExternalController {
             exit;
         }
         
-        // Check if quiz is available
         $availability = $this->quizModel->getQuizAvailabilityStatus($quizId);
         
         if (!$availability['available']) {
@@ -291,9 +263,7 @@ class ExternalController {
             exit;
         }
         
-        // Check if user has reached max attempts
         $remainingAttempts = $this->quizModel->getRemainingAttempts($_SESSION['user_id'], $quizId);
-        error_log("Remaining attempts for user {$_SESSION['user_id']} on quiz $quizId: $remainingAttempts");
         
         if ($remainingAttempts <= 0) {
             $_SESSION['error'] = 'You have used all your attempts for this quiz. Maximum attempts reached.';
@@ -334,14 +304,12 @@ class ExternalController {
                 exit;
             }
         } else {
-            // Check if user has already completed this quiz (max attempts reached)
             if ($this->quizModel->hasReachedMaxAttempts($_SESSION['user_id'], $quizId)) {
                 $_SESSION['error'] = 'You have used all your attempts for this quiz. Maximum attempts reached.';
                 header('Location: ' . BASE_URL . '/external/quizzes');
                 exit;
             }
             
-            // Check if quiz has questions
             $questionCount = $this->quizModel->getQuestionCount($quizId);
             if ($questionCount == 0) {
                 $_SESSION['error'] = 'This quiz has no questions yet. Please contact the teacher.';
@@ -349,7 +317,6 @@ class ExternalController {
                 exit;
             }
             
-            // Start or resume attempt
             $result = $this->quizModel->startAttempt($quizId, $_SESSION['user_id']);
             
             if ($result['success']) {
@@ -357,7 +324,6 @@ class ExternalController {
                 $questions = $result['questions'];
                 $attemptId = $result['attempt_id'];
                 
-                // Store attempt info in session
                 $_SESSION['current_quiz_attempt'] = $attemptId;
                 $_SESSION['current_quiz_id'] = $quizId;
                 $_SESSION['quiz_start_time'] = time();
@@ -393,18 +359,15 @@ class ExternalController {
             exit;
         }
         
-        // Get questions for this quiz with user's answers
         $questions = $this->quizModel->getQuestions($attemptDetails['quiz_id']);
         $userAnswers = $this->quizModel->getUserAnswers($attemptId);
         
-        // Calculate time taken if not already set
         if (empty($attemptDetails['time_taken']) && !empty($attemptDetails['started_at']) && !empty($attemptDetails['completed_at'])) {
             $startTime = strtotime($attemptDetails['started_at']);
             $endTime = strtotime($attemptDetails['completed_at']);
             $attemptDetails['time_taken'] = $endTime - $startTime;
         }
         
-        // Format time for display
         $timeTaken = isset($attemptDetails['time_taken']) ? (int)$attemptDetails['time_taken'] : 0;
         $minutes = floor($timeTaken / 60);
         $seconds = $timeTaken % 60;
@@ -421,20 +384,10 @@ class ExternalController {
      */
     public function subscription() {
         $hideFooter = true;
-        
-        // Get current subscription
         $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
-        
-        // Get subscription settings
         $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
-        
-        // Get payment history - use the combined history for better display
         $paymentHistory = $this->subscriptionModel->getCombinedHistory($_SESSION['user_id']);
-        
-        // Also get raw payment history if you want separate tables
         $rawPaymentHistory = $this->subscriptionModel->getUserPaymentHistory($_SESSION['user_id']);
-        
-        // Pass to view
         require_once __DIR__ . '/../views/external/subscription.php';
     }
     
@@ -513,15 +466,12 @@ class ExternalController {
     public function profile() {
         $hideFooter = true;
         
-        // Get user profile
         $profile = $this->userModel->getProfile($_SESSION['user_id']);
         
-        // Calculate trial end date
         $trialDays = $this->settingsModel->get('trial_days', 60);
         $trialEndDate = $this->userModel->getTrialEndDate($_SESSION['user_id'], $trialDays);
         $remainingTrialDays = $this->userModel->getRemainingTrialDays($_SESSION['user_id'], $trialDays);
         
-        // Add to profile array
         if ($profile) {
             $profile['trial_end'] = $trialEndDate;
             $profile['trial_days_remaining'] = $remainingTrialDays;
@@ -614,23 +564,17 @@ class ExternalController {
      * Delete account
      */
     public function deleteAccount() {
-        error_log("=== deleteAccount method called in Controller ===");
-        error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-        error_log("POST data: " . print_r($_POST, true));
         
         $hideFooter = true;
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            error_log("Not a POST request");
             header('Location: ' . BASE_URL . '/external/settings?tab=delete');
             exit;
         }
         
         $password = $_POST['password'] ?? '';
-        error_log("Password provided: " . ($password ? 'Yes (length: ' . strlen($password) . ')' : 'No'));
         
         if (empty($password)) {
-            error_log("Password is empty");
             $_SESSION['error'] = 'Please enter your password to confirm account deletion.';
             header('Location: ' . BASE_URL . '/external/settings?tab=delete');
             exit;
@@ -639,25 +583,20 @@ class ExternalController {
         // Check if user exists
         $user = $this->userModel->getById($_SESSION['user_id']);
         if (!$user) {
-            error_log("User not found: " . $_SESSION['user_id']);
             $_SESSION['error'] = 'User not found.';
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
-        error_log("Calling userModel->deleteAccount for user ID: " . $_SESSION['user_id']);
         $result = $this->userModel->deleteAccount($_SESSION['user_id'], $password);
-        error_log("Delete account result: " . print_r($result, true));
         
         if ($result['success']) {
-            error_log("Account deleted successfully, logging out");
             session_destroy();
             session_start();
             $_SESSION['success'] = 'Your account has been successfully deleted. We\'re sad to see you go!';
             header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
-            error_log("Account deletion failed: " . $result['error']);
             $_SESSION['error'] = $result['error'];
             header('Location: ' . BASE_URL . '/external/settings?tab=delete');
             exit;
@@ -687,7 +626,6 @@ class ExternalController {
             exit;
         }
         
-        // Get current subscription
         $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
         
         if (!$currentSubscription) {
@@ -696,10 +634,8 @@ class ExternalController {
             exit;
         }
         
-        // Get subscription settings
         $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
         
-        // Plan details
         $plans = [
             'monthly' => [
                 'name' => 'Monthly',
@@ -732,7 +668,6 @@ class ExternalController {
             ]
         ];
         
-        // Calculate upgrade price
         $prices = [
             'monthly' => $subscriptionSettings['monthly_price'] ?? 15000,
             'termly' => $subscriptionSettings['termly_price'] ?? 40000,
@@ -742,12 +677,10 @@ class ExternalController {
         $currentPrice = $prices[$fromPlan] ?? 0;
         $newPrice = $prices[$toPlan] ?? 0;
         
-        // Calculate remaining days
         $endDate = new DateTime($currentSubscription['end_date']);
         $now = new DateTime();
         $daysRemaining = $now->diff($endDate)->days;
         
-        // Calculate prorated value
         $totalDays = $fromPlan === 'monthly' ? 30 : ($fromPlan === 'termly' ? 90 : 365);
         $dailyRate = $currentPrice / $totalDays;
         $remainingValue = $dailyRate * $daysRemaining;
@@ -787,7 +720,6 @@ class ExternalController {
             exit;
         }
         
-        // Get current subscription
         $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
         
         if (!$currentSubscription) {
@@ -796,7 +728,6 @@ class ExternalController {
             exit;
         }
         
-        // Process upgrade
         $result = $this->subscriptionModel->upgradeSubscription(
             $_SESSION['user_id'],
             $fromPlan,
@@ -827,7 +758,6 @@ class ExternalController {
         
         $subscriptionId = $_GET['subscription_id'] ?? 0;
         
-        // Get upgrade details
         $upgradeDetails = $this->subscriptionModel->getUpgradeDetails($subscriptionId);
         
         $toPlan = $upgradeDetails['plan_type'] ?? '';
@@ -854,7 +784,6 @@ class ExternalController {
      * Send upgrade confirmation email
      */
     private function sendUpgradeConfirmationEmail($userId, $fromPlan, $toPlan, $amount, $newEndDate) {
-        // Get user details
         $user = $this->userModel->getById($userId);
         
         $to = $user['email'];
@@ -901,7 +830,6 @@ class ExternalController {
         </html>
         ";
         
-        // Send email using your mail function
         $this->sendEmail($to, $subject, $message);
     }
 
@@ -910,7 +838,6 @@ class ExternalController {
      */
     private function sendEmail($to, $subject, $message, $headers = []) {
         try {
-            // Set content-type header for HTML emails
             $defaultHeaders = [
                 'MIME-Version: 1.0',
                 'Content-type: text/html; charset=utf-8',
@@ -921,16 +848,12 @@ class ExternalController {
             
             $allHeaders = array_merge($defaultHeaders, $headers);
             
-            // Use PHP's mail function
             if (mail($to, $subject, $message, implode("\r\n", $allHeaders))) {
-                error_log("Email sent successfully to: " . $to);
                 return true;
             } else {
-                error_log("Failed to send email to: " . $to);
                 return false;
             }
         } catch (Exception $e) {
-            error_log("Error sending email: " . $e->getMessage());
             return false;
         }
     }
@@ -940,11 +863,8 @@ class ExternalController {
      * Process payment with Pesapal
      */
     public function processPesapalPayment() {
-        // Debug logging
-        error_log("=== processPesapalPayment called ===");
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            error_log("Not a POST request");
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
@@ -952,8 +872,6 @@ class ExternalController {
         $planType = $_POST['plan'] ?? '';
         $paymentMethod = $_POST['payment_method'] ?? 'mobile_money';
         $phoneNumber = $_POST['phone_number'] ?? '';
-        
-        error_log("Plan: $planType, Method: $paymentMethod, Phone: $phoneNumber");
         
         if (empty($planType)) {
             $_SESSION['error'] = 'Please select a subscription plan';
@@ -976,9 +894,7 @@ class ExternalController {
         ];
         
         $amount = $amounts[$planType] ?? 0;
-        error_log("Amount: $amount UGX");
         
-        // Create pending payment record
         $paymentResult = $this->subscriptionModel->createPendingPayment(
             $_SESSION['user_id'],
             $planType,
@@ -988,25 +904,19 @@ class ExternalController {
         );
         
         if (!$paymentResult['success']) {
-            error_log("Failed to create payment record: " . ($paymentResult['error'] ?? 'Unknown error'));
             $_SESSION['error'] = $paymentResult['error'];
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
-        error_log("Payment record created: " . print_r($paymentResult, true));
-        
-        // Get user details
         $user = $this->userModel->getById($_SESSION['user_id']);
         $nameParts = explode(' ', $user['first_name'] . ' ' . $user['last_name']);
         $firstName = $nameParts[0] ?? $user['first_name'];
         $lastName = isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : '';
         
-        // Initialize Pesapal
         require_once __DIR__ . '/../lib/Pesapal.php';
         $pesapal = new Pesapal();
         
-        // Prepare payment data
         $paymentData = [
             'amount' => $amount,
             'phone' => $phoneNumber,
@@ -1016,13 +926,8 @@ class ExternalController {
             'reference' => $paymentResult['transaction_id'],
             'description' => ucfirst($planType) . ' Subscription - Rays of Grace'
         ];
-        
-        error_log("Submitting to Pesapal: " . json_encode($paymentData));
-        
-        // Submit payment to Pesapal
+
         $response = $pesapal->submitPayment($paymentData);
-        
-        error_log("Pesapal Response: " . json_encode($response));
         
         if (isset($response['error']) && $response['error']) {
             $_SESSION['error'] = $response['message'];
@@ -1030,16 +935,13 @@ class ExternalController {
             exit;
         }
         
-        // Store pending info in session
         $_SESSION['pending_payment_id'] = $paymentResult['payment_id'];
         $_SESSION['pending_transaction_id'] = $paymentResult['transaction_id'];
         $_SESSION['pending_plan'] = $planType;
         $_SESSION['pending_amount'] = $amount;
         $_SESSION['pesapal_tracking_id'] = $response['tracking_id'] ?? '';
         
-        // Redirect to Pesapal
         if (isset($response['redirect_url'])) {
-            error_log("Redirecting to: " . $response['redirect_url']);
             header('Location: ' . $response['redirect_url']);
             exit;
         } else {
@@ -1062,7 +964,6 @@ class ExternalController {
             exit;
         }
         
-        // Verify payment status
         $pesapal = new Pesapal();
         $verification = $pesapal->queryPaymentStatus($pesapalTrackingId);
         
@@ -1072,16 +973,13 @@ class ExternalController {
             exit;
         }
         
-        // Check if payment was successful
         if ($verification['status'] == 'COMPLETED') {
-            // Update payment record
             $this->subscriptionModel->updatePaymentStatus(
                 $merchantReference,
                 'completed',
                 $verification
             );
             
-            // Activate subscription
             $this->activatePesapalSubscription($merchantReference);
             
             $_SESSION['success'] = 'Payment successful! Your subscription is now active.';
@@ -1107,7 +1005,6 @@ class ExternalController {
             exit;
         }
         
-        // Verify payment status
         $pesapal = new Pesapal();
         $verification = $pesapal->queryPaymentStatus($pesapalTrackingId);
         
@@ -1135,11 +1032,9 @@ class ExternalController {
         $payment = $this->subscriptionModel->getPaymentByTransactionId($reference);
         
         if (!$payment) {
-            error_log("Payment not found for reference: $reference");
             return false;
         }
         
-        // Create subscription
         $subscriptionResult = $this->subscriptionModel->createSubscription(
             $payment['user_id'],
             $payment['plan_type'],
@@ -1148,14 +1043,11 @@ class ExternalController {
         );
         
         if ($subscriptionResult['success']) {
-            // Send confirmation email
             $this->sendPaymentConfirmationEmail(
                 $payment['user_id'],
                 $payment['plan_type'],
                 $payment['amount']
             );
-            
-            error_log("Subscription activated for user: " . $payment['user_id']);
         }
         
         return $subscriptionResult;
@@ -1169,21 +1061,18 @@ class ExternalController {
         $userId = $_SESSION['user_id'];
         $trialDays = $this->settingsModel->get('trial_days', 60);
         
-        // Check if user has active subscription
         $currentSubscription = $this->subscriptionModel->getCurrentSubscription($userId);
         
         if ($currentSubscription) {
-            return true; // Has active subscription
+            return true; 
         }
         
-        // Check if still in trial period
         $trialStatus = $this->userModel->getTrialStatus($userId, $trialDays);
         
         if ($trialStatus['is_trial']) {
-            return true; // Still in trial
+            return true;
         }
         
-        // No access - redirect to subscription
         $_SESSION['error'] = 'Your free trial has ended. Please subscribe to continue accessing lessons and quizzes.';
         header('Location: ' . BASE_URL . '/external/subscription');
         exit;
@@ -1223,7 +1112,6 @@ class ExternalController {
             
             $answers = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                // Convert selected_answer to integer if it's numeric
                 $answer = $row['selected_answer'];
                 if (is_numeric($answer)) {
                     $answer = (int)$answer;
@@ -1231,12 +1119,9 @@ class ExternalController {
                 $answers[$row['question_id']] = $answer;
             }
             
-            error_log("getUserAnswers for attempt $attemptId returned " . count($answers) . " answers");
-            
             return $answers;
             
         } catch (PDOException $e) {
-            error_log("Error getting user answers: " . $e->getMessage());
             return [];
         }
     }
@@ -1246,14 +1131,8 @@ class ExternalController {
      */
     public function submitAttempt($attemptId, $answers) {
         try {
-            error_log("=== SUBMIT ATTEMPT START ===");
-            error_log("Attempt ID: " . $attemptId);
-            error_log("Answers received: " . print_r($answers, true));
-            
-            // Start transaction
             $this->conn->beginTransaction();
             
-            // Get attempt details
             $sql = "SELECT * FROM quiz_attempts WHERE id = :attempt_id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
@@ -1261,31 +1140,24 @@ class ExternalController {
             $attempt = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$attempt) {
-                error_log("Attempt not found for ID: " . $attemptId);
                 return ['success' => false, 'error' => 'Attempt not found'];
             }
             
             if ($attempt['status'] == 'completed') {
-                error_log("Attempt already completed");
                 return ['success' => false, 'error' => 'Quiz already submitted'];
             }
             
-            // Get quiz questions
             $quizId = $attempt['quiz_id'];
             $questions = $this->getQuestions($quizId);
-            error_log("Questions found: " . count($questions));
             
             $correctAnswers = 0;
             $totalQuestions = count($questions);
             
-            // Delete any existing answers for this attempt (in case of resubmit)
             $deleteSql = "DELETE FROM quiz_attempt_answers WHERE attempt_id = :attempt_id";
             $deleteStmt = $this->conn->prepare($deleteSql);
             $deleteStmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
             $deleteStmt->execute();
-            error_log("Deleted existing answers for attempt: " . $attemptId);
             
-            // Save each answer
             $answerSql = "INSERT INTO quiz_attempt_answers (attempt_id, question_id, selected_answer, is_correct) 
                         VALUES (:attempt_id, :question_id, :selected_answer, :is_correct)";
             
@@ -1295,18 +1167,13 @@ class ExternalController {
                 $correctOption = $question['correct_option'];
                 $userAnswer = isset($answers[$question['id']]) ? $answers[$question['id']] : null;
                 
-                error_log("Processing Question ID: {$question['id']}, User Answer: " . var_export($userAnswer, true));
-                
-                // Convert user answer to integer if needed
                 if (is_numeric($userAnswer)) {
                     $userAnswer = (int)$userAnswer;
                 }
                 
-                // Handle if answer is stored as letter
                 if (is_string($userAnswer) && in_array(strtoupper($userAnswer), ['A', 'B', 'C', 'D'])) {
                     $letterToIndex = ['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3];
                     $userAnswer = $letterToIndex[strtoupper($userAnswer)];
-                    error_log("Converted letter answer to index: " . $userAnswer);
                 }
                 
                 $isCorrect = ($userAnswer !== null && $userAnswer == $correctOption) ? 1 : 0;
@@ -1315,20 +1182,16 @@ class ExternalController {
                     $correctAnswers++;
                 }
                 
-                error_log("Saving: Question ID={$question['id']}, User Answer=$userAnswer, Correct Option=$correctOption, Is Correct=$isCorrect");
                 
                 $answerStmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
                 $answerStmt->bindValue(':question_id', $question['id'], PDO::PARAM_INT);
                 $answerStmt->bindValue(':selected_answer', $userAnswer);
                 $answerStmt->bindValue(':is_correct', $isCorrect, PDO::PARAM_INT);
                 $answerStmt->execute();
-                error_log("Answer saved successfully");
             }
             
             $score = ($totalQuestions > 0) ? round(($correctAnswers / $totalQuestions) * 100) : 0;
-            error_log("Score calculated: $score% ($correctAnswers/$totalQuestions correct)");
             
-            // Update attempt
             $sql = "UPDATE quiz_attempts 
                     SET score = :score, 
                         correct_answers = :correct_answers,
@@ -1346,8 +1209,6 @@ class ExternalController {
             
             $this->conn->commit();
             
-            error_log("=== SUBMIT ATTEMPT SUCCESS ===");
-            
             return [
                 'success' => true,
                 'score' => $score,
@@ -1358,7 +1219,6 @@ class ExternalController {
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("Error submitting quiz attempt: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to submit quiz: ' . $e->getMessage()];
         }
     }
@@ -1373,7 +1233,6 @@ class ExternalController {
                     FROM quizzes q
                     WHERE q.id = :id";
             
-            // If checking for published status, add the condition
             if ($checkPublished) {
                 $sql .= " AND q.status = 'published'";
             }
@@ -1384,7 +1243,6 @@ class ExternalController {
             
             $quiz = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            // Set default values
             if ($quiz) {
                 $quiz['time_limit'] = $quiz['time_limit'] ?? 15;
                 $quiz['passing_score'] = $quiz['passing_score'] ?? 70;
@@ -1394,7 +1252,6 @@ class ExternalController {
             return $quiz;
             
         } catch (PDOException $e) {
-            error_log("Error getting quiz by ID: " . $e->getMessage());
             return null;
         }
     }
@@ -1411,11 +1268,7 @@ class ExternalController {
             
             $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            error_log("getQuestions for quiz $quizId returned " . count($questions) . " questions");
-            
-            // Convert to format expected by view
             foreach ($questions as &$question) {
-                // Build options array
                 $options = [];
                 if (!empty($question['option_a'])) $options[] = $question['option_a'];
                 if (!empty($question['option_b'])) $options[] = $question['option_b'];
@@ -1424,7 +1277,6 @@ class ExternalController {
                 
                 $question['options'] = $options;
                 
-                // Convert correct_answer (A/B/C/D) to index (0/1/2/3)
                 $correctMap = [
                     'A' => 0,
                     'B' => 1,
@@ -1441,7 +1293,6 @@ class ExternalController {
             return $questions;
             
         } catch (PDOException $e) {
-            error_log("Error getting quiz questions: " . $e->getMessage());
             return [];
         }
     }

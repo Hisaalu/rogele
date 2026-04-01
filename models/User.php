@@ -88,7 +88,6 @@ class User {
             ];
             
         } catch (PDOException $e) {
-            error_log("Registration error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Registration failed. Please try again.'];
         }
     }
@@ -98,7 +97,6 @@ class User {
      */
     public function login($username, $password) {
         try {
-            error_log("Login attempt for username: " . $username);
             
             $query = "SELECT u.*, c.name as class_name 
                     FROM users u 
@@ -113,12 +111,10 @@ class User {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$user) {
-                error_log("User not found: " . $username);
                 return ['success' => false, 'error' => 'User not found'];
             }
             
             if (!password_verify($password, $user['password'])) {
-                error_log("Password verification failed for user: " . $username);
                 return ['success' => false, 'error' => 'Invalid password'];
             }
             
@@ -141,7 +137,6 @@ class User {
             return ['success' => true, 'user' => $user];
             
         } catch (PDOException $e) {
-            error_log("Login error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
@@ -159,7 +154,6 @@ class User {
             $stmt->execute([':id' => $id]);
             return $stmt->fetch();
         } catch (PDOException $e) {
-            error_log("Get user error: " . $e->getMessage());
             return null;
         }
     }
@@ -174,7 +168,6 @@ class User {
             $stmt->execute([':email' => $email]);
             return $stmt->fetch();
         } catch (PDOException $e) {
-            error_log("Get user by email error: " . $e->getMessage());
             return null;
         }
     }
@@ -205,7 +198,6 @@ class User {
             
             return $user;
         } catch (PDOException $e) {
-            error_log("Get profile error: " . $e->getMessage());
             return null;
         }
     }
@@ -215,13 +207,9 @@ class User {
      */
     public function updateProfile($userId, $data) {
         try {
-            error_log("=== UPDATE PROFILE IN MODEL ===");
-            error_log("User ID: $userId");
-            error_log("Data: " . json_encode($data));
             
             $user = $this->getById($userId);
             if (!$user) {
-                error_log("User not found: $userId");
                 return ['success' => false, 'error' => 'User not found'];
             }
             
@@ -233,7 +221,6 @@ class User {
                     ':id' => $userId
                 ]);
                 if ($checkStmt->fetch()) {
-                    error_log("Email already taken: " . $data['email']);
                     return ['success' => false, 'error' => 'Email already taken by another user'];
                 }
             }
@@ -262,16 +249,13 @@ class User {
             ]);
             
             if ($result) {
-                error_log("Profile updated successfully for user: $userId");
                 $this->logActivity($userId, 'PROFILE_UPDATE', 'User updated profile');
                 return ['success' => true, 'message' => 'Profile updated successfully'];
             }
             
-            error_log("Failed to update profile for user: $userId");
             return ['success' => false, 'error' => 'Failed to update profile'];
             
         } catch (PDOException $e) {
-            error_log("Profile update error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error occurred'];
         }
     }
@@ -321,7 +305,6 @@ class User {
             return ['success' => false, 'error' => 'Failed to update user'];
             
         } catch (PDOException $e) {
-            error_log("Admin update user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error occurred'];
         }
     }
@@ -360,7 +343,6 @@ class User {
             return ['success' => false, 'error' => 'Failed to change password'];
             
         } catch (PDOException $e) {
-            error_log("Password change error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error occurred'];
         }
     }
@@ -374,8 +356,6 @@ class User {
      */
     public function deleteAccount($userId, $password) {
         try {
-            error_log("=== deleteAccount method in User model called ===");
-            error_log("User ID: $userId");
             
             $sql = "SELECT password FROM users WHERE id = :user_id";
             $stmt = $this->conn->prepare($sql);
@@ -384,16 +364,12 @@ class User {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$user) {
-                error_log("User not found for ID: $userId");
                 return ['success' => false, 'error' => 'User not found'];
             }
             
             if (!password_verify($password, $user['password'])) {
-                error_log("Password verification failed for user: $userId");
                 return ['success' => false, 'error' => 'Incorrect password. Please try again.'];
             }
-            
-            error_log("Password verified, starting deletion...");
             
             $this->conn->beginTransaction();
             
@@ -406,7 +382,6 @@ class User {
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count quiz_attempt_answers records");
             } catch (PDOException $e) {
                 error_log("Error deleting quiz_attempt_answers: " . $e->getMessage());
             }
@@ -417,7 +392,6 @@ class User {
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count quiz_attempts records");
             } catch (PDOException $e) {
                 error_log("Error deleting quiz_attempts: " . $e->getMessage());
             }
@@ -428,7 +402,6 @@ class User {
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count subscriptions records");
             } catch (PDOException $e) {
                 error_log("Error deleting subscriptions: " . $e->getMessage());
             }
@@ -439,7 +412,6 @@ class User {
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count payments records");
             } catch (PDOException $e) {
                 error_log("Error deleting payments: " . $e->getMessage());
             }
@@ -450,7 +422,6 @@ class User {
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count bookmarks records");
             } catch (PDOException $e) {
                 error_log("Error deleting bookmarks: " . $e->getMessage());
             }
@@ -461,7 +432,6 @@ class User {
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count lesson_progress records");
             } catch (PDOException $e) {
                 error_log("Error deleting lesson_progress: " . $e->getMessage());
             }
@@ -471,28 +441,21 @@ class User {
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
             $stmt->execute();
             $count = $stmt->rowCount();
-            error_log("Deleted $count user record");
             
             if ($count == 0) {
-                error_log("User record not deleted - user might not exist");
                 throw new Exception("User record not deleted");
             }
             
             $this->conn->commit();
             
-            error_log("Account deleted successfully for user: $userId");
             
             return ['success' => true, 'message' => 'Account deleted successfully'];
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("PDOException in deleteAccount: " . $e->getMessage());
-            error_log("Error code: " . $e->getCode());
-            error_log("Error line: " . $e->getLine());
             return ['success' => false, 'error' => 'Failed to delete account. Database error: ' . $e->getMessage()];
         } catch (Exception $e) {
             $this->conn->rollBack();
-            error_log("Exception in deleteAccount: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to delete account. Error: ' . $e->getMessage()];
         }
     }
@@ -542,7 +505,6 @@ class User {
             return ['success' => false, 'error' => 'Failed to upload photo'];
             
         } catch (PDOException $e) {
-            error_log("Photo upload error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to upload photo'];
         }
     }
@@ -566,7 +528,6 @@ class User {
             
             return true;
         } catch (PDOException $e) {
-            error_log("Free trial error: " . $e->getMessage());
             return false;
         }
     }
@@ -576,7 +537,8 @@ class User {
      */
     public function hasAccess($userId) {
         try {
-            $userQuery = "SELECT role FROM users WHERE id = :id";
+            
+            $userQuery = "SELECT role, created_at FROM users WHERE id = :id";
             $userStmt = $this->conn->prepare($userQuery);
             $userStmt->execute([':id' => $userId]);
             $user = $userStmt->fetch();
@@ -589,21 +551,28 @@ class User {
                 return true;
             }
             
-            $trialQuery = "SELECT * FROM free_trials WHERE user_id = :user_id AND end_date > NOW()";
-            $trialStmt = $this->conn->prepare($trialQuery);
-            $trialStmt->execute([':user_id' => $userId]);
-            if ($trialStmt->fetch()) {
-                return true;
+            if ($user['role'] === 'external') {
+                $createdAt = new DateTime($user['created_at']);
+                $now = new DateTime();
+                $daysPassed = $createdAt->diff($now)->days;
+                $trialDays = 60; 
+                
+                if ($daysPassed < $trialDays) {
+                    return true;
+                }
             }
             
             $subQuery = "SELECT * FROM subscriptions WHERE user_id = :user_id AND status = 'active' AND end_date > NOW()";
             $subStmt = $this->conn->prepare($subQuery);
             $subStmt->execute([':user_id' => $userId]);
             
-            return $subStmt->fetch() ? true : false;
+            if ($subStmt->fetch()) {
+                return true;
+            }
+            
+            return false;
             
         } catch (PDOException $e) {
-            error_log("Access check error: " . $e->getMessage());
             return false;
         }
     }
@@ -625,7 +594,6 @@ class User {
             return ['success' => false, 'error' => 'Invalid or expired verification token'];
             
         } catch (PDOException $e) {
-            error_log("Email verification error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Verification failed'];
         }
     }
@@ -657,7 +625,6 @@ class User {
             return ['success' => true, 'message' => 'Password reset instructions sent to your email'];
             
         } catch (PDOException $e) {
-            error_log("Password reset request error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to process request'];
         }
     }
@@ -687,7 +654,6 @@ class User {
             return ['success' => true, 'message' => 'Password reset successful'];
             
         } catch (PDOException $e) {
-            error_log("Password reset error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to reset password'];
         }
     }
@@ -697,30 +663,22 @@ class User {
      */
     public function saveResetToken($userId, $token, $expires) {
         try {
-            error_log("=== SAVE RESET TOKEN ===");
-            error_log("User ID: " . $userId);
-            error_log("Token: " . $token);
-            error_log("Expires: " . $expires);
             
             $stmt = $this->conn->prepare("DELETE FROM password_resets WHERE user_id = ?");
             $stmt->execute([$userId]);
-            error_log("Deleted existing tokens for user: " . $userId);
             
             $stmt = $this->conn->prepare("
                 INSERT INTO password_resets (user_id, token, expires_at) 
                 VALUES (?, ?, ?)
             ");
             $result = $stmt->execute([$userId, $token, $expires]);
-            error_log("Insert result: " . ($result ? "SUCCESS" : "FAILED"));
             
             if ($result) {
                 $insertId = $this->conn->lastInsertId();
-                error_log("Inserted token ID: " . $insertId);
             }
             
             return $result;
         } catch (PDOException $e) {
-            error_log("Save reset token error: " . $e->getMessage());
             return false;
         }
     }
@@ -730,8 +688,6 @@ class User {
      */
     public function getUserByResetToken($token) {
         try {
-            error_log("=== GET USER BY RESET TOKEN ===");
-            error_log("Token to check: " . $token);
             
             $stmt = $this->conn->prepare("
                 SELECT pr.*, u.*, pr.token as reset_token, pr.expires_at 
@@ -745,9 +701,6 @@ class User {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($result) {
-                error_log("Token found and valid for user: " . $result['email']);
-                error_log("Token expires at: " . $result['expires_at']);
-                error_log("Current time: " . date('Y-m-d H:i:s'));
                 return $result;
             } else {
                 $stmt2 = $this->conn->prepare("
@@ -758,9 +711,6 @@ class User {
                 $tokenRecord = $stmt2->fetch(PDO::FETCH_ASSOC);
                 
                 if ($tokenRecord) {
-                    error_log("Token found but expired or used");
-                    error_log("Token expires at: " . $tokenRecord['expires_at']);
-                    error_log("Token used: " . $tokenRecord['used']);
                 } else {
                     error_log("Token not found in database");
                 }
@@ -768,7 +718,6 @@ class User {
                 return null;
             }
         } catch (PDOException $e) {
-            error_log("Get user by reset token error: " . $e->getMessage());
             return null;
         }
     }
@@ -785,7 +734,6 @@ class User {
             ");
             return $stmt->execute([$userId]);
         } catch (PDOException $e) {
-            error_log("Clear reset token error: " . $e->getMessage());
             return false;
         }
     }
@@ -805,7 +753,6 @@ class User {
                 'error' => $success ? null : 'Failed to update password'
             ];
         } catch (PDOException $e) {
-            error_log("Update password error: " . $e->getMessage());
             return [
                 'success' => false,
                 'error' => 'Database error occurred'
@@ -841,7 +788,6 @@ class User {
      */
     private function sendVerificationEmail($email, $token, $name) {
         $verificationLink = BASE_URL . "/verify-email?token=" . $token;
-        error_log("Verification email would be sent to: $email with link: $verificationLink");
     }
     
     /**
@@ -1058,7 +1004,6 @@ class User {
             return $stmt->fetchAll();
             
         } catch (PDOException $e) {
-            error_log("Get all users error: " . $e->getMessage());
             return [];
         }
     }
@@ -1100,7 +1045,6 @@ class User {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Search users error: " . $e->getMessage());
             return [];
         }
     }
@@ -1122,7 +1066,6 @@ class User {
             return ['success' => false, 'error' => 'User not found'];
             
         } catch (PDOException $e) {
-            error_log("Suspend user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to suspend user'];
         }
     }
@@ -1144,7 +1087,6 @@ class User {
             return ['success' => false, 'error' => 'User not found'];
             
         } catch (PDOException $e) {
-            error_log("Activate user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to activate user'];
         }
     }
@@ -1181,7 +1123,6 @@ class User {
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("Delete user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to delete user'];
         }
     }
@@ -1199,7 +1140,6 @@ class User {
             $result = $stmt->fetch();
             return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get active today error: " . $e->getMessage());
             return 0;
         }
     }
@@ -1217,7 +1157,6 @@ class User {
             $result = $stmt->fetch();
             return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get new users today error: " . $e->getMessage());
             return 0;
         }
     }
@@ -1268,7 +1207,6 @@ class User {
             
             return $result['total'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Count students by teacher error: " . $e->getMessage());
             return 0;
         }
     }
@@ -1310,7 +1248,6 @@ class User {
             return $remainingDays;
             
         } catch (Exception $e) {
-            error_log("Error calculating remaining trial days: " . $e->getMessage());
             return $trialDays;
         }
     }
@@ -1341,7 +1278,6 @@ class User {
             return $createdAt->format('Y-m-d H:i:s');
             
         } catch (Exception $e) {
-            error_log("Error calculating trial end date: " . $e->getMessage());
             return null;
         }
     }
@@ -1380,7 +1316,6 @@ class User {
             return $daysPassed < $trialDays;
             
         } catch (Exception $e) {
-            error_log("Error checking trial period: " . $e->getMessage());
             return false;
         }
     }
@@ -1440,7 +1375,6 @@ class User {
             ];
             
         } catch (Exception $e) {
-            error_log("Error getting trial status: " . $e->getMessage());
             return [
                 'is_trial' => false,
                 'has_subscription' => false,
@@ -1456,7 +1390,6 @@ class User {
      */
     public function getStudentsWithStats($teacherId, $classId = null, $search = null) {
         try {
-            error_log("=== GET STUDENTS WITH STATS ===");
             
             $conn = $this->conn;
             
@@ -1503,8 +1436,6 @@ class User {
             $query .= " GROUP BY u.id, u.first_name, u.last_name, u.email, u.phone, u.role, u.profile_photo, u.class_id, c.name
                         ORDER BY u.first_name ASC";
             
-            error_log("Query: " . $query);
-            
             $stmt = $conn->prepare($query);
             $stmt->execute($params);
             
@@ -1516,13 +1447,10 @@ class User {
                 $student['lessons_viewed'] = (int)$student['lessons_viewed'];
             }
             
-            error_log("Students found: " . count($students));
             
             return $students;
             
         } catch (PDOException $e) {
-            error_log("Get students with stats error: " . $e->getMessage());
-            error_log("Error code: " . $e->getCode());
             return [];
         }
     }
@@ -1536,7 +1464,6 @@ class User {
             $stmt->execute([$classId, $userId]);
             return true;
         } catch (PDOException $e) {
-            error_log("Add student to class error: " . $e->getMessage());
             return false;
         }
     }
@@ -1556,7 +1483,6 @@ class User {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Count total students error: " . $e->getMessage());
             return 0;
         }
     }
