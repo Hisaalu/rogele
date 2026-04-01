@@ -125,7 +125,7 @@ $search = $_GET['search'] ?? '';
                                 <i class="fas fa-eye"></i> <?php echo number_format($lesson['views'] ?? 0); ?>
                             </span>
                             <span title="Materials">
-                                <i class="fas fa-paperclip"></i> <?php echo $lesson['materials_count'] ?? 0; ?> files
+                                <i class="fas fa-paperclip"></i> <?php echo $lesson['materials_count'] ?? 0; ?> file(s)
                             </span>
                         </div>
 

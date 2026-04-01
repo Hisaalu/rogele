@@ -1,0 +1,69 @@
+services:
+  server:
+    build:
+      context: .
+    ports:
+      - 9000:80
+    depends_on:
+      db:
+        condition: service_healthy
+    secrets:
+      - db-password
+    environment:
+      - APP_ENV=${APP_ENV}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD_FILE=${DB_PASSWORD_FILE}
+    volumes:
+      - ./.env:/var/www/html/.env:ro
+
+  db:
+    image: mariadb
+    restart: always
+    user: root
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      - MARIADB_ROOT_PASSWORD_FILE=/run/secrets/db-password
+      - MARIADB_DATABASE=${DB_NAME}
+    expose:
+      - 3306
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/usr/local/bin/healthcheck.sh",
+          "--su-mysql",
+          "--connect",
+          "--innodb_initialized",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+      # - PMA_USER=root
+      # - PMA_PASSWORD_FILE=/run/secrets/db-password
+      - UPLOAD_LIMIT=100M
+    secrets:
+      - db-password
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
+
+secrets:
+  db-password:
+    file: db/password.txt
