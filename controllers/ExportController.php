@@ -7,8 +7,6 @@ require_once __DIR__ . '/../models/Report.php';
 require_once __DIR__ . '/../models/Quiz.php';
 require_once __DIR__ . '/../models/Subscription.php';
 require_once __DIR__ . '/../models/Settings.php';
-
-// Include TCPDF
 require_once __DIR__ . '/../vendor/tcpdf/tcpdf.php';
 
 class ExportController {
@@ -31,41 +29,6 @@ class ExportController {
         $this->settingsModel = new Settings();
         
         if (ob_get_length()) ob_clean();
-    }
-    
-    /**
-     * Export report as PDF
-     */
-    public function exportReport() {
-        while (ob_get_level() > 0) {
-            ob_end_clean();
-        }
-        
-        $type = $_GET['type'] ?? 'overview';
-        $start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
-        $end_date = $_GET['end_date'] ?? date('Y-m-d');
-        $days = $_GET['days'] ?? 30;
-        
-        switch ($type) {
-            case 'overview':
-                $this->exportOverview($start_date, $end_date, $days);
-                break;
-            case 'users':
-                $this->exportUsers($start_date, $end_date);
-                break;
-            case 'quizzes':
-                $this->exportQuizzes($start_date, $end_date);
-                break;
-            case 'payments':
-                $this->exportPayments($start_date, $end_date);
-                break;
-            case 'activity':
-                $this->exportActivity($start_date, $end_date);
-                break;
-            default:
-                header('Location: ' . BASE_URL . '/admin/reports');
-                exit;
-        }
     }
     
     /**
@@ -250,116 +213,6 @@ class ExportController {
         $pdf->Cell(0, 5, 'Generated on ' . date('F j, Y H:i:s'), 0, 1, 'C');
         
         $pdf->Output('Overview_Report_' . date('Y-m-d') . '.pdf', 'D');
-        exit;
-    }
-    
-    /**
-     * Export Quizzes Report
-     */
-    private function exportQuizzes($start_date, $end_date) {
-        $data = $this->reportModel->getQuizReport($start_date, $end_date);
-        
-        $settings = $this->settingsModel->getGeneralSettings();
-        $siteName = $settings['site_name'] ?? 'Rays of Grace';
-        
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        $pdf->AddPage();
-        
-        $pdf->SetFont('helvetica', 'B', 20);
-        $pdf->SetTextColor(139, 92, 246);
-        $pdf->Cell(0, 20, $siteName, 0, 1, 'C');
-        $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->SetTextColor(249, 115, 22);
-        $pdf->Cell(0, 10, 'Quiz Performance Report', 0, 1, 'C');
-        $pdf->SetFont('helvetica', '', 11);
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(0, 8, 'Date Range: ' . date('M d, Y', strtotime($start_date)) . ' - ' . date('M d, Y', strtotime($end_date)), 0, 1, 'C');
-        $pdf->Ln(10);
-        
-        if (!empty($data)) {
-            $totalAttempts = array_sum(array_column($data, 'total_attempts'));
-            $uniqueStudents = array_sum(array_column($data, 'unique_students'));
-            $avgScore = count($data) > 0 ? round(array_sum(array_column($data, 'avg_score')) / count($data), 1) : 0;
-            $totalPassed = array_sum(array_column($data, 'passed_count'));
-            $overallPassRate = $totalAttempts > 0 ? round(($totalPassed / $totalAttempts) * 100, 1) : 0;
-            
-            $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->SetTextColor(249, 115, 22);
-            $pdf->Cell(0, 10, 'Summary Statistics', 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
-            $pdf->SetFont('helvetica', '', 11);
-            
-            $html = '
-            <table border="1" cellpadding="6">
-                <tr>
-                    <td><strong>Total Attempts:</strong></td>
-                    <td>' . number_format($totalAttempts) . '</td>
-                </tr>
-                <tr>
-                    <td><strong>Unique Students:</strong></td>
-                    <td>' . number_format($uniqueStudents) . '</td>
-                </tr>
-                <tr>
-                    <td><strong>Average Score:</strong></td>
-                    <td>' . $avgScore . '%</td>
-                </tr>
-                <tr>
-                    <td><strong>Overall Pass Rate:</strong></td>
-                    <td>' . $overallPassRate . '%</td>
-                </tr>
-            </table>';
-            
-            $pdf->writeHTML($html, true, false, true, false, '');
-            $pdf->Ln(10);
-            
-            $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->SetTextColor(249, 115, 22);
-            $pdf->Cell(0, 10, 'Quiz Details', 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
-            $pdf->SetFont('helvetica', '', 9);
-            
-            $html = '<table border="1" cellpadding="4">
-                <thead>
-                    <tr>
-                        <th>Quiz Title</th>
-                        <th>Attempts</th>
-                        <th>Students</th>
-                        <th>Avg Score</th>
-                        <th>Highest</th>
-                        <th>Lowest</th>
-                        <th>Pass Rate</th>
-                    </tr>
-                </thead>
-                <tbody>';
-            
-            foreach ($data as $row) {
-                $passRate = $row['total_attempts'] > 0 ? round(($row['passed_count'] / $row['total_attempts']) * 100, 1) : 0;
-                $html .= '<tr>
-                    <td>' . htmlspecialchars($row['title']) . '</td>
-                    <td>' . number_format($row['total_attempts']) . '</td>
-                    <td>' . number_format($row['unique_students']) . '</td>
-                    <td>' . round($row['avg_score'], 1) . '%</td>
-                    <td>' . round($row['highest_score'], 1) . '%</td>
-                    <td>' . round($row['lowest_score'], 1) . '%</td>
-                    <td>' . $passRate . '%</td>
-                </tr>';
-            }
-            
-            $html .= '</tbody></table>';
-            $pdf->writeHTML($html, true, false, true, false, '');
-        } else {
-            $pdf->SetFont('helvetica', '', 12);
-            $pdf->Cell(0, 10, 'No quiz data available for the selected date range.', 0, 1, 'C');
-        }
-        
-        $pdf->Ln(10);
-        $pdf->SetFont('helvetica', 'I', 8);
-        $pdf->SetTextColor(100, 100, 100);
-        $pdf->Cell(0, 5, 'Generated on ' . date('F j, Y H:i:s'), 0, 1, 'C');
-        
-        $pdf->Output('Quizzes_Report_' . date('Y-m-d') . '.pdf', 'D');
         exit;
     }
     

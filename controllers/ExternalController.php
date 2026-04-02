@@ -40,6 +40,9 @@ class ExternalController {
         $this->classesModel = new Classes();
     }
     
+    /**
+     * Redirect to dashboard based on user role
+     */
     private function redirectToRoleDashboard() {
         switch ($_SESSION['user_role']) {
             case 'admin':
@@ -62,6 +65,7 @@ class ExternalController {
      */
     public function dashboard() {
         $hideFooter = true;
+
         $userId = $_SESSION['user_id'];
         $trialDays = $this->settingsModel->get('trial_days', 60);
         $remainingTrialDays = $this->userModel->getRemainingTrialDays($userId, $trialDays);
@@ -73,6 +77,7 @@ class ExternalController {
         $trialPercentage = $trialDays > 0 ? min(100, round(($daysPassed / $trialDays) * 100)) : 0;
         $currentPlan = $currentSubscription['plan_type'] ?? null;
         $subscriptionEndDate = $currentSubscription['end_date'] ?? null;
+
         require_once __DIR__ . '/../views/external/dashboard.php';
     }
     
@@ -179,7 +184,7 @@ class ExternalController {
     }
     
     /**
-     * Display quizzes for external users
+     * Display quizzes for external users based on their class
      */
     public function quizzes() {
         $this->checkAccess();
@@ -204,28 +209,6 @@ class ExternalController {
         $results = $this->quizModel->getUserQuizResults($_SESSION['user_id']);
         
         require_once __DIR__ . '/../views/external/quizzes.php';
-    }
-
-    /**
-     * Get user's quiz results
-     */
-    public function getUserQuizResults($userId) {
-        try {
-            $sql = "SELECT a.*, q.title as quiz_title 
-                    FROM quiz_attempts a
-                    LEFT JOIN quizzes q ON a.quiz_id = q.id
-                    WHERE a.user_id = :user_id AND a.status = 'completed'
-                    ORDER BY a.completed_at DESC";
-            
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-        } catch (PDOException $e) {
-            return [];
-        }
     }
     
     /**
@@ -319,6 +302,28 @@ class ExternalController {
                 header('Location: ' . BASE_URL . '/external/quizzes');
                 exit;
             }
+        }
+    }
+
+    /**
+     * Get user's quiz results
+     */
+    public function getUserQuizResults($userId) {
+        try {
+            $sql = "SELECT a.*, q.title as quiz_title 
+                    FROM quiz_attempts a
+                    LEFT JOIN quizzes q ON a.quiz_id = q.id
+                    WHERE a.user_id = :user_id AND a.status = 'completed'
+                    ORDER BY a.completed_at DESC";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            return [];
         }
     }
 
@@ -493,7 +498,6 @@ class ExternalController {
             'class_id' => !empty($_POST['class_id']) ? (int)$_POST['class_id'] : null
         ];
         
-        // Validate
         $errors = [];
         if (empty($data['first_name'])) $errors[] = 'First name is required';
         if (empty($data['last_name'])) $errors[] = 'Last name is required';
@@ -506,15 +510,12 @@ class ExternalController {
             exit;
         }
         
-        // Update profile
         $result = $this->userModel->updateProfile($userId, $data);
         
         if ($result['success']) {
-            // Update session name if changed
             $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
             $_SESSION['user_email'] = $data['email'];
             
-            // If class changed, update session or show message
             $oldClassId = $this->userModel->getById($userId)['class_id'] ?? null;
             if ($oldClassId != $data['class_id']) {
                 $_SESSION['success'] = 'Profile updated successfully! Your class has been updated.';
@@ -596,7 +597,6 @@ class ExternalController {
             exit;
         }
         
-        // Check if user exists
         $user = $this->userModel->getById($_SESSION['user_id']);
         if (!$user) {
             $_SESSION['error'] = 'User not found.';
@@ -609,7 +609,7 @@ class ExternalController {
         if ($result['success']) {
             session_destroy();
             session_start();
-            $_SESSION['success'] = 'Your account has been successfully deleted. We\'re sad to see you go!';
+            $_SESSION['success'] = 'Your account has been successfully deleted!';
             header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
@@ -901,7 +901,6 @@ class ExternalController {
             exit;
         }
         
-        // Get plan amount
         $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
         $amounts = [
             'monthly' => $subscriptionSettings['monthly_price'] ?? 15000,
@@ -1302,7 +1301,6 @@ class ExternalController {
                 $correctAnswer = strtoupper(trim($question['correct_answer']));
                 $question['correct_option'] = $correctMap[$correctAnswer] ?? 0;
                 
-                // Set question_text
                 $question['question_text'] = $question['question'];
             }
             

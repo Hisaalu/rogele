@@ -13,7 +13,6 @@ class AuthController {
         $this->classes = new Classes();
     }
     
-    // Handle login
     public function login() {
         if (isset($_SESSION['user_id'])) {
             $this->redirectToDashboard();
@@ -115,8 +114,14 @@ class AuthController {
         $result = $this->userModel->register($userData);
         
         if ($result['success']) {
-            $_SESSION['success'] = 'Registration successful! Please login.';
-            header('Location: ' . BASE_URL . '/login');
+            $_SESSION['user_id'] = $result['user']['id'];
+            $_SESSION['user_role'] = $result['user']['role'];
+            $_SESSION['user_name'] = $result['user']['first_name'] . ' ' . $result['user']['last_name'];
+            $_SESSION['user_email'] = $result['user']['email'];
+            
+            error_log("User auto-logged in after registration: " . $email);
+            
+            $this->redirectToDashboard();
             exit;
         } else {
             $_SESSION['error'] = $result['error'] ?? 'Registration failed. Please try again.';
@@ -125,12 +130,18 @@ class AuthController {
         }
     }
     
+    /**
+     * Process logout
+     */
     public function logout() {
         session_destroy();
-        header('Location: ' . BASE_URL . '/');
+        header('Location: ' . BASE_URL . '/login');
         exit;
     }
     
+    /**
+     * Change password (for users forced to change on next login)
+     */
     public function changePassword() {
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/login');
@@ -161,6 +172,9 @@ class AuthController {
         require_once __DIR__ . '/../views/auth/change_password.php';
     }
     
+    /**
+     * Redirect to dashboard based on user role
+     */
     private function redirectToDashboard() {
         switch ($_SESSION['user_role']) {
             case 'admin':
@@ -280,7 +294,6 @@ class AuthController {
             exit;
         }
         
-        // Verify token and get user
         $user = $this->userModel->getUserByResetToken($token);
         
         if (!$user) {
@@ -289,7 +302,6 @@ class AuthController {
             exit;
         }
         
-        // Update password
         $result = $this->userModel->updatePassword($user['id'], $password);
         
         if ($result['success']) {
@@ -326,7 +338,6 @@ class AuthController {
             error_log("Email sent successfully to: " . $email);
         } else {
             error_log("Failed to send email to: " . $email);
-            // For development, still show the link
             $_SESSION['debug_reset_link'] = $resetLink;
         }
         

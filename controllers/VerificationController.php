@@ -9,6 +9,9 @@ class VerificationController {
         $this->userModel = new User();
     }
     
+    /**
+     * Verify email using token
+     */
     public function verifyEmail() {
         $token = $_GET['token'] ?? '';
         
@@ -31,6 +34,9 @@ class VerificationController {
         require_once __DIR__ . '/../views/auth/verify.php';
     }
     
+    /**
+     * Resend verification email
+     */
     public function resendVerification() {
         $email = $_POST['email'] ?? '';
         

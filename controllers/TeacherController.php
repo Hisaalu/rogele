@@ -259,87 +259,6 @@ class TeacherController {
         header('Location: ' . BASE_URL . '/teacher/lessons');
         exit;
     }
-
-    /**
-     * Add Questions to Quiz
-     */
-    public function addQuestions($quizId) {
-        $hideFooter = true;
-        
-        $quiz = $this->quizModel->getById($quizId);
-        
-        if (!$quiz) {
-            $_SESSION['error'] = 'Quiz not found.';
-            header('Location: ' . BASE_URL . '/teacher/quizzes');
-            exit;
-        }
-        
-        if ($quiz['teacher_id'] != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'You do not have permission to modify this quiz.';
-            header('Location: ' . BASE_URL . '/teacher/quizzes');
-            exit;
-        }
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $questions = [];
-            
-            if (isset($_POST['questions']) && is_array($_POST['questions'])) {
-                foreach ($_POST['questions'] as $index => $q) {
-                    if (!empty($q['question']) && !empty($q['option_a']) && !empty($q['option_b']) && !empty($q['correct_answer'])) {
-                        $questions[] = [
-                            'question' => $q['question'],
-                            'option_a' => $q['option_a'],
-                            'option_b' => $q['option_b'],
-                            'option_c' => $q['option_c'] ?? null,
-                            'option_d' => $q['option_d'] ?? null,
-                            'correct_answer' => $q['correct_answer'],
-                            'points' => $q['points'] ?? 1
-                        ];
-                    }
-                }
-            }
-            
-            if (empty($questions)) {
-                $_SESSION['error'] = 'Please add at least one question.';
-            } else {
-                $result = $this->quizModel->addQuestions($quizId, $questions);
-                
-                if ($result['success']) {
-                    $_SESSION['success'] = count($questions) . ' questions added successfully!';
-                    header('Location: ' . BASE_URL . '/teacher/quizzes');
-                    exit;
-                } else {
-                    $_SESSION['error'] = $result['error'] ?? 'Failed to add questions.';
-                }
-            }
-        }
-        
-        require_once __DIR__ . '/../views/teacher/add_questions.php';
-    }
-    
-    /**
-     * Delete Quiz
-     */
-    public function deleteQuiz($quizId) {
-        $quiz = $this->quizModel->getById($quizId);
-    
-        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'Quiz not found or you do not have permission to delete it.';
-            header('Location: ' . BASE_URL . '/teacher/quizzes');
-            exit;
-        }
-        
-        $result = $this->quizModel->delete($quizId);
-        
-        if ($result['success']) {
-            $_SESSION['success'] = 'Quiz deleted successfully!';
-        } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to delete quiz.';
-        }
-        
-        header('Location: ' . BASE_URL . '/teacher/quizzes');
-        exit;
-    }
     
     /**
      * Show all students (teacher view)
@@ -728,6 +647,87 @@ class TeacherController {
         require_once __DIR__ . '/../views/teacher/create_quiz.php';
     }
 
+    /**
+     * Add Questions to Quiz
+     */
+    public function addQuestions($quizId) {
+        $hideFooter = true;
+        
+        $quiz = $this->quizModel->getById($quizId);
+        
+        if (!$quiz) {
+            $_SESSION['error'] = 'Quiz not found.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        if ($quiz['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'You do not have permission to modify this quiz.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $questions = [];
+            
+            if (isset($_POST['questions']) && is_array($_POST['questions'])) {
+                foreach ($_POST['questions'] as $index => $q) {
+                    if (!empty($q['question']) && !empty($q['option_a']) && !empty($q['option_b']) && !empty($q['correct_answer'])) {
+                        $questions[] = [
+                            'question' => $q['question'],
+                            'option_a' => $q['option_a'],
+                            'option_b' => $q['option_b'],
+                            'option_c' => $q['option_c'] ?? null,
+                            'option_d' => $q['option_d'] ?? null,
+                            'correct_answer' => $q['correct_answer'],
+                            'points' => $q['points'] ?? 1
+                        ];
+                    }
+                }
+            }
+            
+            if (empty($questions)) {
+                $_SESSION['error'] = 'Please add at least one question.';
+            } else {
+                $result = $this->quizModel->addQuestions($quizId, $questions);
+                
+                if ($result['success']) {
+                    $_SESSION['success'] = count($questions) . ' questions added successfully!';
+                    header('Location: ' . BASE_URL . '/teacher/quizzes');
+                    exit;
+                } else {
+                    $_SESSION['error'] = $result['error'] ?? 'Failed to add questions.';
+                }
+            }
+        }
+        
+        require_once __DIR__ . '/../views/teacher/add_questions.php';
+    }
+    
+    /**
+     * Delete Quiz
+     */
+    public function deleteQuiz($quizId) {
+        $quiz = $this->quizModel->getById($quizId);
+    
+        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'Quiz not found or you do not have permission to delete it.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        $result = $this->quizModel->delete($quizId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Quiz deleted successfully!';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to delete quiz.';
+        }
+        
+        header('Location: ' . BASE_URL . '/teacher/quizzes');
+        exit;
+    }
+
 
     /**
      * Edit quiz
@@ -858,40 +858,6 @@ class TeacherController {
     }
 
     /**
-     * Delete lesson material
-     */
-    public function deleteMaterial($materialId) {
-        $hideFooter = true;
-        
-        $material = $this->lessonModel->getMaterialById($materialId);
-        
-        if (!$material) {
-            $_SESSION['error'] = 'Material not found.';
-            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
-            exit;
-        }
-        
-        $lesson = $this->lessonModel->getById($material['lesson_id']);
-        
-        if (!$lesson || $lesson['teacher_id'] != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'You do not have permission to delete this material.';
-            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
-            exit;
-        }
-        
-        $result = $this->lessonModel->deleteMaterial($materialId);
-        
-        if ($result['success']) {
-            $_SESSION['success'] = 'Material deleted successfully.';
-        } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to delete material.';
-        }
-        
-        header('Location: ' . BASE_URL . '/teacher/lessons/edit/' . $material['lesson_id']);
-        exit;
-    }
-
-    /**
      * Publish a quiz
      */
     public function publishQuiz($quizId) {
@@ -1013,6 +979,40 @@ class TeacherController {
         $quiz = $this->quizModel->getById($question['quiz_id']);
         
         require_once __DIR__ . '/../views/teacher/edit_question.php';
+    }
+
+    /**
+     * Delete lesson material
+     */
+    public function deleteMaterial($materialId) {
+        $hideFooter = true;
+        
+        $material = $this->lessonModel->getMaterialById($materialId);
+        
+        if (!$material) {
+            $_SESSION['error'] = 'Material not found.';
+            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
+            exit;
+        }
+        
+        $lesson = $this->lessonModel->getById($material['lesson_id']);
+        
+        if (!$lesson || $lesson['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'You do not have permission to delete this material.';
+            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
+            exit;
+        }
+        
+        $result = $this->lessonModel->deleteMaterial($materialId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Material deleted successfully.';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to delete material.';
+        }
+        
+        header('Location: ' . BASE_URL . '/teacher/lessons/edit/' . $material['lesson_id']);
+        exit;
     }
 }
 ?>

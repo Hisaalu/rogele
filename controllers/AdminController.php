@@ -615,8 +615,8 @@ class AdminController {
             'session_timeout' => $_POST['session_timeout'] ?? 60,
             'strong_passwords' => isset($_POST['strong_passwords']) ? 1 : 0,
             
-            'theme_color' => $_POST['theme_color'] ?? '#8B5CF6',
-            'accent_color' => $_POST['accent_color'] ?? '#F97316',
+            'theme_color' => $_POST['theme_color'] ?? '#7f2677',
+            'accent_color' => $_POST['accent_color'] ?? '#f06724',
             'dark_mode' => isset($_POST['dark_mode']) ? 1 : 0
         ];
         
