@@ -23,9 +23,7 @@ $classPerformance = $classPerformance ?? [
             <h1 class="welcome-title">
                 Welcome back, <span class="teacher-name">
                     <?php 
-                        // Get full name from session
                         $fullName = $_SESSION['user_name'] ?? 'Teacher';
-                        // Extract first name (everything before first space)
                         $firstName = explode(' ', trim($fullName))[0];
                         echo htmlspecialchars($firstName); 
                     ?>

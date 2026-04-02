@@ -134,10 +134,11 @@ if (empty($classes)) {
             display: flex;
             align-items: center;
             gap: 8px;
+            width: 100%;
         }
 
         .country-code {
-            width: 80px;
+            width: 70px;
             flex-shrink: 0;
             text-align: center;
             background: #f5f5f5;
@@ -150,6 +151,7 @@ if (empty($classes)) {
 
         .phone-field input {
             flex: 1;
+            min-width: 0;
         }
 
         .password-field {
@@ -289,11 +291,12 @@ if (empty($classes)) {
                 gap: 0;
             }
             .phone-field {
-                flex-direction: column;
-                align-items: stretch;
+                flex-direction: row;
+                gap: 8px;
             }
             .country-code {
-                width: 100%;
+                width: 70px;
+                flex-shrink: 0;
             }
         }
     </style>

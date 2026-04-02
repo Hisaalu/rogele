@@ -22,7 +22,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 <div class="subscription-container">
     <!-- Header Section -->
     <div class="subscription-header">
-        <div class="badge">RAYS OF GRACE</div>
+        <div class="badge">ROGELE </div>
         <h1 class="page-title">Choose Your Learning Path</h1>
         <p class="page-subtitle">Select the perfect plan for your educational journey</p>
         <?php if ($trialDays > 0 && !$currentSubscription): ?>

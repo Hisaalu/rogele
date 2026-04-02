@@ -19,7 +19,6 @@ class Database {
                 ]
             );
         } catch (PDOException $e) {
-            // Log error and show user-friendly message
             error_log("Database connection failed: " . $e->getMessage());
             die("Database connection failed. Please check your configuration.");
         }
@@ -36,7 +35,6 @@ class Database {
         return $this->connection;
     }
     
-    // PDO wrapper methods for convenience
     public function prepare($sql) {
         if (!$this->connection) {
             error_log("No active database connection during prepare().");

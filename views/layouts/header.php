@@ -10,7 +10,7 @@
     <base href="<?php echo BASE_URL; ?>/">
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Rays of Grace E-Learning Platform - Quality education for Primary 1 to Primary 7 students. Interactive lessons, quizzes, and progress tracking.">
+    <meta name="description" content="Rays of Grace E-Learning Environment - Quality education for Primary 1 to Primary 7 students. Interactive lessons, quizzes, and progress tracking.">
     <meta name="keywords" content="e-learning, primary education, online learning, uganda education, rays of grace">
     <meta name="author" content="Rays of Grace Junior School">
     
@@ -687,7 +687,7 @@
                     </div>
                     <div class="logo-text">
                         <span class="logo-main">RAYS OF GRACE</span>
-                        <span class="logo-sub">E-Learning Platform</span>
+                        <span class="logo-sub">E-Learning Environment</span>
                     </div>
                 </a>
 

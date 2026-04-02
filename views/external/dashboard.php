@@ -18,12 +18,15 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
 ?>
 
 <div style="padding: 40px 20px; max-width: 1200px; margin: 0 auto;">
-    <h1 style="font-size: 2rem; margin-bottom: 20px; background: linear-gradient(135deg, #f06724); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-        Welcome, <?php 
-            $fullName = $_SESSION['user_name'] ?? 'User';
-            $firstName = explode(' ', trim($fullName))[0];
-            echo htmlspecialchars($firstName); 
-        ?>!
+    <h1 style="font-size: 2rem; margin-bottom: 20px;">
+        <span style="background: linear-gradient(135deg, #f06724); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Welcome back, <?php 
+                $fullName = $_SESSION['user_name'] ?? 'User';
+                $firstName = explode(' ', trim($fullName))[0];
+                echo htmlspecialchars($firstName); 
+            ?>!
+        </span>
+        <span>👋</span>
     </h1>
     
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
