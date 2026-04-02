@@ -207,7 +207,6 @@ class User {
      */
     public function updateProfile($userId, $data) {
         try {
-            // Check if email is being changed and if it's already taken
             $currentUser = $this->getById($userId);
             if ($currentUser && $currentUser['email'] !== $data['email']) {
                 $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
@@ -227,6 +226,9 @@ class User {
                     email = :email,
                     phone = :phone,
                     class_id = :class_id,
+                    bio = :bio,
+                    qualification = :qualification,
+                    specialization = :specialization,
                     updated_at = NOW()
                     WHERE id = :id";
             
@@ -237,6 +239,9 @@ class User {
                 ':email' => $data['email'],
                 ':phone' => $data['phone'],
                 ':class_id' => $data['class_id'],
+                ':bio' => $data['bio'] ?? null,
+                ':qualification' => $data['qualification'] ?? null,
+                ':specialization' => $data['specialization'] ?? null,
                 ':id' => $userId
             ]);
             
