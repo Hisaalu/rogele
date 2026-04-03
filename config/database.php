@@ -14,12 +14,10 @@ class Database {
             $user = DB_USER;
             $pass = DB_PASS;
 
-            // Ensure host is just the domain/IP
             $host = explode(':', $host)[0];
 
             $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
             
-            // --- DYNAMIC OPTIONS ---
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -55,7 +53,6 @@ class Database {
         return $this->connection;
     }
     
-    // PDO wrapper methods for convenience
     public function prepare($sql) {
         if (!$this->connection) {
             error_log("No active database connection during prepare().");

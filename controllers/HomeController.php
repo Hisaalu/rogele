@@ -2,26 +2,6 @@
 // File: /controllers/HomeController.php
 class HomeController {
     public function index() {
-        // If user is logged in, redirect to their dashboard
-        // if (isset($_SESSION['user_id'])) {
-        //     switch ($_SESSION['user_role']) {
-        //         case 'admin':
-        //             header('Location: ' . BASE_URL . '/admin/dashboard');
-        //             break;
-        //         case 'teacher':
-        //             header('Location: ' . BASE_URL . '/teacher/dashboard');
-        //             break;
-        //         case 'learner':
-        //             header('Location: ' . BASE_URL . '/learner/dashboard');
-        //             break;
-        //         case 'external':
-        //             header('Location: ' . BASE_URL . '/external/dashboard');
-        //             break;
-        //     }
-        //     exit;
-        // }
-        
-        // Show landing page
         require_once __DIR__ . '/../views/home.php';
     }
 
@@ -36,13 +16,11 @@ class HomeController {
             exit;
         }
         
-        // Get form data
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $subject = trim($_POST['subject'] ?? '');
         $message = trim($_POST['message'] ?? '');
         
-        // Validate
         $errors = [];
         if (empty($name)) $errors[] = 'Name is required';
         if (empty($email)) $errors[] = 'Email is required';
@@ -55,14 +33,11 @@ class HomeController {
             exit;
         }
         
-        // Check if we're on localhost
         $isLocal = in_array($_SERVER['SERVER_NAME'], ['localhost', '127.0.0.1']);
         
         if ($isLocal) {
-            // For local development: Save to a log file instead of sending email
             $logFile = __DIR__ . '/../logs/contact_messages.log';
             
-            // Create logs directory if it doesn't exist
             if (!is_dir(__DIR__ . '/../logs')) {
                 mkdir(__DIR__ . '/../logs', 0777, true);
             }
@@ -85,7 +60,6 @@ class HomeController {
             exit;
         }
         
-        // For production: Send actual email
         $to = 'info@raysofgrace.ac.ug';
         $emailSubject = 'Contact Form: ' . $subject;
         
@@ -122,17 +96,14 @@ class HomeController {
         </html>
         ";
         
-        // Email headers
         $headers = "MIME-Version: 1.0\r\n";
         $headers .= "Content-type: text/html; charset=utf-8\r\n";
         $headers .= "From: Rays of Grace <noreply@raysofgrace.ac.ug>\r\n";
         $headers .= "Reply-To: " . htmlspecialchars($email) . "\r\n";
         
-        // Send email
         $sent = mail($to, $emailSubject, $emailMessage, $headers);
         
         if ($sent) {
-            // Send auto-reply to user
             $autoReplySubject = "Thank you for contacting Rays of Grace";
             $autoReplyMessage = "
             <!DOCTYPE html>

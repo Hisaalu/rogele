@@ -4,6 +4,8 @@ $pageTitle = 'Profile | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $profile = $profile ?? [];
+$totalLessons = $totalLessons ?? 0;
+$students = $students ?? [];
 ?>
 
 <div class="profile-container">
@@ -89,15 +91,15 @@ $profile = $profile ?? [];
                 <div class="stat-item">
                     <i class="fas fa-chalkboard-teacher stat-icon"></i>
                     <div class="stat-content">
-                        <span class="stat-label">Classes Taught</span>
-                        <span class="stat-value"><?php echo $profile['classes_count'] ?? 0; ?></span>
+                        <span class="stat-label">Lessons Taught</span>
+                        <span class="stat-value"><?php echo number_format($totalLessons); ?></span>
                     </div>
                 </div>
                 <div class="stat-item">
                     <i class="fas fa-users stat-icon"></i>
                     <div class="stat-content">
                         <span class="stat-label">Total Students</span>
-                        <span class="stat-value"><?php echo $profile['students_count'] ?? 0; ?></span>
+                        <span class="stat-value"><?php echo count($students); ?></span>
                     </div>
                 </div>
             </div>
@@ -385,7 +387,7 @@ $profile = $profile ?? [];
 }
 
 .profile-role {
-    color: black;
+    color: #7f2677;
     font-weight: 500;
     text-transform: capitalize;
     margin-bottom: 15px;

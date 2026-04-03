@@ -21,7 +21,6 @@ class Classes {
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get all classes error: " . $e->getMessage());
             return [];
         }
     }
@@ -36,7 +35,6 @@ class Classes {
             $stmt->execute([':id' => $id]);
             return $stmt->fetch();
         } catch (PDOException $e) {
-            error_log("Get class by ID error: " . $e->getMessage());
             return null;
         }
     }
@@ -54,7 +52,6 @@ class Classes {
             $stmt->execute([':teacher_id' => $teacherId]);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get classes by teacher error: " . $e->getMessage());
             return [];
         }
     }
@@ -79,7 +76,6 @@ class Classes {
             }
             return ['success' => false, 'error' => 'Failed to create class'];
         } catch (PDOException $e) {
-            error_log("Create class error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error'];
         }
     }
@@ -110,7 +106,6 @@ class Classes {
             }
             return ['success' => false, 'error' => 'Failed to update class'];
         } catch (PDOException $e) {
-            error_log("Update class error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error'];
         }
     }
@@ -120,7 +115,6 @@ class Classes {
      */
     public function delete($id) {
         try {
-            // Check if class has subjects
             $checkQuery = "SELECT COUNT(*) as count FROM subjects WHERE class_id = :class_id";
             $checkStmt = $this->conn->prepare($checkQuery);
             $checkStmt->execute([':class_id' => $id]);
@@ -139,7 +133,6 @@ class Classes {
             }
             return ['success' => false, 'error' => 'Failed to delete class'];
         } catch (PDOException $e) {
-            error_log("Delete class error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error'];
         }
     }
@@ -154,7 +147,6 @@ class Classes {
             $stmt->execute([':level' => $level]);
             return $stmt->fetch();
         } catch (PDOException $e) {
-            error_log("Get class by level error: " . $e->getMessage());
             return null;
         }
     }
@@ -169,7 +161,6 @@ class Classes {
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get active classes error: " . $e->getMessage());
             return [];
         }
     }
@@ -191,7 +182,6 @@ class Classes {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get classes by teacher error: " . $e->getMessage());
             return [];
         }
     }
@@ -213,8 +203,20 @@ class Classes {
             
             return $result['total'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Count classes by teacher error: " . $e->getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Get ALL classes
+     */
+    public function getAllClasses() {
+        try {
+            $stmt = $this->conn->prepare("SELECT id, name FROM classes ORDER BY name");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
         }
     }
 }

@@ -176,6 +176,27 @@ require_once __DIR__ . '/../layouts/header.php';
                     >
                 </div>
 
+                <!-- Class Selection Dropdown -->
+                <div class="form-group">
+                    <label for="class_id">
+                        <i class="fas fa-graduation-cap"></i>
+                        Current Class
+                    </label>
+                    <select id="class_id" name="class_id" class="class-select">
+                        <option value="">Select your class</option>
+                        <?php foreach ($classes as $class): ?>
+                            <option value="<?php echo $class['id']; ?>" 
+                                <?php echo ($profile['class_id'] == $class['id']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($class['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="form-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Update your class when you move to the next grade level.
+                    </small>
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn-save">
                         <i class="fas fa-save"></i>
@@ -459,6 +480,47 @@ require_once __DIR__ . '/../layouts/header.php';
     display: flex;
     gap: 15px;
     margin-top: 20px;
+}
+
+.class-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 20px;
+}
+
+.class-select:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+}
+
+.class-select:hover {
+    border-color: #f06724;
+}
+
+.form-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #64748B;
+    margin-top: 5px;
+}
+
+.form-hint i {
+    color: #f06724;
+    font-size: 0.9rem;
 }
 
 .btn-save {

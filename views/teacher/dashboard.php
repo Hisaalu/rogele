@@ -23,9 +23,7 @@ $classPerformance = $classPerformance ?? [
             <h1 class="welcome-title">
                 Welcome back, <span class="teacher-name">
                     <?php 
-                        // Get full name from session
                         $fullName = $_SESSION['user_name'] ?? 'Teacher';
-                        // Extract first name (everything before first space)
                         $firstName = explode(' ', trim($fullName))[0];
                         echo htmlspecialchars($firstName); 
                     ?>
@@ -73,7 +71,7 @@ $classPerformance = $classPerformance ?? [
             </div>
             <div class="stat-content">
                 <span class="stat-label">Total Students</span>
-                <span class="stat-value"><?php echo number_format($classPerformance['total_students']); ?></span>
+                <span class="stat-value"><?php echo number_format($totalStudents); ?></span>
                 <span class="stat-trend positive">
                     <i class="fas fa-arrow-up"></i> +12% vs last month
                 </span>

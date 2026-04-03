@@ -1,94 +1,96 @@
 <?php
 // File: /views/contact/send-contact.php
-$pageTitle = 'Contact Us - Rays of Grace';
+$pageTitle = 'Contact Us | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 
 <!-- Contact Section -->
-<section class="contact-section">
-    <div class="container">
-        <div class="section-header">
-            <h1>Contact Us</h1>
-            <p>Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
-        </div>
+ <div class="contact-page">
+    <section class="contact-section">
+        <div class="container">
+            <div class="section-header">
+                <h1>Contact Us</h1>
+                <p>
+                    Have questions? We'd love to hear from you. 
+                    Send us a message and we'll respond as soon as possible.
+                </p>
+            </div>
 
-        <div class="contact-grid">
-            <!-- Contact Information -->
-            <div class="contact-info">
-                <div class="info-card">
-                    <i class="fas fa-envelope"></i>
-                    <h3>Email</h3>
-                    <p>info@raysofgrace.ac.ug</p>
-                    <p>rogele@raysofgrace.ac.ug</p>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="info-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email</h3>
+                        <p>info@raysofgrace.ac.ug</p>
+                        <p>rogele@raysofgrace.ac.ug</p>
+                    </div>
+                    
+                    <div class="info-card">
+                        <i class="fas fa-phone-alt"></i>
+                        <h3>Phone</h3>
+                        <p>+256 778 086 883</p>
+                        <p>+256 707 610 551</p>
+                    </div>
+                    
+                    <div class="info-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Address</h3>
+                        <p>Njeru, Uganda</p>
+                    </div>
+                    
+                    <div class="info-card">
+                        <i class="fas fa-clock"></i>
+                        <h3>Working Hours</h3>
+                        <p>Mon-Fri: 8:00 AM - 5:00 PM</p>
+                        <p>Saturday: 9:00 AM - 1:00 PM</p>
+                    </div>
                 </div>
                 
-                <div class="info-card">
-                    <i class="fas fa-phone-alt"></i>
-                    <h3>Phone</h3>
-                    <p>+256 778 086 883</p>
-                    <p>+256 707 610 551</p>
+                <div class="contact-form-wrapper">
+                    <?php if (isset($_SESSION['contact_success'])): ?>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            <span><?php echo $_SESSION['contact_success']; unset($_SESSION['contact_success']); ?></span>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if (isset($_SESSION['contact_error'])): ?>
+                        <div class="alert alert-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span><?php echo $_SESSION['contact_error']; unset($_SESSION['contact_error']); ?></span>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <form id="contactForm" class="contact-form" method="POST" action="<?php echo BASE_URL; ?>/send-contact">
+                        <div class="form-group">
+                            <input type="text" name="name" id="name" placeholder="Your Name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="email" name="email" id="email" placeholder="Your Email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" name="subject" id="subject" placeholder="Subject" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <textarea name="message" id="message" rows="5" placeholder="Your Message" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-send" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i> Send Message
+                        </button>
+                        
+                        <div id="formMessage" style="display: none;"></div>
+                    </form>
                 </div>
-                
-                <div class="info-card">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <h3>Address</h3>
-                    <p>Njeru, Uganda</p>
-                </div>
-                
-                <div class="info-card">
-                    <i class="fas fa-clock"></i>
-                    <h3>Working Hours</h3>
-                    <p>Mon-Fri: 8:00 AM - 5:00 PM</p>
-                    <p>Saturday: 9:00 AM - 1:00 PM</p>
-                </div>
-            </div>
-            
-            <!-- Contact Form -->
-            <div class="contact-form-wrapper">
-                <?php if (isset($_SESSION['contact_success'])): ?>
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle"></i>
-                        <span><?php echo $_SESSION['contact_success']; unset($_SESSION['contact_success']); ?></span>
-                    </div>
-                <?php endif; ?>
-                
-                <?php if (isset($_SESSION['contact_error'])): ?>
-                    <div class="alert alert-error">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <span><?php echo $_SESSION['contact_error']; unset($_SESSION['contact_error']); ?></span>
-                    </div>
-                <?php endif; ?>
-                
-                <form id="contactForm" class="contact-form" method="POST" action="<?php echo BASE_URL; ?>/send-contact">
-                    <div class="form-group">
-                        <input type="text" name="name" id="name" placeholder="Your Name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <input type="email" name="email" id="email" placeholder="Your Email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <input type="text" name="subject" id="subject" placeholder="Subject" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <textarea name="message" id="message" rows="5" placeholder="Your Message" required></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn-send" id="submitBtn">
-                        <i class="fas fa-paper-plane"></i> Send Message
-                    </button>
-                    
-                    <div id="formMessage" style="display: none;"></div>
-                </form>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+</div>
 
 <style>
-/* Contact Section */
 .contact-section {
     padding: 60px 20px;
     background: #F8FAFC;
@@ -334,11 +336,9 @@ form.addEventListener('submit', async function(e) {
         console.log('Response status:', response.status);
         console.log('Response headers:', response.headers);
         
-        // Get the response as text first
         const text = await response.text();
         console.log('Raw response:', text);
         
-        // Try to parse as JSON
         let result;
         try {
             result = JSON.parse(text);

@@ -9,6 +9,9 @@ class VerificationController {
         $this->userModel = new User();
     }
     
+    /**
+     * Verify email using token
+     */
     public function verifyEmail() {
         $token = $_GET['token'] ?? '';
         
@@ -31,6 +34,9 @@ class VerificationController {
         require_once __DIR__ . '/../views/auth/verify.php';
     }
     
+    /**
+     * Resend verification email
+     */
     public function resendVerification() {
         $email = $_POST['email'] ?? '';
         
@@ -54,14 +60,8 @@ class VerificationController {
             return;
         }
         
-        // Generate new token
         $token = bin2hex(random_bytes(32));
         
-        // Update user with new token (you'll need to add this method to User model)
-        // $this->userModel->updateVerificationToken($user['id'], $token);
-        
-        // Send email
-        // $this->sendVerificationEmail($email, $token, $user['first_name']);
         
         $_SESSION['success'] = 'Verification email sent! Please check your inbox.';
         header('Location: ' . BASE_URL . '/login');

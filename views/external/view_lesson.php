@@ -29,7 +29,7 @@ if (!isset($lesson)) {
     
     <div style="display: flex; gap: 20px; margin-bottom: 30px; color: black; flex-wrap: wrap;">
         <span><i class="fas fa-book" style="color: #f06724;"></i> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?></span>
-        <span><i class="fas fa-user" style="color: #f06724;"></i> <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?></span>
+        <span><i class="fas fa-user" style="color: #f06724;"></i> Tr. <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?></span>
         <span><i class="fas fa-eye" style="color: #f06724;"></i> <?php echo $lesson['views']; ?> views</span>
         <span><i class="fas fa-calendar" style="color: #f06724;"></i> <?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></span>
     </div>

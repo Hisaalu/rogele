@@ -3,7 +3,7 @@
         'name' => 'your-app/php-app',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '83c254d51f086ac30ed039674e38da098dee88a7',
+        'reference' => 'ffdabebcd6eabb5519222b7d10459ec042bc2465',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -76,7 +76,7 @@
         'your-app/php-app' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '83c254d51f086ac30ed039674e38da098dee88a7',
+            'reference' => 'ffdabebcd6eabb5519222b7d10459ec042bc2465',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
