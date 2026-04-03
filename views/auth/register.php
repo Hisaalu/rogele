@@ -381,7 +381,7 @@ if (empty($classes)) {
                 <div class="terms-group">
                     <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms">
-                        I agree to the <a href="<?php echo BASE_URL; ?>/terms-of-service" target="_blank" target="_blank">Terms of Service</a> and <a href="<?php echo BASE_URL; ?>/privacy-policy">Privacy Policy</a>
+                        I agree to the <a href="<?php echo BASE_URL; ?>/terms-of-service" target="_blank" >Terms of Service</a> and <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank">Privacy Policy</a>
                     </label>
                 </div>
                 
