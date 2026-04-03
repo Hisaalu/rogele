@@ -41,7 +41,7 @@ $activeTab = $_GET['tab'] ?? 'password';
             <i class="fas fa-bell"></i>
             <span>Notifications</span>
         </a>
-        <a href="?tab=privacy" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
+        <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
             <i class="fas fa-shield-alt"></i>
             <span>Privacy</span>
         </a>
@@ -106,17 +106,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                             </button>
                         </div>
                         <div class="password-match" id="passwordMatch"></div>
-                    </div>
-
-                    <div class="password-requirements">
-                        <p><i class="fas fa-info-circle"></i> Password must contain:</p>
-                        <ul>
-                            <li id="req-length"><i class="fas fa-times"></i> At least 8 characters</li>
-                            <li id="req-uppercase"><i class="fas fa-times"></i> At least 1 uppercase letter</li>
-                            <li id="req-lowercase"><i class="fas fa-times"></i> At least 1 lowercase letter</li>
-                            <li id="req-number"><i class="fas fa-times"></i> At least 1 number</li>
-                            <li id="req-special"><i class="fas fa-times"></i> At least 1 special character</li>
-                        </ul>
                     </div>
 
                     <button type="submit" class="btn-save">
@@ -506,49 +495,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     margin-top: 5px;
 }
 
-/* Password Requirements */
-.password-requirements {
-    background: #F8FAFC;
-    padding: 20px;
-    border-radius: 12px;
-}
-
-.password-requirements p {
-    font-weight: 600;
-    color: black;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.password-requirements ul {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-}
-
-.password-requirements li {
-    font-size: 0.9rem;
-    color: black;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.password-requirements li i {
-    font-size: 0.8rem;
-}
-
-.password-requirements li.valid {
-    color: #10B981;
-}
-
-.password-requirements li.valid i {
-    color: #10B981;
-}
-
 /* Toggle Switches */
 .toggle-item {
     display: flex;
@@ -677,10 +623,6 @@ input:checked + .slider:before {
         width: 100%;
     }
     
-    .password-requirements ul {
-        grid-template-columns: 1fr;
-    }
-    
     .toggle-item {
         flex-direction: column;
         align-items: flex-start;
@@ -725,14 +667,6 @@ input:checked + .slider:before {
     }
     
     .toggle-info strong {
-        color: #F1F5F9;
-    }
-    
-    .password-requirements {
-        background: #334155;
-    }
-    
-    .password-requirements p {
         color: #F1F5F9;
     }
     

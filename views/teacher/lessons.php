@@ -415,7 +415,7 @@ function getYoutubeId($url) {
 }
 
 .status-badge.draft {
-    background: black;
+    background: #f06724;
     color: white;
 }
 

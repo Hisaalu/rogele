@@ -14,15 +14,12 @@ class TeacherController {
     private $classModel;
     
     public function __construct() {
-        // Check if user is logged in
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
-        // Check if user has teacher role
         if ($_SESSION['user_role'] !== 'teacher') {
-            // Redirect non-teacher users to their respective dashboards
             $this->redirectToRoleDashboard();
             exit;
         }
@@ -31,7 +28,7 @@ class TeacherController {
         $this->lessonModel = new Lesson();
         $this->quizModel = new Quiz();
         $this->subjectModel = new Subject();
-        $this->classModel = new Classes(); // Updated class name
+        $this->classModel = new Classes(); 
     }
     
     private function redirectToRoleDashboard() {
@@ -52,23 +49,20 @@ class TeacherController {
     }
     
     /**
-     * Teacher Dashboard
+     * Teacher Dashboard - Simplified version
      */
     public function dashboard() {
         $hideFooter = true;
         
-        // Get teacher's statistics
         $teacherId = $_SESSION['user_id'];
+        
         $totalLessons = count($this->lessonModel->getByTeacher($teacherId));
         $totalQuizzes = count($this->quizModel->getByTeacher($teacherId));
+        $totalStudents = $this->userModel->countTotalStudents();
         
-        // Get recent lessons (ordered by created_at DESC, limit 10)
         $recentLessons = $this->lessonModel->getByTeacher($teacherId, 10, 0);
-        
-        // Get recent quizzes (ordered by created_at DESC, limit 10)
         $recentQuizzes = $this->quizModel->getByTeacher($teacherId, 10, 0);
         
-        // Get class performance stats
         $classPerformance = $this->getClassPerformance();
         
         require_once __DIR__ . '/../views/teacher/dashboard.php';
@@ -79,18 +73,10 @@ class TeacherController {
      */
     private function getClassPerformance() {
         $teacherId = $_SESSION['user_id'];
-        
-        // Get total students (learners + external) taught by this teacher
         $totalStudents = $this->userModel->countStudentsByTeacher($teacherId);
-        
-        // Get average quiz score for students who have taken quizzes
         $avgScore = $this->quizModel->getAverageScoreByTeacher($teacherId);
-        
-        // Get completion rate (students who have taken at least one quiz vs total students)
         $studentsWithAttempts = $this->quizModel->countStudentsWithAttemptsByTeacher($teacherId);
         $completionRate = $totalStudents > 0 ? round(($studentsWithAttempts / $totalStudents) * 100) : 0;
-        
-        // Get active classes count
         $activeClasses = count($this->classModel->getByTeacher($teacherId));
         
         return [
@@ -114,29 +100,14 @@ class TeacherController {
         $limit = 10;
         $offset = ($page - 1) * $limit;
         
-        // Debug - log what's happening
-        error_log("TeacherController@lessons called for teacher ID: " . $teacherId);
-        error_log("Search term: " . ($search ?: 'none'));
-        
-        // Get lessons for this teacher with search functionality
         if ($search) {
             $lessons = $this->lessonModel->searchByTeacher($teacherId, $search);
             $totalLessons = count($lessons);
             $totalPages = 1;
-            error_log("Search results: " . count($lessons) . " lessons found for search: " . $search);
         } else {
             $lessons = $this->lessonModel->getByTeacher($teacherId, $limit, $offset);
             $totalLessons = count($this->lessonModel->getByTeacher($teacherId));
             $totalPages = ceil($totalLessons / $limit);
-            error_log("Total lessons for teacher: " . $totalLessons);
-            error_log("Current page lessons count: " . count($lessons));
-        }
-        
-        // If no lessons found, log that too
-        if (empty($lessons)) {
-            error_log("No lessons found for teacher ID: " . $teacherId);
-        } else {
-            error_log("First lesson data: " . print_r($lessons[0], true));
         }
         
         require_once __DIR__ . '/../views/teacher/lessons.php';
@@ -146,23 +117,13 @@ class TeacherController {
      * Create Lesson Form
      */
     public function createLesson() {
-        // Add debug at the VERY TOP
-        error_log("========== CREATE LESSON METHOD CALLED ==========");
-        error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-        error_log("Session user_id: " . ($_SESSION['user_id'] ?? 'NOT SET'));
-        error_log("Session user_role: " . ($_SESSION['user_role'] ?? 'NOT SET'));
         
         $hideFooter = true;
         
-        // Get all active classes
         $classes = $this->classModel->getActive();
-        error_log("Classes found: " . count($classes));
         
-        // Get all subjects
         $allSubjects = $this->subjectModel->getAll();
-        error_log("Subjects found: " . count($allSubjects));
         
-        // Organize subjects by class
         $subjectsByClass = [];
         foreach ($allSubjects as $subject) {
             $classId = $subject['class_id'];
@@ -173,26 +134,19 @@ class TeacherController {
         }
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            error_log("========== PROCESSING POST REQUEST ==========");
-            error_log("POST data: " . print_r($_POST, true));
-            error_log("FILES data: " . print_r($_FILES, true));
             
-            // Validate required fields
             $errors = [];
             
             if (empty($_POST['title'])) {
                 $errors[] = 'Title is required';
-                error_log("ERROR: Title is empty");
             }
             
             if (empty($_POST['class_id'])) {
                 $errors[] = 'Class is required';
-                error_log("ERROR: Class ID is empty");
             }
             
             if (empty($_POST['subject_id'])) {
                 $errors[] = 'Subject is required';
-                error_log("ERROR: Subject ID is empty");
             }
             
             if (empty($errors)) {
@@ -207,33 +161,24 @@ class TeacherController {
                     'is_published' => isset($_POST['is_published']) ? 1 : 0
                 ];
                 
-                error_log("Data prepared for lesson creation: " . print_r($data, true));
                 
-                // Handle file uploads
                 $files = $_FILES['materials'] ?? null;
                 
-                // Call the model to create lesson
-                error_log("Calling lessonModel->create()");
                 $result = $this->lessonModel->create($data, $files);
                 
-                error_log("Create lesson result: " . print_r($result, true));
                 
                 if ($result['success']) {
                     $_SESSION['success'] = 'Lesson created successfully!';
-                    error_log("SUCCESS: Lesson created with ID: " . $result['lesson_id']);
                     header('Location: ' . BASE_URL . '/teacher/lessons');
                     exit;
                 } else {
                     $_SESSION['error'] = $result['error'] ?? 'Failed to create lesson.';
-                    error_log("ERROR: " . ($result['error'] ?? 'Unknown error'));
                 }
             } else {
                 $_SESSION['error'] = implode('<br>', $errors);
-                error_log("Validation errors: " . implode(', ', $errors));
             }
         }
         
-        // Pass data to view
         $subjects = $allSubjects;
         require_once __DIR__ . '/../views/teacher/create_lesson.php';
     }
@@ -244,10 +189,8 @@ class TeacherController {
     public function editLesson($lessonId) {
         $hideFooter = true;
         
-        // Get the lesson
         $lesson = $this->lessonModel->getById($lessonId);
         
-        // Check if lesson exists and belongs to this teacher
         if (!$lesson) {
             $_SESSION['error'] = 'Lesson not found.';
             header('Location: ' . BASE_URL . '/teacher/lessons');
@@ -260,12 +203,10 @@ class TeacherController {
             exit;
         }
         
-        // Get classes and subjects for dropdowns
         $classes = $this->classModel->getAll();
         $subjects = $this->subjectModel->getAll();
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Update lesson
             $data = [
                 'title' => $_POST['title'] ?? '',
                 'content' => $_POST['content'] ?? '',
@@ -280,8 +221,7 @@ class TeacherController {
             
             if ($result['success']) {
                 $_SESSION['success'] = 'Lesson updated successfully!';
-                
-                // Handle new file uploads if any
+            
                 if (!empty($_FILES['materials']['name'][0])) {
                     $this->lessonModel->uploadMaterials($lessonId, $_FILES['materials']);
                 }
@@ -302,7 +242,6 @@ class TeacherController {
     public function deleteLesson($lessonId) {
         $lesson = $this->lessonModel->getById($lessonId);
         
-        // Check if lesson exists and belongs to this teacher
         if (!$lesson || $lesson['teacher_id'] != $_SESSION['user_id']) {
             $_SESSION['error'] = 'Lesson not found or you do not have permission to delete it.';
             header('Location: ' . BASE_URL . '/teacher/lessons');
@@ -320,123 +259,20 @@ class TeacherController {
         header('Location: ' . BASE_URL . '/teacher/lessons');
         exit;
     }
-
-    /**
-     * Add Questions to Quiz
-     */
-    public function addQuestions($quizId) {
-        $hideFooter = true;
-        
-        // Get the quiz
-        $quiz = $this->quizModel->getById($quizId);
-        
-        // Check if quiz exists and belongs to this teacher
-        if (!$quiz) {
-            $_SESSION['error'] = 'Quiz not found.';
-            header('Location: ' . BASE_URL . '/teacher/quizzes');
-            exit;
-        }
-        
-        if ($quiz['teacher_id'] != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'You do not have permission to modify this quiz.';
-            header('Location: ' . BASE_URL . '/teacher/quizzes');
-            exit;
-        }
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $questions = [];
-            
-            // Process questions from form
-            if (isset($_POST['questions']) && is_array($_POST['questions'])) {
-                foreach ($_POST['questions'] as $index => $q) {
-                    // Only add if question text and required options are provided
-                    if (!empty($q['question']) && !empty($q['option_a']) && !empty($q['option_b']) && !empty($q['correct_answer'])) {
-                        $questions[] = [
-                            'question' => $q['question'],
-                            'option_a' => $q['option_a'],
-                            'option_b' => $q['option_b'],
-                            'option_c' => $q['option_c'] ?? null,
-                            'option_d' => $q['option_d'] ?? null,
-                            'correct_answer' => $q['correct_answer'],
-                            'points' => $q['points'] ?? 1
-                        ];
-                    }
-                }
-            }
-            
-            if (empty($questions)) {
-                $_SESSION['error'] = 'Please add at least one question.';
-            } else {
-                $result = $this->quizModel->addQuestions($quizId, $questions);
-                
-                if ($result['success']) {
-                    $_SESSION['success'] = count($questions) . ' questions added successfully!';
-                    header('Location: ' . BASE_URL . '/teacher/quizzes');
-                    exit;
-                } else {
-                    $_SESSION['error'] = $result['error'] ?? 'Failed to add questions.';
-                }
-            }
-        }
-        
-        require_once __DIR__ . '/../views/teacher/add_questions.php';
-    }
     
     /**
-     * Delete Quiz
-     */
-    public function deleteQuiz($quizId) {
-        $quiz = $this->quizModel->getById($quizId);
-        
-        // Check if quiz exists and belongs to this teacher
-        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'Quiz not found or you do not have permission to delete it.';
-            header('Location: ' . BASE_URL . '/teacher/quizzes');
-            exit;
-        }
-        
-        $result = $this->quizModel->delete($quizId);
-        
-        if ($result['success']) {
-            $_SESSION['success'] = 'Quiz deleted successfully!';
-        } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to delete quiz.';
-        }
-        
-        header('Location: ' . BASE_URL . '/teacher/quizzes');
-        exit;
-    }
-    
-    /**
-     * Students Management
+     * Show all students (teacher view)
      */
     public function students() {
         $hideFooter = true;
-        
         $teacherId = $_SESSION['user_id'];
+        
         $classId = $_GET['class_id'] ?? null;
         $search = $_GET['search'] ?? null;
         
-        // Debug logging
-        error_log("========== STUDENTS METHOD CALLED ==========");
-        error_log("Teacher ID: " . $teacherId);
-        error_log("Class ID: " . ($classId ?? 'none'));
-        error_log("Search: " . ($search ?? 'none'));
+        $students = $this->userModel->getStudentsWithStats($teacherId, $classId, $search);
         
-        // Get classes taught by this teacher
-        $classes = $this->classModel->getByTeacher($teacherId);
-        error_log("Classes found: " . count($classes));
-        
-        // Get students
-        $students = $this->userModel->getStudentsByTeacher($teacherId, $classId, $search);
-        error_log("Students found: " . count($students));
-        
-        // If no students found, try a simpler query to see if any students exist
-        if (empty($students)) {
-            error_log("WARNING: No students found! Checking if any students exist in database...");
-            $allStudents = $this->userModel->getAllStudents();
-            error_log("Total students in database: " . count($allStudents));
-        }
+        $classes = $this->classModel->getAllClasses();
         
         require_once __DIR__ . '/../views/teacher/students.php';
     }
@@ -449,17 +285,57 @@ class TeacherController {
         
         $student = $this->userModel->getById($studentId);
         
-        if (!$student || $student['role'] !== 'learner') {
+        if (!$student || !in_array($student['role'], ['learner', 'external'])) {
             $_SESSION['error'] = 'Student not found.';
             header('Location: ' . BASE_URL . '/teacher/students');
             exit;
         }
         
-        // Get student's quiz results
+        if ($student['class_id']) {
+            $class = $this->classModel->getById($student['class_id']);
+            $student['class_name'] = $class['name'] ?? null;
+        }
+        
         $quizResults = $this->quizModel->getUserResults($studentId);
         
-        // Get student's lesson progress
-        $lessonProgress = $this->lessonModel->getUserProgress($studentId);
+        $quizStats = [
+            'total_quizzes' => count($quizResults),
+            'average_score' => 0,
+            'highest_score' => 0,
+            'lowest_score' => 'N/A',
+            'best_quiz' => null,
+            'trend' => 'Stable',
+            'trend_direction' => ''
+        ];
+        
+        if (!empty($quizResults)) {
+            $scores = array_column($quizResults, 'score');
+            $quizStats['average_score'] = round(array_sum($scores) / count($scores), 1);
+            $quizStats['highest_score'] = max($scores);
+            $quizStats['lowest_score'] = min($scores);
+            
+            $bestIndex = array_search($quizStats['highest_score'], $scores);
+            if ($bestIndex !== false) {
+                $quizStats['best_quiz'] = $quizResults[$bestIndex]['quiz_title'];
+            }
+            
+            if (count($scores) >= 2) {
+                $firstScore = $scores[0];
+                $lastScore = $scores[count($scores) - 1];
+                $difference = $lastScore - $firstScore;
+                
+                if ($difference > 10) {
+                    $quizStats['trend'] = 'Improving';
+                    $quizStats['trend_direction'] = "↑ +{$difference}%";
+                } elseif ($difference < -10) {
+                    $quizStats['trend'] = 'Declining';
+                    $quizStats['trend_direction'] = "↓ " . abs($difference) . "%";
+                } else {
+                    $quizStats['trend'] = 'Consistent';
+                    $quizStats['trend_direction'] = 'Steady performance';
+                }
+            }
+        }
         
         require_once __DIR__ . '/../views/teacher/student_progress.php';
     }
@@ -473,18 +349,15 @@ class TeacherController {
         $teacherId = $_SESSION['user_id'];
         $range = $_GET['range'] ?? 30;
         
-        // Get overall statistics
         $stats = [
             'total_lessons' => count($this->lessonModel->getByTeacher($teacherId)),
             'total_quizzes' => count($this->quizModel->getByTeacher($teacherId)),
-            'total_students' => $this->userModel->countStudentsByTeacher($teacherId),
+            'total_students' => $this->userModel->countTotalStudents(),
             'avg_score' => $this->quizModel->getAverageScoreByTeacher($teacherId)
         ];
         
-        // Get quiz performance data
         $quizPerformance = $this->quizModel->getPerformanceByTeacher($teacherId);
         
-        // Get lesson views data
         $lessonViews = $this->lessonModel->getViewsByTeacher($teacherId, $range);
         
         require_once __DIR__ . '/../views/teacher/analytics.php';
@@ -496,36 +369,55 @@ class TeacherController {
     public function profile() {
         $hideFooter = true;
         
-        $userId = $_SESSION['user_id'];
+        $teacherId = $_SESSION['user_id']; 
         
-        // Get user profile
-        $profile = $this->userModel->getProfile($userId);
+        $totalLessons = 0;
+        if (method_exists($this->lessonModel, 'getTotalLessonsByTeacher')) {
+            $totalLessons = $this->lessonModel->getTotalLessonsByTeacher($teacherId);
+        } elseif (method_exists($this->lessonModel, 'getByTeacher')) {
+            $lessons = $this->lessonModel->getByTeacher($teacherId);
+            $totalLessons = is_array($lessons) ? count($lessons) : 0;
+        }
+        
+        $publishedLessons = [];
+        if (method_exists($this->lessonModel, 'getPublishedLessonsByTeacher')) {
+            $publishedLessons = $this->lessonModel->getPublishedLessonsByTeacher($teacherId, 10);
+        }
+        
+        $profile = $this->userModel->getProfile($teacherId);
         
         if (!$profile) {
             $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Teacher');
             $profile = [
-                'id' => $userId,
+                'id' => $teacherId,
                 'first_name' => $nameParts[0] ?? '',
                 'last_name' => $nameParts[1] ?? '',
                 'email' => $_SESSION['user_email'] ?? '',
                 'phone' => '',
                 'role' => 'teacher',
+                'bio' => '',
+                'qualification' => '',
+                'specialization' => '',
                 'created_at' => date('Y-m-d H:i:s'),
+                'last_login' => date('Y-m-d H:i:s'),
                 'profile_photo' => null
             ];
         }
+
+        $students = $this->userModel->getStudentsWithStats($teacherId);
         
-        // Get actual students count (learners and external users)
-        $profile['students_count'] = $this->userModel->countStudentsByTeacher($userId);
-        
-        // Get classes count
-        $profile['classes_count'] = count($this->classModel->getByTeacher($userId));
+        $classesCount = 0;
+        if (isset($this->classModel) && method_exists($this->classModel, 'getByTeacher')) {
+            $classes = $this->classModel->getByTeacher($teacherId);
+            $classesCount = is_array($classes) ? count($classes) : 0;
+        }
+        $profile['classes_count'] = $classesCount;
         
         require_once __DIR__ . '/../views/teacher/profile.php';
     }
     
     /**
-     * Update Profile
+     * Update teacher profile
      */
     public function updateProfile() {
         $hideFooter = true;
@@ -535,27 +427,55 @@ class TeacherController {
             exit;
         }
         
-        $data = [
-            'first_name' => $_POST['first_name'] ?? '',
-            'last_name' => $_POST['last_name'] ?? '',
-            'email' => $_POST['email'] ?? '',
-            'phone' => $_POST['phone'] ?? ''
-        ];
+        $teacherId = $_SESSION['user_id'] ?? null;
         
-        if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
+        if (!$teacherId) {
+            $_SESSION['error'] = 'Please login to update your profile';
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        }
+        
+        
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $bio = trim($_POST['bio'] ?? '');
+        $qualification = trim($_POST['qualification'] ?? '');
+        $specialization = trim($_POST['specialization'] ?? '');
+        
+        if (empty($firstName) || empty($lastName) || empty($email)) {
             $_SESSION['error'] = 'Please fill in all required fields';
             header('Location: ' . BASE_URL . '/teacher/profile');
             exit;
         }
         
-        $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error'] = 'Please enter a valid email address';
+            header('Location: ' . BASE_URL . '/teacher/profile');
+            exit;
+        }
+        
+        $data = [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+            'phone' => $phone,
+            'bio' => $bio,
+            'qualification' => $qualification,
+            'specialization' => $specialization
+        ];
+        
+        $result = $this->userModel->updateProfile($teacherId, $data);
+        
         
         if ($result['success']) {
-            $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
-            $_SESSION['user_email'] = $data['email'];
-            $_SESSION['success'] = $result['message'];
+            $_SESSION['user_name'] = $firstName . ' ' . $lastName;
+            $_SESSION['user_email'] = $email;
+            
+            $_SESSION['success'] = 'Profile updated successfully!';
         } else {
-            $_SESSION['error'] = $result['error'];
+            $_SESSION['error'] = $result['error'] ?? 'Failed to update profile. Please try again.';
         }
         
         header('Location: ' . BASE_URL . '/teacher/profile');
@@ -624,10 +544,8 @@ class TeacherController {
     public function previewLesson($lessonId) {
         $hideFooter = true;
         
-        // Get the lesson
         $lesson = $this->lessonModel->getById($lessonId);
         
-        // Check if lesson exists and belongs to this teacher
         if (!$lesson || $lesson['teacher_id'] != $_SESSION['user_id']) {
             $_SESSION['error'] = 'Lesson not found or you do not have permission to preview it.';
             header('Location: ' . BASE_URL . '/teacher/lessons');
@@ -670,7 +588,6 @@ class TeacherController {
         $hideFooter = true;
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Get form data
             $title = trim($_POST['title'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $subject_id = $_POST['subject_id'] ?? null;
@@ -679,10 +596,8 @@ class TeacherController {
             $passing_score = (int)($_POST['passing_score'] ?? 70);
             $max_attempts = (int)($_POST['max_attempts'] ?? 3);
             
-            // Get published status - use is_published
             $is_published = isset($_POST['is_published']) ? 1 : 0;
             
-            // Validate
             $errors = [];
             if (empty($title)) {
                 $errors[] = 'Quiz title is required';
@@ -732,6 +647,87 @@ class TeacherController {
         require_once __DIR__ . '/../views/teacher/create_quiz.php';
     }
 
+    /**
+     * Add Questions to Quiz
+     */
+    public function addQuestions($quizId) {
+        $hideFooter = true;
+        
+        $quiz = $this->quizModel->getById($quizId);
+        
+        if (!$quiz) {
+            $_SESSION['error'] = 'Quiz not found.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        if ($quiz['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'You do not have permission to modify this quiz.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $questions = [];
+            
+            if (isset($_POST['questions']) && is_array($_POST['questions'])) {
+                foreach ($_POST['questions'] as $index => $q) {
+                    if (!empty($q['question']) && !empty($q['option_a']) && !empty($q['option_b']) && !empty($q['correct_answer'])) {
+                        $questions[] = [
+                            'question' => $q['question'],
+                            'option_a' => $q['option_a'],
+                            'option_b' => $q['option_b'],
+                            'option_c' => $q['option_c'] ?? null,
+                            'option_d' => $q['option_d'] ?? null,
+                            'correct_answer' => $q['correct_answer'],
+                            'points' => $q['points'] ?? 1
+                        ];
+                    }
+                }
+            }
+            
+            if (empty($questions)) {
+                $_SESSION['error'] = 'Please add at least one question.';
+            } else {
+                $result = $this->quizModel->addQuestions($quizId, $questions);
+                
+                if ($result['success']) {
+                    $_SESSION['success'] = count($questions) . ' questions added successfully!';
+                    header('Location: ' . BASE_URL . '/teacher/quizzes');
+                    exit;
+                } else {
+                    $_SESSION['error'] = $result['error'] ?? 'Failed to add questions.';
+                }
+            }
+        }
+        
+        require_once __DIR__ . '/../views/teacher/add_questions.php';
+    }
+    
+    /**
+     * Delete Quiz
+     */
+    public function deleteQuiz($quizId) {
+        $quiz = $this->quizModel->getById($quizId);
+    
+        if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'Quiz not found or you do not have permission to delete it.';
+            header('Location: ' . BASE_URL . '/teacher/quizzes');
+            exit;
+        }
+        
+        $result = $this->quizModel->delete($quizId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Quiz deleted successfully!';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to delete quiz.';
+        }
+        
+        header('Location: ' . BASE_URL . '/teacher/quizzes');
+        exit;
+    }
+
 
     /**
      * Edit quiz
@@ -739,7 +735,6 @@ class TeacherController {
     public function editQuiz($quizId) {
         $hideFooter = true;
         
-        // Get quiz details
         $quiz = $this->quizModel->getById($quizId);
         
         if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
@@ -748,20 +743,14 @@ class TeacherController {
             exit;
         }
         
-        // Get all classes for dropdown
         $classes = $this->classModel->getAll();
         
-        // Get all subjects for dropdown
         $subjects = $this->subjectModel->getAll();
         
-        // Get quiz questions
         $questions = $this->quizModel->getQuestions($quizId);
         $quiz['questions'] = $questions;
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Debug: Log what's coming in
-            error_log("=== EDIT QUIZ POST DEBUG ===");
-            error_log("POST data: " . print_r($_POST, true));
             
             $title = trim($_POST['title'] ?? '');
             $description = trim($_POST['description'] ?? '');
@@ -771,17 +760,10 @@ class TeacherController {
             $passing_score = (int)($_POST['passing_score'] ?? 70);
             $max_attempts = (int)($_POST['max_attempts'] ?? 3);
             
-            // IMPORTANT: Check if is_published is set in POST
-            // Since we have a hidden field with value 0, this will always be set
             $is_published = isset($_POST['is_published']) && $_POST['is_published'] == '1' ? 1 : 0;
             
-            error_log("is_published value from POST: " . ($_POST['is_published'] ?? 'not set'));
-            error_log("is_published after processing: " . $is_published);
-            
-            // Get end date
             $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
             
-            // Validate
             $errors = [];
             if (empty($title)) {
                 $errors[] = 'Quiz title is required';
@@ -808,7 +790,6 @@ class TeacherController {
                     'end_date' => $end_date
                 ];
                 
-                error_log("Data to update: " . print_r($data, true));
                 
                 $result = $this->quizModel->updateQuiz($quizId, $data);
                 
@@ -856,7 +837,6 @@ class TeacherController {
     public function previewQuiz($quizId) {
         $hideFooter = true;
         
-        // Get quiz details
         $quiz = $this->quizModel->getById($quizId);
         
         if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
@@ -864,60 +844,17 @@ class TeacherController {
             header('Location: ' . BASE_URL . '/teacher/quizzes');
             exit;
         }
-        
-        // Get quiz questions - THIS IS THE MISSING LINE!
+
         $questions = $this->quizModel->getQuestions($quizId);
         
-        // Debug: Log how many questions were found
-        error_log("Preview Quiz ID: $quizId - Questions found: " . count($questions));
         
-        // Check if questions exist
         if (empty($questions)) {
             $_SESSION['error'] = 'This quiz has no questions yet. Please add questions before previewing.';
             header('Location: ' . BASE_URL . '/teacher/quizzes/edit/' . $quizId);
             exit;
         }
         
-        // Pass questions to the view
         require_once __DIR__ . '/../views/teacher/preview_quiz.php';
-    }
-
-    /**
-     * Delete lesson material
-     */
-    public function deleteMaterial($materialId) {
-        $hideFooter = true;
-        
-        // Get the material to check ownership
-        $material = $this->lessonModel->getMaterialById($materialId);
-        
-        if (!$material) {
-            $_SESSION['error'] = 'Material not found.';
-            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
-            exit;
-        }
-        
-        // Get the lesson to check if it belongs to this teacher
-        $lesson = $this->lessonModel->getById($material['lesson_id']);
-        
-        if (!$lesson || $lesson['teacher_id'] != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'You do not have permission to delete this material.';
-            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
-            exit;
-        }
-        
-        // Delete the material
-        $result = $this->lessonModel->deleteMaterial($materialId);
-        
-        if ($result['success']) {
-            $_SESSION['success'] = 'Material deleted successfully.';
-        } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to delete material.';
-        }
-        
-        // Redirect back to the edit page
-        header('Location: ' . BASE_URL . '/teacher/lessons/edit/' . $material['lesson_id']);
-        exit;
     }
 
     /**
@@ -932,7 +869,6 @@ class TeacherController {
             exit;
         }
         
-        // Check if quiz has questions
         $questionCount = $this->quizModel->getQuestionCount($quizId);
         
         if ($questionCount == 0) {
@@ -983,7 +919,6 @@ class TeacherController {
     public function editQuestion($questionId) {
         $hideFooter = true;
         
-        // Get the question
         $question = $this->quizModel->getQuestionById($questionId);
         
         if (!$question) {
@@ -992,7 +927,6 @@ class TeacherController {
             exit;
         }
         
-        // Get the quiz to check ownership
         $quiz = $this->quizModel->getById($question['quiz_id']);
         
         if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
@@ -1001,7 +935,6 @@ class TeacherController {
             exit;
         }
         
-        // Process form submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'question' => $_POST['question'] ?? '',
@@ -1014,7 +947,6 @@ class TeacherController {
                 'explanation' => $_POST['explanation'] ?? ''
             ];
             
-            // Validate
             $errors = [];
             if (empty($data['question'])) {
                 $errors[] = 'Question text is required';
@@ -1044,10 +976,43 @@ class TeacherController {
             }
         }
         
-        // Get the quiz for the back button
         $quiz = $this->quizModel->getById($question['quiz_id']);
         
         require_once __DIR__ . '/../views/teacher/edit_question.php';
+    }
+
+    /**
+     * Delete lesson material
+     */
+    public function deleteMaterial($materialId) {
+        $hideFooter = true;
+        
+        $material = $this->lessonModel->getMaterialById($materialId);
+        
+        if (!$material) {
+            $_SESSION['error'] = 'Material not found.';
+            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
+            exit;
+        }
+        
+        $lesson = $this->lessonModel->getById($material['lesson_id']);
+        
+        if (!$lesson || $lesson['teacher_id'] != $_SESSION['user_id']) {
+            $_SESSION['error'] = 'You do not have permission to delete this material.';
+            header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '<?php echo BASE_URL; ?>/teacher/lessons');
+            exit;
+        }
+        
+        $result = $this->lessonModel->deleteMaterial($materialId);
+        
+        if ($result['success']) {
+            $_SESSION['success'] = 'Material deleted successfully.';
+        } else {
+            $_SESSION['error'] = $result['error'] ?? 'Failed to delete material.';
+        }
+        
+        header('Location: ' . BASE_URL . '/teacher/lessons/edit/' . $material['lesson_id']);
+        exit;
     }
 }
 ?>

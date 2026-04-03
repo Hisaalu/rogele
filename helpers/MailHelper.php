@@ -6,9 +6,13 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-//load environment variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();
+//load environment variables from .env file
+$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+
+// Only try to load if the .env file actually exists
+if (file_exists(__DIR__ . '/../.env')) {
+    $dotenv->load();
+}
 
 class MailHelper {
     private $mail;
@@ -27,16 +31,16 @@ class MailHelper {
         $this->mail->Host       = 'mail.privateemail.com';
         $this->mail->SMTPAuth   = true;
         $this->mail->Username   = 'info@raysofgrace.ac.ug';
-        $password = getenv('MAIL_PASSWORD') ?: ($_ENV['MAIL_PASSWORD'] ?? null);
+        $password = $_ENV['MAIL_PASSWORD'] ?? getenv('MAIL_PASSWORD') ?? $_SERVER['MAIL_PASSWORD'];
         $this->mail->Password   = $password;
-        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mail->Port       = 587;
+        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $this->mail->Port       = 465;
         $this->mail->setFrom('info@raysofgrace.ac.ug', 'ROGELE');
         $this->mail->addReplyTo('info@raysofgrace.ac.ug', 'ROGELE');
         $this->mail->CharSet = 'UTF-8';
         $this->mail->Timeout = 30;
         
-        error_log("MailHelper initialized");
+        error_log("MailHelper initialized with Port 465");
     }
     
     /**
@@ -162,7 +166,7 @@ class MailHelper {
                     border-top: 1px solid #e2e8f0;
                 }
                 .footer a {
-                    color: #f06724;
+                    color: #7f2677;
                     text-decoration: none;
                 }
                 @media (max-width: 600px) {

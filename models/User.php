@@ -31,9 +31,9 @@ class User {
         
         return $prefix . '-' . $classCode . '-' . $unique;
     }
-    
+
     /**
-     * Register new user
+     * Registration of new users
      */
     public function register($data) {
         try {
@@ -46,31 +46,13 @@ class User {
                 return ['success' => false, 'error' => 'Email already registered'];
             }
             
-            // Hash password
             $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
             
-            // Generate registration number for learners
             $registrationNumber = null;
             if (isset($data['role']) && $data['role'] === 'learner') {
-                $registrationNumber = $this->generateRegistrationNumber($data['class'] ?? 'P1');
+                $registrationNumber = $this->generateRegistrationNumber($data['class_id'] ?? 'P1');
             }
             
-            // Get class_id if class is provided
-            $classId = null;
-            if (isset($data['class']) && !empty($data['class'])) {
-                $classQuery = "SELECT id FROM classes WHERE level = :level OR name LIKE :name";
-                $classStmt = $this->conn->prepare($classQuery);
-                $classStmt->execute([
-                    ':level' => strtoupper($data['class']),
-                    ':name' => '%' . $data['class'] . '%'
-                ]);
-                $class = $classStmt->fetch();
-                if ($class) {
-                    $classId = $class['id'];
-                }
-            }
-            
-            // Insert user (auto-verify for now)
             $query = "INSERT INTO users (
                 registration_number, email, password, first_name, last_name, 
                 phone, role, class_id, email_verified, is_active, created_at
@@ -84,24 +66,17 @@ class User {
                 ':registration_number' => $registrationNumber,
                 ':email' => $data['email'],
                 ':password' => $hashedPassword,
-                ':first_name' => $data['first_name'] ?? null,
-                ':last_name' => $data['last_name'] ?? null,
-                ':phone' => $data['phone'] ?? null,
-                ':role' => $data['role'] ?? 'external',
-                ':class_id' => $classId
+                ':first_name' => $data['first_name'],
+                ':last_name' => $data['last_name'],
+                ':phone' => $data['phone'],
+                ':role' => $data['role'] ?? 'learner',
+                ':class_id' => $data['class_id'] ?? null
             ]);
             
             $userId = $this->conn->lastInsertId();
             
-            // Start free trial for external users
-            if (($data['role'] ?? 'external') === 'external') {
-                $this->startFreeTrial($userId);
-            }
-            
-            // Log activity
             $this->logActivity($userId, 'REGISTRATION', 'User registered successfully');
             
-            // Return user data for auto-login
             $userData = $this->getById($userId);
             unset($userData['password']);
             
@@ -113,7 +88,6 @@ class User {
             ];
             
         } catch (PDOException $e) {
-            error_log("Registration error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Registration failed. Please try again.'];
         }
     }
@@ -123,7 +97,6 @@ class User {
      */
     public function login($username, $password) {
         try {
-            error_log("Login attempt for username: " . $username);
             
             $query = "SELECT u.*, c.name as class_name 
                     FROM users u 
@@ -138,12 +111,10 @@ class User {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$user) {
-                error_log("User not found: " . $username);
                 return ['success' => false, 'error' => 'User not found'];
             }
             
             if (!password_verify($password, $user['password'])) {
-                error_log("Password verification failed for user: " . $username);
                 return ['success' => false, 'error' => 'Invalid password'];
             }
             
@@ -155,21 +126,17 @@ class User {
                 return ['success' => false, 'error' => 'Your account has been suspended. Please contact support.'];
             }
             
-            // Update last login
             $updateQuery = "UPDATE users SET last_login = NOW() WHERE id = :id";
             $updateStmt = $this->conn->prepare($updateQuery);
             $updateStmt->execute([':id' => $user['id']]);
             
-            // Log activity
             $this->logActivity($user['id'], 'LOGIN', 'User logged in successfully');
             
-            // Remove password from result
             unset($user['password']);
             
             return ['success' => true, 'user' => $user];
             
         } catch (PDOException $e) {
-            error_log("Login error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
@@ -187,7 +154,6 @@ class User {
             $stmt->execute([':id' => $id]);
             return $stmt->fetch();
         } catch (PDOException $e) {
-            error_log("Get user error: " . $e->getMessage());
             return null;
         }
     }
@@ -202,7 +168,6 @@ class User {
             $stmt->execute([':email' => $email]);
             return $stmt->fetch();
         } catch (PDOException $e) {
-            error_log("Get user by email error: " . $e->getMessage());
             return null;
         }
     }
@@ -233,17 +198,15 @@ class User {
             
             return $user;
         } catch (PDOException $e) {
-            error_log("Get profile error: " . $e->getMessage());
             return null;
         }
     }
     
     /**
-     * Update profile
+     * Update user profile with class selection
      */
     public function updateProfile($userId, $data) {
         try {
-            // Check if email is being changed and if it's already taken
             $currentUser = $this->getById($userId);
             if ($currentUser && $currentUser['email'] !== $data['email']) {
                 $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
@@ -262,6 +225,10 @@ class User {
                     last_name = :last_name,
                     email = :email,
                     phone = :phone,
+                    class_id = :class_id,
+                    bio = :bio,
+                    qualification = :qualification,
+                    specialization = :specialization,
                     updated_at = NOW()
                     WHERE id = :id";
             
@@ -271,12 +238,19 @@ class User {
                 ':last_name' => $data['last_name'],
                 ':email' => $data['email'],
                 ':phone' => $data['phone'],
+                ':class_id' => $data['class_id'],
+                ':bio' => $data['bio'] ?? null,
+                ':qualification' => $data['qualification'] ?? null,
+                ':specialization' => $data['specialization'] ?? null,
                 ':id' => $userId
             ]);
             
             if ($result) {
-                // REMOVED: Session update code - this should NOT be here
-                // Session updates should be handled in the controller only for the logged-in user
+                if ($currentUser && $currentUser['class_id'] != $data['class_id']) {
+                    $oldClass = $this->getClassName($currentUser['class_id']);
+                    $newClass = $this->getClassName($data['class_id']);
+                    $this->logActivity($userId, 'CLASS_CHANGE', "Class changed from {$oldClass} to {$newClass}");
+                }
                 
                 $this->logActivity($userId, 'PROFILE_UPDATE', 'User updated profile');
                 return ['success' => true, 'message' => 'Profile updated successfully'];
@@ -285,8 +259,23 @@ class User {
             return ['success' => false, 'error' => 'Failed to update profile'];
             
         } catch (PDOException $e) {
-            error_log("Profile update error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error occurred'];
+        }
+    }
+
+    /**
+     * Get class name by ID
+     */
+    private function getClassName($classId) {
+        if (!$classId) return 'None';
+        try {
+            $query = "SELECT name FROM classes WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':id' => $classId]);
+            $result = $stmt->fetch();
+            return $result ? $result['name'] : 'Unknown';
+        } catch (PDOException $e) {
+            return 'Unknown';
         }
     }
 
@@ -295,7 +284,6 @@ class User {
      */
     public function updateUserAsAdmin($userId, $data) {
         try {
-            // Check if email is being changed and if it's already taken
             $currentUser = $this->getById($userId);
             if ($currentUser && $currentUser['email'] !== $data['email']) {
                 $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
@@ -329,7 +317,6 @@ class User {
             ]);
             
             if ($result) {
-                // DO NOT update session - this is for admin editing another user
                 $this->logActivity($userId, 'ADMIN_UPDATE', 'User updated by admin');
                 return ['success' => true, 'message' => 'User updated successfully'];
             }
@@ -337,7 +324,6 @@ class User {
             return ['success' => false, 'error' => 'Failed to update user'];
             
         } catch (PDOException $e) {
-            error_log("Admin update user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error occurred'];
         }
     }
@@ -347,7 +333,6 @@ class User {
      */
     public function changePassword($userId, $currentPassword, $newPassword) {
         try {
-            // Verify current password
             $query = "SELECT password FROM users WHERE id = :id";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([':id' => $userId]);
@@ -361,7 +346,6 @@ class User {
                 return ['success' => false, 'error' => 'Current password is incorrect'];
             }
             
-            // Update password
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $updateQuery = "UPDATE users SET password = :password, updated_at = NOW() WHERE id = :id";
             $updateStmt = $this->conn->prepare($updateQuery);
@@ -378,7 +362,6 @@ class User {
             return ['success' => false, 'error' => 'Failed to change password'];
             
         } catch (PDOException $e) {
-            error_log("Password change error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error occurred'];
         }
     }
@@ -392,10 +375,7 @@ class User {
      */
     public function deleteAccount($userId, $password) {
         try {
-            error_log("=== deleteAccount method in User model called ===");
-            error_log("User ID: $userId");
             
-            // Get user data to verify password
             $sql = "SELECT password FROM users WHERE id = :user_id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -403,19 +383,13 @@ class User {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$user) {
-                error_log("User not found for ID: $userId");
                 return ['success' => false, 'error' => 'User not found'];
             }
             
-            // Verify password
             if (!password_verify($password, $user['password'])) {
-                error_log("Password verification failed for user: $userId");
                 return ['success' => false, 'error' => 'Incorrect password. Please try again.'];
             }
             
-            error_log("Password verified, starting deletion...");
-            
-            // Start transaction
             $this->conn->beginTransaction();
             
             // Delete quiz attempt answers
@@ -427,101 +401,80 @@ class User {
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count quiz_attempt_answers records");
             } catch (PDOException $e) {
                 error_log("Error deleting quiz_attempt_answers: " . $e->getMessage());
-                // Continue - table might not exist
             }
             
-            // Delete quiz attempts
             try {
                 $sql = "DELETE FROM quiz_attempts WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count quiz_attempts records");
             } catch (PDOException $e) {
                 error_log("Error deleting quiz_attempts: " . $e->getMessage());
             }
             
-            // Delete subscriptions
             try {
                 $sql = "DELETE FROM subscriptions WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count subscriptions records");
             } catch (PDOException $e) {
                 error_log("Error deleting subscriptions: " . $e->getMessage());
             }
             
-            // Delete payments
             try {
                 $sql = "DELETE FROM payments WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count payments records");
             } catch (PDOException $e) {
                 error_log("Error deleting payments: " . $e->getMessage());
             }
             
-            // Delete bookmarks
             try {
                 $sql = "DELETE FROM bookmarks WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count bookmarks records");
             } catch (PDOException $e) {
                 error_log("Error deleting bookmarks: " . $e->getMessage());
             }
             
-            // Delete lesson progress
             try {
                 $sql = "DELETE FROM lesson_progress WHERE user_id = :user_id";
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->execute();
                 $count = $stmt->rowCount();
-                error_log("Deleted $count lesson_progress records");
             } catch (PDOException $e) {
                 error_log("Error deleting lesson_progress: " . $e->getMessage());
             }
             
-            // Finally, delete the user
             $sql = "DELETE FROM users WHERE id = :user_id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
             $stmt->execute();
             $count = $stmt->rowCount();
-            error_log("Deleted $count user record");
             
             if ($count == 0) {
-                error_log("User record not deleted - user might not exist");
                 throw new Exception("User record not deleted");
             }
             
-            // Commit transaction
             $this->conn->commit();
             
-            error_log("Account deleted successfully for user: $userId");
             
             return ['success' => true, 'message' => 'Account deleted successfully'];
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("PDOException in deleteAccount: " . $e->getMessage());
-            error_log("Error code: " . $e->getCode());
-            error_log("Error line: " . $e->getLine());
             return ['success' => false, 'error' => 'Failed to delete account. Database error: ' . $e->getMessage()];
         } catch (Exception $e) {
             $this->conn->rollBack();
-            error_log("Exception in deleteAccount: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to delete account. Error: ' . $e->getMessage()];
         }
     }
@@ -540,18 +493,15 @@ class User {
             $fileName = time() . '_' . basename($file['name']);
             $targetFile = $targetDir . $fileName;
             
-            // Validate image
             $check = getimagesize($file['tmp_name']);
             if ($check === false) {
                 return ['success' => false, 'error' => 'File is not an image'];
             }
             
-            // Check file size (max 2MB)
             if ($file['size'] > 2097152) {
                 return ['success' => false, 'error' => 'File size must be less than 2MB'];
             }
             
-            // Allow certain file formats
             $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
             $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
             
@@ -574,7 +524,6 @@ class User {
             return ['success' => false, 'error' => 'Failed to upload photo'];
             
         } catch (PDOException $e) {
-            error_log("Photo upload error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to upload photo'];
         }
     }
@@ -598,7 +547,6 @@ class User {
             
             return true;
         } catch (PDOException $e) {
-            error_log("Free trial error: " . $e->getMessage());
             return false;
         }
     }
@@ -608,7 +556,8 @@ class User {
      */
     public function hasAccess($userId) {
         try {
-            $userQuery = "SELECT role FROM users WHERE id = :id";
+            
+            $userQuery = "SELECT role, created_at FROM users WHERE id = :id";
             $userStmt = $this->conn->prepare($userQuery);
             $userStmt->execute([':id' => $userId]);
             $user = $userStmt->fetch();
@@ -617,28 +566,32 @@ class User {
                 return false;
             }
             
-            // Learners, teachers, and admins always have access
             if (in_array($user['role'], ['learner', 'teacher', 'admin'])) {
                 return true;
             }
             
-            // Check free trial
-            $trialQuery = "SELECT * FROM free_trials WHERE user_id = :user_id AND end_date > NOW()";
-            $trialStmt = $this->conn->prepare($trialQuery);
-            $trialStmt->execute([':user_id' => $userId]);
-            if ($trialStmt->fetch()) {
-                return true;
+            if ($user['role'] === 'external') {
+                $createdAt = new DateTime($user['created_at']);
+                $now = new DateTime();
+                $daysPassed = $createdAt->diff($now)->days;
+                $trialDays = 60; 
+                
+                if ($daysPassed < $trialDays) {
+                    return true;
+                }
             }
             
-            // Check active subscription
             $subQuery = "SELECT * FROM subscriptions WHERE user_id = :user_id AND status = 'active' AND end_date > NOW()";
             $subStmt = $this->conn->prepare($subQuery);
             $subStmt->execute([':user_id' => $userId]);
             
-            return $subStmt->fetch() ? true : false;
+            if ($subStmt->fetch()) {
+                return true;
+            }
+            
+            return false;
             
         } catch (PDOException $e) {
-            error_log("Access check error: " . $e->getMessage());
             return false;
         }
     }
@@ -660,7 +613,6 @@ class User {
             return ['success' => false, 'error' => 'Invalid or expired verification token'];
             
         } catch (PDOException $e) {
-            error_log("Email verification error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Verification failed'];
         }
     }
@@ -692,7 +644,6 @@ class User {
             return ['success' => true, 'message' => 'Password reset instructions sent to your email'];
             
         } catch (PDOException $e) {
-            error_log("Password reset request error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to process request'];
         }
     }
@@ -722,7 +673,6 @@ class User {
             return ['success' => true, 'message' => 'Password reset successful'];
             
         } catch (PDOException $e) {
-            error_log("Password reset error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to reset password'];
         }
     }
@@ -732,30 +682,22 @@ class User {
      */
     public function saveResetToken($userId, $token, $expires) {
         try {
-            error_log("=== SAVE RESET TOKEN ===");
-            error_log("User ID: " . $userId);
-            error_log("Token: " . $token);
-            error_log("Expires: " . $expires);
             
             $stmt = $this->conn->prepare("DELETE FROM password_resets WHERE user_id = ?");
             $stmt->execute([$userId]);
-            error_log("Deleted existing tokens for user: " . $userId);
             
             $stmt = $this->conn->prepare("
                 INSERT INTO password_resets (user_id, token, expires_at) 
                 VALUES (?, ?, ?)
             ");
             $result = $stmt->execute([$userId, $token, $expires]);
-            error_log("Insert result: " . ($result ? "SUCCESS" : "FAILED"));
             
             if ($result) {
                 $insertId = $this->conn->lastInsertId();
-                error_log("Inserted token ID: " . $insertId);
             }
             
             return $result;
         } catch (PDOException $e) {
-            error_log("Save reset token error: " . $e->getMessage());
             return false;
         }
     }
@@ -765,8 +707,6 @@ class User {
      */
     public function getUserByResetToken($token) {
         try {
-            error_log("=== GET USER BY RESET TOKEN ===");
-            error_log("Token to check: " . $token);
             
             $stmt = $this->conn->prepare("
                 SELECT pr.*, u.*, pr.token as reset_token, pr.expires_at 
@@ -780,9 +720,6 @@ class User {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($result) {
-                error_log("Token found and valid for user: " . $result['email']);
-                error_log("Token expires at: " . $result['expires_at']);
-                error_log("Current time: " . date('Y-m-d H:i:s'));
                 return $result;
             } else {
                 $stmt2 = $this->conn->prepare("
@@ -793,9 +730,6 @@ class User {
                 $tokenRecord = $stmt2->fetch(PDO::FETCH_ASSOC);
                 
                 if ($tokenRecord) {
-                    error_log("Token found but expired or used");
-                    error_log("Token expires at: " . $tokenRecord['expires_at']);
-                    error_log("Token used: " . $tokenRecord['used']);
                 } else {
                     error_log("Token not found in database");
                 }
@@ -803,7 +737,6 @@ class User {
                 return null;
             }
         } catch (PDOException $e) {
-            error_log("Get user by reset token error: " . $e->getMessage());
             return null;
         }
     }
@@ -820,7 +753,6 @@ class User {
             ");
             return $stmt->execute([$userId]);
         } catch (PDOException $e) {
-            error_log("Clear reset token error: " . $e->getMessage());
             return false;
         }
     }
@@ -840,7 +772,6 @@ class User {
                 'error' => $success ? null : 'Failed to update password'
             ];
         } catch (PDOException $e) {
-            error_log("Update password error: " . $e->getMessage());
             return [
                 'success' => false,
                 'error' => 'Database error occurred'
@@ -876,7 +807,6 @@ class User {
      */
     private function sendVerificationEmail($email, $token, $name) {
         $verificationLink = BASE_URL . "/verify-email?token=" . $token;
-        error_log("Verification email would be sent to: $email with link: $verificationLink");
     }
     
     /**
@@ -1093,7 +1023,6 @@ class User {
             return $stmt->fetchAll();
             
         } catch (PDOException $e) {
-            error_log("Get all users error: " . $e->getMessage());
             return [];
         }
     }
@@ -1135,7 +1064,6 @@ class User {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Search users error: " . $e->getMessage());
             return [];
         }
     }
@@ -1157,7 +1085,6 @@ class User {
             return ['success' => false, 'error' => 'User not found'];
             
         } catch (PDOException $e) {
-            error_log("Suspend user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to suspend user'];
         }
     }
@@ -1179,7 +1106,6 @@ class User {
             return ['success' => false, 'error' => 'User not found'];
             
         } catch (PDOException $e) {
-            error_log("Activate user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to activate user'];
         }
     }
@@ -1189,16 +1115,13 @@ class User {
      */
     public function deleteUser($userId) {
         try {
-            // Check if user exists
             $user = $this->getById($userId);
             if (!$user) {
                 return ['success' => false, 'error' => 'User not found'];
             }
             
-            // Start transaction
             $this->conn->beginTransaction();
             
-            // Delete related records
             $tables = ['subscriptions', 'free_trials', 'payments', 'activity_logs', 'bookmarks', 'quiz_attempts'];
             
             foreach ($tables as $table) {
@@ -1207,7 +1130,6 @@ class User {
                 $deleteStmt->execute([':user_id' => $userId]);
             }
             
-            // Finally delete user
             $deleteUser = "DELETE FROM users WHERE id = :id";
             $deleteUserStmt = $this->conn->prepare($deleteUser);
             $deleteUserStmt->execute([':id' => $userId]);
@@ -1220,7 +1142,6 @@ class User {
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("Delete user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to delete user'];
         }
     }
@@ -1238,7 +1159,6 @@ class User {
             $result = $stmt->fetch();
             return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get active today error: " . $e->getMessage());
             return 0;
         }
     }
@@ -1256,98 +1176,7 @@ class User {
             $result = $stmt->fetch();
             return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get new users today error: " . $e->getMessage());
             return 0;
-        }
-    }
-
-    /**
-     * Get user registration statistics for a date range
-     */
-    public function getUserRegistrationStats($start_date, $end_date) {
-        try {
-            $query = "SELECT 
-                        DATE(created_at) as date,
-                        COUNT(*) as total,
-                        SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
-                        SUM(CASE WHEN role = 'teacher' THEN 1 ELSE 0 END) as teachers,
-                        SUM(CASE WHEN role = 'learner' THEN 1 ELSE 0 END) as learners,
-                        SUM(CASE WHEN role = 'external' THEN 1 ELSE 0 END) as external
-                    FROM users
-                    WHERE DATE(created_at) BETWEEN :start_date AND :end_date
-                    GROUP BY DATE(created_at)
-                    ORDER BY date DESC";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                ':start_date' => $start_date,
-                ':end_date' => $end_date
-            ]);
-            
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log("Get user registration stats error: " . $e->getMessage());
-            return [];
-        }
-    }
-
-    /**
-    * Get students (learners and external users) taught by a teacher
-    */
-    public function getStudentsByTeacher($teacherId, $classId = null, $search = null) {
-        try {
-            $sql = "SELECT DISTINCT u.*, 
-                        s.name as class_name,
-                        (SELECT COUNT(*) FROM quiz_attempts qa 
-                            JOIN quizzes q ON qa.quiz_id = q.id 
-                            WHERE qa.user_id = u.id AND q.teacher_id = :teacher_id1) as quiz_attempts,
-                        (SELECT COUNT(*) FROM lesson_progress lp 
-                            JOIN lessons l ON lp.lesson_id = l.id 
-                            WHERE lp.user_id = u.id AND l.teacher_id = :teacher_id2) as lessons_completed
-                    FROM users u
-                    LEFT JOIN classes s ON u.class_id = s.id
-                    WHERE (u.role = 'learner' OR u.role = 'external')";
-            
-            $params = array(
-                ':teacher_id1' => $teacherId,
-                ':teacher_id2' => $teacherId
-            );
-            
-            // Add class filter
-            if ($classId) {
-                $sql .= " AND u.class_id = :class_id";
-                $params[':class_id'] = $classId;
-            }
-            
-            // Add search filter
-            if ($search && !empty($search)) {
-                $searchPattern = '%' . $search . '%';
-                $sql .= " AND (u.first_name LIKE :search1 
-                            OR u.last_name LIKE :search2 
-                            OR u.email LIKE :search3 
-                            OR u.registration_number LIKE :search4)";
-                $params[':search1'] = $searchPattern;
-                $params[':search2'] = $searchPattern;
-                $params[':search3'] = $searchPattern;
-                $params[':search4'] = $searchPattern;
-            }
-            
-            $sql .= " ORDER BY u.created_at DESC";
-            
-            $stmt = $this->conn->prepare($sql);
-            
-            // Bind all parameters
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
-            }
-            
-            $stmt->execute();
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-        } catch (PDOException $e) {
-            error_log("Get students by teacher error: " . $e->getMessage());
-            return array();
         }
     }
 
@@ -1397,30 +1226,7 @@ class User {
             
             return $result['total'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Count students by teacher error: " . $e->getMessage());
             return 0;
-        }
-    }
-
-    /**
-     * Get all students (for debugging)
-     */
-    public function getAllStudents() {
-        try {
-            $query = "SELECT u.*, c.name as class_name 
-                    FROM users u
-                    LEFT JOIN classes c ON u.class_id = c.id
-                    WHERE (u.role = 'learner' OR u.role = 'external')
-                    AND u.is_active = 1
-                    ORDER BY u.role, u.first_name";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute();
-            
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log("Get all students error: " . $e->getMessage());
-            return [];
         }
     }
 
@@ -1461,7 +1267,6 @@ class User {
             return $remainingDays;
             
         } catch (Exception $e) {
-            error_log("Error calculating remaining trial days: " . $e->getMessage());
             return $trialDays;
         }
     }
@@ -1492,7 +1297,6 @@ class User {
             return $createdAt->format('Y-m-d H:i:s');
             
         } catch (Exception $e) {
-            error_log("Error calculating trial end date: " . $e->getMessage());
             return null;
         }
     }
@@ -1531,7 +1335,6 @@ class User {
             return $daysPassed < $trialDays;
             
         } catch (Exception $e) {
-            error_log("Error checking trial period: " . $e->getMessage());
             return false;
         }
     }
@@ -1591,7 +1394,6 @@ class User {
             ];
             
         } catch (Exception $e) {
-            error_log("Error getting trial status: " . $e->getMessage());
             return [
                 'is_trial' => false,
                 'has_subscription' => false,
@@ -1599,6 +1401,108 @@ class User {
                 'trial_ended' => true,
                 'message' => 'Error checking trial status'
             ];
+        }
+    }
+
+    /**
+     * Get ALL students with their statistics
+     */
+    public function getStudentsWithStats($teacherId, $classId = null, $search = null) {
+        try {
+            
+            $conn = $this->conn;
+            
+            $query = "
+                SELECT 
+                    u.id,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.phone,
+                    u.role,
+                    u.profile_photo,
+                    u.class_id,
+                    c.name as class_name,
+                    COUNT(DISTINCT qa.id) as quizzes_taken,
+                    COALESCE(AVG(qa.score), 0) as avg_score,
+                    MAX(qa.score) as highest_score,
+                    MIN(qa.score) as lowest_score,
+                    COUNT(DISTINCT lv.id) as lessons_viewed
+                FROM users u
+                LEFT JOIN classes c ON u.class_id = c.id
+                LEFT JOIN quiz_attempts qa ON u.id = qa.user_id 
+                    AND qa.completed_at IS NOT NULL
+                LEFT JOIN lesson_views lv ON u.id = lv.user_id
+                WHERE u.role IN ('learner', 'external')
+                AND u.is_active = 1
+            ";
+            
+            $params = [];
+            
+            if ($classId) {
+                $query .= " AND u.class_id = ?";
+                $params[] = $classId;
+            }
+            
+            if ($search) {
+                $query .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ?)";
+                $searchTerm = "%$search%";
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+            }
+            
+            $query .= " GROUP BY u.id, u.first_name, u.last_name, u.email, u.phone, u.role, u.profile_photo, u.class_id, c.name
+                        ORDER BY u.first_name ASC";
+            
+            $stmt = $conn->prepare($query);
+            $stmt->execute($params);
+            
+            $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($students as &$student) {
+                $student['avg_score'] = round($student['avg_score'] ?? 0, 1);
+                $student['quizzes_taken'] = (int)$student['quizzes_taken'];
+                $student['lessons_viewed'] = (int)$student['lessons_viewed'];
+            }
+            
+            
+            return $students;
+            
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Add student to class (for backward compatibility)
+     */
+    public function addStudentToClass($userId, $classId) {
+        try {
+            $stmt = $this->conn->prepare("UPDATE users SET class_id = ? WHERE id = ?");
+            $stmt->execute([$classId, $userId]);
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Count total students (learners and external users)
+     */
+    public function countTotalStudents() {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT COUNT(*) as total 
+                FROM users 
+                WHERE role IN ('learner', 'external') 
+                AND is_active = 1
+            ");
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            return 0;
         }
     }
 }

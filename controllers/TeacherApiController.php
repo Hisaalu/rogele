@@ -8,7 +8,6 @@ class TeacherApiController {
     private $lessonModel;
     
     public function __construct() {
-        // Check if user is logged in and is teacher
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'teacher') {
             http_response_code(403);
             echo json_encode(['error' => 'Unauthorized']);

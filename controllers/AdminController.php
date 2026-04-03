@@ -18,19 +18,16 @@ class AdminController {
     private $classModel;
     
     public function __construct() {
-        // Check if user is logged in and is admin
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
         if ($_SESSION['user_role'] !== 'admin') {
-            // Redirect non-admin users to their respective dashboards
             $this->redirectToRoleDashboard();
             exit;
         }
         
-        // Initialize all models
         $this->userModel = new User();
         $this->reportModel = new Report();
         $this->quizModel = new Quiz();
@@ -63,7 +60,6 @@ class AdminController {
     public function dashboard() {
         $hideFooter = true;
         
-        // Get statistics for dashboard
         $totalUsers = count($this->userModel->getAllUsers(null, 0, 0));
         $totalTeachers = count($this->userModel->getAllUsers('teacher', 0, 0));
         $totalLearners = count($this->userModel->getAllUsers('learner', 0, 0));
@@ -81,11 +77,9 @@ class AdminController {
     public function profile() {
         $hideFooter = true;
         
-        // Get admin profile data
         $profile = $this->userModel->getProfile($_SESSION['user_id']);
         
         if (!$profile) {
-            // Create basic profile from session
             $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Admin');
             $profile = [
                 'id' => $_SESSION['user_id'],
@@ -120,7 +114,6 @@ class AdminController {
             'phone' => $_POST['phone'] ?? ''
         ];
         
-        // Validate input
         if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
             $_SESSION['error'] = 'Please fill in all required fields';
             header('Location: ' . BASE_URL . '/admin/profile');
@@ -208,7 +201,6 @@ class AdminController {
                 'class' => $_POST['class'] ?? null
             ];
             
-            // Validate input
             $errors = [];
             if (empty($data['first_name'])) $errors[] = 'First name is required';
             if (empty($data['last_name'])) $errors[] = 'Last name is required';
@@ -256,17 +248,14 @@ class AdminController {
                 'role' => $_POST['role'] ?? $user['role']
             ];
             
-            // Validate input
             if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
                 $_SESSION['error'] = 'Please fill in all required fields';
                 header('Location: ' . BASE_URL . '/admin/users/edit/' . $userId);
                 exit;
             }
             
-            // Use the admin update method that doesn't touch the session
             $result = $this->userModel->updateUserAsAdmin($userId, $data);
             
-            // Handle status if provided
             if (isset($_POST['status'])) {
                 if ($_POST['status'] === 'suspended' && !$user['is_suspended']) {
                     $this->userModel->suspendUser($userId);
@@ -359,41 +348,23 @@ class AdminController {
         $end_date = $_GET['end_date'] ?? date('Y-m-d');
         $days = $_GET['days'] ?? 30;
         
-        // Get ALL user statistics from database
         $totalUsers = count($this->userModel->getAllUsers(null, 0, 0));
         $totalTeachers = count($this->userModel->getAllUsers('teacher', 0, 0));
         $totalLearners = count($this->userModel->getAllUsers('learner', 0, 0));
         $totalExternal = count($this->userModel->getAllUsers('external', 0, 0));
         $totalAdmins = count($this->userModel->getAllUsers('admin', 0, 0));
-        
-        // Get recent users (last 10)
-        $recentUsers = $this->userModel->getAllUsers(null, 10, 0);
-        
-        // Get recent activity
-        $recentActivity = $this->reportModel->getRecentActivity(10);
-        
-        // Get user growth data for charts
+        $recentUsers = $this->userModel->getAllUsers(null, 10, 0);       
+        $recentActivity = $this->reportModel->getRecentActivity(10);       
         $userGrowthData = $this->reportModel->getUserGrowthData($days);
-        
-        // Get revenue data for charts
         $revenueData = $this->reportModel->getRevenueData($days);
-        
-        // Get active today count
         $activeToday = $this->userModel->getActiveToday();
-        
-        // Get new users today
         $newUsersToday = $this->userModel->getNewUsersToday();
-        
-        // Get quiz statistics
         $totalQuizzes = $this->quizModel->getTotalQuizzes();
         $totalQuizAttempts = $this->quizModel->getTotalAttempts();
         $averageScore = $this->quizModel->getAverageScore();
-        
-        // Get payment statistics
         $totalRevenue = $this->subscriptionModel->getTotalRevenue();
         $totalSubscriptions = $this->subscriptionModel->getTotalSubscriptions();
         
-        // Get report data based on type
         switch ($type) {
             case 'users':
                 $data = $this->reportModel->getUserReport($start_date, $end_date);
@@ -411,7 +382,6 @@ class AdminController {
                 $data = [];
         }
         
-        // Pass ALL variables to the view
         require_once __DIR__ . '/../views/admin/reports.php';
     }
     
@@ -424,7 +394,6 @@ class AdminController {
         $startDate = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
         $endDate = $_GET['end_date'] ?? date('Y-m-d');
         
-        // Get data based on type
         switch ($type) {
             case 'users':
                 $data = $this->reportModel->getUserReport($startDate, $endDate);
@@ -443,12 +412,10 @@ class AdminController {
                 $filename = 'report_' . date('Y-m-d') . '.' . $format;
         }
         
-        // Export logic here (CSV, PDF, etc.)
         if ($format === 'csv' && !empty($data)) {
             $this->reportModel->exportToCSV($data, $filename);
         }
         
-        // For now, just redirect back
         $_SESSION['success'] = 'Report exported successfully';
         header('Location: ' . BASE_URL . '/admin/reports');
         exit;
@@ -460,7 +427,6 @@ class AdminController {
     public function settings() {
         $hideFooter = true;
         
-        // Get current settings from database
         $generalSettings = $this->settingsModel->getGeneralSettings();
         $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
         $emailSettings = $this->settingsModel->getEmailSettings();
@@ -630,32 +596,27 @@ class AdminController {
         }
         
         $settings = [
-            // General
             'site_name' => $_POST['site_name'] ?? 'Rays of Grace E-Learning',
             'site_description' => $_POST['site_description'] ?? '',
             'contact_email' => $_POST['contact_email'] ?? '',
             
-            // Subscription
             'monthly_price' => $_POST['monthly_price'] ?? 15000,
             'termly_price' => $_POST['termly_price'] ?? 40000,
             'yearly_price' => $_POST['yearly_price'] ?? 120000,
             'trial_days' => $_POST['trial_days'] ?? 60,
             
-            // Email
             'smtp_host' => $_POST['smtp_host'] ?? 'smtp.gmail.com',
             'smtp_port' => $_POST['smtp_port'] ?? 587,
             'smtp_username' => $_POST['smtp_username'] ?? '',
             'smtp_password' => $_POST['smtp_password'] ?? '',
             'from_email' => $_POST['from_email'] ?? '',
             
-            // Security
             'enable_2fa' => isset($_POST['enable_2fa']) ? 1 : 0,
             'session_timeout' => $_POST['session_timeout'] ?? 60,
             'strong_passwords' => isset($_POST['strong_passwords']) ? 1 : 0,
             
-            // Appearance
-            'theme_color' => $_POST['theme_color'] ?? '#8B5CF6',
-            'accent_color' => $_POST['accent_color'] ?? '#F97316',
+            'theme_color' => $_POST['theme_color'] ?? '#7f2677',
+            'accent_color' => $_POST['accent_color'] ?? '#f06724',
             'dark_mode' => isset($_POST['dark_mode']) ? 1 : 0
         ];
         
@@ -677,11 +638,8 @@ class AdminController {
     public function testEmailConfig() {
         $hideFooter = true;
         
-        // Get email settings
         $emailSettings = $this->settingsModel->getEmailSettings();
         
-        // Implement your email test logic here
-        // For now, just return success
         $_SESSION['success'] = 'Email test successful! Check your inbox.';
         
         header('Location: ' . BASE_URL . '/admin/settings');
@@ -738,14 +696,9 @@ class AdminController {
         $limit = 15;
         $offset = ($page - 1) * $limit;
         
-        // Get all lessons with filters
         $lessons = $this->lessonModel->getAllLessons($search, $teacherId, $status, $limit, $offset);
-        
-        // Get total count for pagination
         $totalLessons = $this->lessonModel->countAllLessons($search, $teacherId, $status);
         $totalPages = ceil($totalLessons / $limit);
-        
-        // Get all teachers for filter dropdown
         $teachers = $this->userModel->getAllUsers('teacher');
         
         require_once __DIR__ . '/../views/admin/lessons.php';
@@ -814,14 +767,9 @@ class AdminController {
         $limit = 15;
         $offset = ($page - 1) * $limit;
         
-        // Get all quizzes with filters
         $quizzes = $this->quizModel->getAllQuizzes($search, $teacherId, $status, $limit, $offset);
-        
-        // Get total count for pagination
         $totalQuizzes = $this->quizModel->countAllQuizzes($search, $teacherId, $status);
         $totalPages = ceil($totalQuizzes / $limit);
-        
-        // Get all teachers for filter dropdown
         $teachers = $this->userModel->getAllUsers('teacher');
         
         require_once __DIR__ . '/../views/admin/quizzes.php';

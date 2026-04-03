@@ -46,4 +46,25 @@ class Subject {
             return [];
         }
     }
+
+    /**
+     * Get subjects by class ID
+     */
+    public function getByClassId($classId) {
+        try {
+            $query = "SELECT * FROM subjects 
+                    WHERE class_id = :class_id 
+                    AND is_active = 1 
+                    ORDER BY name";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':class_id' => $classId]);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error getting subjects by class: " . $e->getMessage());
+            return [];
+        }
+    }
 }

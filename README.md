@@ -1,4 +1,4 @@
-# ROGELE - E-Learning Management System
+# ROGELE - E-Learning Environment
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%2B-777bb4.svg)](https://php.net)
