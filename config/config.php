@@ -20,14 +20,12 @@ if (file_exists($envPath)) {
 
 // Database Configuration
 if (getenv('RENDER')) {
-    // PRODUCTION (Render)
     define('DB_HOST', getenv('DB_HOST'));
     define('DB_PORT', getenv('DB_PORT') ?: '4000');
     define('DB_NAME', getenv('DB_NAME'));
     define('DB_USER', getenv('DB_USER'));
     define('DB_PASS', getenv('DB_PASS'));
 } else {
-    // LOCAL SETTINGS (XAMPP - using your .env loader)
     define('DB_HOST', $env['DB_HOST'] ?? 'gateway01.eu-central-1.prod.aws.tidbcloud.com');
     define('DB_PORT', $env['DB_PORT'] ?? '4000'); 
     define('DB_NAME', $env['DB_NAME'] ?? 'ROGELEDB');
