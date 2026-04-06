@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/reports.php
-$pageTitle = 'Reports - Admin - Rays of Grace';
+$pageTitle = 'Reports | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Get filter parameters
@@ -26,14 +26,10 @@ $revenueData = $revenueData ?? [];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title><?php echo $pageTitle; ?></title>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Additional responsive fixes */
         * {
             box-sizing: border-box;
         }
@@ -50,13 +46,12 @@ $revenueData = $revenueData ?? [];
 <body>
 
 <div class="reports-dashboard">
-    <!-- Header Section with Welcome Message -->
     <div class="dashboard-header">
         <div class="header-welcome">
             <h1 class="welcome-title">
                 <span class="gradient-text">Analytics Report</span>
             </h1>
-            <p class="welcome-subtitle">Track your platform's performance in real-time</p>
+            <p class="welcome-subtitle">Track ROGELE's performance in real-time</p>
         </div>
         <div class="header-actions">
             <div class="date-range-indicator">
@@ -84,7 +79,7 @@ $revenueData = $revenueData ?? [];
             </div>
         </div>
 
-        <div class="stat-card stat-card-orange">
+        <div class="stat-card stat-card-purple">
             <div class="stat-icon">
                 <i class="fas fa-chalkboard-teacher"></i>
             </div>
@@ -97,7 +92,7 @@ $revenueData = $revenueData ?? [];
             </div>
         </div>
 
-        <div class="stat-card stat-card-green">
+        <div class="stat-card stat-card-purple">
             <div class="stat-icon">
                 <i class="fas fa-user-graduate"></i>
             </div>
@@ -110,7 +105,7 @@ $revenueData = $revenueData ?? [];
             </div>
         </div>
 
-        <div class="stat-card stat-card-pink">
+        <div class="stat-card stat-card-purple">
             <div class="stat-icon">
                 <i class="fas fa-globe"></i>
             </div>
@@ -243,7 +238,7 @@ $revenueData = $revenueData ?? [];
             <div class="activity-feed">
                 <div class="feed-header">
                     <h3><i class="fas fa-clock"></i> Recent Activity</h3>
-                    <a href="?type=activity" class="view-all">
+                    <a href="<?php echo BASE_URL; ?>/admin/reports?type=activity" class="view-all">
                         <span class="view-all-text">View All</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -284,7 +279,7 @@ $revenueData = $revenueData ?? [];
                         
                         <?php if (count($recentActivity) > 5): ?>
                         <div class="view-more-container">
-                            <a href="?type=activity" class="view-more-link">
+                            <a href="<?php echo BASE_URL; ?>/admin/reports?type=activity" class="view-more-link">
                                 <i class="fas fa-arrow-right"></i> View all <?php echo count($recentActivity); ?> activities
                             </a>
                         </div>
@@ -615,14 +610,14 @@ body {
 }
 
 .date-range-indicator {
-    background: white;
+    background: #7f2677;
     padding: 10px 15px;
     border-radius: 30px;
     box-shadow: var(--card-shadow);
     display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--text-dark);
+    color: white;
     font-weight: 500;
     font-size: 0.9rem;
     flex: 1;
@@ -645,8 +640,8 @@ body {
     height: 45px;
     border-radius: 50%;
     border: none;
-    background: white;
-    color: var(--text-light);
+    background: #7f2677;
+    color: white;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: var(--card-shadow);
@@ -657,7 +652,7 @@ body {
 }
 
 .btn-refresh:hover {
-    background: var(--primary-purple);
+    background: #f06724;
     color: white;
     transform: rotate(180deg);
 }
@@ -697,10 +692,7 @@ body {
     height: 100%;
 }
 
-.stat-card-purple::before { background: var(--primary-purple); }
-.stat-card-orange::before { background: var(--primary-orange); }
-.stat-card-green::before { background: var(--success-green); }
-.stat-card-pink::before { background: #EC4899; }
+.stat-card-purple::before { background: #7f2677; }
 
 .stat-icon {
     width: 50px;
@@ -1014,10 +1006,10 @@ body {
 
 .chart-select {
     padding: 6px 12px;
-    border: 2px solid var(--border-color);
+    border: 2px solid #f06724;
     border-radius: 20px;
     font-size: 0.85rem;
-    color: var(--text-dark);
+    color: black;
     background: white;
     cursor: pointer;
 }
@@ -1073,8 +1065,8 @@ body {
 }
 
 .view-all:hover {
-    background: rgba(139, 92, 246, 0.1);
-    color: var(--primary-orange);
+    background: var(--primary-orange);
+    color: white;
 }
 
 .view-all-text {
@@ -1163,6 +1155,7 @@ body {
 .view-more-link:hover {
     background: #f06724;
     transform: translateX(3px);
+    color: white;
 }
 
 .empty-feed {
@@ -1719,11 +1712,11 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'New Users',
                 data: <?php echo json_encode($growthValues); ?>,
-                borderColor: '#8B5CF6',
+                borderColor: '#f06724',
                 backgroundColor: 'rgba(139, 92, 246, 0.1)',
                 tension: 0.4,
                 fill: true,
-                pointBackgroundColor: '#8B5CF6',
+                pointBackgroundColor: '#7f2677',
                 pointBorderColor: 'white',
                 pointBorderWidth: 2,
                 pointRadius: 3,
@@ -1788,7 +1781,7 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Revenue (UGX)',
                 data: <?php echo json_encode($revenueValues); ?>,
-                backgroundColor: '#F97316',
+                backgroundColor: '#f06724',
                 borderRadius: 6,
                 barPercentage: 0.7,
                 categoryPercentage: 0.8

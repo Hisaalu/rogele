@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/dashboard.php
-$pageTitle = 'Admin Dashboard - Rays of Grace';
+$pageTitle = 'Admin Dashboard | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Get stats from controller
@@ -25,7 +25,7 @@ $recentActivity = $recentActivity ?? [];
                     $fullName = $_SESSION['user_name'] ?? '';
                     $firstName = explode(' ', trim($fullName))[0];
                     echo htmlspecialchars($firstName); 
-                ?>! Here's what's happening with your platform.
+                ?>! Here's what's happening with ROGELE.
             </p>
         </div>
         <div class="date-display">

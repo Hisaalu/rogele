@@ -742,80 +742,76 @@ class Quiz {
     }
 
     /**
-     * Get all published quizzes for external users
+     * Get all quizzes with filters (for admin)
      */
-    public function getAllQuizzes($userId = null) {
+    public function getAllQuizzes($search = null, $teacherId = null, $status = null, $limit = 15, $offset = 0) {
         try {
-            error_log("=== getAllQuizzes START ===");
+            $sql = "SELECT 
+                    q.id,
+                    q.title,
+                    q.description,
+                    q.teacher_id,
+                    q.subject_id,
+                    q.class_id,
+                    q.is_published,
+                    q.created_at,
+                    q.updated_at,
+                    CONCAT(u.first_name) as teacher_name,
+                    s.name as subject_name,
+                    c.name as class_name,
+                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
+                    (SELECT COUNT(*) FROM quiz_attempts WHERE quiz_id = q.id) as attempt_count
+                FROM quizzes q
+                LEFT JOIN users u ON q.teacher_id = u.id
+                LEFT JOIN subjects s ON q.subject_id = s.id
+                LEFT JOIN classes c ON q.class_id = c.id
+                WHERE 1=1";
             
-            $simpleQuery = "SELECT id, title FROM quizzes WHERE is_published = 1 ORDER BY id";
-            $simpleStmt = $this->conn->query($simpleQuery);
-            $simpleResult = $simpleStmt->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($simpleResult as $q) {
-                error_log("  ID: {$q['id']} - {$q['title']}");
+            $params = [];
+            
+            if ($search && !empty($search)) {
+                $searchPattern = '%' . $search . '%';
+                $sql .= " AND (q.title LIKE ? OR q.description LIKE ? OR s.name LIKE ? OR CONCAT(u.first_name, ' ', u.last_name) LIKE ?)";
+                $params[] = $searchPattern;
+                $params[] = $searchPattern;
+                $params[] = $searchPattern;
+                $params[] = $searchPattern;
             }
             
-            $sql = "SELECT DISTINCT q.id, q.*, 
-                            (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
-                            (SELECT name FROM subjects WHERE id = q.subject_id) as subject_name,
-                            (SELECT name FROM classes WHERE id = q.class_id) as class_name
-                        FROM quizzes q
-                        WHERE q.is_published = 1 
-                        AND (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) > 0
-                        GROUP BY q.id
-                        ORDER BY q.id ASC";
+            if ($teacherId && !empty($teacherId)) {
+                $sql .= " AND q.teacher_id = ?";
+                $params[] = $teacherId;
+            }
             
+            if ($status === 'published') {
+                $sql .= " AND q.is_published = 1";
+            } elseif ($status === 'draft') {
+                $sql .= " AND q.is_published = 0";
+            }
+            
+            $sql .= " ORDER BY q.created_at DESC LIMIT ? OFFSET ?";
+            $params[] = (int)$limit;
+            $params[] = (int)$offset;
             
             $stmt = $this->conn->prepare($sql);
+            
+            foreach ($params as $index => $param) {
+                $paramType = is_int($param) ? PDO::PARAM_INT : PDO::PARAM_STR;
+                $stmt->bindValue($index + 1, $param, $paramType);
+            }
+            
             $stmt->execute();
-            $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            foreach ($quizzes as $q) {
-                error_log("  SQL Result: ID={$q['id']}, Title={$q['title']}, QCount={$q['question_count']}");
+            foreach ($results as &$row) {
+                $row['question_count'] = (int)($row['question_count'] ?? 0);
+                $row['attempt_count'] = (int)($row['attempt_count'] ?? 0);
+                $row['teacher_name'] = $row['teacher_name'] ?? 'Unknown';
+                $row['subject_name'] = $row['subject_name'] ?? 'N/A';
+                $row['class_name'] = $row['class_name'] ?? 'N/A';
             }
             
-            // Check if quiz 30 is in the result
-            $found30 = false;
-            foreach ($quizzes as $q) {
-                if ($q['id'] == 30) {
-                    $found30 = true;
-                    break;
-                }
-            }
-            
-            if (!$found30) {
-                
-                $checkQuestions = $this->conn->prepare("SELECT COUNT(*) as cnt FROM quiz_questions WHERE quiz_id = 30");
-                $checkQuestions->execute();
-                $qCount = $checkQuestions->fetch(PDO::FETCH_ASSOC);
-                
-                $checkPublished = $this->conn->prepare("SELECT is_published FROM quizzes WHERE id = 30");
-                $checkPublished->execute();
-                $published = $checkPublished->fetch(PDO::FETCH_ASSOC);
-            }
-            
-            $uniqueQuizzes = [];
-            $seenIds = [];
-            foreach ($quizzes as $quiz) {
-                if (!in_array($quiz['id'], $seenIds)) {
-                    $seenIds[] = $quiz['id'];
-                    $uniqueQuizzes[] = $quiz;
-                }
-            }
-
-            if ($userId && !empty($uniqueQuizzes)) {
-                foreach ($uniqueQuizzes as &$quiz) {
-                    $quiz['completed'] = $this->hasCompletedQuiz($userId, $quiz['id']);
-                    $quiz['in_progress'] = $this->getInProgressAttempt($userId, $quiz['id']) !== null;
-                    $quiz['in_progress_attempt'] = $this->getInProgressAttempt($userId, $quiz['id']);
-                    $quiz['best_score'] = $this->getBestScore($userId, $quiz['id']);
-                    $quiz['attempt_count'] = $this->getAttemptCount($userId, $quiz['id']);
-                    $quiz['status'] = 'published';
-                }
-            }
-            
-            
-            return $uniqueQuizzes;
+            return $results;
             
         } catch (PDOException $e) {
             return [];
@@ -827,14 +823,19 @@ class Quiz {
      */
     public function countAllQuizzes($search = null, $teacherId = null, $status = null) {
         try {
-            $sql = "SELECT COUNT(*) as total FROM quizzes q 
+            $sql = "SELECT COUNT(*) as total 
+                    FROM quizzes q
                     LEFT JOIN subjects s ON q.subject_id = s.id
+                    LEFT JOIN users u ON q.teacher_id = u.id
+                    LEFT JOIN classes c ON s.class_id = c.id
                     WHERE 1=1";
-            $params = array();
+            
+            $params = [];
             
             if ($search && !empty($search)) {
                 $searchPattern = '%' . $search . '%';
-                $sql .= " AND (q.title LIKE ? OR q.description LIKE ? OR s.name LIKE ?)";
+                $sql .= " AND (q.title LIKE ? OR q.description LIKE ? OR s.name LIKE ? OR CONCAT(u.first_name, ' ', u.last_name) LIKE ?)";
+                $params[] = $searchPattern;
                 $params[] = $searchPattern;
                 $params[] = $searchPattern;
                 $params[] = $searchPattern;
@@ -852,9 +853,13 @@ class Quiz {
             }
             
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute($params);
-            $result = $stmt->fetch();
             
+            foreach ($params as $index => $param) {
+                $stmt->bindValue($index + 1, $param);
+            }
+            
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             return $result['total'] ?? 0;
             
