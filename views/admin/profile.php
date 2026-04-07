@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/profile.php
-$pageTitle = 'Admin Profile - Rays of Grace';
+$pageTitle = 'Profile | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 

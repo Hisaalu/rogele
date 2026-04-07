@@ -70,6 +70,7 @@ $routes = [
     '/admin/quizzes' => 'AdminController@quizzes',
     '/admin/subscriptions' => 'AdminSubscriptionController@index',
     '/admin/subscriptions/view/{id}' => 'AdminSubscriptionController@view',
+    '/admin/reports/export' => 'ExportController@export',
     
     // Teacher routes
     '/teacher/dashboard' => 'TeacherController@dashboard',

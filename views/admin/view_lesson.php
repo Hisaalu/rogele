@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/view_lesson.php
-$pageTitle = 'View Lesson - Admin - Rays of Grace';
+$pageTitle = 'Lesson | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $lesson = $lesson ?? [];

@@ -770,6 +770,7 @@ class AdminController {
         $quizzes = $this->quizModel->getAllQuizzes($search, $teacherId, $status, $limit, $offset);
         $totalQuizzes = $this->quizModel->countAllQuizzes($search, $teacherId, $status);
         $totalPages = ceil($totalQuizzes / $limit);
+        
         $teachers = $this->userModel->getAllUsers('teacher');
         
         require_once __DIR__ . '/../views/admin/quizzes.php';
@@ -788,6 +789,10 @@ class AdminController {
             header('Location: ' . BASE_URL . '/admin/quizzes');
             exit;
         }
+        
+        $questions = $this->quizModel->getQuestions($quizId);
+        
+        $quiz['questions'] = $questions;
         
         require_once __DIR__ . '/../views/admin/view_quiz.php';
     }

@@ -551,8 +551,16 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     gap: 10px;
 }
 
+.section-title i {
+    color: #7f2677;
+}
+
 .table-responsive {
     overflow-x: auto;
+}
+
+.table-responsive i{
+    color: #f06724;
 }
 
 .history-table {
@@ -590,7 +598,17 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
 .status-badge.pending {
     background: #FEF3C7;
-    color: #92400E;
+    color: #f06724;
+}
+
+.status-badge.active {
+    background: #FEF3C7;
+    color: #166534;
+}
+
+.status-badge.expired {
+    background: #FEF3C7;
+    color: red;
 }
 
 /* Alert Messages */

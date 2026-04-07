@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/lessons.php
-$pageTitle = 'Manage Lessons - Admin - Rays of Grace';
+$pageTitle = 'Lessons | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $lessons = $lessons ?? [];
@@ -114,26 +114,26 @@ $statusFilter = $_GET['status'] ?? '';
 
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
-        <div class="pagination">
-            <?php if ($currentPage > 1): ?>
-                <a href="?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo $teacherFilter; ?>&status=<?php echo $statusFilter; ?>" class="page-link">
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-            <?php endif; ?>
+            <div class="pagination">
+                <?php if ($currentPage > 1): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/lessons?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo $teacherFilter; ?>&status=<?php echo $statusFilter; ?>" class="page-link">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                <?php endif; ?>
 
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo $teacherFilter; ?>&status=<?php echo $statusFilter; ?>" 
-                   class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
-                    <?php echo $i; ?>
-                </a>
-            <?php endfor; ?>
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/lessons?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo $teacherFilter; ?>&status=<?php echo $statusFilter; ?>" 
+                    class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                <?php endfor; ?>
 
-            <?php if ($currentPage < $totalPages): ?>
-                <a href="?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo $teacherFilter; ?>&status=<?php echo $statusFilter; ?>" class="page-link">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-            <?php endif; ?>
-        </div>
+                <?php if ($currentPage < $totalPages): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/lessons?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo $teacherFilter; ?>&status=<?php echo $statusFilter; ?>" class="page-link">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
     </div>
 </div>
@@ -198,6 +198,12 @@ $statusFilter = $_GET['status'] ?? '';
     border: 2px solid #E2E8F0;
     border-radius: 8px;
     font-size: 0.95rem;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 3px rgba(240, 103, 36, 0.1);
 }
 
 .filters-form select {
