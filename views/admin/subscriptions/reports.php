@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/subscriptions/reports.php
-$pageTitle = 'Subscription Reports - Admin - Rays of Grace';
+$pageTitle = 'Subscription Reports | ROGELE';
 require_once __DIR__ . '/../../layouts/header.php';
 
 // Get data from controller
@@ -167,13 +167,13 @@ $revenueByMonth = $revenueByMonth ?? [];
             <?php 
             $planDistribution = $stats['plan_distribution'] ?? [];
             $planColors = [
-                'monthly' => '#3B82F6',
-                'termly' => '#F59E0B',
-                'yearly' => '#10B981'
+                'monthly' => '#e41d59',
+                'termly' => '#f06724',
+                'yearly' => '#7f2677'
             ];
             
             foreach ($planDistribution as $plan): 
-                $color = $planColors[$plan['plan_type']] ?? '#64748B';
+                $color = $planColors[$plan['plan_type']] ?? 'black';
             ?>
             <div class="plan-detail-card">
                 <div class="plan-header" style="background: <?php echo $color; ?>">
@@ -252,7 +252,7 @@ new Chart(planCtx, {
         labels: planData.map(item => ucfirst(item.plan_type) + ' (' + item.count + ')'),
         datasets: [{
             data: planData.map(item => item.count),
-            backgroundColor: ['#3B82F6', '#F59E0B', '#10B981'],
+            backgroundColor: ['#e41d59', '#f06724', '#7f2677'],
             borderWidth: 0
         }]
     },
@@ -292,14 +292,14 @@ function ucfirst(string) {
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
@@ -321,11 +321,11 @@ function ucfirst(string) {
 
 .btn-back {
     background: #F1F5F9;
-    color: #1E293B;
+    color: black;
 }
 
 .btn-export {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
 }
 
@@ -420,7 +420,7 @@ function ucfirst(string) {
 }
 
 .chart-header h3 {
-    color: #1E293B;
+    color: black;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -428,7 +428,7 @@ function ucfirst(string) {
 }
 
 .chart-header h3 i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .chart-body {
@@ -446,7 +446,7 @@ function ucfirst(string) {
 }
 
 .section-title {
-    color: #1E293B;
+    color: black;
     font-size: 1.3rem;
     margin-bottom: 20px;
     display: flex;
@@ -455,7 +455,7 @@ function ucfirst(string) {
 }
 
 .section-title i {
-    color: #F59E0B;
+    color: #f06724;
 }
 
 .expiring-table {
@@ -468,7 +468,7 @@ function ucfirst(string) {
     padding: 15px 20px;
     text-align: left;
     font-weight: 600;
-    color: #1E293B;
+    color: black;
     border-bottom: 2px solid #E2E8F0;
 }
 
@@ -487,7 +487,7 @@ function ucfirst(string) {
 }
 
 .user-info small {
-    color: #64748B;
+    color: black;
     font-size: 0.8rem;
     margin-top: 3px;
 }
@@ -507,12 +507,12 @@ function ucfirst(string) {
 
 .plan-badge.termly {
     background: #FEF3C7;
-    color: #92400E;
+    color: #f06724;
 }
 
 .plan-badge.yearly {
     background: #F0FDF4;
-    color: #166534;
+    color: #7f2677;
 }
 
 .days-badge {
@@ -605,20 +605,20 @@ function ucfirst(string) {
 
 .stat-value {
     font-weight: 700;
-    color: #1E293B;
+    color: black;
 }
 
 /* Empty Message */
 .empty-message {
     text-align: center;
     padding: 50px;
-    color: #94A3B8;
+    color: black;
 }
 
 .empty-message i {
     font-size: 3rem;
     margin-bottom: 15px;
-    opacity: 0.5;
+    color: #f06724;
 }
 
 /* Animations */

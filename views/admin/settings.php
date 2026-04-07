@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/settings.php
-$pageTitle = 'Settings - Admin - Rays of Grace';
+$pageTitle = 'Settings | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Get settings from controller
@@ -612,7 +612,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 .settings-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 20px 60px rgba(139, 92, 246, 0.15);
-    border-color: #8B5CF6;
+    border-color: #f06724;
 }
 
 /* Card Header */
@@ -888,7 +888,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 }
 
 input:checked + .toggle-slider {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724);
 }
 
 input:checked + .toggle-slider:before {

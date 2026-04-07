@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/users.php
-$pageTitle = 'Manage Users - Admin - Rays of Grace';
+$pageTitle = 'Users | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Get parameters
@@ -17,7 +17,7 @@ $search = $_GET['search'] ?? '';
                 <i class="fas fa-users-cog"></i>
                 Manage Users
             </h1>
-            <p class="page-subtitle">View, edit, suspend, and manage all users on the platform</p>
+            <p class="page-subtitle">View, edit, suspend, and manage all users on ROGELE</p>
         </div>
         <a href="<?php echo BASE_URL; ?>/admin/users/create" class="btn-primary">
             <i class="fas fa-user-plus"></i>
@@ -169,26 +169,26 @@ $search = $_GET['search'] ?? '';
 
         <!-- Pagination -->
         <?php if (!empty($users) && $totalPages > 1): ?>
-        <div class="pagination">
-            <?php if ($page > 1): ?>
-                <a href="?page=<?php echo $page - 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link">
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-            <?php endif; ?>
+            <div class="pagination">
+                <?php if ($page > 1): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/users?page=<?php echo $page - 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                <?php endif; ?>
 
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="?page=<?php echo $i; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" 
-                   class="page-link <?php echo $i == $page ? 'active' : ''; ?>">
-                    <?php echo $i; ?>
-                </a>
-            <?php endfor; ?>
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/users?page=<?php echo $i; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" 
+                    class="page-link <?php echo $i == $page ? 'active' : ''; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                <?php endfor; ?>
 
-            <?php if ($page < $totalPages): ?>
-                <a href="?page=<?php echo $page + 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-            <?php endif; ?>
-        </div>
+                <?php if ($page < $totalPages): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/users?page=<?php echo $page + 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
     </div>
 </div>

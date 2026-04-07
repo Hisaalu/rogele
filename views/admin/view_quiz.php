@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/view_quiz.php
-$pageTitle = 'View Quiz - Admin - Rays of Grace';
+$pageTitle = 'View Quiz | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $quiz = $quiz ?? [];

@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/edit_user.php
-$pageTitle = 'Edit User - Admin - Rays of Grace';
+$pageTitle = 'Edit User | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 // Ensure user data is available

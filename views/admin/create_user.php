@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/create_user.php
-$pageTitle = 'Create User - Admin - Rays of Grace';
+$pageTitle = 'Create User | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 
@@ -315,13 +315,13 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    border-color: #f06724;
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.1);
 }
 
 .form-group input:hover,
 .form-group select:hover {
-    border-color: #8B5CF6;
+    border-color: #f06724;
 }
 
 .password-input-wrapper {
