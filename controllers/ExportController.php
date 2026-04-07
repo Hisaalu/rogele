@@ -1,7 +1,5 @@
 <?php
 // File: /controllers/ExportController.php
-// NO WHITESPACE BEFORE THIS TAG - NOT EVEN A SINGLE SPACE!
-
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Report.php';
 require_once __DIR__ . '/../models/Quiz.php';
@@ -47,7 +45,7 @@ class ExportController {
         $revenueData = $this->reportModel->getRevenueData($days);
         
         $settings = $this->settingsModel->getGeneralSettings();
-        $siteName = $settings['site_name'] ?? 'Rays of Grace';
+        $siteName = $settings['site_name'] ?? 'ROGELE';
         
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         
@@ -84,7 +82,7 @@ class ExportController {
         $html = '
         <style>
             table { border-collapse: collapse; width: 100%; }
-            th { background-color: #8B5CF6; color: white; padding: 10px; text-align: left; }
+            th { background-color: #7f2677; color: white; padding: 10px; text-align: left; }
             td { padding: 8px; border-bottom: 1px solid #ddd; }
             .total-row { background-color: #f0f0f0; font-weight: bold; }
         </style>
@@ -413,5 +411,31 @@ class ExportController {
         
         $pdf->Output('Activity_Report_' . date('Y-m-d') . '.pdf', 'D');
         exit;
+    }
+
+    /**
+     * Main export handler - called by router
+     */
+    public function export() {
+        $type = $_GET['type'] ?? 'overview';
+        $start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
+        $end_date = $_GET['end_date'] ?? date('Y-m-d');
+        
+        $date1 = new DateTime($start_date);
+        $date2 = new DateTime($end_date);
+        $days = $date1->diff($date2)->days + 1;
+        
+        switch ($type) {
+            case 'payments':
+                $this->exportPayments($start_date, $end_date);
+                break;
+            case 'activity':
+                $this->exportActivity($start_date, $end_date);
+                break;
+            case 'overview':
+            default:
+                $this->exportOverview($start_date, $end_date, $days);
+                break;
+        }
     }
 }

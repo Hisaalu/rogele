@@ -452,7 +452,7 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .view-all {
-    color: #8B5CF6;
+    color: #7f2677;
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 600;

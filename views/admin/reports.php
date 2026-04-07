@@ -1870,7 +1870,7 @@ function exportReport() {
     const type = '<?php echo $type; ?>';
     const startDate = document.getElementById('start_date').value;
     const endDate = document.getElementById('end_date').value;
-    window.location.href = `<?php echo BASE_URL; ?>/admin/reports/export?type=${type}&start_date=${startDate}&end_date=${endDate}`;
+    window.location.href = '<?php echo BASE_URL; ?>/admin/reports/export?type=' + type + '&start_date=' + startDate + '&end_date=' + endDate;
 }
 
 // Quick filter buttons
