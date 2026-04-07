@@ -106,10 +106,12 @@ class Quiz {
             $sql = "SELECT q.*, 
                         c.name as class_name,
                         s.name as subject_name,
+                        CONCAT(u.first_name, ' ', u.last_name) as teacher_name,
                         (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
                     FROM quizzes q
                     LEFT JOIN classes c ON q.class_id = c.id
                     LEFT JOIN subjects s ON q.subject_id = s.id
+                    LEFT JOIN users u ON q.teacher_id = u.id
                     WHERE q.id = :id";
             
             $stmt = $this->conn->prepare($sql);
@@ -128,6 +130,7 @@ class Quiz {
             return $quiz;
             
         } catch (PDOException $e) {
+            error_log("Get quiz by ID error: " . $e->getMessage());
             return null;
         }
     }

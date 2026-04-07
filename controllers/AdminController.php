@@ -790,6 +790,10 @@ class AdminController {
             exit;
         }
         
+        $questions = $this->quizModel->getQuestions($quizId);
+        
+        $quiz['questions'] = $questions;
+        
         require_once __DIR__ . '/../views/admin/view_quiz.php';
     }
 
