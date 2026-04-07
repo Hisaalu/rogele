@@ -34,7 +34,7 @@ $newEndDate = $newEndDate ?? date('Y-m-d H:i:s');
         </div>
         
         <div style="display: flex; gap: 15px;">
-            <a href="<?php echo BASE_URL; ?>/external/dashboard" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; text-decoration: none; border-radius: 12px; font-weight: 600;">
+            <a href="<?php echo BASE_URL; ?>/external/dashboard" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #7f2677); color: white; text-decoration: none; border-radius: 12px; font-weight: 600;">
                 Go to Dashboard
             </a>
             <a href="<?php echo BASE_URL; ?>/external/materials" style="flex: 1; padding: 14px; background: #F1F5F9; color: black; text-decoration: none; border-radius: 12px; font-weight: 600;">

@@ -13,7 +13,6 @@ $dateTo = $_GET['date_to'] ?? '';
 ?>
 
 <div class="subscriptions-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <h1 class="page-title">
@@ -241,7 +240,6 @@ $dateTo = $_GET['date_to'] ?? '';
 </div>
 
 <style>
-/* Add your CSS styles here - similar to users management page but with subscription-specific styles */
 .subscriptions-container {
     max-width: 1400px;
     margin: 0 auto;

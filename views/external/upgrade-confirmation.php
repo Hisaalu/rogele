@@ -151,7 +151,7 @@ $priceCalculation = $priceCalculation ?? [];
             <div class="terms-section">
                 <label class="checkbox-label">
                     <input type="checkbox" name="terms" required>
-                    <span>I agree to the <a href="/terms">Terms of Service</a></span>
+                    <span>I agree to the <a href="<?php echo BASE_URL; ?>/terms-of-service" target="_blank">Terms of Service</a></span>
                 </label>
             </div>
 
@@ -189,7 +189,7 @@ $priceCalculation = $priceCalculation ?? [];
 .header-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -204,12 +204,12 @@ $priceCalculation = $priceCalculation ?? [];
 
 .card-header h1 {
     font-size: 2rem;
-    color: #1E293B;
+    color: black;
     margin-bottom: 10px;
 }
 
 .card-header p {
-    color: #64748B;
+    color: black;
 }
 
 .plan-comparison {
@@ -232,11 +232,11 @@ $priceCalculation = $priceCalculation ?? [];
 }
 
 .plan-card.current-plan {
-    border: 2px solid #94A3B8;
+    border: 2px solid #f06724;
 }
 
 .plan-card.new-plan {
-    border: 2px solid #8B5CF6;
+    border: 2px solid #f06724;
     background: linear-gradient(135deg, #F8FAFC, white);
 }
 
@@ -253,19 +253,19 @@ $priceCalculation = $priceCalculation ?? [];
 }
 
 .current-plan .plan-badge {
-    background: #94A3B8;
+    background: #f06724;
     color: white;
 }
 
 .new-plan .plan-badge {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
 }
 
 .plan-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -281,7 +281,7 @@ $priceCalculation = $priceCalculation ?? [];
 .plan-card h3 {
     font-size: 1.5rem;
     margin-bottom: 15px;
-    color: #1E293B;
+    color: black;
 }
 
 .plan-price {
@@ -291,7 +291,7 @@ $priceCalculation = $priceCalculation ?? [];
 .plan-price span {
     font-size: 2rem;
     font-weight: 800;
-    color: #1E293B;
+    color: black;
 }
 
 .plan-features {
@@ -318,7 +318,7 @@ $priceCalculation = $priceCalculation ?? [];
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: #8B5CF6;
+    color: #7f2677;
     font-size: 2rem;
 }
 
@@ -335,14 +335,14 @@ $priceCalculation = $priceCalculation ?? [];
 
 .price-breakdown h3 {
     margin-bottom: 20px;
-    color: #1E293B;
+    color: black;
 }
 
 .breakdown-item {
     display: flex;
     justify-content: space-between;
     margin-bottom: 15px;
-    color: #4A5568;
+    color: black;
 }
 
 .breakdown-item.total {
@@ -352,7 +352,7 @@ $priceCalculation = $priceCalculation ?? [];
 }
 
 .total-amount {
-    color: #8B5CF6;
+    color: #7f2677;
     font-size: 1.3rem;
 }
 
@@ -403,13 +403,13 @@ $priceCalculation = $priceCalculation ?? [];
 }
 
 .payment-method input:checked + .method-content {
-    border-color: #8B5CF6;
+    border-color: #f06724;
     background: #F8FAFC;
 }
 
 .method-content i {
     font-size: 1.5rem;
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .payment-details {
@@ -417,6 +417,13 @@ $priceCalculation = $priceCalculation ?? [];
     border-radius: 16px;
     padding: 20px;
     margin: 20px 0;
+}
+
+.payment-details .form-group input:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+    transition: all 0.3s ease;
 }
 
 .form-group {
@@ -476,7 +483,7 @@ $priceCalculation = $priceCalculation ?? [];
 }
 
 .btn-pay {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     color: white;
 }
 

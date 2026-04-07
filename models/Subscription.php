@@ -43,7 +43,6 @@ class Subscription {
             
             return ['success' => true, 'subscription_id' => $this->conn->lastInsertId()];
         } catch (PDOException $e) {
-            error_log("Subscription creation error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to create subscription'];
         }
     }
@@ -77,7 +76,6 @@ class Subscription {
             
             return $stmt->fetch();
         } catch (PDOException $e) {
-            error_log("Check status error: " . $e->getMessage());
             return null;
         }
     }
@@ -97,7 +95,6 @@ class Subscription {
             }
             return ['success' => false, 'error' => 'Failed to activate subscription'];
         } catch (PDOException $e) {
-            error_log("Activate subscription error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to activate subscription'];
         }
     }
@@ -114,7 +111,6 @@ class Subscription {
             }
             return ['success' => false, 'error' => 'Failed to cancel subscription'];
         } catch (PDOException $e) {
-            error_log("Cancel subscription error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to cancel subscription'];
         }
     }
@@ -134,7 +130,6 @@ class Subscription {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Payment history error: " . $e->getMessage());
             return [];
         }
     }
@@ -155,7 +150,6 @@ class Subscription {
             
             $params = [];
             
-            // Apply filters
             if (!empty($filters['status'])) {
                 $sql .= " AND s.status = :status";
                 $params[':status'] = $filters['status'];
@@ -171,17 +165,14 @@ class Subscription {
                 $params[':user_id'] = $filters['user_id'];
             }
             
-            // Order by most recent first
             $sql .= " ORDER BY s.created_at DESC";
             
-            // Add pagination
             if ($limit > 0) {
                 $sql .= " LIMIT :limit OFFSET :offset";
             }
             
             $stmt = $this->conn->prepare($sql);
             
-            // Bind parameters
             foreach ($params as $key => $value) {
                 if ($key == ':limit' || $key == ':offset') {
                     $stmt->bindValue($key, $value, PDO::PARAM_INT);
@@ -198,13 +189,10 @@ class Subscription {
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Debug log
-            error_log("getAllSubscriptions with user_id filter returned " . count($results) . " results");
             
             return $results;
             
         } catch (PDOException $e) {
-            error_log("Error getting all subscriptions: " . $e->getMessage());
             return [];
         }
     }
@@ -249,7 +237,6 @@ class Subscription {
             return $result ? (int)$result['total'] : 0;
             
         } catch (PDOException $e) {
-            error_log("Error counting subscriptions: " . $e->getMessage());
             return 0;
         }
     }
@@ -257,10 +244,8 @@ class Subscription {
     // Process payment
     public function processPayment($userId, $subscriptionId, $phoneNumber, $amount) {
         try {
-            // Generate transaction ID
             $transactionId = 'TXN_' . time() . '_' . uniqid();
             
-            // Create payment record
             $query = "INSERT INTO payments (user_id, subscription_id, amount, payment_method, phone_number, transaction_id, status, payment_date) 
                       VALUES (:user_id, :subscription_id, :amount, 'mobile_money', :phone_number, :transaction_id, 'completed', NOW())";
             
@@ -273,12 +258,10 @@ class Subscription {
                 ':transaction_id' => $transactionId
             ]);
             
-            // Activate subscription
             $this->activate($subscriptionId, $transactionId);
             
             return ['success' => true, 'transaction_id' => $transactionId];
         } catch (PDOException $e) {
-            error_log("Payment processing error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Payment processing failed'];
         }
     }
@@ -293,7 +276,6 @@ class Subscription {
             
             return ['success' => true, 'affected' => $stmt->rowCount()];
         } catch (PDOException $e) {
-            error_log("Expire subscriptions error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to expire subscriptions'];
         }
     }
@@ -328,7 +310,6 @@ class Subscription {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Revenue stats error: " . $e->getMessage());
             return [];
         }
     }
@@ -344,7 +325,6 @@ class Subscription {
             $result = $stmt->fetch();
             return $result['total'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get total revenue error: " . $e->getMessage());
             return 0;
         }
     }
@@ -360,7 +340,6 @@ class Subscription {
             $result = $stmt->fetch();
             return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get total subscriptions error: " . $e->getMessage());
             return 0;
         }
     }
@@ -372,32 +351,26 @@ class Subscription {
         try {
             $stats = [];
             
-            // Total active subscriptions
             $sql1 = "SELECT COUNT(*) as total FROM subscriptions WHERE status = 'active'";
             $stmt1 = $this->conn->query($sql1);
             $stats['active'] = $stmt1->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             
-            // Total expired subscriptions
             $sql2 = "SELECT COUNT(*) as total FROM subscriptions WHERE status = 'expired'";
             $stmt2 = $this->conn->query($sql2);
             $stats['expired'] = $stmt2->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             
-            // Total pending subscriptions
             $sql3 = "SELECT COUNT(*) as total FROM subscriptions WHERE status = 'pending'";
             $stmt3 = $this->conn->query($sql3);
             $stats['pending'] = $stmt3->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             
-            // Total cancelled
             $sql4 = "SELECT COUNT(*) as total FROM subscriptions WHERE status = 'cancelled'";
             $stmt4 = $this->conn->query($sql4);
             $stats['cancelled'] = $stmt4->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             
-            // Total revenue from all subscriptions
             $sql5 = "SELECT SUM(amount) as total FROM subscriptions WHERE status = 'active' OR status = 'expired'";
             $stmt5 = $this->conn->query($sql5);
             $stats['total_revenue'] = $stmt5->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             
-            // Revenue this month
             $sql6 = "SELECT SUM(amount) as total FROM subscriptions 
                     WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) 
                     AND YEAR(created_at) = YEAR(CURRENT_DATE())
@@ -405,7 +378,6 @@ class Subscription {
             $stmt6 = $this->conn->query($sql6);
             $stats['monthly_revenue'] = $stmt6->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             
-            // Plan distribution
             $sql7 = "SELECT plan_type, COUNT(*) as count, SUM(amount) as total 
                     FROM subscriptions 
                     WHERE status = 'active' 
@@ -413,7 +385,6 @@ class Subscription {
             $stmt7 = $this->conn->query($sql7);
             $stats['plan_distribution'] = $stmt7->fetchAll(PDO::FETCH_ASSOC);
             
-            // Recent subscriptions (last 30 days)
             $sql8 = "SELECT COUNT(*) as total FROM subscriptions 
                     WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
             $stmt8 = $this->conn->query($sql8);
@@ -422,7 +393,6 @@ class Subscription {
             return $stats;
             
         } catch (PDOException $e) {
-            error_log("Error getting subscription stats: " . $e->getMessage());
             return [];
         }
     }
@@ -449,7 +419,6 @@ class Subscription {
             return $stmt->fetch(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting subscription by ID: " . $e->getMessage());
             return null;
         }
     }
@@ -471,7 +440,6 @@ class Subscription {
             }
             
         } catch (PDOException $e) {
-            error_log("Error updating subscription status: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error'];
         }
     }
@@ -502,7 +470,6 @@ class Subscription {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting expiring subscriptions: " . $e->getMessage());
             return [];
         }
     }
@@ -524,7 +491,6 @@ class Subscription {
             
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error getting current subscription: " . $e->getMessage());
             return null;
         }
     }
@@ -534,7 +500,6 @@ class Subscription {
      */
     public function calculateUpgradePrice($currentPlan, $newPlan, $currentSubscription) {
         try {
-            // Get plan prices from settings
             $settingsModel = new Settings();
             $settings = $settingsModel->getSubscriptionSettings();
             
@@ -547,19 +512,15 @@ class Subscription {
             $currentPrice = $prices[$currentPlan] ?? 0;
             $newPrice = $prices[$newPlan] ?? 0;
             
-            // Calculate remaining days
             $endDate = new DateTime($currentSubscription['end_date']);
             $now = new DateTime();
             $daysRemaining = $now->diff($endDate)->days;
             
-            // Get total days for current plan
             $totalDays = $this->getPlanDays($currentPlan);
             
-            // Calculate remaining value (prorated)
             $dailyRate = $currentPrice / $totalDays;
             $remainingValue = $dailyRate * $daysRemaining;
             
-            // Price to pay = new plan price - remaining value
             $upgradePrice = max(0, $newPrice - $remainingValue);
             
             return [
@@ -574,7 +535,6 @@ class Subscription {
             ];
             
         } catch (Exception $e) {
-            error_log("Error calculating upgrade price: " . $e->getMessage());
             return [
                 'success' => false,
                 'error' => 'Failed to calculate upgrade price'
@@ -605,14 +565,12 @@ class Subscription {
         try {
             $this->conn->beginTransaction();
             
-            // Get current subscription
             $currentSubscription = $this->getCurrentSubscription($userId);
             
             if (!$currentSubscription) {
                 throw new Exception('No active subscription found');
             }
             
-            // Calculate upgrade price
             $settings = $this->getSubscriptionSettings();
             $prices = [
                 'monthly' => $settings['monthly_price'] ?? 15000,
@@ -622,17 +580,14 @@ class Subscription {
             
             $newPrice = $prices[$toPlan] ?? 0;
             
-            // Calculate new end date
             $planDays = $toPlan === 'monthly' ? 30 : ($toPlan === 'termly' ? 90 : 365);
             $newEndDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
             
-            // Update old subscription
             $updateSql = "UPDATE subscriptions SET status = 'expired' WHERE id = :id";
             $updateStmt = $this->conn->prepare($updateSql);
             $updateStmt->bindValue(':id', $currentSubscription['id'], PDO::PARAM_INT);
             $updateStmt->execute();
             
-            // Create new subscription
             $insertSql = "INSERT INTO subscriptions (
                             user_id, plan_type, amount, start_date, end_date, 
                             status, payment_method, transaction_id, is_upgrade, 
@@ -667,7 +622,6 @@ class Subscription {
             
         } catch (Exception $e) {
             $this->conn->rollBack();
-            error_log("Error upgrading subscription: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -679,14 +633,11 @@ class Subscription {
         $endDate = new DateTime($currentEndDate);
         $now = new DateTime();
         
-        // Get days for new plan
         $planDays = $this->getPlanDays($newPlan);
         
-        // If current end date is in the future, add plan days to current end date
         if ($endDate > $now) {
             $endDate->modify("+{$planDays} days");
         } else {
-            // If expired, start from now
             $endDate = $now->modify("+{$planDays} days");
         }
         
@@ -698,7 +649,6 @@ class Subscription {
      */
     private function recordUpgradePayment($userId, $fromPlan, $toPlan, $amount, $paymentDetails, $subscriptionId) {
         try {
-            // First, check if payment_history table exists and get its structure
             $checkTable = $this->conn->query("SHOW TABLES LIKE 'payment_history'");
             if ($checkTable->rowCount() == 0) {
                 error_log("Payment history table does not exist");
@@ -752,7 +702,6 @@ class Subscription {
             return $result;
             
         } catch (PDOException $e) {
-            error_log("Error recording upgrade payment: " . $e->getMessage());
             return false;
         }
     }
@@ -773,7 +722,6 @@ class Subscription {
             
             return $settings;
         } catch (PDOException $e) {
-            error_log("Error getting subscription settings: " . $e->getMessage());
             return [];
         }
     }
@@ -793,7 +741,6 @@ class Subscription {
             
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error getting user subscription history: " . $e->getMessage());
             return [];
         }
     }
@@ -810,7 +757,6 @@ class Subscription {
             
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error getting upgrade details: " . $e->getMessage());
             return null;
         }
     }
@@ -833,14 +779,11 @@ class Subscription {
             
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Debug log
-            error_log("getPaymentForSubscription for ID $subscriptionId returned " . count($results) . " records");
             
-            return $results; // Always return an array
+            return $results;
             
         } catch (PDOException $e) {
-            error_log("Error getting payment details: " . $e->getMessage());
-            return []; // Return empty array on error
+            return []; 
         }
     }
 
@@ -864,7 +807,6 @@ class Subscription {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting payment history: " . $e->getMessage());
             return [];
         }
     }
@@ -874,7 +816,6 @@ class Subscription {
      */
     public function getCombinedHistory($userId) {
         try {
-            // Get subscriptions
             $subSql = "SELECT 
                         id,
                         plan_type,
@@ -894,7 +835,6 @@ class Subscription {
             $subStmt->execute();
             $subscriptions = $subStmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Get payment history
             $paySql = "SELECT 
                         id,
                         COALESCE(to_plan, 'subscription') as plan_type,
@@ -912,7 +852,6 @@ class Subscription {
             $payStmt->execute();
             $payments = $payStmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Merge and sort by date
             $history = array_merge($subscriptions, $payments);
             usort($history, function($a, $b) {
                 return strtotime($b['created_at']) - strtotime($a['created_at']);
@@ -921,7 +860,6 @@ class Subscription {
             return $history;
             
         } catch (PDOException $e) {
-            error_log("Error getting combined history: " . $e->getMessage());
             return [];
         }
     }
@@ -938,10 +876,8 @@ class Subscription {
      */
     public function createPendingPayment($userId, $planType, $amount, $paymentMethod, $phoneNumber = null) {
         try {
-            // Generate unique transaction ID
             $transactionId = 'TXN_' . time() . '_' . $userId . '_' . rand(100, 999);
             
-            // First, get or create subscription record
             $subscriptionId = $this->getOrCreatePendingSubscription($userId, $planType, $amount);
             
             if (!$subscriptionId) {
@@ -980,7 +916,6 @@ class Subscription {
             
             if ($stmt->execute()) {
                 $paymentId = $this->conn->lastInsertId();
-                error_log("Payment record created successfully: ID=$paymentId, Transaction=$transactionId");
                 
                 return [
                     'success' => true,
@@ -990,12 +925,10 @@ class Subscription {
                 ];
             } else {
                 $error = $stmt->errorInfo();
-                error_log("Failed to create payment record: " . print_r($error, true));
                 return ['success' => false, 'error' => 'Failed to create payment record: ' . $error[2]];
             }
             
         } catch (PDOException $e) {
-            error_log("Error creating pending payment: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
@@ -1005,7 +938,6 @@ class Subscription {
      */
     private function getOrCreatePendingSubscription($userId, $planType, $amount) {
         try {
-            // Check if there's already a pending subscription
             $sql = "SELECT id FROM subscriptions 
                     WHERE user_id = :user_id 
                     AND status = 'pending' 
@@ -1020,11 +952,9 @@ class Subscription {
                 return $existing['id'];
             }
             
-            // Calculate end date based on plan
             $planDays = $this->getPlanDays($planType);
             $endDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
             
-            // Create new pending subscription
             $sql = "INSERT INTO subscriptions (
                         user_id,
                         plan_type,
@@ -1053,7 +983,6 @@ class Subscription {
             return $this->conn->lastInsertId();
             
         } catch (PDOException $e) {
-            error_log("Error creating pending subscription: " . $e->getMessage());
             return false;
         }
     }
@@ -1076,7 +1005,6 @@ class Subscription {
             $stmt->bindValue(':transaction_id', $transactionId);
             $stmt->execute();
             
-            // If payment is completed, update the associated subscription
             if ($status == 'completed') {
                 $this->activateSubscriptionForPayment($transactionId);
             }
@@ -1084,7 +1012,6 @@ class Subscription {
             return ['success' => true];
             
         } catch (PDOException $e) {
-            error_log("Error updating payment status: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -1094,7 +1021,6 @@ class Subscription {
      */
     private function activateSubscriptionForPayment($transactionId) {
         try {
-            // Get payment details
             $sql = "SELECT user_id, subscription_id FROM payments WHERE transaction_id = :transaction_id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':transaction_id', $transactionId);
@@ -1102,7 +1028,6 @@ class Subscription {
             $payment = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($payment && $payment['subscription_id']) {
-                // Activate the subscription
                 $sql = "UPDATE subscriptions 
                         SET status = 'active' 
                         WHERE id = :subscription_id";
@@ -1110,7 +1035,6 @@ class Subscription {
                 $stmt->bindValue(':subscription_id', $payment['subscription_id'], PDO::PARAM_INT);
                 $stmt->execute();
                 
-                error_log("Subscription activated: " . $payment['subscription_id']);
             }
             
         } catch (PDOException $e) {
@@ -1131,7 +1055,6 @@ class Subscription {
             return $stmt->fetch(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting payment by reference: " . $e->getMessage());
             return null;
         }
     }
@@ -1143,14 +1066,11 @@ class Subscription {
         try {
             $this->conn->beginTransaction();
             
-            // Get current subscription
             $currentSubscription = $this->getCurrentSubscription($userId);
             
-            // Calculate end date
             $planDays = $this->getPlanDays($planType);
             $endDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
             
-            // Create new subscription
             $sql = "INSERT INTO subscriptions (
                         user_id,
                         plan_type,
@@ -1187,7 +1107,6 @@ class Subscription {
             
             $newSubscriptionId = $this->conn->lastInsertId();
             
-            // If there was a previous subscription, mark it as expired
             if ($currentSubscription) {
                 $updateSql = "UPDATE subscriptions SET status = 'expired' WHERE id = :id";
                 $updateStmt = $this->conn->prepare($updateSql);
@@ -1205,7 +1124,6 @@ class Subscription {
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("Error creating subscription: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -1222,7 +1140,6 @@ class Subscription {
             
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error getting payment by ID: " . $e->getMessage());
             return null;
         }
     }
