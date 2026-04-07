@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/subscriptions/view.php
-$pageTitle = 'Subscription Details - Admin - Rays of Grace';
+$pageTitle = 'Subscription Details | ROGELE';
 require_once __DIR__ . '/../../layouts/header.php';
 
 // Get data from controller
@@ -347,14 +347,14 @@ $paymentHistory = $paymentHistory ?? [];
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #f06724);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
