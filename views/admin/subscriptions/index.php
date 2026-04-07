@@ -1,6 +1,6 @@
 <?php
 // File: /views/admin/subscriptions/index.php
-$pageTitle = 'Manage Subscriptions - Admin - Rays of Grace';
+$pageTitle = 'Subscriptions | ROGELE';
 require_once __DIR__ . '/../../layouts/header.php';
 
 // Get parameters
@@ -218,20 +218,20 @@ $dateTo = $_GET['date_to'] ?? '';
         <?php if (!empty($subscriptions) && $totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-                <a href="?page=<?php echo $page - 1; ?>&status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" class="page-link">
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?page=<?php echo $page - 1; ?>&status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" class="page-link">
                     <i class="fas fa-chevron-left"></i>
                 </a>
             <?php endif; ?>
 
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="?page=<?php echo $i; ?>&status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" 
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?page=<?php echo $i; ?>&status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" 
                    class="page-link <?php echo $i == $page ? 'active' : ''; ?>">
                     <?php echo $i; ?>
                 </a>
             <?php endfor; ?>
 
             <?php if ($page < $totalPages): ?>
-                <a href="?page=<?php echo $page + 1; ?>&status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" class="page-link">
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?page=<?php echo $page + 1; ?>&status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" class="page-link">
                     <i class="fas fa-chevron-right"></i>
                 </a>
             <?php endif; ?>
@@ -260,7 +260,7 @@ $dateTo = $_GET['date_to'] ?? '';
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -270,7 +270,7 @@ $dateTo = $_GET['date_to'] ?? '';
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
@@ -291,12 +291,12 @@ $dateTo = $_GET['date_to'] ?? '';
 }
 
 .btn-export {
-    background: #10B981;
+    background: #f06724;
     color: white;
 }
 
 .btn-reports {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
 }
 
@@ -412,14 +412,14 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .search-box input:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #f06724;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
 .filter-group select,
 .filter-group input[type="date"] {
     padding: 12px 20px;
-    border: 2px solid #E2E8F0;
+    border: 2px solid #f06724;
     border-radius: 12px;
     font-size: 0.95rem;
     background: white;
@@ -438,7 +438,7 @@ $dateTo = $_GET['date_to'] ?? '';
 }
 
 .btn-filter {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     border: none;
     padding: 12px 25px;
@@ -449,12 +449,13 @@ $dateTo = $_GET['date_to'] ?? '';
 }
 
 .btn-filter:hover {
-    background: #7C3AED;
+    background: #f06724;
     transform: translateY(-2px);
 }
 
 .btn-reset {
-    color: #64748B;
+    color: white;
+    background: #7f2677;
     text-decoration: none;
     padding: 12px 20px;
     border-radius: 12px;
@@ -462,8 +463,8 @@ $dateTo = $_GET['date_to'] ?? '';
 }
 
 .btn-reset:hover {
-    background: #F1F5F9;
-    color: #1E293B;
+    background: #f06724;
+    color: white;
 }
 
 /* Table */
@@ -485,7 +486,7 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .data-table th {
     background: #F8FAFC;
-    color: #1E293B;
+    color: black;
     font-weight: 600;
     font-size: 0.9rem;
     text-transform: uppercase;
@@ -612,11 +613,11 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .action-btn.view {
     background: #EFF6FF;
-    color: #2563EB;
+    color: #7f2677;
 }
 
 .action-btn.view:hover {
-    background: #2563EB;
+    background: #f06724;
     color: white;
 }
 
