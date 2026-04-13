@@ -1,9 +1,8 @@
 <?php
-//views/external/take_quiz.php
+// File: /views/external/take_quiz.php
 $pageTitle = $quiz['title'] . ' | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Make sure questions exist
 if (empty($questions)) {
     echo '<div style="text-align: center; padding: 50px;">
             <h2>No Questions Found</h2>
@@ -14,13 +13,25 @@ if (empty($questions)) {
     exit;
 }
 
-// Get time limit in seconds
 $timeLimitSeconds = isset($quiz['time_limit']) && $quiz['time_limit'] > 0 ? $quiz['time_limit'] * 60 : 0;
 $quizId = $quiz['id'];
 $attemptIdValue = $attemptId;
 ?>
 
 <div class="quiz-take-container">
+    <div class="sticky-timer-bar" id="stickyTimerBar">
+        <div class="sticky-timer-content">
+            <div class="sticky-timer-info">
+                <i class="fas fa-hourglass-half"></i>
+                <span id="stickyTimerDisplay">Loading...</span>
+            </div>
+            <div class="sticky-progress-info">
+                <i class="fas fa-check-circle"></i>
+                <span id="stickyAnsweredCount">0</span> of <?php echo count($questions); ?> Answered
+            </div>
+        </div>
+    </div>
+
     <div class="quiz-header">
         <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
         
@@ -28,7 +39,7 @@ $attemptIdValue = $attemptId;
             <i class="fas fa-exclamation-triangle"></i>
             <div>
                 <strong>⚠️ Important Notice:</strong>
-                <p>You can only take this quiz once. Do NOT refresh the page, close the browser, or use the back button. Your progress will be saved automatically as you answer.</p>
+                <p>Do NOT refresh the page, close the browser, or use the back button.</p>
             </div>
         </div>
         
@@ -97,23 +108,83 @@ $attemptIdValue = $attemptId;
 </div>
 
 <style>
-/* Your existing CSS styles remain the same */
 .quiz-take-container {
     max-width: 900px;
     margin: 40px auto;
     padding: 0 20px;
 }
+
+.sticky-timer-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #7f2677);
+    color: white;
+    padding: 12px 20px;
+    z-index: 1000;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.sticky-timer-bar.visible {
+    transform: translateY(0);
+}
+
+.sticky-timer-content {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.sticky-timer-info, .sticky-progress-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.sticky-timer-info i, .sticky-progress-info i {
+    font-size: 1.2rem;
+}
+
+#stickyTimerDisplay, #stickyAnsweredCount {
+    font-family: monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 30px;
+}
+
 .quiz-header {
     background: white;
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 20px;
+    z-index: 99;
+    transition: all 0.3s ease;
 }
+
+.quiz-header.sticky-scrolled {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    background: rgba(255, 255, 255, 0.98);
+}
+
 .quiz-header h1 {
     color: black;
     margin-bottom: 20px;
 }
+
 .quiz-warning {
     background: #FEF3C7;
     border-left: 4px solid #f06724;
@@ -123,20 +194,24 @@ $attemptIdValue = $attemptId;
     display: flex;
     gap: 12px;
 }
+
 .quiz-warning i {
     font-size: 1.2rem;
     color: #f06724;
 }
+
 .quiz-warning strong {
     color: #f06724;
     display: block;
     margin-bottom: 5px;
 }
+
 .quiz-warning p {
     color: #f06724;
     font-size: 0.85rem;
     margin: 0;
 }
+
 .quiz-stats {
     display: flex;
     gap: 30px;
@@ -144,27 +219,39 @@ $attemptIdValue = $attemptId;
     border-top: 1px solid #E2E8F0;
     flex-wrap: wrap;
 }
+
 .stat {
     display: flex;
     align-items: center;
     gap: 8px;
     color: black;
+    background: #F8FAFC;
+    padding: 8px 16px;
+    border-radius: 50px;
 }
+
 .stat i {
     color: #f06724;
 }
+
 #timerDisplay {
     font-weight: 700;
     font-family: monospace;
-    font-size: 1.1rem;
-    color: black;
+    font-size: 1.2rem;
+    color: #f06724;
+    background: white;
+    padding: 4px 12px;
+    border-radius: 30px;
+    margin-left: 5px;
 }
+
 .questions-list {
     display: flex;
     flex-direction: column;
     gap: 20px;
     margin-bottom: 30px;
 }
+
 .question-item {
     background: white;
     border-radius: 16px;
@@ -172,9 +259,11 @@ $attemptIdValue = $attemptId;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
 }
+
 .question-item.answered {
     border-left: 4px solid #7f2677;
 }
+
 .question-number {
     font-size: 0.75rem;
     color: black;
@@ -183,17 +272,20 @@ $attemptIdValue = $attemptId;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
+
 .question-text {
     font-size: 1.1rem;
     font-weight: 600;
     color: black;
     margin-bottom: 20px;
 }
+
 .options {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
+
 .option {
     display: flex;
     align-items: center;
@@ -205,13 +297,16 @@ $attemptIdValue = $attemptId;
     transition: all 0.3s ease;
     border: 2px solid transparent;
 }
+
 .option:hover {
     background: #F1F5F9;
     transform: translateX(5px);
 }
+
 .option input[type="radio"] {
     display: none;
 }
+
 .option-letter {
     width: 30px;
     height: 30px;
@@ -225,15 +320,18 @@ $attemptIdValue = $attemptId;
     color: black;
     transition: all 0.3s ease;
 }
+
 .option input[type="radio"]:checked + .option-letter {
     background: #f06724;
     border-color: #7f2677;
     color: white;
 }
+
 .option-text {
     flex: 1;
     color: black;
 }
+
 .quiz-footer {
     position: sticky;
     bottom: 20px;
@@ -242,7 +340,11 @@ $attemptIdValue = $attemptId;
     align-items: center;
     gap: 20px;
     flex-wrap: wrap;
+    z-index: 98;
+    background: transparent;
+    margin-top: 20px;
 }
+
 .timer-warning {
     background: #FEF2F2;
     border: 1px solid #EF4444;
@@ -256,11 +358,13 @@ $attemptIdValue = $attemptId;
     gap: 8px;
     animation: pulse 1s infinite;
 }
+
 @keyframes pulse {
     0% { opacity: 1; }
     50% { opacity: 0.7; }
     100% { opacity: 1; }
 }
+
 .btn-submit {
     background: linear-gradient(135deg, #7f2677);
     color: white;
@@ -276,37 +380,123 @@ $attemptIdValue = $attemptId;
     gap: 10px;
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
 }
+
 .btn-submit:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4);
 }
+
 .btn-submit:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
 @media (max-width: 768px) {
-    .quiz-header { padding: 20px; }
+    .quiz-header { padding: 20px; top: 10px; }
     .quiz-footer { position: static; margin-top: 20px; }
     .quiz-stats { gap: 15px; }
+    .sticky-timer-content { justify-content: center; }
+    .sticky-timer-info, .sticky-progress-info { font-size: 0.85rem; }
+    #stickyTimerDisplay, #stickyAnsweredCount { font-size: 1rem; padding: 2px 8px; }
 }
 </style>
 
 <script>
-// ============================================
-// QUIZ STATE - Using localStorage for persistence
-// ============================================
 const QUIZ_STORAGE_KEY = 'quiz_state_' + <?php echo $quizId; ?> + '_' + <?php echo $attemptId; ?>;
+const TIME_STORAGE_KEY = 'quiz_time_left_' + <?php echo $quizId; ?> + '_' + <?php echo $attemptId; ?>;
 const TOTAL_QUESTIONS = <?php echo count($questions); ?>;
 const TIME_LIMIT_SECONDS = <?php echo $timeLimitSeconds; ?>;
-const QUIZ_START_TIME = 'quiz_start_time_' + <?php echo $quizId; ?>;
 
-// Load saved answers from localStorage
-function loadSavedAnswers() {
+const stickyTimerBar = document.getElementById('stickyTimerBar');
+const stickyTimerDisplay = document.getElementById('stickyTimerDisplay');
+const stickyAnsweredCount = document.getElementById('stickyAnsweredCount');
+const quizHeader = document.querySelector('.quiz-header');
+
+let timerInterval = null;
+let formSubmitted = false;
+let timeLeft = TIME_LIMIT_SECONDS;
+let isTimerRunning = false;
+
+const timerDisplay = document.getElementById('timerDisplay');
+const timerWarning = document.getElementById('timerWarning');
+const answeredCountSpan = document.getElementById('answeredCount');
+const submitBtn = document.getElementById('submitBtn');
+const radioButtons = document.querySelectorAll('input[type="radio"]');
+const quizForm = document.getElementById('quizForm');
+
+function formatTime(seconds) {
+    if (seconds < 0) seconds = 0;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function updateTimerDisplay() {
+    if (timerDisplay) {
+        timerDisplay.textContent = formatTime(timeLeft);
+    }
+    if (stickyTimerDisplay) {
+        stickyTimerDisplay.textContent = formatTime(timeLeft);
+    }
+    
+    if (timeLeft <= 60 && timeLeft > 0 && timerWarning) {
+        timerWarning.style.display = 'flex';
+    } else if (timerWarning && timeLeft > 60) {
+        timerWarning.style.display = 'none';
+    }
+    
+    localStorage.setItem(TIME_STORAGE_KEY, timeLeft);
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isTimerRunning = false;
+    }
+}
+
+function startTimer() {
+    if (isTimerRunning || TIME_LIMIT_SECONDS <= 0 || timeLeft <= 0) {
+        if (timeLeft <= 0 && timerDisplay) {
+            timerDisplay.textContent = 'Time\'s Up!';
+        }
+        return;
+    }
+    
+    console.log("Starting timer with " + timeLeft + " seconds");
+    isTimerRunning = true;
+    updateTimerDisplay();
+    
+    timerInterval = setInterval(() => {
+        if (!formSubmitted && timeLeft > 0) {
+            timeLeft--;
+            updateTimerDisplay();
+            
+            if (timeLeft === 0) {
+                stopTimer();
+                autoSubmit();
+            }
+        } else if (timeLeft <= 0) {
+            stopTimer();
+        }
+    }, 1000);
+}
+
+function autoSubmit() {
+    if (!formSubmitted && timeLeft <= 0) {
+        console.log("Auto-submitting quiz...");
+        formSubmitted = true;
+        alert('⏰ Time is up! Your quiz will be submitted automatically.');
+        if (quizForm) quizForm.submit();
+    }
+}
+
+function loadSavedState() {
     const savedState = localStorage.getItem(QUIZ_STORAGE_KEY);
     if (savedState) {
         try {
             const answers = JSON.parse(savedState);
-            // Restore radio button selections
             for (const [questionId, value] of Object.entries(answers)) {
                 const radio = document.querySelector(`input[name="answers[${questionId}]"][value="${value}"]`);
                 if (radio) {
@@ -318,13 +508,20 @@ function loadSavedAnswers() {
             console.error('Error loading saved answers:', e);
         }
     }
+    
+    const savedTime = localStorage.getItem(TIME_STORAGE_KEY);
+    if (savedTime !== null && !isNaN(parseInt(savedTime))) {
+        timeLeft = parseInt(savedTime);
+        console.log("Loaded saved time: " + timeLeft + " seconds");
+    }
+    
+    updateTimerDisplay();
 }
 
-// Save answers to localStorage
 function saveAnswers() {
-    const radioButtons = document.querySelectorAll('input[type="radio"]:checked');
+    const radioButtonsChecked = document.querySelectorAll('input[type="radio"]:checked');
     const answers = {};
-    radioButtons.forEach(radio => {
+    radioButtonsChecked.forEach(radio => {
         const name = radio.name;
         const questionId = name.match(/\d+/)[0];
         answers[questionId] = radio.value;
@@ -332,119 +529,60 @@ function saveAnswers() {
     localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(answers));
 }
 
-// ============================================
-// TIMER - FIXED VERSION
-// ============================================
-let timeLeft = TIME_LIMIT_SECONDS;
-let timerInterval = null;
-let formSubmitted = false;
-const timerDisplay = document.getElementById('timerDisplay');
-const timerWarning = document.getElementById('timerWarning');
-
-// Debug: Log the time limit
-console.log("TIME_LIMIT_SECONDS: " + TIME_LIMIT_SECONDS);
-
-// If no time limit, show message and enable submit
-if (TIME_LIMIT_SECONDS <= 0) {
-    if (timerDisplay) timerDisplay.textContent = 'No time limit';
-    // Enable submit button immediately if all questions are answered
-    const submitBtn = document.getElementById('submitBtn');
-    if (submitBtn && document.querySelectorAll('input[type="radio"]:checked').length === TOTAL_QUESTIONS) {
-        submitBtn.disabled = false;
+function updateProgress() {
+    const answered = new Set();
+    radioButtons.forEach(radio => {
+        if (radio.checked) {
+            const name = radio.name;
+            answered.add(name);
+            const questionId = name.match(/\d+/)[0];
+            const item = document.querySelector(`.question-item[data-question-id="${questionId}"]`);
+            if (item) item.classList.add('answered');
+        }
+    });
+    
+    const count = answered.size;
+    if (answeredCountSpan) answeredCountSpan.textContent = count;
+    if (stickyAnsweredCount) stickyAnsweredCount.textContent = count;
+    
+    if (submitBtn) {
+        submitBtn.disabled = count !== TOTAL_QUESTIONS;
     }
-} else {
-    // Start the timer only if there's a time limit
-    startTimer();
+    saveAnswers();
 }
 
-function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
-
-function updateTimerDisplay() {
-    if (timerDisplay && timeLeft >= 0) {
-        if (timeLeft > 0) {
-            timerDisplay.textContent = formatTime(timeLeft);
+function checkScrollPosition() {
+    if (!stickyTimerBar) return;
+    
+    const scrollPosition = window.scrollY;
+    
+    if (scrollPosition > 100) {
+        stickyTimerBar.classList.add('visible');
+    } else {
+        stickyTimerBar.classList.remove('visible');
+    }
+    
+    if (quizHeader) {
+        if (scrollPosition > 50) {
+            quizHeader.classList.add('sticky-scrolled');
         } else {
-            timerDisplay.textContent = 'Time\'s Up!';
+            quizHeader.classList.remove('sticky-scrolled');
         }
     }
 }
 
-function autoSubmit() {
-    if (!formSubmitted && timeLeft <= 0) {
-        console.log("Auto-submitting quiz...");
-        formSubmitted = true;
-        alert('⏰ Time is up! Your quiz will be submitted automatically.');
-        document.getElementById('quizForm').submit();
-    }
-}
-
-function startTimer() {
-    // Don't start if no time limit
-    if (TIME_LIMIT_SECONDS <= 0) return;
-    
-    console.log("Starting timer with " + timeLeft + " seconds");
-    updateTimerDisplay();
-    
-    // Show warning if less than 1 minute
-    if (timeLeft <= 60 && timerWarning) {
-        timerWarning.style.display = 'flex';
-    }
-    
-    timerInterval = setInterval(() => {
-        if (!formSubmitted && timeLeft > 0) {
-            timeLeft--;
-            updateTimerDisplay();
-            
-            // Show warning when less than 1 minute remaining
-            if (timeLeft <= 60 && timeLeft > 0 && timerWarning) {
-                timerWarning.style.display = 'flex';
-            } else if (timerWarning && timeLeft > 60) {
-                timerWarning.style.display = 'none';
-            }
-            
-            // Auto-submit when time reaches 0
-            if (timeLeft === 0) {
-                clearInterval(timerInterval);
-                autoSubmit();
-            }
-        }
-    }, 1000);
-}
-
-// Reset timer function (for debugging)
-function resetTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    timeLeft = TIME_LIMIT_SECONDS;
-    updateTimerDisplay();
-    startTimer();
-}
-
-// ============================================
-// PREVENT BACK NAVIGATION
-// ============================================
-// Push a new state to prevent going back
 history.pushState(null, null, location.href);
 window.addEventListener('popstate', function(event) {
     if (confirm('⚠️ WARNING: If you go back, you will lose your progress and cannot retake this quiz!\n\nDo you want to continue?')) {
-        // Clear storage and redirect
         localStorage.removeItem(QUIZ_STORAGE_KEY);
-        localStorage.removeItem(QUIZ_START_TIME);
+        localStorage.removeItem(TIME_STORAGE_KEY);
         window.location.href = '<?php echo BASE_URL; ?>/external/quizzes';
     } else {
-        // Push state again to prevent going back
         history.pushState(null, null, location.href);
     }
 });
 
-// ============================================
-// PREVENT REFRESH
-// ============================================
 window.addEventListener('beforeunload', function (e) {
-    const submitBtn = document.getElementById('submitBtn');
     if (!formSubmitted && submitBtn && !submitBtn.disabled) {
         e.preventDefault();
         e.returnValue = '⚠️ If you refresh, you will lose your progress and cannot retake this quiz! Are you sure?';
@@ -452,85 +590,44 @@ window.addEventListener('beforeunload', function (e) {
     }
 });
 
-// ============================================
-// TRACK ANSWERED QUESTIONS
-// ============================================
-const answeredCountSpan = document.getElementById('answeredCount');
-const submitBtn = document.getElementById('submitBtn');
-const radioButtons = document.querySelectorAll('input[type="radio"]');
-const questionItems = document.querySelectorAll('.question-item');
+loadSavedState();
 
-function updateProgress() {
-    const answered = new Set();
-    radioButtons.forEach(radio => {
-        if (radio.checked) {
-            const name = radio.name;
-            answered.add(name);
-            
-            // Highlight answered question
-            const questionId = name.match(/\d+/)[0];
-            const item = document.querySelector(`.question-item[data-question-id="${questionId}"]`);
-            if (item) item.classList.add('answered');
-        }
-    });
-    const count = answered.size;
-    if (answeredCountSpan) answeredCountSpan.textContent = count;
-    
-    // Enable submit when all questions are answered
-    if (submitBtn) {
-        if (count === TOTAL_QUESTIONS) {
-            submitBtn.disabled = false;
-        } else {
-            submitBtn.disabled = true;
-        }
-    }
-    
-    // Save answers to localStorage
-    saveAnswers();
-}
-
-// ============================================
-// INITIALIZE
-// ============================================
 if (radioButtons.length > 0) {
     radioButtons.forEach(radio => {
         radio.addEventListener('change', updateProgress);
     });
-    
-    // Load saved answers from localStorage
-    loadSavedAnswers();
-    
-    // Initial update
-    updateProgress();
 }
 
-// Start the timer
-startTimer();
+updateProgress();
 
-// Mark form as submitted and clear storage on submit
-const quizForm = document.getElementById('quizForm');
+if (TIME_LIMIT_SECONDS > 0 && timeLeft > 0) {
+    startTimer();
+} else if (TIME_LIMIT_SECONDS <= 0 && timerDisplay) {
+    timerDisplay.textContent = 'No time limit';
+    if (stickyTimerDisplay) stickyTimerDisplay.textContent = 'No time limit';
+} else if (timeLeft <= 0 && timerDisplay) {
+    timerDisplay.textContent = 'Time\'s Up!';
+    if (stickyTimerDisplay) stickyTimerDisplay.textContent = 'Time\'s Up!';
+}
+
+window.addEventListener('scroll', checkScrollPosition);
+window.addEventListener('resize', checkScrollPosition);
+checkScrollPosition();
+
 if (quizForm) {
     quizForm.addEventListener('submit', function() {
         formSubmitted = true;
-        if (timerInterval) {
-            clearInterval(timerInterval);
-        }
-        // Clear storage
+        stopTimer();
         localStorage.removeItem(QUIZ_STORAGE_KEY);
-        localStorage.removeItem(QUIZ_START_TIME);
+        localStorage.removeItem(TIME_STORAGE_KEY);
     });
 }
 
-// ============================================
-// ANTI-CHEAT MEASURES
-// ============================================
-// Block right-click
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     return false;
 });
 
-// Block copy-paste
 document.addEventListener('copy', function(e) {
     e.preventDefault();
     return false;
@@ -541,14 +638,12 @@ document.addEventListener('paste', function(e) {
     return false;
 });
 
-// Warn about tab switching
 document.addEventListener('visibilitychange', function() {
-    if (document.hidden && !formSubmitted) {
+    if (document.hidden && !formSubmitted && timeLeft > 0 && timeLeft < TIME_LIMIT_SECONDS) {
         alert('⚠️ Please do not switch tabs during the quiz. Your attempt may be invalidated.');
     }
 });
 
-// Block keyboard shortcuts (Ctrl+R, Ctrl+Shift+R, F5)
 document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey && (e.key === 'r' || e.key === 'R')) || 
         (e.ctrlKey && e.shiftKey && (e.key === 'r' || e.key === 'R')) ||
@@ -558,7 +653,6 @@ document.addEventListener('keydown', function(e) {
         return false;
     }
     
-    // Block backspace
     if (e.key === 'Backspace') {
         const target = e.target;
         if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
@@ -569,13 +663,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-document.getElementById('quizForm').addEventListener('submit', function(e) {
-    var formData = new FormData(this);
-    console.log("Form submission data:");
-    for (var pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-    }
-});
+console.log("Quiz initialized. Time left: " + timeLeft + " seconds");
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
