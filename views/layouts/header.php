@@ -82,7 +82,7 @@
 
         .logo-icon {
             width: 45px;
-            height: 45px;
+            height: auto;
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -93,7 +93,7 @@
 
         .logo-icon img {
             width: 100%;
-            height: 100%;
+            height: auto;
             object-fit: cover;
         }
 

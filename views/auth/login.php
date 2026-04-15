@@ -62,7 +62,7 @@ $pageTitle = 'Login | ROGELE';
 
     .logo {
         width: 100px;
-        height: 100px;
+        height: auto;
         margin: 0 auto 16px;
         display: flex;
         align-items: center;
@@ -73,7 +73,7 @@ $pageTitle = 'Login | ROGELE';
 
     .logo img {
         width: 100%;
-        height: 100%;
+        height: auto;
         object-fit: cover;
     }
 
@@ -260,6 +260,8 @@ $pageTitle = 'Login | ROGELE';
         position: relative;
         color: transparent;
         pointer-events: none;
+        min-height: 40px;
+        padding: 12px 24px;
     }
 
     .btn-login.loading::after {
