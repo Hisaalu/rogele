@@ -1,5 +1,5 @@
-<!-- File: /controllers/AuthController.php -->
 <?php
+// File: /controllers/AuthController.php
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../helpers/MailHelper.php';
 

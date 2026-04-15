@@ -60,7 +60,7 @@ $pageTitle = 'Forgot Password | ROGELE';
 
         .logo {
             width: 100px;
-            height: 100px;
+            height: auto;
             margin: 0 auto 16px;
             display: flex;
             align-items: center;
@@ -69,7 +69,7 @@ $pageTitle = 'Forgot Password | ROGELE';
 
         .logo img {
             width: 100%;
-            height: 100%;
+            height: auto;
             object-fit: contain;
         }
 
