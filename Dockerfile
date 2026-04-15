@@ -1,28 +1,38 @@
-# syntax=docker/dockerfile:1
+FROM php:8.2-apache
 
-FROM composer:lts AS deps
-WORKDIR /app
-RUN --mount=type=bind,source=composer.json,target=composer.json \
-    --mount=type=cache,target=/tmp/cache \
-    composer install --no-dev --no-interaction
+RUN apt-get update && apt-get install -y \
+    libmariadb-dev \
+    libzip-dev \
+    unzip \
+    git \
+    curl \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+    mysqli \
+    pdo \
+    pdo_mysql \
+    zip \
+    gd
 
-# Base image
-FROM php:8.0.30-apache
-
-#Installing the pdo and pdo_mysql extensions
-RUN docker-php-ext-install pdo pdo_mysql
-
-# Enable Apache modules
 RUN a2enmod rewrite
 
-# Use the default production configuration for PHP runtime arguments, see
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+WORKDIR /var/www/html
 
-COPY --from=deps app/vendor/ /var/www/html/vendor
+COPY . /var/www/html/
 
-# Copy app files from the app directory.
-COPY . /var/www/html
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage 2>/dev/null || true \
+    && chmod -R 755 /var/www/html/logs 2>/dev/null || true
 
-# Switch to a non-privileged user (defined in the base image) that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
-USER www-data
+RUN echo '<Directory /var/www/html/>\n\
+    Options Indexes FollowSymLinks\n\
+    AllowOverride All\n\
+    Require all granted\n\
+</Directory>' >> /etc/apache2/apache2.conf
+
+EXPOSE 80
+
+CMD ["apache2-foreground"]

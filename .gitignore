@@ -1,10 +1,7 @@
-# color themes
-# red - #e21414
-# orange - #f06724
-# purple - #7f2677
-
 # Environment files
 .env
+.env.local
+.env.production
 
 # database files
 /database
