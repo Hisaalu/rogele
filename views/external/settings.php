@@ -44,7 +44,14 @@ $activeTab = $_GET['tab'] ?? 'password';
             <i class="fas fa-shield-alt"></i>
             <span>Privacy</span>
         </a>
-        <a href="<?php echo BASE_URL; ?>/external/delete-account?test=1" class="tab <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
+        <!-- uncomment to enable -->
+        <!-- <a href="<?php echo BASE_URL; ?>/external/delete-account?test=1" class="tab <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
+            <i class="fas fa-trash"></i>
+            <span>Delete Account</span>
+        </a> -->
+
+        <!-- temporarily disabled -->
+        <a href="javascript:void(0);" class="tab disabled" onclick="return false;">
             <i class="fas fa-trash"></i>
             <span>Delete Account</span>
         </a>
@@ -53,7 +60,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     <!-- Tab Content -->
     <div class="tab-content">
         <?php if ($activeTab === 'password'): ?>
-            <!-- Change Password Tab -->
             <div class="settings-card">
                 <h3 class="card-title">
                     <i class="fas fa-key"></i>
@@ -369,7 +375,7 @@ $activeTab = $_GET['tab'] ?? 'password';
     background: white;
     border-radius: 12px;
     text-decoration: none;
-    color: black;
+    color: gray;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -423,6 +429,10 @@ $activeTab = $_GET['tab'] ?? 'password';
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.card-title i {
+  color: #f06724;
 }
 
 .card-description {
