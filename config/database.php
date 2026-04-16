@@ -8,13 +8,37 @@ class Database {
     
     private function __construct() {
         try {
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
-            $this->connection = new PDO($dsn, DB_USER, DB_PASS);
-            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $host = DB_HOST;
+            $port = DB_PORT;
+            $dbname = DB_NAME;
+            $user = DB_USER;
+            $pass = DB_PASS;
+
+            $host = explode(':', $host)[0];
+
+            $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+            
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_TIMEOUT => 5,
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            ];
+
+            if (getenv('RENDER')) {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = '/etc/ssl/certs/ca-certificates.crt';
+            } else {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = '';
+            }
+
+            $this->connection = new PDO($dsn, $user, $pass, $options);
+            
+
         } catch (PDOException $e) {
             error_log("Database connection failed: " . $e->getMessage());
-            die("Database connection failed. Please check your configuration.");
+            error_log("Target DSN: mysql:host=$host;port=$port;dbname=$dbname");
+            throw $e; 
         }
     }
     
@@ -29,47 +53,24 @@ class Database {
         return $this->connection;
     }
     
-    public function query($sql, $params = []) {
-        $stmt = $this->connection->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
+    public function prepare($sql) {
+        if (!$this->connection) {
+            error_log("No active database connection during prepare().");
+            return false;
+        }
+        return $this->connection->prepare($sql);
     }
     
-    public function fetch($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->fetch();
+    public function query($sql) {
+        return $this->connection->query($sql);
     }
     
-    public function fetchAll($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->fetchAll();
-    }
-    
-    public function insert($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
+    public function lastInsertId() {
         return $this->connection->lastInsertId();
     }
     
-    public function update($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->rowCount();
-    }
+    private function __clone() {}
     
-    public function delete($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->rowCount();
-    }
-    
-    public function beginTransaction() {
-        return $this->connection->beginTransaction();
-    }
-    
-    public function commit() {
-        return $this->connection->commit();
-    }
-    
-    public function rollback() {
-        return $this->connection->rollback();
-    }
+    public function __wakeup() {}
 }
 ?>
