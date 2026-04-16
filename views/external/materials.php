@@ -112,7 +112,7 @@ $search = $_GET['search'] ?? '';
                             </span>
                             <span>
                                 <i class="fas fa-user"></i>
-                                <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?>
+                                Tr. <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?>
                             </span>
                         </div>
 
