@@ -30,7 +30,6 @@ class Lesson {
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
-            chmod($uploadDir, 0777);
 
             $this->conn->beginTransaction();
 
@@ -337,9 +336,6 @@ class Lesson {
             if (!is_dir($targetDir)) {
                 mkdir($targetDir, 0777, true);
             }
-            
-            // Try to set writable permission
-            chmod($targetDir, 0777);
             
             $uploadedCount = 0;
             
