@@ -1,8 +1,3 @@
-# color themes
-# red - #e21414
-# orange - #f06724
-# purple - #7f2677
-
 # Environment files
 .env
 
@@ -14,3 +9,6 @@
 /logs
 /tests
 test.php
+
+#local configs
+# config/
