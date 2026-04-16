@@ -25,6 +25,13 @@ class Lesson {
      */
     public function create($data, $files = null) {
         try {
+            // Ensure upload directory exists before any file operations
+            $uploadDir = __DIR__ . '/../public/uploads/lessons/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            chmod($uploadDir, 0777);
+
             $this->conn->beginTransaction();
 
             $query = "INSERT INTO lessons (title, content, subject_id, class_id, teacher_id, video_url, duration, is_published, created_at) 
@@ -318,15 +325,23 @@ class Lesson {
     }
     
     /**
-     * Upload lesson materials
+     * Upload lesson materials with automatic permission fixing
      */
     public function uploadMaterials($lessonId, $files) {
         try {
-            $targetDir = __DIR__ . '/../public/uploads/lessons/';
+            // Get absolute path to uploads directory
+            $baseDir = realpath(__DIR__ . '/../public/');
+            $targetDir = $baseDir . '/uploads/lessons/';
             
-            if (!file_exists($targetDir)) {
+            // Create directory if it doesn't exist (recursive)
+            if (!is_dir($targetDir)) {
                 mkdir($targetDir, 0777, true);
             }
+            
+            // Try to set writable permission
+            chmod($targetDir, 0777);
+            
+            $uploadedCount = 0;
             
             for ($i = 0; $i < count($files['name']); $i++) {
                 if ($files['error'][$i] === UPLOAD_ERR_OK) {
@@ -334,24 +349,23 @@ class Lesson {
                     $targetFile = $targetDir . $fileName;
                     
                     if (move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
+                        // Set file permission
+                        chmod($targetFile, 0666);
+                        
                         $dbPath = 'uploads/lessons/' . $fileName;
                         
-                        $query = "INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) 
-                                VALUES (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
+                        $stmt = $this->conn->prepare("INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)");
+                        $stmt->execute([$lessonId, $files['name'][$i], $dbPath, $files['type'][$i], $files['size'][$i]]);
                         
-                        $stmt = $this->conn->prepare($query);
-                        $stmt->execute([
-                            ':lesson_id' => $lessonId,
-                            ':file_name' => $files['name'][$i],
-                            ':file_path' => $dbPath,
-                            ':file_type' => $files['type'][$i],
-                            ':file_size' => $files['size'][$i]
-                        ]);
+                        $uploadedCount++;
                     }
                 }
             }
-            return true;
-        } catch (PDOException $e) {
+            
+            return $uploadedCount > 0;
+            
+        } catch (Exception $e) {
+            error_log("Upload error: " . $e->getMessage());
             return false;
         }
     }
