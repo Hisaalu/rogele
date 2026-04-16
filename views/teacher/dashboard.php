@@ -21,7 +21,7 @@ $classPerformance = $classPerformance ?? [
     <div class="welcome-banner">
         <div class="welcome-content">
             <h1 class="welcome-title">
-                Welcome back, <span class="teacher-name">
+                Welcome back, Tr. <span class="teacher-name">
                     <?php 
                         $fullName = $_SESSION['user_name'] ?? 'Teacher';
                         $firstName = explode(' ', trim($fullName))[0];
