@@ -16,7 +16,7 @@ if (empty($questions)) {
 $timeLimitSeconds = isset($quiz['time_limit']) && $quiz['time_limit'] > 0 ? $quiz['time_limit'] * 60 : 0;
 $quizId = $quiz['id'];
 $attemptIdValue = $attemptId;
-$endTime = time() + $timeLimitSeconds; // Calculate absolute end time
+$endTime = time() + $timeLimitSeconds;
 ?>
 
 <div class="quiz-take-container">
@@ -39,7 +39,7 @@ $endTime = time() + $timeLimitSeconds; // Calculate absolute end time
         <div class="quiz-warning">
             <i class="fas fa-exclamation-triangle"></i>
             <div>
-                <strong>⚠️ Important Notice:</strong>
+                <strong>Important Notice:</strong>
                 <p>Your answers are saved automatically. Do NOT refresh or close the browser.</p>
             </div>
         </div>
@@ -577,7 +577,7 @@ function initTimer() {
 // Block back navigation
 history.pushState(null, null, location.href);
 window.addEventListener('popstate', function(event) {
-    if (confirm('⚠️ WARNING: If you go back, you will lose your progress and cannot retake this quiz!\n\nDo you want to continue?')) {
+    if (confirm('WARNING: If you go back, you may lose your progress and cannot retake this quiz!\n\nDo you want to continue?')) {
         localStorage.removeItem(QUIZ_STORAGE_KEY);
         localStorage.removeItem('quiz_end_time_' + QUIZ_ID + '_' + ATTEMPT_ID);
         window.location.href = '<?php echo BASE_URL; ?>/external/quizzes';
@@ -590,7 +590,7 @@ window.addEventListener('popstate', function(event) {
 window.addEventListener('beforeunload', function (e) {
     if (!formSubmitted) {
         e.preventDefault();
-        e.returnValue = '⚠️ If you refresh, you will lose your progress and cannot retake this quiz! Are you sure?';
+        e.returnValue = 'If you refresh, you may lose your progress and cannot retake this quiz! Are you sure?';
         return e.returnValue;
     }
 });
@@ -655,7 +655,7 @@ document.addEventListener('paste', function(e) {
 // Anti-cheat: Warn about tab switching
 document.addEventListener('visibilitychange', function() {
     if (document.hidden && !formSubmitted) {
-        alert('⚠️ Please do not switch tabs during the quiz. Your attempt may be invalidated.');
+        alert('Please do not switch tabs during the quiz. Your attempt may be invalidated.');
     }
 });
 
@@ -665,7 +665,7 @@ document.addEventListener('keydown', function(e) {
         (e.ctrlKey && e.shiftKey && (e.key === 'r' || e.key === 'R')) ||
         e.key === 'F5') {
         e.preventDefault();
-        alert('⚠️ Refreshing the page is not allowed during the quiz!');
+        alert('Please do not refresh the page during the quiz!');
         return false;
     }
     
@@ -673,7 +673,7 @@ document.addEventListener('keydown', function(e) {
         const target = e.target;
         if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
             e.preventDefault();
-            alert('⚠️ Using backspace to go back is not allowed during the quiz!');
+            alert('Please do not use backspace to navigate away from the quiz!');
             return false;
         }
     }
