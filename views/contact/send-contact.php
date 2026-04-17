@@ -5,7 +5,7 @@ require_once __DIR__ . '/../layouts/header.php';
 ?>
 
 <!-- Contact Section -->
- <div class="contact-page">
+<div class="contact-page">
     <section class="contact-section">
         <div class="container">
             <div class="section-header">
@@ -47,21 +47,15 @@ require_once __DIR__ . '/../layouts/header.php';
                 </div>
                 
                 <div class="contact-form-wrapper">
-                    <?php if (isset($_SESSION['contact_success'])): ?>
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i>
-                            <span><?php echo $_SESSION['contact_success']; unset($_SESSION['contact_success']); ?></span>
-                        </div>
-                    <?php endif; ?>
+                    <div id="alertMessage" style="display: none;"></div>
                     
-                    <?php if (isset($_SESSION['contact_error'])): ?>
-                        <div class="alert alert-error">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <span><?php echo $_SESSION['contact_error']; unset($_SESSION['contact_error']); ?></span>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <form id="contactForm" class="contact-form" method="POST" action="<?php echo BASE_URL; ?>/send-contact">
+                    <form id="contactForm" class="contact-form" action="https://formspree.io/f/xnneyjlj" method="POST">
+                        <input type="hidden" name="_subject" value="New Contact Message from ROGELE">
+                        <input type="hidden" name="_replyto" id="_replyto">
+                        <input type="hidden" name="_next" value="<?php echo BASE_URL; ?>/contact?success=true">
+                        
+                        <input type="text" name="_gotcha" style="display:none">
+                        
                         <div class="form-group">
                             <input type="text" name="name" id="name" placeholder="Your Name" required>
                         </div>
@@ -120,14 +114,12 @@ require_once __DIR__ . '/../layouts/header.php';
     margin: 0 auto;
 }
 
-/* Contact Grid */
 .contact-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 40px;
 }
 
-/* Contact Info Cards */
 .contact-info {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -168,7 +160,6 @@ require_once __DIR__ . '/../layouts/header.php';
     margin: 5px 0;
 }
 
-/* Contact Form */
 .contact-form-wrapper {
     background: white;
     padding: 40px;
@@ -202,7 +193,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .btn-send {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #7f2677);
+    background: linear-gradient(135deg, #7f2677, #9b3a8f);
     color: white;
     border: none;
     border-radius: 50px;
@@ -216,9 +207,9 @@ require_once __DIR__ . '/../layouts/header.php';
     gap: 10px;
 }
 
-.btn-send:hover {
+.btn-send:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 10px 20px rgba(127, 38, 119, 0.3);
 }
 
 .btn-send:disabled {
@@ -226,8 +217,7 @@ require_once __DIR__ . '/../layouts/header.php';
     cursor: not-allowed;
 }
 
-/* Alert Messages */
-.alert {
+#alertMessage {
     padding: 12px 16px;
     border-radius: 12px;
     margin-bottom: 20px;
@@ -236,13 +226,13 @@ require_once __DIR__ . '/../layouts/header.php';
     gap: 10px;
 }
 
-.alert-success {
+#alertMessage.success {
     background: #F0FDF4;
     color: #166534;
     border: 1px solid #BBF7D0;
 }
 
-.alert-error {
+#alertMessage.error {
     background: #FEF2F2;
     color: #B91C1C;
     border: 1px solid #FECACA;
@@ -265,6 +255,15 @@ require_once __DIR__ . '/../layouts/header.php';
     background: #FEF2F2;
     color: #B91C1C;
     border: 1px solid #FECACA;
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Responsive */
@@ -313,59 +312,92 @@ require_once __DIR__ . '/../layouts/header.php';
 </style>
 
 <script>
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xnneyjlj';
+
+// Get DOM elements
 const form = document.getElementById('contactForm');
 const submitBtn = document.getElementById('submitBtn');
 const messageDiv = document.getElementById('formMessage');
+const alertMessage = document.getElementById('alertMessage');
 
+// Check for URL parameters (for redirect success message)
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('success') === 'true') {
+    showAlert('Thank you for your message! We\'ll get back to you soon.', 'success');
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+// Function to show alert messages
+function showAlert(message, type) {
+    alertMessage.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> <span>${message}</span>`;
+    alertMessage.className = type;
+    alertMessage.style.display = 'flex';
+    
+    setTimeout(() => {
+        alertMessage.style.display = 'none';
+    }, 5000);
+}
+
+// Set the _replyto field to the user's email for easier reply
+document.getElementById('email').addEventListener('change', function() {
+    document.getElementById('_replyto').value = this.value;
+});
+
+// Handle form submission
 form.addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    // Get form data
     const formData = new FormData(this);
     const originalText = submitBtn.innerHTML;
     
+    // Disable button and show loading state
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     submitBtn.disabled = true;
     messageDiv.style.display = 'none';
     
     try {
-        const response = await fetch('<?php echo BASE_URL; ?>/send-contact', {
+        // Send to Formspree
+        const response = await fetch(FORMSPREE_ENDPOINT, {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
         });
         
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        
-        const text = await response.text();
-        console.log('Raw response:', text);
-        
-        let result;
-        try {
-            result = JSON.parse(text);
-        } catch (e) {
-            console.error('JSON parse error:', e);
-            result = { success: false, message: 'Server error: Invalid response format' };
-        }
-        
-        if (result.success) {
-            messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + result.message;
+        if (response.ok) {
+            messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> Thank you! Your message has been sent successfully.';
             messageDiv.className = 'success';
             messageDiv.style.display = 'block';
+            
             form.reset();
+            
+            document.getElementById('_replyto').value = '';
+            
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
         } else {
-            messageDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + result.message;
-            messageDiv.className = 'error';
-            messageDiv.style.display = 'block';
+            const data = await response.json();
+            let errorMessage = 'Sorry, there was an error sending your message. Please try again.';
+            
+            if (data.errors) {
+                errorMessage = data.errors.map(error => error.message).join(', ');
+            }
+            
+            throw new Error(errorMessage);
         }
-        
-        setTimeout(() => {
-            messageDiv.style.display = 'none';
-        }, 5000);
     } catch (error) {
-        console.error('Fetch error:', error);
-        messageDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: ' + error.message;
+        console.error('Form submission error:', error);
+        
+        messageDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message || 'Network error. Please check your connection and try again.'}`;
         messageDiv.className = 'error';
         messageDiv.style.display = 'block';
+        
+        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
         setTimeout(() => {
             messageDiv.style.display = 'none';
@@ -375,6 +407,60 @@ form.addEventListener('submit', async function(e) {
         submitBtn.disabled = false;
     }
 });
+
+function validateForm() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const subject = document.getElementById('subject').value.trim();
+    const message = document.getElementById('message').value.trim();
+    
+    if (!name || !email || !subject || !message) {
+        return false;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return false;
+    }
+    
+    return true;
+}
+
+const inputs = ['name', 'email', 'subject', 'message'];
+inputs.forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.style.borderColor = '#E2E8F0';
+            }
+        });
+    }
+});
+
+// Prevent double submission
+let isSubmitting = false;
+form.addEventListener('submit', function(e) {
+    if (isSubmitting) {
+        e.preventDefault();
+        return false;
+    }
+    
+    if (!validateForm()) {
+        e.preventDefault();
+        showAlert('Please fill in all fields correctly.', 'error');
+        return false;
+    }
+    
+    isSubmitting = true;
+    
+    // Reset after 3 seconds (in case of network issues)
+    setTimeout(() => {
+        isSubmitting = false;
+    }, 3000);
+});
+
+console.log('Contact form initialized with Formspree integration');
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
