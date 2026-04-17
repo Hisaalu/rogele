@@ -50,9 +50,9 @@ require_once __DIR__ . '/../layouts/header.php';
                         </div>
                     <?php endif; ?>
                     
-                    <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
+                    <!-- <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
                         <i class="fas fa-camera"></i>
-                    </button>
+                    </button> -->
                 </div>
                 <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Admin'); ?></h2>
                 <p class="profile-role">System Administrator</p>
