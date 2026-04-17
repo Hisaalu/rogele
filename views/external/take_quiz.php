@@ -16,6 +16,7 @@ if (empty($questions)) {
 $timeLimitSeconds = isset($quiz['time_limit']) && $quiz['time_limit'] > 0 ? $quiz['time_limit'] * 60 : 0;
 $quizId = $quiz['id'];
 $attemptIdValue = $attemptId;
+$endTime = time() + $timeLimitSeconds; // Calculate absolute end time
 ?>
 
 <div class="quiz-take-container">
@@ -39,7 +40,7 @@ $attemptIdValue = $attemptId;
             <i class="fas fa-exclamation-triangle"></i>
             <div>
                 <strong>⚠️ Important Notice:</strong>
-                <p>Do NOT refresh the page, close the browser, or use the back button.</p>
+                <p>Your answers are saved automatically. Do NOT refresh or close the browser.</p>
             </div>
         </div>
         
@@ -61,6 +62,7 @@ $attemptIdValue = $attemptId;
 
     <form id="quizForm" method="POST" action="<?php echo BASE_URL; ?>/external/take-quiz/<?php echo $quiz['id']; ?>">
         <input type="hidden" name="attempt_id" value="<?php echo $attemptId; ?>">
+        <input type="hidden" id="quizEndTime" name="quiz_end_time" value="<?php echo $endTime; ?>">
         
         <div class="questions-list">
             <?php foreach ($questions as $index => $question): ?>
@@ -108,6 +110,7 @@ $attemptIdValue = $attemptId;
 </div>
 
 <style>
+/* Your existing styles remain the same */
 .quiz-take-container {
     max-width: 900px;
     margin: 40px auto;
@@ -402,21 +405,30 @@ $attemptIdValue = $attemptId;
 </style>
 
 <script>
+// Quiz configuration
 const QUIZ_STORAGE_KEY = 'quiz_state_' + <?php echo $quizId; ?> + '_' + <?php echo $attemptId; ?>;
-const TIME_STORAGE_KEY = 'quiz_time_left_' + <?php echo $quizId; ?> + '_' + <?php echo $attemptId; ?>;
+const ATTEMPT_ID = <?php echo $attemptId; ?>;
 const TOTAL_QUESTIONS = <?php echo count($questions); ?>;
 const TIME_LIMIT_SECONDS = <?php echo $timeLimitSeconds; ?>;
+const QUIZ_ID = <?php echo $quizId; ?>;
 
+// Use server-side end time for reliable timer across logouts
+let endTime = localStorage.getItem('quiz_end_time_' + QUIZ_ID + '_' + ATTEMPT_ID);
+if (!endTime) {
+    endTime = Date.now() + (TIME_LIMIT_SECONDS * 1000);
+    localStorage.setItem('quiz_end_time_' + QUIZ_ID + '_' + ATTEMPT_ID, endTime);
+}
+endTime = parseInt(endTime);
+
+let formSubmitted = false;
+let timerInterval = null;
+let warningShown = false;
+
+// DOM elements
 const stickyTimerBar = document.getElementById('stickyTimerBar');
 const stickyTimerDisplay = document.getElementById('stickyTimerDisplay');
 const stickyAnsweredCount = document.getElementById('stickyAnsweredCount');
 const quizHeader = document.querySelector('.quiz-header');
-
-let timerInterval = null;
-let formSubmitted = false;
-let timeLeft = TIME_LIMIT_SECONDS;
-let isTimerRunning = false;
-
 const timerDisplay = document.getElementById('timerDisplay');
 const timerWarning = document.getElementById('timerWarning');
 const answeredCountSpan = document.getElementById('answeredCount');
@@ -432,6 +444,9 @@ function formatTime(seconds) {
 }
 
 function updateTimerDisplay() {
+    const now = Date.now();
+    let timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
+    
     if (timerDisplay) {
         timerDisplay.textContent = formatTime(timeLeft);
     }
@@ -439,60 +454,60 @@ function updateTimerDisplay() {
         stickyTimerDisplay.textContent = formatTime(timeLeft);
     }
     
-    if (timeLeft <= 60 && timeLeft > 0 && timerWarning) {
-        timerWarning.style.display = 'flex';
-    } else if (timerWarning && timeLeft > 60) {
-        timerWarning.style.display = 'none';
+    // Show warning when less than 1 minute
+    if (timeLeft <= 60 && timeLeft > 0 && !warningShown) {
+        if (timerWarning) timerWarning.style.display = 'flex';
+        warningShown = true;
     }
     
-    localStorage.setItem(TIME_STORAGE_KEY, timeLeft);
-}
-
-function stopTimer() {
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        isTimerRunning = false;
-    }
-}
-
-function startTimer() {
-    if (isTimerRunning || TIME_LIMIT_SECONDS <= 0 || timeLeft <= 0) {
-        if (timeLeft <= 0 && timerDisplay) {
-            timerDisplay.textContent = 'Time\'s Up!';
-        }
-        return;
+    // Auto-submit when time is up
+    if (timeLeft <= 0 && !formSubmitted) {
+        autoSubmit();
     }
     
-    console.log("Starting timer with " + timeLeft + " seconds");
-    isTimerRunning = true;
-    updateTimerDisplay();
-    
-    timerInterval = setInterval(() => {
-        if (!formSubmitted && timeLeft > 0) {
-            timeLeft--;
-            updateTimerDisplay();
-            
-            if (timeLeft === 0) {
-                stopTimer();
-                autoSubmit();
-            }
-        } else if (timeLeft <= 0) {
-            stopTimer();
-        }
-    }, 1000);
+    // Store remaining time in localStorage
+    localStorage.setItem('quiz_time_remaining_' + QUIZ_ID + '_' + ATTEMPT_ID, timeLeft);
 }
 
 function autoSubmit() {
-    if (!formSubmitted && timeLeft <= 0) {
-        console.log("Auto-submitting quiz...");
-        formSubmitted = true;
-        alert('⏰ Time is up! Your quiz will be submitted automatically.');
-        if (quizForm) quizForm.submit();
+    if (formSubmitted) return;
+    
+    console.log("Auto-submitting quiz...");
+    formSubmitted = true;
+    
+    // Clear timer
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    
+    // Show alert
+    alert('⏰ Time is up! Your quiz will be submitted automatically.');
+    
+    // Submit the form
+    if (quizForm) {
+        // Add a flag to indicate auto-submit
+        const autoSubmitFlag = document.createElement('input');
+        autoSubmitFlag.type = 'hidden';
+        autoSubmitFlag.name = 'auto_submit';
+        autoSubmitFlag.value = '1';
+        quizForm.appendChild(autoSubmitFlag);
+        quizForm.submit();
     }
 }
 
-function loadSavedState() {
+function saveAnswers() {
+    const radioButtonsChecked = document.querySelectorAll('input[type="radio"]:checked');
+    const answers = {};
+    radioButtonsChecked.forEach(radio => {
+        const name = radio.name;
+        const questionId = name.match(/\d+/)[0];
+        answers[questionId] = radio.value;
+    });
+    localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(answers));
+}
+
+function loadSavedAnswers() {
     const savedState = localStorage.getItem(QUIZ_STORAGE_KEY);
     if (savedState) {
         try {
@@ -508,25 +523,6 @@ function loadSavedState() {
             console.error('Error loading saved answers:', e);
         }
     }
-    
-    const savedTime = localStorage.getItem(TIME_STORAGE_KEY);
-    if (savedTime !== null && !isNaN(parseInt(savedTime))) {
-        timeLeft = parseInt(savedTime);
-        console.log("Loaded saved time: " + timeLeft + " seconds");
-    }
-    
-    updateTimerDisplay();
-}
-
-function saveAnswers() {
-    const radioButtonsChecked = document.querySelectorAll('input[type="radio"]:checked');
-    const answers = {};
-    radioButtonsChecked.forEach(radio => {
-        const name = radio.name;
-        const questionId = name.match(/\d+/)[0];
-        answers[questionId] = radio.value;
-    });
-    localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(answers));
 }
 
 function updateProgress() {
@@ -548,6 +544,7 @@ function updateProgress() {
     if (submitBtn) {
         submitBtn.disabled = count !== TOTAL_QUESTIONS;
     }
+    
     saveAnswers();
 }
 
@@ -571,63 +568,80 @@ function checkScrollPosition() {
     }
 }
 
+// Initialize timer
+function initTimer() {
+    updateTimerDisplay();
+    timerInterval = setInterval(updateTimerDisplay, 1000);
+}
+
+// Block back navigation
 history.pushState(null, null, location.href);
 window.addEventListener('popstate', function(event) {
     if (confirm('⚠️ WARNING: If you go back, you will lose your progress and cannot retake this quiz!\n\nDo you want to continue?')) {
         localStorage.removeItem(QUIZ_STORAGE_KEY);
-        localStorage.removeItem(TIME_STORAGE_KEY);
+        localStorage.removeItem('quiz_end_time_' + QUIZ_ID + '_' + ATTEMPT_ID);
         window.location.href = '<?php echo BASE_URL; ?>/external/quizzes';
     } else {
         history.pushState(null, null, location.href);
     }
 });
 
+// Warn before refresh
 window.addEventListener('beforeunload', function (e) {
-    if (!formSubmitted && submitBtn && !submitBtn.disabled) {
+    if (!formSubmitted) {
         e.preventDefault();
         e.returnValue = '⚠️ If you refresh, you will lose your progress and cannot retake this quiz! Are you sure?';
         return e.returnValue;
     }
 });
 
-loadSavedState();
+// Clean up on form submission
+if (quizForm) {
+    quizForm.addEventListener('submit', function() {
+        formSubmitted = true;
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        // Clear localStorage
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        localStorage.removeItem('quiz_end_time_' + QUIZ_ID + '_' + ATTEMPT_ID);
+        localStorage.removeItem('quiz_time_remaining_' + QUIZ_ID + '_' + ATTEMPT_ID);
+    });
+}
 
+// Load saved answers
+loadSavedAnswers();
+
+// Setup radio button listeners
 if (radioButtons.length > 0) {
     radioButtons.forEach(radio => {
         radio.addEventListener('change', updateProgress);
     });
 }
 
+// Initial progress update
 updateProgress();
 
-if (TIME_LIMIT_SECONDS > 0 && timeLeft > 0) {
-    startTimer();
-} else if (TIME_LIMIT_SECONDS <= 0 && timerDisplay) {
+// Start timer
+if (TIME_LIMIT_SECONDS > 0) {
+    initTimer();
+} else if (timerDisplay) {
     timerDisplay.textContent = 'No time limit';
     if (stickyTimerDisplay) stickyTimerDisplay.textContent = 'No time limit';
-} else if (timeLeft <= 0 && timerDisplay) {
-    timerDisplay.textContent = 'Time\'s Up!';
-    if (stickyTimerDisplay) stickyTimerDisplay.textContent = 'Time\'s Up!';
 }
 
+// Scroll listeners
 window.addEventListener('scroll', checkScrollPosition);
 window.addEventListener('resize', checkScrollPosition);
 checkScrollPosition();
 
-if (quizForm) {
-    quizForm.addEventListener('submit', function() {
-        formSubmitted = true;
-        stopTimer();
-        localStorage.removeItem(QUIZ_STORAGE_KEY);
-        localStorage.removeItem(TIME_STORAGE_KEY);
-    });
-}
-
+// Anti-cheat: Disable right-click
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     return false;
 });
 
+// Anti-cheat: Disable copy-paste
 document.addEventListener('copy', function(e) {
     e.preventDefault();
     return false;
@@ -638,12 +652,14 @@ document.addEventListener('paste', function(e) {
     return false;
 });
 
+// Anti-cheat: Warn about tab switching
 document.addEventListener('visibilitychange', function() {
-    if (document.hidden && !formSubmitted && timeLeft > 0 && timeLeft < TIME_LIMIT_SECONDS) {
+    if (document.hidden && !formSubmitted) {
         alert('⚠️ Please do not switch tabs during the quiz. Your attempt may be invalidated.');
     }
 });
 
+// Anti-cheat: Block refresh shortcuts
 document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey && (e.key === 'r' || e.key === 'R')) || 
         (e.ctrlKey && e.shiftKey && (e.key === 'r' || e.key === 'R')) ||
@@ -663,7 +679,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-console.log("Quiz initialized. Time left: " + timeLeft + " seconds");
+console.log("Quiz initialized. End time: " + new Date(endTime));
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
