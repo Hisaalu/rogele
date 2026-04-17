@@ -134,7 +134,7 @@ $stats = $stats ?? [];
                             </td>
                             <td><?php echo htmlspecialchars($result['email']); ?></td>
                             <td class="score-cell <?php echo $result['score'] >= ($quiz['passing_score'] ?? 50) ? 'passed' : 'failed'; ?>">
-                                <?php echo number_format($result['score'], 1); ?>%
+                                <?php echo number_format($result['score'], 0); ?>
                             </td>
                             <td>
                                 <?php if ($result['score'] >= ($quiz['passing_score'] ?? 50)): ?>
