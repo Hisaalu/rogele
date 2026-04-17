@@ -55,9 +55,9 @@ $students = $students ?? [];
                         </div>
                     <?php endif; ?>
                     
-                    <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
+                    <!-- <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
                         <i class="fas fa-camera"></i>
-                    </button>
+                    </button> -->
                 </div>
                 
                 <form method="POST" action="<?php echo BASE_URL; ?>/teacher/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
