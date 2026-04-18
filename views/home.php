@@ -646,12 +646,12 @@ body {
                         </div>
                         <div class="stat-divider"></div>
                         <div class="stat-item">
-                            <span class="stat-number">50+</span>
+                            <span class="stat-number">20+</span>
                             <span class="stat-label">Teachers</span>
                         </div>
                         <div class="stat-divider"></div>
                         <div class="stat-item">
-                            <span class="stat-number">1000+</span>
+                            <span class="stat-number">100+</span>
                             <span class="stat-label">Lessons</span>
                         </div>
                     </div>

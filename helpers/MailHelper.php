@@ -208,7 +208,7 @@ class MailHelper {
                     </div>
                 </div>
                 <div class="footer">
-                    <p>&copy; ' . date('Y') . ' ROGELE | All rights reserved.</p>
+                    <p>&copy; ' . date('Y') . ' ROGELE (Rays of Grace E-Learning Environment) | All rights reserved.</p>
                     <p>This is an automated message, please do not reply to this email.</p>
                     <p>Need help? Contact us at <a href="mailto:info@raysofgrace.ac.ug">info@raysofgrace.ac.ug</a></p>
                 </div>
