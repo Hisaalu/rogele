@@ -448,8 +448,8 @@ class AuthController {
         <body>
             <div class="email-container">
                 <div class="email-header">
-                    <h1>🔐 Password Reset Request</h1>
-                    <p>Rays of Grace E-Learning</p>
+                    <h1>Password Reset Request</h1>
+                    <p>ROGELE (Rays of Grace E-Learning Environment)</p>
                 </div>
                 
                 <div class="email-body">
@@ -458,7 +458,7 @@ class AuthController {
                     </div>
                     
                     <div class="message">
-                        We received a request to reset the password for your Rays of Grace E-Learning account. 
+                        We received a request to reset the password for your ROGELE account. 
                         No changes have been made to your account yet.
                     </div>
                     
@@ -467,7 +467,7 @@ class AuthController {
                     </div>
                     
                     <div class="reset-button">
-                        <a href="' . $resetLink . '">🔓 Reset Your Password</a>
+                        <a href="' . $resetLink . '">Reset Your Password</a>
                     </div>
                     
                     <div class="expiry-note">
@@ -484,7 +484,7 @@ class AuthController {
                         <p>For security assistance, please contact our support team at 
                         <a href="mailto:support@raysofgrace.com">support@raysofgrace.com</a>
                         </p>
-                        <p style="margin-top: 15px;">© ' . date('Y') . ' Rays of Grace Junior School. All rights reserved.</p>
+                        <p style="margin-top: 15px;">© ' . date('Y') . ' ROGELE (Rays of Grace E-Learning Environment) | All rights reserved.</p>
                     </div>
                 </div>
             </div>
