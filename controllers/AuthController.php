@@ -252,7 +252,7 @@ class AuthController {
                 $_SESSION['error'] = 'Failed to process request. Please try again.';
             }
         } else {
-            $_SESSION['success'] = 'If an account exists with this email, you will receive a password reset link.';
+            $_SESSION['error'] = 'We couldn\'t find a user with the provided email address!';
         }
         
         header('Location: ' . BASE_URL . '/forgot-password');
@@ -307,7 +307,7 @@ class AuthController {
         if ($result['success']) {
             $this->userModel->clearResetToken($user['id']);
             
-            $_SESSION['success'] = 'Password reset successful! You can now login with your new password.';
+            $_SESSION['success'] = 'Your password has been reset successfully!';
             header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
