@@ -350,7 +350,7 @@ $pageTitle = 'Login | ROGELE';
                         type="text" 
                         name="username" 
                         id="username"
-                        placeholder="Email address"
+                        placeholder="Your Email address"
                         required
                         autocomplete="username"
                     >
@@ -362,7 +362,7 @@ $pageTitle = 'Login | ROGELE';
                             type="password" 
                             name="password" 
                             id="password"
-                            placeholder="Password"
+                            placeholder="Your Password"
                             required
                             autocomplete="current-password"
                         >

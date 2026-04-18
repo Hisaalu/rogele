@@ -283,7 +283,7 @@ $token = $token ?? '';
                     <?php endif; ?>
                 </div>
                 <h1>Reset password</h1>
-                <p>Enter your new password below</p>
+                <p>To complete this process, provide your new password and its confirmation below.</p>
             </div>
             
             <!-- Alert Messages -->
