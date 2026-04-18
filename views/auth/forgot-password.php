@@ -287,7 +287,7 @@ $pageTitle = 'Forgot Password | ROGELE';
                     <?php endif; ?>
                 </div>
                 <h1>Reset your password</h1>
-                <p>Enter your account email address and we'll send you a password reset link.</p>
+                <p>Enter your ROGELE account email address and we will send you a password reset link.</p>
             </div>
             
             <!-- Alert Messages -->
@@ -325,7 +325,7 @@ $pageTitle = 'Forgot Password | ROGELE';
                             type="email" 
                             name="email" 
                             id="email"
-                            placeholder="Email address"
+                            placeholder="Your ROGELE Email address"
                             required
                             autocomplete="off"
                         >
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!email) {
                 e.preventDefault();
-                showAlert('Please enter your email address', 'error');
+                showAlert('Please enter your ROGELE email address', 'error');
                 return;
             }
             
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 e.preventDefault();
-                showAlert('Please enter a valid email address', 'error');
+                showAlert('Please enter a valid ROGELE email address', 'error');
                 return;
             }
             
