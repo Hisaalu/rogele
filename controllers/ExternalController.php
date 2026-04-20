@@ -879,6 +879,24 @@ class ExternalController {
      * Process payment with Pesapal
      */
     public function processPesapalPayment() {
+        error_log("=== PESAPAL PAYMENT INITIATED ===");
+
+            // if (strpos(BASE_URL, 'localhost') !== false) {
+            //     $paymentResult = $this->subscriptionModel->createPendingPayment(
+            //         $_SESSION['user_id'], $planType, $amount, $paymentMethod, $phoneNumber
+            //     );
+
+            //     if ($paymentResult['success']) {
+            //         $this->subscriptionModel->updatePaymentStatus(
+            //             $paymentResult['transaction_id'], 'completed', ['local_test' => true]
+            //         );
+            //         $this->activatePesapalSubscription($paymentResult['transaction_id']);
+
+            //         $_SESSION['success'] = '✅ Test payment successful! (Pesapal bypassed for local development)';
+            //         header('Location: ' . BASE_URL . '/external/dashboard');
+            //         exit;
+            //     }
+            // }
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . BASE_URL . '/external/subscription');
@@ -888,6 +906,10 @@ class ExternalController {
         $planType = $_POST['plan'] ?? '';
         $paymentMethod = $_POST['payment_method'] ?? 'mobile_money';
         $phoneNumber = $_POST['phone_number'] ?? '';
+        
+        error_log("Plan: " . $planType);
+        error_log("Payment Method: " . $paymentMethod);
+        error_log("Phone Number: " . $phoneNumber);
         
         if (empty($planType)) {
             $_SESSION['error'] = 'Please select a subscription plan';
@@ -909,6 +931,11 @@ class ExternalController {
         ];
         
         $amount = $amounts[$planType] ?? 0;
+        error_log("Amount: " . $amount);
+        
+        // Check PesaPal credentials
+        error_log("PESAPAL_CONSUMER_KEY: " . (defined('PESAPAL_CONSUMER_KEY') ? substr(PESAPAL_CONSUMER_KEY, 0, 10) . '...' : 'NOT DEFINED'));
+        error_log("PESAPAL_ENVIRONMENT: " . (defined('PESAPAL_ENVIRONMENT') ? PESAPAL_ENVIRONMENT : 'NOT DEFINED'));
         
         $paymentResult = $this->subscriptionModel->createPendingPayment(
             $_SESSION['user_id'],
@@ -917,6 +944,8 @@ class ExternalController {
             $paymentMethod,
             $phoneNumber
         );
+        
+        error_log("Payment Result: " . json_encode($paymentResult));
         
         if (!$paymentResult['success']) {
             $_SESSION['error'] = $paymentResult['error'];
@@ -941,11 +970,15 @@ class ExternalController {
             'reference' => $paymentResult['transaction_id'],
             'description' => ucfirst($planType) . ' Subscription - Rays of Grace'
         ];
-
+        
+        error_log("Payment Data: " . json_encode($paymentData));
+        
         $response = $pesapal->submitPayment($paymentData);
         
+        error_log("PesaPal Response: " . json_encode($response));
+        
         if (isset($response['error']) && $response['error']) {
-            $_SESSION['error'] = $response['message'];
+            $_SESSION['error'] = $response['message'] ?? 'Payment submission failed. Please try again.';
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
@@ -960,7 +993,7 @@ class ExternalController {
             header('Location: ' . $response['redirect_url']);
             exit;
         } else {
-            $_SESSION['error'] = 'No redirect URL from Pesapal';
+            $_SESSION['error'] = 'No redirect URL from Pesapal. Response: ' . json_encode($response);
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }

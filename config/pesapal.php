@@ -1,5 +1,6 @@
 <?php
 // File: /config/pesapal.php
+
 // Auto-detect BASE_URL for Render deployment
 if (!defined('BASE_URL')) {
     if (php_sapi_name() === 'cli') {
@@ -38,6 +39,7 @@ if (file_exists($envFile) && !getenv('RENDER')) {
     }
 }
 
+// PesaPal v3 Credentials
 define('PESAPAL_CONSUMER_KEY', getenv('PESAPAL_CONSUMER_KEY') ?: '');
 define('PESAPAL_CONSUMER_SECRET', getenv('PESAPAL_CONSUMER_SECRET') ?: '');
 define('PESAPAL_ENVIRONMENT', getenv('PESAPAL_ENVIRONMENT') ?: 'sandbox');
@@ -53,30 +55,35 @@ if (getenv('RENDER')) {
     define('PESAPAL_IPN_URL', BASE_URL . '/external/pesapal-ipn');
 }
 
-// API Endpoints
+// API Endpoints - UPDATED to v3
 if (PESAPAL_ENVIRONMENT == 'production') {
-    define('PESAPAL_API_URL', 'https://www.pesapal.com/api/PostPesapalDirectOrderV4');
-    define('PESAPAL_QUERY_URL', 'https://www.pesapal.com/api/QueryPaymentDetails');
-    define('PESAPAL_IPN_REGISTER_URL', 'https://www.pesapal.com/api/RegisterIPN');
+    define('PESAPAL_API_URL', 'https://pay.pesapal.com/v3/api/PostPesapalDirectOrderV4');
+    define('PESAPAL_QUERY_URL', 'https://pay.pesapal.com/v3/api/QueryPaymentDetails');
+    define('PESAPAL_IPN_REGISTER_URL', 'https://pay.pesapal.com/v3/api/URLSetup/RegisterIPN');
+    define('PESAPAL_AUTH_URL', 'https://pay.pesapal.com/v3/api/Auth/RequestToken');
 } else {
-    define('PESAPAL_API_URL', 'https://sandbox.pesapal.com/api/PostPesapalDirectOrderV4');
-    define('PESAPAL_QUERY_URL', 'https://sandbox.pesapal.com/api/QueryPaymentDetails');
-    define('PESAPAL_IPN_REGISTER_URL', 'https://sandbox.pesapal.com/api/RegisterIPN');
+    // Sandbox v3 URLs
+    define('PESAPAL_API_URL', 'https://cybqa.pesapal.com/pesapalv3/api/PostPesapalDirectOrderV4');
+    define('PESAPAL_QUERY_URL', 'https://cybqa.pesapal.com/pesapalv3/api/QueryPaymentDetails');
+    define('PESAPAL_IPN_REGISTER_URL', 'https://cybqa.pesapal.com/pesapalv3/api/URLSetup/RegisterIPN');
+    define('PESAPAL_AUTH_URL', 'https://cybqa.pesapal.com/pesapalv3/api/Auth/RequestToken');
 }
 
-// Validation with better error handling for Render
+// Validation with better error handling
 if (empty(PESAPAL_CONSUMER_KEY) || empty(PESAPAL_CONSUMER_SECRET)) {
     if (getenv('RENDER')) {
         error_log('ERROR: PesaPal credentials not configured in Render environment variables');
     } else {
-        die('PesaPal credentials are not configured. Please check your .env file.');
+        // Don't die, just log for local development
+        error_log('WARNING: PesaPal credentials are not configured');
     }
 }
 
-// Optional: Debug mode for Render (set via environment variable)
+// Debug mode
 if (getenv('PESAPAL_DEBUG') === 'true') {
     error_log("[PesaPal Config] Loaded for environment: " . PESAPAL_ENVIRONMENT);
     error_log("[PesaPal Config] BASE_URL: " . BASE_URL);
+    error_log("[PesaPal Config] API URL: " . PESAPAL_API_URL);
     error_log("[PesaPal Config] Callback URL: " . PESAPAL_CALLBACK_URL);
 }
 ?>
