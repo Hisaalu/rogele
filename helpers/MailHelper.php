@@ -52,7 +52,7 @@ class MailHelper {
             $this->mail->addAddress($to, $name);
             
             $this->mail->isHTML(true);
-            $this->mail->Subject = 'Password Reset Request - Rays of Grace';
+            $this->mail->Subject = 'Password Reset Request - ROGELE';
             
             $this->mail->Body = $this->getResetEmailTemplate($name, $resetLink);
             $this->mail->AltBody = "Hello $name,\n\nClick this link to reset your password: $resetLink\n\nThis link expires in 20 minutes.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nRays of Grace Team";
