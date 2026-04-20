@@ -189,7 +189,6 @@ class Subscription {
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            
             return $results;
             
         } catch (PDOException $e) {
@@ -241,7 +240,7 @@ class Subscription {
         }
     }
     
-    // Process payment
+    // Process payment (direct - for testing or non-PesaPal flows)
     public function processPayment($userId, $subscriptionId, $phoneNumber, $amount) {
         try {
             $transactionId = 'TXN_' . time() . '_' . uniqid();
@@ -500,8 +499,13 @@ class Subscription {
      */
     public function calculateUpgradePrice($currentPlan, $newPlan, $currentSubscription) {
         try {
-            $settingsModel = new Settings();
-            $settings = $settingsModel->getSubscriptionSettings();
+            // Check if Settings class exists, if not use defaults
+            if (class_exists('Settings')) {
+                $settingsModel = new Settings();
+                $settings = $settingsModel->getSubscriptionSettings();
+            } else {
+                $settings = [];
+            }
             
             $prices = [
                 'monthly' => $settings['monthly_price'] ?? 15000,
@@ -571,7 +575,13 @@ class Subscription {
                 throw new Exception('No active subscription found');
             }
             
-            $settings = $this->getSubscriptionSettings();
+            // Get settings with fallback
+            if (class_exists('Settings')) {
+                $settings = $this->getSubscriptionSettings();
+            } else {
+                $settings = [];
+            }
+            
             $prices = [
                 'monthly' => $settings['monthly_price'] ?? 15000,
                 'termly' => $settings['termly_price'] ?? 40000,
@@ -645,7 +655,7 @@ class Subscription {
     }
 
     /**
-     * Record upgrade payment - UPDATED to ensure all fields are saved
+     * Record upgrade payment
      */
     private function recordUpgradePayment($userId, $fromPlan, $toPlan, $amount, $paymentDetails, $subscriptionId) {
         try {
@@ -687,7 +697,7 @@ class Subscription {
             $stmt->bindValue(':amount', $amount);
             $stmt->bindValue(':from_plan', $fromPlan);
             $stmt->bindValue(':to_plan', $toPlan);
-            $stmt->bindValue(':payment_method', $paymentDetails['method'] ?? 'mobile_money');
+            $stmt->bindValue(':payment_method', $paymentDetails['method'] ?? 'pesapal');
             $stmt->bindValue(':transaction_id', $paymentDetails['transaction_id'] ?? ('TXN_' . time() . '_' . $userId));
             $stmt->bindValue(':payment_data', json_encode($paymentDetails));
             
@@ -702,6 +712,7 @@ class Subscription {
             return $result;
             
         } catch (PDOException $e) {
+            error_log("Error recording payment history: " . $e->getMessage());
             return false;
         }
     }
@@ -711,6 +722,12 @@ class Subscription {
      */
     public function getSubscriptionSettings() {
         try {
+            // Check if settings table exists
+            $checkTable = $this->conn->query("SHOW TABLES LIKE 'settings'");
+            if ($checkTable->rowCount() == 0) {
+                return [];
+            }
+            
             $sql = "SELECT * FROM settings WHERE setting_group = 'subscription'";
             $stmt = $this->conn->query($sql);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -722,6 +739,7 @@ class Subscription {
             
             return $settings;
         } catch (PDOException $e) {
+            error_log("Error getting subscription settings: " . $e->getMessage());
             return [];
         }
     }
@@ -779,10 +797,10 @@ class Subscription {
             
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            
             return $results;
             
         } catch (PDOException $e) {
+            error_log("Error getting payment for subscription: " . $e->getMessage());
             return []; 
         }
     }
@@ -807,6 +825,7 @@ class Subscription {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
+            error_log("Error getting user payment history: " . $e->getMessage());
             return [];
         }
     }
@@ -860,23 +879,24 @@ class Subscription {
             return $history;
             
         } catch (PDOException $e) {
+            error_log("Error getting combined history: " . $e->getMessage());
             return [];
         }
     }
 
     /**
-     * Create a pending payment record
+     * Create a pending payment record for PesaPal
      * 
      * @param int $userId User ID
      * @param string $planType Plan type (monthly, termly, yearly)
      * @param float $amount Payment amount
-     * @param string $paymentMethod Payment method
+     * @param string $paymentMethod Payment method (pesapal)
      * @param string $phoneNumber User's phone number for mobile money
      * @return array Result with success status and payment details
      */
     public function createPendingPayment($userId, $planType, $amount, $paymentMethod, $phoneNumber = null) {
         try {
-            $transactionId = 'TXN_' . time() . '_' . $userId . '_' . rand(100, 999);
+            $transactionId = 'PESA_' . time() . '_' . $userId . '_' . rand(100, 999);
             
             $subscriptionId = $this->getOrCreatePendingSubscription($userId, $planType, $amount);
             
@@ -929,6 +949,7 @@ class Subscription {
             }
             
         } catch (PDOException $e) {
+            error_log("Error creating pending payment: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
@@ -983,26 +1004,34 @@ class Subscription {
             return $this->conn->lastInsertId();
             
         } catch (PDOException $e) {
+            error_log("Error creating pending subscription: " . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Update payment status after MoneyUnify callback
+     * Update payment status after PesaPal callback
+     * 
+     * @param string $transactionId The transaction ID
+     * @param string $status Payment status (completed, failed, pending)
+     * @param array|null $pesapalData Additional PesaPal callback data
+     * @return array Result with success status
      */
-    public function updatePaymentStatus($transactionId, $status, $moneyUnifyData = null) {
+    public function updatePaymentStatus($transactionId, $status, $pesapalData = null) {
         try {
             $sql = "UPDATE payments 
                     SET status = :status, 
                         payment_date = CASE 
                             WHEN :status = 'completed' THEN NOW() 
                             ELSE payment_date 
-                        END
+                        END,
+                        payment_gateway_response = :gateway_response
                     WHERE transaction_id = :transaction_id";
             
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':transaction_id', $transactionId);
+            $stmt->bindValue(':gateway_response', $pesapalData ? json_encode($pesapalData) : null);
             $stmt->execute();
             
             if ($status == 'completed') {
@@ -1012,6 +1041,7 @@ class Subscription {
             return ['success' => true];
             
         } catch (PDOException $e) {
+            error_log("Error updating payment status: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -1029,12 +1059,16 @@ class Subscription {
             
             if ($payment && $payment['subscription_id']) {
                 $sql = "UPDATE subscriptions 
-                        SET status = 'active' 
+                        SET status = 'active', 
+                            payment_method = 'pesapal',
+                            transaction_id = :transaction_id
                         WHERE id = :subscription_id";
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bindValue(':subscription_id', $payment['subscription_id'], PDO::PARAM_INT);
+                $stmt->bindValue(':transaction_id', $transactionId);
                 $stmt->execute();
                 
+                error_log("Subscription activated for subscription_id: " . $payment['subscription_id']);
             }
             
         } catch (PDOException $e) {
@@ -1043,24 +1077,41 @@ class Subscription {
     }
 
     /**
-     * Get payment by reference
+     * Get payment by transaction ID
+     * 
+     * @param string $transactionId The transaction ID
+     * @return array|null Payment record or null if not found
      */
-    public function getPaymentByReference($reference) {
+    public function getPaymentByTransactionId($transactionId) {
         try {
-            $sql = "SELECT * FROM payments WHERE reference = :reference";
+            $sql = "SELECT * FROM payments WHERE transaction_id = :transaction_id";
             $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':reference', $reference);
+            $stmt->bindValue(':transaction_id', $transactionId);
             $stmt->execute();
             
             return $stmt->fetch(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
+            error_log("Error getting payment by transaction ID: " . $e->getMessage());
             return null;
         }
     }
 
     /**
+     * Get payment by reference (alias for getPaymentByTransactionId for compatibility)
+     */
+    public function getPaymentByReference($reference) {
+        return $this->getPaymentByTransactionId($reference);
+    }
+
+    /**
      * Create subscription after successful payment
+     * 
+     * @param int $userId User ID
+     * @param string $planType Plan type
+     * @param float $amount Payment amount
+     * @param string $transactionId PesaPal transaction ID
+     * @return array Result with success status and subscription details
      */
     public function createSubscription($userId, $planType, $amount, $transactionId) {
         try {
@@ -1089,7 +1140,7 @@ class Subscription {
                         NOW(),
                         :end_date,
                         'active',
-                        :payment_method,
+                        'pesapal',
                         :transaction_id,
                         :is_upgrade,
                         NOW()
@@ -1100,7 +1151,6 @@ class Subscription {
             $stmt->bindValue(':plan_type', $planType);
             $stmt->bindValue(':amount', $amount);
             $stmt->bindValue(':end_date', $endDate);
-            $stmt->bindValue(':payment_method', 'moneyunify');
             $stmt->bindValue(':transaction_id', $transactionId);
             $stmt->bindValue(':is_upgrade', $currentSubscription ? 1 : 0, PDO::PARAM_INT);
             $stmt->execute();
@@ -1124,6 +1174,7 @@ class Subscription {
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
+            error_log("Error creating subscription: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -1140,9 +1191,45 @@ class Subscription {
             
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            error_log("Error getting payment by ID: " . $e->getMessage());
             return null;
         }
     }
 
+    /**
+     * Get user details by ID (helper method)
+     */
+    public function getUserById($userId) {
+        try {
+            $sql = "SELECT * FROM users WHERE id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error getting user by ID: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get PesaPal payment details for a transaction
+     */
+    public function getPesaPalPaymentDetails($transactionId) {
+        try {
+            $sql = "SELECT * FROM payments 
+                    WHERE transaction_id = :transaction_id 
+                    AND payment_method = 'pesapal'";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':transaction_id', $transactionId);
+            $stmt->execute();
+            
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error getting PesaPal payment details: " . $e->getMessage());
+            return null;
+        }
+    }
 }
 ?>
