@@ -92,7 +92,7 @@ class Pesapal {
             $token = $this->getAccessToken();
             if (!$token) {
                 error_log("Failed to get access token");
-                return ['error' => true, 'message' => 'Failed to authenticate with PesaPal. Please check your credentials.'];
+                return ['error' => true, 'message' => 'Failed to authenticate with PesaPal.'];
             }
             
             error_log("Access token obtained successfully");
