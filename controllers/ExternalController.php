@@ -982,10 +982,14 @@ class ExternalController {
      * Pesapal callback (after payment)
      */
     public function pesapalCallback() {
+        // Log the callback for debugging
+        error_log("PesaPal Callback received - GET params: " . print_r($_GET, true));
+        
         $pesapalTrackingId = $_GET['pesapal_transaction_tracking_id'] ?? '';
         $merchantReference = $_GET['pesapal_merchant_reference'] ?? '';
         
         if (empty($pesapalTrackingId)) {
+            error_log("PesaPal Callback Error: No tracking ID");
             $_SESSION['error'] = 'Invalid payment callback';
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
@@ -994,25 +998,39 @@ class ExternalController {
         $pesapal = new Pesapal();
         $verification = $pesapal->queryPaymentStatus($pesapalTrackingId);
         
+        error_log("Payment verification result: " . print_r($verification, true));
+        
         if (!$verification['success']) {
+            error_log("Payment verification failed: " . ($verification['message'] ?? 'Unknown error'));
             $_SESSION['error'] = 'Payment verification failed';
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
         if ($verification['status'] == 'COMPLETED') {
-            $this->subscriptionModel->updatePaymentStatus(
+            // Update payment status
+            $updateResult = $this->subscriptionModel->updatePaymentStatus(
                 $merchantReference,
                 'completed',
                 $verification
             );
+            error_log("Payment status update result: " . print_r($updateResult, true));
             
-            $this->activatePesapalSubscription($merchantReference);
+            // Activate subscription
+            $activationResult = $this->activatePesapalSubscription($merchantReference);
+            error_log("Subscription activation result: " . print_r($activationResult, true));
             
-            $_SESSION['success'] = 'Payment successful! Your subscription is now active.';
+            if ($activationResult['success']) {
+                $_SESSION['success'] = 'Payment successful! Your subscription is now active.';
+            } else {
+                $_SESSION['warning'] = 'Payment received but subscription activation pending. Please contact support.';
+                error_log("Failed to activate subscription for reference: " . $merchantReference);
+            }
+            
             header('Location: ' . BASE_URL . '/external/dashboard');
             exit;
         } else {
+            error_log("Payment not completed. Status: " . $verification['status']);
             $_SESSION['error'] = 'Payment was not successful. Status: ' . $verification['status'];
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
@@ -1056,13 +1074,23 @@ class ExternalController {
      * Activate subscription after successful payment
      */
     private function activatePesapalSubscription($reference) {
+        // Get payment by transaction ID (merchant reference)
         $payment = $this->subscriptionModel->getPaymentByTransactionId($reference);
         
         if (!$payment) {
+            error_log("Payment not found for reference: " . $reference);
             return false;
         }
         
-        $subscriptionResult = $this->subscriptionModel->createSubscription(
+        // Check if subscription already exists and is active
+        $existingSubscription = $this->subscriptionModel->getCurrentSubscription($payment['user_id']);
+        if ($existingSubscription && $existingSubscription['status'] === 'active') {
+            error_log("User already has active subscription: " . $payment['user_id']);
+            return true;
+        }
+        
+        // Create or update subscription
+        $subscriptionResult = $this->subscriptionModel->createOrUpdateSubscription(
             $payment['user_id'],
             $payment['plan_type'],
             $payment['amount'],
@@ -1070,14 +1098,22 @@ class ExternalController {
         );
         
         if ($subscriptionResult['success']) {
+            // Send confirmation email
             $this->sendPaymentConfirmationEmail(
                 $payment['user_id'],
                 $payment['plan_type'],
                 $payment['amount']
             );
+            
+            // Log the successful activation
+            error_log("Subscription activated for user: " . $payment['user_id'] . 
+                    ", plan: " . $payment['plan_type'] . 
+                    ", reference: " . $reference);
+            
+            return true;
         }
         
-        return $subscriptionResult;
+        return false;
     }
 
     /**
