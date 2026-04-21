@@ -718,49 +718,61 @@ class ExternalController {
     }
 
     /**
-     * Process upgrade (local test version)
+     * Process upgrade via PesaPal
      */
     public function processUpgrade() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
-        
+
+        $userId = $_SESSION['user_id'];
         $fromPlan = $_POST['from_plan'] ?? '';
         $toPlan = $_POST['to_plan'] ?? '';
-        $amount = $_POST['amount'] ?? 0;
-        
-        if (empty($fromPlan) || empty($toPlan)) {
-            $_SESSION['error'] = 'Invalid upgrade request';
+        $amount = (float)($_POST['amount'] ?? 0);
+
+        // 1. Basic Validation
+        if (empty($fromPlan) || empty($toPlan) || $amount <= 0) {
+            $_SESSION['error'] = 'Invalid upgrade request or amount.';
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
+
+        // 2. Prepare PesaPal Data
+        $user = $this->userModel->getById($userId);
+        $pesapal = new Pesapal();
         
-        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
+        // Create a unique reference for this upgrade
+        $reference = 'UPG_' . time() . '_' . $userId;
         
-        if (!$currentSubscription) {
-            $_SESSION['error'] = 'No active subscription found';
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-        
-        $result = $this->subscriptionModel->upgradeSubscription(
-            $_SESSION['user_id'],
-            $fromPlan,
-            $toPlan,
-            [
-                'method' => $_POST['payment_method'] ?? 'mobile_money',
-                'transaction_id' => 'UPG_' . time() . '_' . $_SESSION['user_id'],
+        $paymentData = [
+            'amount' => $amount,
+            'description' => "Upgrade from " . ucfirst($fromPlan) . " to " . ucfirst($toPlan),
+            'reference' => $reference,
+            'first_name' => $user['first_name'],
+            'last_name' => $user['last_name'],
+            'email' => $user['email'],
+            'phone' => $user['phone'] ?? ''
+        ];
+
+        // 3. Initiate PesaPal Order
+        $result = $pesapal->submitPayment($paymentData);
+
+        if ($result['success'] && isset($result['redirect_url'])) {
+            // Store upgrade intent in session or a temporary table 
+            // so you know what to do when the payment is confirmed
+            $_SESSION['pending_upgrade'] = [
+                'reference' => $reference,
+                'from_plan' => $fromPlan,
+                'to_plan' => $toPlan,
                 'amount' => $amount
-            ]
-        );
-        
-        if ($result['success']) {
-            $_SESSION['success'] = $result['message'];
-            header('Location: ' . BASE_URL . '/external/upgrade-success?subscription_id=' . $result['new_subscription_id']);
+            ];
+            
+            // Redirect to PesaPal
+            header('Location: ' . $result['redirect_url']);
             exit;
         } else {
-            $_SESSION['error'] = $result['error'];
+            $_SESSION['error'] = 'Could not initiate PesaPal payment: ' . ($result['message'] ?? 'Unknown error');
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
@@ -803,7 +815,7 @@ class ExternalController {
         $user = $this->userModel->getById($userId);
         
         $to = $user['email'];
-        $subject = "Your Rays of Grace Subscription Has Been Upgraded! 🎉";
+        $subject = "Your ROGELE Subscription Has Been Upgraded! 🎉";
         
         $message = "
         <html>
@@ -857,7 +869,7 @@ class ExternalController {
             $defaultHeaders = [
                 'MIME-Version: 1.0',
                 'Content-type: text/html; charset=utf-8',
-                'From: Rays of Grace E-Learning <noreply@raysofgrace.com>',
+                'From: ROGELE <noreply@raysofgrace.com>',
                 'Reply-To: support@raysofgrace.com',
                 'X-Mailer: PHP/' . phpversion()
             ];
@@ -879,24 +891,6 @@ class ExternalController {
      * Process payment with Pesapal
      */
     public function processPesapalPayment() {
-        error_log("=== PESAPAL PAYMENT INITIATED ===");
-
-            // if (strpos(BASE_URL, 'localhost') !== false) {
-            //     $paymentResult = $this->subscriptionModel->createPendingPayment(
-            //         $_SESSION['user_id'], $planType, $amount, $paymentMethod, $phoneNumber
-            //     );
-
-            //     if ($paymentResult['success']) {
-            //         $this->subscriptionModel->updatePaymentStatus(
-            //             $paymentResult['transaction_id'], 'completed', ['local_test' => true]
-            //         );
-            //         $this->activatePesapalSubscription($paymentResult['transaction_id']);
-
-            //         $_SESSION['success'] = '✅ Test payment successful! (Pesapal bypassed for local development)';
-            //         header('Location: ' . BASE_URL . '/external/dashboard');
-            //         exit;
-            //     }
-            // }
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . BASE_URL . '/external/subscription');
@@ -906,10 +900,6 @@ class ExternalController {
         $planType = $_POST['plan'] ?? '';
         $paymentMethod = $_POST['payment_method'] ?? 'mobile_money';
         $phoneNumber = $_POST['phone_number'] ?? '';
-        
-        error_log("Plan: " . $planType);
-        error_log("Payment Method: " . $paymentMethod);
-        error_log("Phone Number: " . $phoneNumber);
         
         if (empty($planType)) {
             $_SESSION['error'] = 'Please select a subscription plan';
@@ -931,11 +921,6 @@ class ExternalController {
         ];
         
         $amount = $amounts[$planType] ?? 0;
-        error_log("Amount: " . $amount);
-        
-        // Check PesaPal credentials
-        error_log("PESAPAL_CONSUMER_KEY: " . (defined('PESAPAL_CONSUMER_KEY') ? substr(PESAPAL_CONSUMER_KEY, 0, 10) . '...' : 'NOT DEFINED'));
-        error_log("PESAPAL_ENVIRONMENT: " . (defined('PESAPAL_ENVIRONMENT') ? PESAPAL_ENVIRONMENT : 'NOT DEFINED'));
         
         $paymentResult = $this->subscriptionModel->createPendingPayment(
             $_SESSION['user_id'],
@@ -944,8 +929,6 @@ class ExternalController {
             $paymentMethod,
             $phoneNumber
         );
-        
-        error_log("Payment Result: " . json_encode($paymentResult));
         
         if (!$paymentResult['success']) {
             $_SESSION['error'] = $paymentResult['error'];
@@ -968,14 +951,10 @@ class ExternalController {
             'first_name' => $firstName,
             'last_name' => $lastName,
             'reference' => $paymentResult['transaction_id'],
-            'description' => ucfirst($planType) . ' Subscription - Rays of Grace'
+            'description' => ucfirst($planType) . ' Subscription - ROGELE'
         ];
         
-        error_log("Payment Data: " . json_encode($paymentData));
-        
         $response = $pesapal->submitPayment($paymentData);
-        
-        error_log("PesaPal Response: " . json_encode($response));
         
         if (isset($response['error']) && $response['error']) {
             $_SESSION['error'] = $response['message'] ?? 'Payment submission failed. Please try again.';
