@@ -1,5 +1,5 @@
 <?php
-// File: ipn_handler.php - Reuse your existing database connection
+// File: ipn_handler.php - Updated to verify payment status with PesaPal
 
 // Disable error display
 error_reporting(0);
@@ -21,16 +21,18 @@ ipn_log("POST: " . json_encode($_POST));
 
 // Include your existing database configuration
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/pesapal.php';
+require_once __DIR__ . '/lib/Pesapal.php';
 
 try {
     // Use your existing Database class
     $db = Database::getInstance();
     $pdo = $db->getConnection();
-    ipn_log("Database connected successfully using existing config");
+    ipn_log("Database connected successfully");
 } catch (Exception $e) {
     ipn_log("Database connection failed: " . $e->getMessage());
     http_response_code(200);
-    echo "Database error: " . $e->getMessage();
+    echo "Database error";
     exit;
 }
 
@@ -41,14 +43,31 @@ $orderNotificationType = $_GET['OrderNotificationType'] ?? null;
 
 ipn_log("OrderTrackingId: " . $orderTrackingId);
 ipn_log("OrderMerchantReference: " . $orderMerchantReference);
-ipn_log("OrderNotificationType: " . $orderNotificationType);
 
 if (!$orderTrackingId || !$orderMerchantReference) {
-    ipn_log("INFO: Missing parameters - this might be a test request");
+    ipn_log("INFO: Missing parameters - test request");
     http_response_code(200);
-    echo "IPN handler is ready. Waiting for PesaPal notifications.";
+    echo "IPN handler is ready";
     exit;
 }
+
+// CRITICAL: Verify payment status with PesaPal API
+ipn_log("Verifying payment status with PesaPal API...");
+$pesapal = new Pesapal();
+$paymentStatus = $pesapal->queryPaymentStatus($orderTrackingId);
+
+ipn_log("PesaPal API Response: " . print_r($paymentStatus, true));
+
+// Only process if payment is COMPLETED
+if (!$paymentStatus['success'] || strtoupper($paymentStatus['status']) !== 'COMPLETED') {
+    ipn_log("WARNING: Payment not completed. Status: " . ($paymentStatus['status'] ?? 'Unknown'));
+    ipn_log("NOT activating subscription - payment failed or pending");
+    http_response_code(200);
+    echo "Payment not completed - subscription not activated";
+    exit;
+}
+
+ipn_log("Payment verified as COMPLETED by PesaPal API");
 
 try {
     // Get payment record
@@ -59,12 +78,13 @@ try {
     ipn_log("Payment lookup result: " . ($payment ? "Found" : "Not found"));
     
     if ($payment) {
-        ipn_log("Payment found - User ID: " . $payment['user_id'] . ", Status: " . $payment['status']);
+        ipn_log("Payment found - User ID: " . $payment['user_id'] . ", Current Status: " . $payment['status']);
         
+        // Only update if not already completed
         if ($payment['status'] !== 'completed') {
-            // Update payment status
-            $updateStmt = $pdo->prepare("UPDATE payments SET status = 'completed', payment_date = NOW() WHERE transaction_id = ?");
-            $updateStmt->execute([$orderMerchantReference]);
+            // Update payment status to completed
+            $updateStmt = $pdo->prepare("UPDATE payments SET status = 'completed', payment_date = NOW(), payment_gateway_response = ? WHERE transaction_id = ?");
+            $updateStmt->execute([json_encode($paymentStatus), $orderMerchantReference]);
             ipn_log("Payment status updated to completed");
             
             // Determine plan type and days
@@ -79,27 +99,27 @@ try {
             
             if ($existingSub) {
                 // Update existing subscription
-                $updateSubStmt = $pdo->prepare("UPDATE subscriptions SET plan_type = ?, amount = ?, end_date = ?, status = 'active', payment_method = 'pesapal', transaction_id = ? WHERE id = ?");
+                $updateSubStmt = $pdo->prepare("UPDATE subscriptions SET plan_type = ?, amount = ?, end_date = ?, status = 'active', payment_method = 'pesapal', transaction_id = ?, updated_at = NOW() WHERE id = ?");
                 $updateSubStmt->execute([$planType, $payment['amount'], $endDate, $orderMerchantReference, $existingSub['id']]);
                 ipn_log("Subscription updated: ID " . $existingSub['id']);
             } else {
                 // Create new subscription
-                $insertSubStmt = $pdo->prepare("INSERT INTO subscriptions (user_id, plan_type, amount, start_date, end_date, status, payment_method, transaction_id) VALUES (?, ?, ?, NOW(), ?, 'active', 'pesapal', ?)");
+                $insertSubStmt = $pdo->prepare("INSERT INTO subscriptions (user_id, plan_type, amount, start_date, end_date, status, payment_method, transaction_id, created_at) VALUES (?, ?, ?, NOW(), ?, 'active', 'pesapal', ?, NOW())");
                 $insertSubStmt->execute([$payment['user_id'], $planType, $payment['amount'], $endDate, $orderMerchantReference]);
                 $newSubId = $pdo->lastInsertId();
                 ipn_log("New subscription created: ID " . $newSubId);
             }
             
-            ipn_log("SUCCESS: Payment and subscription processed");
+            ipn_log("SUCCESS: Payment and subscription activated for user: " . $payment['user_id']);
             http_response_code(200);
-            echo "IPN processed successfully";
+            echo "IPN processed successfully - subscription activated";
         } else {
-            ipn_log("Payment already completed previously");
+            ipn_log("Payment already completed previously - no action taken");
             http_response_code(200);
             echo "Payment already processed";
         }
     } else {
-        ipn_log("No payment record found for reference: " . $orderMerchantReference);
+        ipn_log("ERROR: No payment record found for reference: " . $orderMerchantReference);
         http_response_code(200);
         echo "Payment record not found";
     }

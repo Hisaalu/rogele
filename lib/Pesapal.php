@@ -234,7 +234,7 @@ class Pesapal {
         try {
             $token = $this->getAccessToken();
             if (!$token) {
-                return ['error' => true, 'message' => 'Failed to authenticate'];
+                return ['success' => false, 'message' => 'Failed to authenticate', 'status' => 'ERROR'];
             }
             
             $url = $this->apiBaseUrl . '/api/Transactions/GetTransactionStatus?order_tracking_id=' . urlencode($orderTrackingId);
@@ -250,23 +250,38 @@ class Pesapal {
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             
             $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
+            
+            error_log("[PesaPal Query] Response: " . $response);
             
             $result = json_decode($response, true);
             
+            // PesaPal v3 response structure
             if (isset($result['payment_status_description'])) {
                 return [
                     'success' => true,
                     'status' => $result['payment_status_description'],
                     'amount' => $result['amount'] ?? 0,
-                    'payment_method' => $result['payment_method'] ?? ''
+                    'payment_method' => $result['payment_method'] ?? '',
+                    'raw' => $result
                 ];
             }
             
-            return ['error' => true, 'message' => 'Query failed'];
+            // Check for error
+            if (isset($result['error'])) {
+                return [
+                    'success' => false,
+                    'message' => $result['error']['message'] ?? 'Unknown error',
+                    'status' => 'ERROR'
+                ];
+            }
+            
+            return ['success' => false, 'message' => 'Query failed', 'status' => 'UNKNOWN'];
             
         } catch (Exception $e) {
-            return ['error' => true, 'message' => $e->getMessage()];
+            error_log("[PesaPal Query] Exception: " . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage(), 'status' => 'ERROR'];
         }
     }
 }
