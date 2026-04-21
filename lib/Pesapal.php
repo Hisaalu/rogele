@@ -24,7 +24,7 @@ class Pesapal {
      */
     public function getAccessToken() {
         try {
-            $url = $this->apiBaseUrl . '/api/Auth/RequestToken';
+            $url = $this->apiBaseUrl . '/v3/api/Auth/RequestToken';
             
             $postData = json_encode([
                 'consumer_key' => $this->consumerKey,
@@ -133,7 +133,7 @@ class Pesapal {
             error_log("[PesaPal] Submit order URL: " . $this->apiBaseUrl . '/api/Transactions/SubmitOrderRequest');
             error_log("[PesaPal] Post data: " . json_encode($postData));
             
-            $url = $this->apiBaseUrl . '/api/Transactions/SubmitOrderRequest';
+            $url = $this->apiBaseUrl . '/v3/api/Transactions/SubmitOrderRequest';
             
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -194,7 +194,7 @@ class Pesapal {
      */
     public function getIpnId($token) {
         try {
-            $url = $this->apiBaseUrl . '/api/URLSetup/RegisterIPN';
+            $url = $this->apiBaseUrl . '/v3/api/URLSetup/RegisterIPN';
             $postData = json_encode([
                 'url' => PESAPAL_IPN_URL,
                 'ipn_notification_type' => 'GET'
