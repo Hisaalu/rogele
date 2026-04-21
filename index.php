@@ -109,6 +109,10 @@ $routes = [
     '/learner/bookmarks' => 'LearnerController@bookmarks',
     
     // External user routes
+    '/external/pesapal-ipn' => 'ExternalController@pesapalIpn',
+    '/external/pesapal-callback' => 'ExternalController@pesapalCallback',
+    '/external/pesapal-test' => 'ExternalController@pesapalTest',
+    '/external/process-pesapal-payment' => 'ExternalController@processPesapalPayment',
     '/external/dashboard' => 'ExternalController@dashboard',
     '/external/materials' => 'ExternalController@materials',
     '/external/view-lesson/{id}' => 'ExternalController@viewLesson',
@@ -131,10 +135,6 @@ $routes = [
     '/external/payment-callback' => 'ExternalController@paymentCallback',
     '/external/payment-success' => 'ExternalController@paymentSuccess',
     '/external/payment-cancelled' => 'ExternalController@paymentCancelled',
-    '/external/process-pesapal-payment' => 'ExternalController@processPesapalPayment',
-    '/external/pesapal-callback' => 'ExternalController@pesapalCallback',
-    '/external/pesapal-ipn' => 'ExternalController@pesapalIpn',
-    '/external/pesapal-test' => 'ExternalController@pesapalTest',
     
      // Settings routes
     '/admin/settings' => 'AdminController@settings',
