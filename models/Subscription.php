@@ -886,24 +886,19 @@ class Subscription {
 
     /**
      * Create a pending payment record for PesaPal
-     * 
-     * @param int $userId User ID
-     * @param string $planType Plan type (monthly, termly, yearly)
-     * @param float $amount Payment amount
-     * @param string $paymentMethod Payment method (pesapal)
-     * @param string $phoneNumber User's phone number for mobile money
-     * @return array Result with success status and payment details
      */
     public function createPendingPayment($userId, $planType, $amount, $paymentMethod, $phoneNumber = null) {
         try {
             $transactionId = 'PESA_' . time() . '_' . $userId . '_' . rand(100, 999);
             
+            // First create or get pending subscription with plan_type
             $subscriptionId = $this->getOrCreatePendingSubscription($userId, $planType, $amount);
             
             if (!$subscriptionId) {
                 return ['success' => false, 'error' => 'Failed to create subscription record'];
             }
             
+            // Insert payment record with plan_type
             $sql = "INSERT INTO payments (
                         user_id, 
                         subscription_id, 
@@ -911,6 +906,7 @@ class Subscription {
                         payment_method, 
                         transaction_id,
                         phone_number,
+                        plan_type,  -- Make sure this column exists in your payments table
                         status,
                         payment_date,
                         created_at
@@ -921,6 +917,7 @@ class Subscription {
                         :payment_method,
                         :transaction_id,
                         :phone_number,
+                        :plan_type,
                         'pending',
                         NOW(),
                         NOW()
@@ -933,9 +930,12 @@ class Subscription {
             $stmt->bindValue(':payment_method', $paymentMethod);
             $stmt->bindValue(':transaction_id', $transactionId);
             $stmt->bindValue(':phone_number', $phoneNumber);
+            $stmt->bindValue(':plan_type', $planType);
             
             if ($stmt->execute()) {
                 $paymentId = $this->conn->lastInsertId();
+                
+                error_log("[Payment] Created pending payment: ID=$paymentId, Transaction=$transactionId, Plan=$planType");
                 
                 return [
                     'success' => true,
@@ -945,11 +945,12 @@ class Subscription {
                 ];
             } else {
                 $error = $stmt->errorInfo();
+                error_log("[Payment] Failed to create payment: " . print_r($error, true));
                 return ['success' => false, 'error' => 'Failed to create payment record: ' . $error[2]];
             }
             
         } catch (PDOException $e) {
-            error_log("Error creating pending payment: " . $e->getMessage());
+            error_log("[Payment] Error creating pending payment: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
