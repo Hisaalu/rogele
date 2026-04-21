@@ -951,10 +951,42 @@ class ExternalController {
         
         $userId = $_SESSION['user_id'];
         $planType = $_POST['plan_type'] ?? 'monthly';
-        $amount = (float)($_POST['amount'] ?? 0);
+        
+        // Get the correct amount from settings with proper error handling
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
+        
+        // Debug: Log what we got from settings
+        error_log("[PesaPal Payment] Subscription settings: " . print_r($subscriptionSettings, true));
+        
+        // Define default prices in case settings are not found
+        $defaultPrices = [
+            'monthly' => 15000,
+            'termly' => 40000,
+            'yearly' => 120000
+        ];
+        
+        // Try to get price from settings, fall back to defaults
+        $amount = $defaultPrices[$planType];
+        
+        // Override with database settings if they exist
+        if (!empty($subscriptionSettings)) {
+            $priceKey = $planType . '_price';
+            if (isset($subscriptionSettings[$priceKey]) && !empty($subscriptionSettings[$priceKey])) {
+                $amount = (float)$subscriptionSettings[$priceKey];
+            }
+        }
+        
+        // Ensure amount is positive and valid
+        if ($amount <= 0) {
+            error_log("[PesaPal Payment] ERROR: Invalid amount: $amount for plan: $planType");
+            $_SESSION['error'] = 'Invalid subscription amount. Please contact support.';
+            header('Location: ' . BASE_URL . '/external/subscription');
+            exit;
+        }
+        
         $phone = $_POST['phone_number'] ?? '';
         
-        error_log("[PesaPal Payment] Starting for user: " . $userId . ", plan: " . $planType . ", amount: " . $amount);
+        error_log("[PesaPal Payment] Starting for user: $userId, plan: $planType, amount: $amount");
         
         // Get user details
         $user = $this->userModel->getById($userId);
@@ -965,10 +997,10 @@ class ExternalController {
             exit;
         }
         
-        // Create pending payment with plan_type
+        // Create pending payment
         $paymentResult = $this->subscriptionModel->createPendingPayment(
             $userId,
-            $planType,  // This stores the plan_type
+            $planType,
             $amount,
             'pesapal',
             $phone
@@ -994,7 +1026,7 @@ class ExternalController {
         
         $result = $pesapal->submitPayment($paymentData);
         
-        if ($result['success'] && isset($result['redirect_url'])) {
+        if (isset($result['success']) && $result['success'] && isset($result['redirect_url'])) {
             // Store payment info in session for callback
             $_SESSION['pending_payment'] = [
                 'transaction_id' => $paymentResult['transaction_id'],
@@ -1007,7 +1039,9 @@ class ExternalController {
             header('Location: ' . $result['redirect_url']);
             exit;
         } else {
-            $_SESSION['error'] = $result['message'] ?? 'Payment processing failed.';
+            $errorMsg = isset($result['message']) ? $result['message'] : 'Payment processing failed. Please try again.';
+            error_log("[PesaPal Payment] Failed: " . $errorMsg);
+            $_SESSION['error'] = $errorMsg;
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
