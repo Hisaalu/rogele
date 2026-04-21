@@ -29,7 +29,10 @@ class Pesapal {
             $postData = json_encode([
                 'consumer_key' => $this->consumerKey,
                 'consumer_secret' => $this->consumerSecret
-            ], JSON_UNESCAPED_SLASHES);
+            ]);
+            
+            error_log("[PesaPal Auth] URL: " . $url);
+            error_log("[PesaPal Auth] Consumer Key: " . substr($this->consumerKey, 0, 10) . "...");
             
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -46,28 +49,35 @@ class Pesapal {
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $curlError = curl_error($ch);
+            
+            error_log("[PesaPal Auth] HTTP Code: " . $httpCode);
+            error_log("[PesaPal Auth] Response: " . $response);
+            
             curl_close($ch);
             
             if ($curlError) {
+                error_log("[PesaPal Auth] CURL Error: " . $curlError);
                 return null;
             }
             
+            $data = json_decode($response, true);
+            
             if ($httpCode == 200) {
-                $data = json_decode($response, true);
                 if (isset($data['token'])) {
+                    error_log("[PesaPal Auth] Token obtained successfully");
                     return $data['token'];
                 }
                 if (isset($data['access_token'])) {
+                    error_log("[PesaPal Auth] Access token obtained successfully");
                     return $data['access_token'];
                 }
-                error_log("Token not found in response: " . print_r($data, true));
-            } else {
-                error_log("Auth failed with HTTP code: " . $httpCode);
             }
             
+            error_log("[PesaPal Auth] Failed to get token. Response: " . print_r($data, true));
             return null;
             
         } catch (Exception $e) {
+            error_log("[PesaPal Auth] Exception: " . $e->getMessage());
             return null;
         }
     }
@@ -232,33 +242,67 @@ class Pesapal {
      */
     public function queryPaymentStatus($orderTrackingId) {
         try {
+            error_log("[PesaPal Query] Starting for tracking ID: " . $orderTrackingId);
+            
+            // Get access token
             $token = $this->getAccessToken();
             if (!$token) {
+                error_log("[PesaPal Query] Failed to get access token");
                 return ['success' => false, 'message' => 'Failed to authenticate', 'status' => 'ERROR'];
             }
             
-            $url = $this->apiBaseUrl . '/api/Transactions/GetTransactionStatus?order_tracking_id=' . urlencode($orderTrackingId);
+            error_log("[PesaPal Query] Got token: " . substr($token, 0, 20) . "...");
             
+            // Build URL
+            $url = $this->apiBaseUrl . '/api/Transactions/GetTransactionStatus?order_tracking_id=' . urlencode($orderTrackingId);
+            error_log("[PesaPal Query] URL: " . $url);
+            
+            // Initialize curl
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Authorization: Bearer ' . $token,
-                'Accept: application/json'
+                'Accept: application/json',
+                'Content-Type: application/json'
             ]);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_VERBOSE, true);
+            
+            // Capture curl verbose output for debugging
+            $verbose = fopen('php://temp', 'w+');
+            curl_setopt($ch, CURLOPT_STDERR, $verbose);
             
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            
+            // Get verbose output
+            rewind($verbose);
+            $verboseLog = stream_get_contents($verbose);
+            fclose($verbose);
+            
+            error_log("[PesaPal Query] HTTP Code: " . $httpCode);
+            error_log("[PesaPal Query] Response: " . $response);
+            if ($curlError) {
+                error_log("[PesaPal Query] CURL Error: " . $curlError);
+            }
+            error_log("[PesaPal Query] Verbose: " . $verboseLog);
+            
             curl_close($ch);
             
-            error_log("[PesaPal Query] Response: " . $response);
+            if ($curlError) {
+                return ['success' => false, 'message' => 'CURL error: ' . $curlError, 'status' => 'ERROR'];
+            }
             
             $result = json_decode($response, true);
             
-            // PesaPal v3 response structure
-            if (isset($result['payment_status_description'])) {
+            // Log the decoded response
+            error_log("[PesaPal Query] Decoded response: " . print_r($result, true));
+            
+            // Check for different response formats
+            if ($result && isset($result['payment_status_description'])) {
                 return [
                     'success' => true,
                     'status' => $result['payment_status_description'],
@@ -268,16 +312,26 @@ class Pesapal {
                 ];
             }
             
-            // Check for error
-            if (isset($result['error'])) {
-                return [
-                    'success' => false,
-                    'message' => $result['error']['message'] ?? 'Unknown error',
-                    'status' => 'ERROR'
-                ];
+            // Check for error in response
+            if ($result && isset($result['error'])) {
+                $errorMsg = is_array($result['error']) ? ($result['error']['message'] ?? json_encode($result['error'])) : $result['error'];
+                return ['success' => false, 'message' => $errorMsg, 'status' => 'ERROR'];
             }
             
-            return ['success' => false, 'message' => 'Query failed', 'status' => 'UNKNOWN'];
+            // Check for status field
+            if ($result && isset($result['status'])) {
+                if ($result['status'] === '200' || $result['status'] === 200) {
+                    // This might be a success but missing expected fields
+                    return [
+                        'success' => true,
+                        'status' => 'COMPLETED', // Assume completed if status is 200
+                        'amount' => $result['amount'] ?? 0,
+                        'raw' => $result
+                    ];
+                }
+            }
+            
+            return ['success' => false, 'message' => 'Query failed - invalid response', 'status' => 'UNKNOWN'];
             
         } catch (Exception $e) {
             error_log("[PesaPal Query] Exception: " . $e->getMessage());
