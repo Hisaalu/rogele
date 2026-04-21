@@ -1,5 +1,5 @@
 <?php
-// File: test_pesapal_api.php - Test PesaPal API connection
+// File: test_pesapal_api.php - Updated to use the Pesapal class
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -8,7 +8,7 @@ echo "<pre>";
 echo "Testing PesaPal API Connection\n";
 echo "==============================\n\n";
 
-// Load config
+// Load config and class
 require_once __DIR__ . '/config/pesapal.php';
 require_once __DIR__ . '/lib/Pesapal.php';
 
@@ -25,35 +25,14 @@ $token = $pesapal->getAccessToken();
 if ($token) {
     echo "✓ Access token obtained: " . substr($token, 0, 30) . "...\n\n";
     
-    // Test 2: Query a known order (use a recent OrderTrackingId from your logs)
-    $orderTrackingId = "35d2ea1f-4900-4ffa-af45-da7952c682bb"; // From your latest log
+    // Test 2: Query payment status using the class method
+    $orderTrackingId = "35d2ea1f-4900-4ffa-af45-da7952c682bb"; // Use a recent OrderTrackingId
     echo "Test 2: Querying payment status for: $orderTrackingId\n";
     
-    $url = (PESAPAL_ENVIRONMENT == 'production' ? 'https://pay.pesapal.com' : 'https://cybqa.pesapal.com') . 
-           '/api/Transactions/GetTransactionStatus?order_tracking_id=' . urlencode($orderTrackingId);
+    $result = $pesapal->queryPaymentStatus($orderTrackingId);
     
-    echo "URL: $url\n";
-    
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $token,
-        'Accept: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    curl_close($ch);
-    
-    echo "HTTP Code: $httpCode\n";
-    if ($curlError) {
-        echo "CURL Error: $curlError\n";
-    }
-    echo "Response: " . print_r(json_decode($response, true), true) . "\n";
+    echo "Result:\n";
+    print_r($result);
     
 } else {
     echo "✗ Failed to get access token\n";
