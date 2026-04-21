@@ -1,7 +1,7 @@
 <?php
-// File: ipn_handler.php - Place this in your root directory (same as index.php)
+// File: ipn_handler.php - Reuse your existing database connection
 
-// Disable error display for production
+// Disable error display
 error_reporting(0);
 ini_set('display_errors', 0);
 
@@ -19,76 +19,19 @@ ipn_log("========== IPN REQUEST RECEIVED ==========");
 ipn_log("GET: " . json_encode($_GET));
 ipn_log("POST: " . json_encode($_POST));
 
-// Load environment variables from .env file if it exists
-if (file_exists(__DIR__ . '/.env')) {
-    $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue;
-        $parts = explode('=', $line, 2);
-        if (count($parts) == 2) {
-            $key = trim($parts[0]);
-            $value = trim($parts[1], '"\'');
-            putenv("$key=$value");
-            $_ENV[$key] = $value;
-        }
-    }
-    ipn_log(".env file loaded");
-}
+// Include your existing database configuration
+require_once __DIR__ . '/config/database.php';
 
-// Try to get database configuration from multiple sources
-$dbHost = getenv('DB_HOST') ?: getenv('RENDER_DB_HOST') ?: 'localhost';
-$dbName = getenv('DB_NAME') ?: getenv('RENDER_DB_NAME') ?: 'rogele_db';
-$dbUser = getenv('DB_USER') ?: getenv('RENDER_DB_USER') ?: 'root';
-$dbPass = getenv('DB_PASS') ?: getenv('RENDER_DB_PASSWORD') ?: '';
-
-ipn_log("DB Config - Host: $dbHost, Database: $dbName, User: $dbUser");
-
-// If on Render, try to get from internal database URL
-if (getenv('RENDER')) {
-    $databaseUrl = getenv('DATABASE_URL');
-    if ($databaseUrl) {
-        ipn_log("DATABASE_URL found, parsing...");
-        // Parse DATABASE_URL (PostgreSQL format: postgresql://user:pass@host:port/db)
-        if (preg_match('/postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/', $databaseUrl, $matches)) {
-            $dbUser = $matches[1];
-            $dbPass = $matches[2];
-            $dbHost = $matches[3];
-            $dbName = $matches[5];
-            ipn_log("Parsed PostgreSQL connection details");
-        }
-        // For MySQL: mysql://user:pass@host:port/db
-        elseif (preg_match('/mysql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/', $databaseUrl, $matches)) {
-            $dbUser = $matches[1];
-            $dbPass = $matches[2];
-            $dbHost = $matches[3];
-            $dbName = $matches[5];
-            ipn_log("Parsed MySQL connection details");
-        }
-    }
-}
-
-ipn_log("Final DB Config - Host: $dbHost, Database: $dbName, User: $dbUser");
-
-// Try to connect to database
 try {
-    // Try MySQL first
-    $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4", $dbUser, $dbPass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    ipn_log("MySQL database connected successfully");
-} catch (PDOException $e) {
-    ipn_log("MySQL connection failed: " . $e->getMessage());
-    
-    // Try PostgreSQL if MySQL fails
-    try {
-        $pdo = new PDO("pgsql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        ipn_log("PostgreSQL database connected successfully");
-    } catch (PDOException $e2) {
-        ipn_log("All database connections failed: " . $e2->getMessage());
-        http_response_code(200);
-        echo "Database error: " . $e2->getMessage();
-        exit;
-    }
+    // Use your existing Database class
+    $db = Database::getInstance();
+    $pdo = $db->getConnection();
+    ipn_log("Database connected successfully using existing config");
+} catch (Exception $e) {
+    ipn_log("Database connection failed: " . $e->getMessage());
+    http_response_code(200);
+    echo "Database error: " . $e->getMessage();
+    exit;
 }
 
 // Get parameters from PesaPal
@@ -101,23 +44,25 @@ ipn_log("OrderMerchantReference: " . $orderMerchantReference);
 ipn_log("OrderNotificationType: " . $orderNotificationType);
 
 if (!$orderTrackingId || !$orderMerchantReference) {
-    ipn_log("ERROR: Missing required parameters");
+    ipn_log("INFO: Missing parameters - this might be a test request");
     http_response_code(200);
-    echo "Missing parameters";
+    echo "IPN handler is ready. Waiting for PesaPal notifications.";
     exit;
 }
 
 try {
-    // First, get the payment record from your database
+    // Get payment record
     $stmt = $pdo->prepare("SELECT * FROM payments WHERE transaction_id = ?");
     $stmt->execute([$orderMerchantReference]);
     $payment = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    ipn_log("Payment record found: " . json_encode($payment));
+    ipn_log("Payment lookup result: " . ($payment ? "Found" : "Not found"));
     
     if ($payment) {
+        ipn_log("Payment found - User ID: " . $payment['user_id'] . ", Status: " . $payment['status']);
+        
         if ($payment['status'] !== 'completed') {
-            // Update payment status to completed
+            // Update payment status
             $updateStmt = $pdo->prepare("UPDATE payments SET status = 'completed', payment_date = NOW() WHERE transaction_id = ?");
             $updateStmt->execute([$orderMerchantReference]);
             ipn_log("Payment status updated to completed");
@@ -154,13 +99,12 @@ try {
             echo "Payment already processed";
         }
     } else {
-        ipn_log("ERROR: No payment record found for reference: " . $orderMerchantReference);
+        ipn_log("No payment record found for reference: " . $orderMerchantReference);
         http_response_code(200);
         echo "Payment record not found";
     }
 } catch (Exception $e) {
     ipn_log("ERROR processing IPN: " . $e->getMessage());
-    ipn_log("Stack trace: " . $e->getTraceAsString());
     http_response_code(200);
     echo "Error: " . $e->getMessage();
 }
