@@ -17,9 +17,6 @@ class Pesapal {
         } else {
             $this->apiBaseUrl = 'https://cybqa.pesapal.com/pesapalv3';
         }
-        
-        error_log("Pesapal v3 initialized with Base URL: " . $this->apiBaseUrl);
-        error_log("Consumer Key: " . substr($this->consumerKey, 0, 10) . '...');
     }
     
     /**
@@ -32,10 +29,7 @@ class Pesapal {
             $postData = json_encode([
                 'consumer_key' => $this->consumerKey,
                 'consumer_secret' => $this->consumerSecret
-            ]);
-            
-            error_log("Auth URL: " . $url);
-            error_log("Auth Request Data: " . $postData);
+            ], JSON_UNESCAPED_SLASHES);
             
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -54,11 +48,7 @@ class Pesapal {
             $curlError = curl_error($ch);
             curl_close($ch);
             
-            error_log("Auth HTTP Code: " . $httpCode);
-            error_log("Auth Response: " . $response);
-            
             if ($curlError) {
-                error_log("CURL Error: " . $curlError);
                 return null;
             }
             
@@ -78,7 +68,6 @@ class Pesapal {
             return null;
             
         } catch (Exception $e) {
-            error_log("Auth Exception: " . $e->getMessage());
             return null;
         }
     }
@@ -90,12 +79,10 @@ class Pesapal {
         try {
             // Get access token
             $token = $this->getAccessToken();
+            $ipnId = $this->getIpnId($token);
             if (!$token) {
-                error_log("Failed to get access token");
                 return ['error' => true, 'message' => 'Failed to authenticate with PesaPal.'];
             }
-            
-            error_log("Access token obtained successfully");
             
             // Clean phone number
             $phone = preg_replace('/\s+/', '', $paymentData['phone']);
@@ -108,8 +95,9 @@ class Pesapal {
                 'amount' => (float)$paymentData['amount'],
                 'currency' => PESAPAL_CURRENCY,
                 'description' => $paymentData['description'],
-                'reference' => $paymentData['reference'],
+                'id' => $paymentData['reference'],
                 'callback_url' => PESAPAL_CALLBACK_URL,
+                'notification_id' => $ipnId,
                 'billing_address' => [
                     'email_address' => $paymentData['email'],
                     'phone_number' => $phone,
@@ -119,10 +107,7 @@ class Pesapal {
                 ]
             ];
             
-            error_log("Payment Request Data: " . json_encode($postData));
-            
-            $url = $this->apiBaseUrl . '/api/Transactions/SubmitOrder';
-            error_log("Submit URL: " . $url);
+            $url = $this->apiBaseUrl . '/api/Transactions/SubmitOrderRequest';
             
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -142,11 +127,7 @@ class Pesapal {
             $curlError = curl_error($ch);
             curl_close($ch);
             
-            error_log("Payment HTTP Code: " . $httpCode);
-            error_log("Payment Response: " . $response);
-            
             if ($curlError) {
-                error_log("CURL Error: " . $curlError);
                 return ['error' => true, 'message' => 'Connection error: ' . $curlError];
             }
             
@@ -168,9 +149,32 @@ class Pesapal {
             return ['error' => true, 'message' => 'Payment submission failed - Invalid response from server'];
             
         } catch (Exception $e) {
-            error_log("Payment Exception: " . $e->getMessage());
             return ['error' => true, 'message' => 'Payment processing error: ' . $e->getMessage()];
         }
+    }
+
+    /**
+     * Helper Method to register IPN URL and get IPN ID 
+     */
+    public function getIpnId($token) {
+        $url = $this->apiBaseUrl . '/api/URLSetup/RegisterIPN';
+        $postData = json_encode([
+            'url' => PESAPAL_IPN_URL,
+            'ipn_notification_type' => 'GET'
+        ]);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json'
+        ]);
+        $response = curl_exec($ch);
+        $result = json_decode($response, true);
+        return $result['ipn_id'] ?? null;
     }
     
     /**

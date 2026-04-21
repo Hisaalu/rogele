@@ -55,15 +55,14 @@ if (getenv('RENDER')) {
     define('PESAPAL_IPN_URL', BASE_URL . '/external/pesapal-ipn');
 }
 
-// API Endpoints - UPDATED to v3
+// V3 API Endpoints
 if (PESAPAL_ENVIRONMENT == 'production') {
-    define('PESAPAL_API_URL', 'https://pay.pesapal.com/v3/api/PostPesapalDirectOrderV4');
+    define('PESAPAL_API_URL', 'https://pay.pesapal.com/v3/api/Transactions/SubmitOrderRequest');
     define('PESAPAL_QUERY_URL', 'https://pay.pesapal.com/v3/api/QueryPaymentDetails');
     define('PESAPAL_IPN_REGISTER_URL', 'https://pay.pesapal.com/v3/api/URLSetup/RegisterIPN');
     define('PESAPAL_AUTH_URL', 'https://pay.pesapal.com/v3/api/Auth/RequestToken');
 } else {
-    // Sandbox v3 URLs
-    define('PESAPAL_API_URL', 'https://cybqa.pesapal.com/pesapalv3/api/PostPesapalDirectOrderV4');
+    define('PESAPAL_API_URL', 'https://cybqa.pesapal.com/pesapalv3/api/Transactions/SubmitOrderRequest');
     define('PESAPAL_QUERY_URL', 'https://cybqa.pesapal.com/pesapalv3/api/QueryPaymentDetails');
     define('PESAPAL_IPN_REGISTER_URL', 'https://cybqa.pesapal.com/pesapalv3/api/URLSetup/RegisterIPN');
     define('PESAPAL_AUTH_URL', 'https://cybqa.pesapal.com/pesapalv3/api/Auth/RequestToken');
@@ -74,7 +73,6 @@ if (empty(PESAPAL_CONSUMER_KEY) || empty(PESAPAL_CONSUMER_SECRET)) {
     if (getenv('RENDER')) {
         error_log('ERROR: PesaPal credentials not configured in Render environment variables');
     } else {
-        // Don't die, just log for local development
         error_log('WARNING: PesaPal credentials are not configured');
     }
 }
