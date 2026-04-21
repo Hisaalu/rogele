@@ -134,6 +134,7 @@ $routes = [
     '/external/process-pesapal-payment' => 'ExternalController@processPesapalPayment',
     '/external/pesapal-callback' => 'ExternalController@pesapalCallback',
     '/external/pesapal-ipn' => 'ExternalController@pesapalIpn',
+    '/external/pesapal-test' => 'ExternalController@pesapalTest',
     
      // Settings routes
     '/admin/settings' => 'AdminController@settings',

@@ -1004,16 +1004,30 @@ class ExternalController {
      * Handle PesaPal callback (user returns from PesaPal)
      */
     public function pesapalCallback() {
-        error_log("[PesaPal Callback] Received callback");
-        error_log("[PesaPal Callback] GET params: " . print_r($_GET, true));
+        // Log everything for debugging
+        $this->logPesapalRequest('CALLBACK', $_GET, $_POST);
         
-        // Get parameters from callback
-        $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
-        $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
+        error_log("[PesaPal Callback] ========== START ==========");
+        error_log("[PesaPal Callback] Full URL: " . (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        error_log("[PesaPal Callback] GET params: " . print_r($_GET, true));
+        error_log("[PesaPal Callback] POST params: " . print_r($_POST, true));
+        error_log("[PesaPal Callback] Server: " . print_r($_SERVER, true));
+        
+        // Check if session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Get parameters from callback - try different possible parameter names
+        $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? $_GET['Order_Tracking_Id'] ?? null;
+        $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? $_GET['Order_Merchant_Reference'] ?? null;
+        
+        error_log("[PesaPal Callback] Extracted OrderTrackingId: " . $orderTrackingId);
+        error_log("[PesaPal Callback] Extracted OrderMerchantReference: " . $orderMerchantReference);
         
         if (!$orderTrackingId || !$orderMerchantReference) {
-            error_log("[PesaPal Callback] Missing required parameters");
-            $_SESSION['error'] = 'Invalid payment callback received.';
+            error_log("[PesaPal Callback] ERROR: Missing required parameters");
+            $_SESSION['error'] = 'Invalid payment callback received. Please contact support.';
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
@@ -1022,82 +1036,99 @@ class ExternalController {
         $pesapal = new Pesapal();
         $status = $pesapal->queryPaymentStatus($orderTrackingId);
         
-        error_log("[PesaPal Callback] Payment status: " . print_r($status, true));
+        error_log("[PesaPal Callback] Payment status response: " . print_r($status, true));
         
-        if ($status['success'] && $status['status'] === 'COMPLETED') {
-            // Update payment and subscription
-            $result = $this->subscriptionModel->updatePaymentStatus(
-                $orderMerchantReference,
-                'completed',
-                $status
-            );
+        if ($status['success'] && ($status['status'] === 'COMPLETED' || $status['status'] === 'completed')) {
+            error_log("[PesaPal Callback] Payment completed successfully");
             
-            if ($result['success']) {
-                // Check if this was an upgrade
-                if (isset($_SESSION['pending_upgrade'])) {
-                    $upgrade = $_SESSION['pending_upgrade'];
-                    
-                    // Process the upgrade
-                    $upgradeResult = $this->subscriptionModel->upgradeSubscription(
-                        $_SESSION['user_id'],
-                        $upgrade['from_plan'],
-                        $upgrade['to_plan'],
-                        [
-                            'amount' => $upgrade['amount'],
-                            'method' => 'pesapal',
-                            'transaction_id' => $orderMerchantReference
-                        ]
-                    );
-                    
-                    if ($upgradeResult['success']) {
-                        // Send confirmation email
-                        $this->sendPaymentConfirmationEmail(
-                            $_SESSION['user_id'],
-                            $upgrade['to_plan'],
-                            $upgrade['amount']
-                        );
-                        
-                        $_SESSION['success'] = $upgradeResult['message'];
-                    } else {
-                        $_SESSION['warning'] = 'Payment confirmed but upgrade processing had issues. Please contact support.';
-                    }
-                    
-                    unset($_SESSION['pending_upgrade']);
-                } else {
-                    // Regular subscription
-                    $this->subscriptionModel->createOrUpdateSubscription(
-                        $_SESSION['user_id'],
-                        'monthly', // or get from session
-                        $status['amount'] ?? 0,
-                        $orderMerchantReference
-                    );
-                    
-                    $_SESSION['success'] = 'Payment completed successfully! Your subscription is now active.';
-                }
+            // Check if this is an upgrade or new subscription
+            $payment = $this->subscriptionModel->getPaymentByTransactionId($orderMerchantReference);
+            
+            if ($payment) {
+                error_log("[PesaPal Callback] Found payment record: " . print_r($payment, true));
+                
+                // Update payment status
+                $updateResult = $this->subscriptionModel->updatePaymentStatus(
+                    $orderMerchantReference,
+                    'completed',
+                    $status
+                );
+                
+                error_log("[PesaPal Callback] Update payment result: " . print_r($updateResult, true));
+                
+                // Activate subscription
+                $subscriptionResult = $this->subscriptionModel->createOrUpdateSubscription(
+                    $payment['user_id'],
+                    $payment['plan_type'] ?? 'monthly',
+                    $status['amount'] ?? $payment['amount'],
+                    $orderMerchantReference
+                );
+                
+                error_log("[PesaPal Callback] Subscription activation result: " . print_r($subscriptionResult, true));
+                
+                // Send confirmation email
+                $this->sendPaymentConfirmationEmail(
+                    $payment['user_id'],
+                    $payment['plan_type'] ?? 'monthly',
+                    $status['amount'] ?? $payment['amount']
+                );
+                
+                $_SESSION['success'] = 'Payment completed successfully! Your subscription is now active.';
             } else {
-                $_SESSION['error'] = 'Payment completed but could not update your subscription. Please contact support.';
+                error_log("[PesaPal Callback] No payment record found for reference: " . $orderMerchantReference);
+                $_SESSION['error'] = 'Payment completed but could not find your payment record. Please contact support.';
             }
         } else {
+            error_log("[PesaPal Callback] Payment not completed. Status: " . ($status['status'] ?? 'Unknown'));
             $_SESSION['error'] = 'Payment was not completed. Status: ' . ($status['status'] ?? 'Unknown');
         }
+        
+        error_log("[PesaPal Callback] ========== END ==========");
         
         header('Location: ' . BASE_URL . '/external/subscription');
         exit;
     }
 
     /**
-     * Handle PesaPal IPN (Instant Payment Notification from PesaPal)
+     * Test endpoint to verify PesaPal can reach your server
+     */
+    public function pesapalTest() {
+        $this->logPesapalRequest('TEST', $_GET, $_POST);
+        
+        header('Content-Type: application/json');
+        echo json_encode([
+            'status' => 'ok',
+            'message' => 'PesaPal endpoint is reachable',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'callback_url' => PESAPAL_CALLBACK_URL,
+            'ipn_url' => PESAPAL_IPN_URL,
+            'received_get' => $_GET,
+            'received_post' => $_POST
+        ]);
+        exit;
+    }
+
+    /**
+     * Handle PesaPal IPN (Instant Payment Notification)
      */
     public function pesapalIpn() {
-        error_log("[PesaPal IPN] Received IPN");
-        error_log("[PesaPal IPN] GET params: " . print_r($_GET, true));
+        // Log everything for debugging
+        $this->logPesapalRequest('IPN', $_GET, $_POST);
         
-        // Get parameters from IPN
-        $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
-        $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
+        error_log("[PesaPal IPN] ========== START ==========");
+        error_log("[PesaPal IPN] Full URL: " . (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        error_log("[PesaPal IPN] GET params: " . print_r($_GET, true));
+        error_log("[PesaPal IPN] POST params: " . print_r($_POST, true));
+        
+        // Get parameters - PesaPal v3 uses different parameter names
+        $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? $_GET['Order_Tracking_Id'] ?? null;
+        $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? $_GET['Order_Merchant_Reference'] ?? null;
+        
+        error_log("[PesaPal IPN] Extracted OrderTrackingId: " . $orderTrackingId);
+        error_log("[PesaPal IPN] Extracted OrderMerchantReference: " . $orderMerchantReference);
         
         if (!$orderTrackingId || !$orderMerchantReference) {
-            error_log("[PesaPal IPN] Missing required parameters");
+            error_log("[PesaPal IPN] ERROR: Missing required parameters");
             http_response_code(400);
             echo "Missing parameters";
             exit;
@@ -1107,21 +1138,28 @@ class ExternalController {
         $pesapal = new Pesapal();
         $status = $pesapal->queryPaymentStatus($orderTrackingId);
         
-        error_log("[PesaPal IPN] Payment status: " . print_r($status, true));
+        error_log("[PesaPal IPN] Payment status response: " . print_r($status, true));
         
-        if ($status['success'] && $status['status'] === 'COMPLETED') {
+        if ($status['success'] && ($status['status'] === 'COMPLETED' || $status['status'] === 'completed')) {
+            error_log("[PesaPal IPN] Payment completed successfully");
+            
             // Get payment record
             $payment = $this->subscriptionModel->getPaymentByTransactionId($orderMerchantReference);
             
-            if ($payment && $payment['status'] !== 'completed') {
-                // Update payment status
-                $result = $this->subscriptionModel->updatePaymentStatus(
-                    $orderMerchantReference,
-                    'completed',
-                    $status
-                );
+            if ($payment) {
+                error_log("[PesaPal IPN] Found payment record: " . print_r($payment, true));
                 
-                if ($result['success']) {
+                // Check if already processed
+                if ($payment['status'] !== 'completed') {
+                    // Update payment status
+                    $updateResult = $this->subscriptionModel->updatePaymentStatus(
+                        $orderMerchantReference,
+                        'completed',
+                        $status
+                    );
+                    
+                    error_log("[PesaPal IPN] Update payment result: " . print_r($updateResult, true));
+                    
                     // Activate subscription
                     $subscriptionResult = $this->subscriptionModel->createOrUpdateSubscription(
                         $payment['user_id'],
@@ -1130,7 +1168,7 @@ class ExternalController {
                         $orderMerchantReference
                     );
                     
-                    error_log("[PesaPal IPN] Subscription activated: " . print_r($subscriptionResult, true));
+                    error_log("[PesaPal IPN] Subscription activation result: " . print_r($subscriptionResult, true));
                     
                     // Send confirmation email
                     $this->sendPaymentConfirmationEmail(
@@ -1141,20 +1179,49 @@ class ExternalController {
                     
                     echo "IPN processed successfully";
                 } else {
-                    error_log("[PesaPal IPN] Failed to update payment status");
-                    http_response_code(500);
-                    echo "Failed to update payment";
+                    error_log("[PesaPal IPN] Payment already processed");
+                    echo "Payment already processed";
                 }
             } else {
-                error_log("[PesaPal IPN] Payment already processed or not found");
-                echo "Payment already processed";
+                error_log("[PesaPal IPN] No payment record found for reference: " . $orderMerchantReference);
+                echo "Payment record not found";
             }
         } else {
             error_log("[PesaPal IPN] Payment not completed. Status: " . ($status['status'] ?? 'Unknown'));
             http_response_code(400);
             echo "Payment not completed";
         }
+        
+        error_log("[PesaPal IPN] ========== END ==========");
         exit;
+    }
+
+    /**
+     * Log PesaPal requests for debugging
+     */
+    private function logPesapalRequest($type, $get, $post) {
+        $logDir = __DIR__ . '/../logs';
+        if (!file_exists($logDir)) {
+            mkdir($logDir, 0777, true);
+        }
+        
+        $logFile = $logDir . '/pesapal_' . date('Y-m-d') . '.log';
+        
+        $logData = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'type' => $type,
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            'get' => $get,
+            'post' => $post,
+            'server' => [
+                'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
+                'http_host' => $_SERVER['HTTP_HOST'] ?? 'unknown',
+                'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown'
+            ]
+        ];
+        
+        file_put_contents($logFile, json_encode($logData) . "\n", FILE_APPEND);
     }
 
     /**
