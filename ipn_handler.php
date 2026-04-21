@@ -1,5 +1,17 @@
 <?php
-// File: ipn_handler.php - Updated to verify payment status with PesaPal
+// File: ipn_handler.php
+
+// Add at the top of ipn_handler.php for debugging
+if (isset($_GET['view_logs'])) {
+    $logFile = __DIR__ . '/logs/ipn_handler.log';
+    if (file_exists($logFile)) {
+        header('Content-Type: text/plain');
+        echo file_get_contents($logFile);
+    } else {
+        echo "No log file found";
+    }
+    exit;
+}
 
 // Disable error display
 error_reporting(0);
