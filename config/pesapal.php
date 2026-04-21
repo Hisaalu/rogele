@@ -49,10 +49,10 @@ define('PESAPAL_CURRENCY', getenv('PESAPAL_CURRENCY') ?: 'UGX');
 if (getenv('RENDER')) {
     $baseUrl = BASE_URL;
     define('PESAPAL_CALLBACK_URL', $baseUrl . '/external/pesapal-callback');
-    define('PESAPAL_IPN_URL', $baseUrl . '/external/pesapal-ipn');
+    define('PESAPAL_IPN_URL', $baseUrl . '/ipn_handler.php');
 } else {
     define('PESAPAL_CALLBACK_URL', BASE_URL . '/external/pesapal-callback');
-    define('PESAPAL_IPN_URL', BASE_URL . '/external/pesapal-ipn');
+    define('PESAPAL_IPN_URL', BASE_URL . '/ipn_handler.php');
 }
 
 // V3 API Endpoints
