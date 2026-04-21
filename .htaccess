@@ -1,4 +1,7 @@
 # File: /.htaccess
+
+# Allow direct access to IPN handler
+RewriteRule ^ipn_handler\.php$ - [L]
 RewriteEngine On
 
 # If the request is not for a real file or directory
