@@ -147,6 +147,7 @@ $routes = [
     '/admin/settings/test-email' => 'AdminController@testEmailConfig',
     '/admin/settings/clear-cache' => 'AdminController@clearCache',
     '/admin/settings/reset-defaults' => 'AdminController@resetToDefaults',
+    '/admin/update-profile' => 'AdminController@updateProfile',
     '/admin/lessons' => 'AdminController@lessons',
     '/admin/lessons/view/{id}' => 'AdminController@viewLesson',
     '/admin/lessons/approve/{id}' => 'AdminController@approveLesson',
