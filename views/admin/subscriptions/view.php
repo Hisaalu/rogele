@@ -208,7 +208,7 @@ $paymentHistory = $paymentHistory ?? [];
             
             <div class="upgrade-item">
                 <span class="upgrade-label">Upgraded At:</span>
-                <span class="upgrade-value"><?php echo date('F j, Y h:i A', strtotime($subscription['upgraded_at'] ?? 'now')); ?></span>
+                <span class="info-value"><?php echo date('F j, Y h:i A', strtotime($subscription['created_at'] ?? 'now')); ?></span>
             </div>
             
             <div class="upgrade-item">
@@ -348,14 +348,14 @@ $paymentHistory = $paymentHistory ?? [];
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677, #f06724);
+    background: linear-gradient(135deg, #7f2677);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: black;
     font-size: 1rem;
 }
 
@@ -373,14 +373,15 @@ $paymentHistory = $paymentHistory ?? [];
     align-items: center;
     gap: 8px;
     transition: all 0.3s ease;
-    background: #F1F5F9;
-    color: #1E293B;
+    background: #7f2677;
+    color: white;
 }
 
 .btn-back:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    background: #E2E8F0;
+    color: white;
+    background: #f06724;
 }
 
 /* Alert Messages */
@@ -454,7 +455,7 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .card-header h2 i {
-    color: #7f2677;
+    color: #f06724;
 }
 
 /* Status Dropdown Styling */
@@ -592,7 +593,7 @@ $paymentHistory = $paymentHistory ?? [];
 .avatar-placeholder {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #7f2677, #f06724);
+    background: linear-gradient(135deg,#f06724);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -638,8 +639,8 @@ $paymentHistory = $paymentHistory ?? [];
 .btn-view-user {
     display: inline-block;
     padding: 10px 20px;
-    background: #EFF6FF;
-    color: #2563EB;
+    background: #7f2677;
+    color: white;
     text-decoration: none;
     border-radius: 10px;
     font-weight: 600;
@@ -647,14 +648,14 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .btn-view-user:hover {
-    background: #2563EB;
+    background: #f06724;
     color: white;
 }
 
 /* Upgrade Info */
 .upgrade-info-card {
     background: linear-gradient(135deg, #FEF3C7, #FFFAF0);
-    border: 2px solid #F59E0B;
+    border: 2px solid #7f2677;
     border-radius: 20px;
     padding: 25px;
     margin-bottom: 25px;
@@ -801,7 +802,7 @@ $paymentHistory = $paymentHistory ?? [];
 .info-message i {
     font-size: 2rem;
     margin-bottom: 10px;
-    color: #7f2677;
+    color: #f06724;
 }
 
 .info-message p {
