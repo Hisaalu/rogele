@@ -2,6 +2,7 @@
 // File: /views/admin/profile.php
 $pageTitle = 'Profile | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
+
 ?>
 
 <div class="profile-container">
