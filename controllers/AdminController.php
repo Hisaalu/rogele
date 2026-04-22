@@ -100,22 +100,31 @@ class AdminController {
      * Update admin profile
      */
     public function updateProfile() {
-        $hideFooter = true;
-        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . BASE_URL . '/admin/profile');
             exit;
         }
         
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName  = trim($_POST['last_name'] ?? '');
+        $email     = trim($_POST['email'] ?? '');
+        $phone     = trim($_POST['phone'] ?? '');
+
         $data = [
-            'first_name' => $_POST['first_name'] ?? '',
-            'last_name' => $_POST['last_name'] ?? '',
-            'email' => $_POST['email'] ?? '',
-            'phone' => $_POST['phone'] ?? ''
+            'first_name' => $firstName,
+            'last_name'  => $lastName,
+            'email'      => $email,
+            'phone'      => $phone
         ];
         
-        if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
+        if (empty($firstName) || empty($lastName) || empty($email)) {
             $_SESSION['error'] = 'Please fill in all required fields';
+            header('Location: ' . BASE_URL . '/admin/profile');
+            exit;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error'] = 'Please enter a valid email address';
             header('Location: ' . BASE_URL . '/admin/profile');
             exit;
         }
@@ -123,13 +132,12 @@ class AdminController {
         $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
         
         if ($result['success']) {
-            // Update session with new data
-            $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
-            $_SESSION['user_email'] = $data['email'];
+            $_SESSION['user_name'] = $firstName . ' ' . $lastName;
+            $_SESSION['user_email'] = $email;
             
-            $_SESSION['success'] = $result['message'];
+            $_SESSION['success'] = 'Profile updated successfully!';
         } else {
-            $_SESSION['error'] = $result['error'];
+            $_SESSION['error'] = $result['error'] ?? 'Failed to update profile.';
         }
         
         header('Location: ' . BASE_URL . '/admin/profile');
