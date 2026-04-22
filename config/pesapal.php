@@ -1,7 +1,5 @@
 <?php
 // File: /config/pesapal.php
-
-// Auto-detect BASE_URL for Render deployment
 if (!defined('BASE_URL')) {
     if (php_sapi_name() === 'cli') {
         define('BASE_URL', getenv('APP_URL') ?: 'https://rogele.raysofgrace.ac.ug');
@@ -39,13 +37,11 @@ if (file_exists($envFile) && !getenv('RENDER')) {
     }
 }
 
-// PesaPal v3 Credentials
 define('PESAPAL_CONSUMER_KEY', getenv('PESAPAL_CONSUMER_KEY') ?: '');
 define('PESAPAL_CONSUMER_SECRET', getenv('PESAPAL_CONSUMER_SECRET') ?: '');
 define('PESAPAL_ENVIRONMENT', getenv('PESAPAL_ENVIRONMENT') ?: 'sandbox');
 define('PESAPAL_CURRENCY', getenv('PESAPAL_CURRENCY') ?: 'UGX');
 
-// Define callback URLs for Render
 if (getenv('RENDER')) {
     $baseUrl = BASE_URL;
     define('PESAPAL_CALLBACK_URL', $baseUrl . '/external/pesapal-callback');
@@ -55,7 +51,6 @@ if (getenv('RENDER')) {
     define('PESAPAL_IPN_URL', BASE_URL . '/ipn_handler.php');
 }
 
-// V3 API Endpoints
 if (PESAPAL_ENVIRONMENT == 'production') {
     define('PESAPAL_API_URL', 'https://pay.pesapal.com/v3/api/Transactions/SubmitOrderRequest');
     define('PESAPAL_QUERY_URL', 'https://pay.pesapal.com/v3/api/QueryPaymentDetails');

@@ -952,23 +952,16 @@ class ExternalController {
         $userId = $_SESSION['user_id'];
         $planType = $_POST['plan_type'] ?? 'monthly';
         
-        // Get the correct amount from settings with proper error handling
         $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
         
-        // Debug: Log what we got from settings
-        error_log("[PesaPal Payment] Subscription settings: " . print_r($subscriptionSettings, true));
-        
-        // Define default prices in case settings are not found
         $defaultPrices = [
             'monthly' => 15000,
             'termly' => 40000,
             'yearly' => 120000
         ];
         
-        // Try to get price from settings, fall back to defaults
         $amount = $defaultPrices[$planType];
         
-        // Override with database settings if they exist
         if (!empty($subscriptionSettings)) {
             $priceKey = $planType . '_price';
             if (isset($subscriptionSettings[$priceKey]) && !empty($subscriptionSettings[$priceKey])) {
@@ -976,9 +969,7 @@ class ExternalController {
             }
         }
         
-        // Ensure amount is positive and valid
         if ($amount <= 0) {
-            error_log("[PesaPal Payment] ERROR: Invalid amount: $amount for plan: $planType");
             $_SESSION['error'] = 'Invalid subscription amount. Please contact support.';
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
@@ -986,9 +977,6 @@ class ExternalController {
         
         $phone = $_POST['phone_number'] ?? '';
         
-        error_log("[PesaPal Payment] Starting for user: $userId, plan: $planType, amount: $amount");
-        
-        // Get user details
         $user = $this->userModel->getById($userId);
         
         if (!$user) {
@@ -997,7 +985,6 @@ class ExternalController {
             exit;
         }
         
-        // Create pending payment
         $paymentResult = $this->subscriptionModel->createPendingPayment(
             $userId,
             $planType,
@@ -1012,7 +999,6 @@ class ExternalController {
             exit;
         }
         
-        // Prepare PesaPal payment
         $pesapal = new Pesapal();
         $paymentData = [
             'amount' => $amount,
@@ -1027,7 +1013,6 @@ class ExternalController {
         $result = $pesapal->submitPayment($paymentData);
         
         if (isset($result['success']) && $result['success'] && isset($result['redirect_url'])) {
-            // Store payment info in session for callback
             $_SESSION['pending_payment'] = [
                 'transaction_id' => $paymentResult['transaction_id'],
                 'plan_type' => $planType,
@@ -1035,12 +1020,10 @@ class ExternalController {
                 'payment_id' => $paymentResult['payment_id']
             ];
             
-            error_log("[PesaPal Payment] Redirecting to: " . $result['redirect_url']);
             header('Location: ' . $result['redirect_url']);
             exit;
         } else {
             $errorMsg = isset($result['message']) ? $result['message'] : 'Payment processing failed. Please try again.';
-            error_log("[PesaPal Payment] Failed: " . $errorMsg);
             $_SESSION['error'] = $errorMsg;
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
@@ -1051,41 +1034,28 @@ class ExternalController {
      * Handle PesaPal callback - This is for redirect after payment
      */
     public function pesapalCallback() {
-        // Log the request
         $this->logPesapalRequest('CALLBACK', $_GET, $_POST);
         
-        error_log("[PesaPal Callback] ========== START ==========");
-        error_log("[PesaPal Callback] GET params: " . print_r($_GET, true));
-        
-        // Get parameters
         $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
         $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
         
         if (!$orderTrackingId || !$orderMerchantReference) {
-            error_log("[PesaPal Callback] ERROR: Missing parameters");
-            // Start session for user feedback
             if (session_status() === PHP_SESSION_NONE) session_start();
             $_SESSION['error'] = 'Invalid payment callback received.';
             header('Location: ' . BASE_URL . '/external/subscription');
             exit;
         }
         
-        // Query payment status
         $pesapal = new Pesapal();
         $status = $pesapal->queryPaymentStatus($orderTrackingId);
         
-        error_log("[PesaPal Callback] Status: " . print_r($status, true));
-        
-        // Start session for user feedback
         if (session_status() === PHP_SESSION_NONE) session_start();
         
         if ($status['success'] && strtoupper($status['status']) === 'COMPLETED') {
-            error_log("[PesaPal Callback] Payment completed");
             
             $payment = $this->subscriptionModel->getPaymentByTransactionId($orderMerchantReference);
             
             if ($payment) {
-                // Update status if not already updated by IPN
                 if ($payment['status'] !== 'completed') {
                     $this->subscriptionModel->updatePaymentStatus(
                         $orderMerchantReference,
@@ -1114,8 +1084,6 @@ class ExternalController {
         } else {
             $_SESSION['error'] = 'Payment was not completed. Status: ' . ($status['status'] ?? 'Unknown');
         }
-        
-        error_log("[PesaPal Callback] ========== END ==========");
         header('Location: ' . BASE_URL . '/external/subscription');
         exit;
     }
@@ -1124,22 +1092,14 @@ class ExternalController {
      * Handle PesaPal IPN (Instant Payment Notification) - NO SESSION, NO REDIRECTS
      */
     public function pesapalIpn() {
-        // Disable error display for IPN
         error_reporting(0);
-        
-        // Log the request
         $this->logPesapalRequest('IPN', $_GET, $_POST);
         
-        error_log("[PesaPal IPN] ========== START ==========");
-        error_log("[PesaPal IPN] GET params: " . print_r($_GET, true));
-        
-        // Get parameters
         $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
         $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
         
         if (!$orderTrackingId || !$orderMerchantReference) {
-            error_log("[PesaPal IPN] ERROR: Missing required parameters");
-            http_response_code(200); // Return 200 to prevent retries
+            http_response_code(200); 
             echo "Missing parameters";
             exit;
         }
@@ -1148,35 +1108,25 @@ class ExternalController {
         $pesapal = new Pesapal();
         $status = $pesapal->queryPaymentStatus($orderTrackingId);
         
-        error_log("[PesaPal IPN] Payment status: " . print_r($status, true));
-        
         if ($status['success'] && strtoupper($status['status']) === 'COMPLETED') {
-            error_log("[PesaPal IPN] Payment completed");
             
-            // Get payment by merchant reference
             $payment = $this->subscriptionModel->getPaymentByTransactionId($orderMerchantReference);
             
             if ($payment) {
-                error_log("[PesaPal IPN] Found payment for user_id: " . $payment['user_id']);
                 
-                // Check if already processed
                 if ($payment['status'] !== 'completed') {
-                    // Update payment status
                     $updateResult = $this->subscriptionModel->updatePaymentStatus(
                         $orderMerchantReference,
                         'completed',
                         $status
                     );
-                    error_log("[PesaPal IPN] Update result: " . print_r($updateResult, true));
-                    
-                    // Activate subscription
+
                     $subscriptionResult = $this->subscriptionModel->createOrUpdateSubscription(
                         $payment['user_id'],
                         $payment['plan_type'] ?? 'monthly',
                         $status['amount'] ?? $payment['amount'],
                         $orderMerchantReference
                     );
-                    error_log("[PesaPal IPN] Subscription result: " . print_r($subscriptionResult, true));
                     
                     // Send email
                     $this->sendPaymentConfirmationEmail(
@@ -1185,26 +1135,21 @@ class ExternalController {
                         $status['amount'] ?? $payment['amount']
                     );
                     
-                    error_log("[PesaPal IPN] SUCCESS - Payment processed");
                     http_response_code(200);
                     echo "IPN processed successfully";
                 } else {
-                    error_log("[PesaPal IPN] Payment already processed");
                     http_response_code(200);
                     echo "Payment already processed";
                 }
             } else {
-                error_log("[PesaPal IPN] No payment found for reference: " . $orderMerchantReference);
                 http_response_code(200);
                 echo "Payment record not found";
             }
         } else {
-            error_log("[PesaPal IPN] Payment not completed: " . ($status['status'] ?? 'Unknown'));
-            http_response_code(200); // Still return 200 to prevent retries
+            http_response_code(200);
             echo "Payment not completed";
         }
         
-        error_log("[PesaPal IPN] ========== END ==========");
         exit;
     }
 
@@ -1212,10 +1157,8 @@ class ExternalController {
      * Test endpoint to check if IPN is reachable
      */
     public function pesapalTest() {
-        // Log the request
         $this->logPesapalRequest('TEST', $_GET, $_POST);
         
-        // Return JSON response
         header('Content-Type: application/json');
         echo json_encode([
             'status' => 'ok',
@@ -1261,22 +1204,17 @@ class ExternalController {
      * Activate subscription after successful payment
      */
     private function activatePesapalSubscription($reference) {
-        // Get payment by transaction ID (merchant reference)
         $payment = $this->subscriptionModel->getPaymentByTransactionId($reference);
         
         if (!$payment) {
-            error_log("Payment not found for reference: " . $reference);
             return false;
         }
         
-        // Check if subscription already exists and is active
         $existingSubscription = $this->subscriptionModel->getCurrentSubscription($payment['user_id']);
         if ($existingSubscription && $existingSubscription['status'] === 'active') {
-            error_log("User already has active subscription: " . $payment['user_id']);
             return true;
         }
         
-        // Create or update subscription
         $subscriptionResult = $this->subscriptionModel->createOrUpdateSubscription(
             $payment['user_id'],
             $payment['plan_type'],
@@ -1285,17 +1223,11 @@ class ExternalController {
         );
         
         if ($subscriptionResult['success']) {
-            // Send confirmation email
             $this->sendPaymentConfirmationEmail(
                 $payment['user_id'],
                 $payment['plan_type'],
                 $payment['amount']
             );
-            
-            // Log the successful activation
-            error_log("Subscription activated for user: " . $payment['user_id'] . 
-                    ", plan: " . $payment['plan_type'] . 
-                    ", reference: " . $reference);
             
             return true;
         }
