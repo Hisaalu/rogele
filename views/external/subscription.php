@@ -29,7 +29,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         <div class="trial-badge">
             <i class="fas fa-gift"></i>
             <span><?php echo $trialDays; ?> Days Free Trial on All Plans!</span>
-            <i class="fas fa-star"></i>
         </div>
         <?php endif; ?>
     </div>
@@ -98,7 +97,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
         <!-- Termly Plan (Most Popular) -->
         <div class="pricing-card popular" data-plan="termly" data-price="<?php echo $termlyPrice; ?>">
-            <div class="popular-badge">⭐ MOST POPULAR</div>
+            <div class="popular-badge">MOST POPULAR</div>
             <div class="plan-icon">
                 <i class="fas fa-chart-line"></i>
             </div>
@@ -525,6 +524,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
 .btn-select:hover {
     background: #f06724;
+    color: white;
     transform: translateY(-2px);
 }
 
