@@ -135,12 +135,7 @@ if (!empty($quizzes)) {
                                 <?php if ($isExpired): ?>
                                     Expired on <?php echo date('M d, Y', strtotime($endDate)); ?>
                                 <?php else: ?>
-                                    Due: <?php echo date('M d, Y', strtotime($endDate)); ?>
-                                    <?php 
-                                    $daysRemaining = ceil((strtotime($endDate) - time()) / 86400);
-                                    if ($daysRemaining <= 3 && $daysRemaining > 0): ?>
-                                        <span class="urgent">(<?php echo $daysRemaining; ?> days left!)</span>
-                                    <?php endif; ?>
+                                    Due: <?php echo date('M d, Y h:i A', strtotime($endDate)); ?>
                                 <?php endif; ?>
                             </span>
                         <?php endif; ?>
@@ -263,7 +258,7 @@ if (!empty($quizzes)) {
 }
 
 .quiz-card.no-attempts-left {
-    border: 2px solid #EF4444;
+    border: 2px solid #f06724;
     background: linear-gradient(135deg, white, #FEF2F2);
     opacity: 0.9;
 }
