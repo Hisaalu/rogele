@@ -167,7 +167,7 @@ $appearanceSettings = $appearanceSettings ?? [];
                                     name="monthly_price" 
                                     value="<?php echo htmlspecialchars($subscriptionSettings['monthly_price'] ?? 15000); ?>" 
                                     min="0" 
-                                    step="1000"
+                                    step="any"
                                 >
                             </div>
                         </div>
@@ -185,10 +185,10 @@ $appearanceSettings = $appearanceSettings ?? [];
                                     name="termly_price" 
                                     value="<?php echo htmlspecialchars($subscriptionSettings['termly_price'] ?? 40000); ?>" 
                                     min="0" 
-                                    step="1000"
+                                    step="any"
                                 >
                             </div>
-                            <span class="save-badge">Save 11%</span>
+                            <span class="save-badge">Save 17%</span>
                         </div>
 
                         <div class="form-group price-group">
@@ -204,10 +204,10 @@ $appearanceSettings = $appearanceSettings ?? [];
                                     name="yearly_price" 
                                     value="<?php echo htmlspecialchars($subscriptionSettings['yearly_price'] ?? 120000); ?>" 
                                     min="0" 
-                                    step="1000"
+                                    step="any"
                                 >
                             </div>
-                            <span class="save-badge popular">Save 33%</span>
+                            <span class="save-badge popular">Save 25%</span>
                         </div>
                     </div>
 
