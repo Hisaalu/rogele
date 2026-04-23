@@ -700,7 +700,8 @@ class ExternalController {
                 'features' => [
                     'Everything in Monthly',
                     'Priority support',
-                    'Downloadable materials'
+                    'Downloadable materials',
+                    'Answers to Quizzes'
                 ]
             ],
             'yearly' => [
@@ -709,6 +710,8 @@ class ExternalController {
                 'features' => [
                     'Everything in Termly',
                     '2 months free',
+                    'Full access to all resources',
+                    'AI Integration',
                     'Certificate of completion',
                     '1-on-1 tutoring sessions'
                 ]
