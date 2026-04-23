@@ -202,7 +202,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         </div>
         
         <form id="paymentForm" action="<?php echo BASE_URL; ?>/external/process-pesapal-payment" method="POST">
-            <input type="hidden" name="plan" id="selectedPlan">
+            <input type="hidden" name="plan_type" id="selectedPlan">
             
             <div class="plan-summary">
                 <p>You're subscribing to: <strong id="planNameDisplay"></strong></p>
