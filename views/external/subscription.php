@@ -82,7 +82,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                 <span class="currency">UGX</span>
                 <span class="amount"><?php echo number_format($monthlyPrice); ?></span>
             </div>
-            <p class="period">per month • cancel anytime</p>
+            <p class="period">per month • cancel with us anytime</p>
             <ul class="features-list">
                 <li><i class="fas fa-check-circle"></i> Full access to all lessons</li>
                 <li><i class="fas fa-check-circle"></i> Practice quizzes & assessments</li>
@@ -114,6 +114,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                 <li><i class="fas fa-check-circle"></i> Save <?php echo number_format($termlySavings); ?> UGX</li>
                 <li><i class="fas fa-check-circle"></i> Priority support</li>
                 <li><i class="fas fa-check-circle"></i> Downloadable materials</li>
+                <li><i class="fas fa-check-circle"></i> Answers to Quizzes</li>
             </ul>
             <?php if (!$currentSubscription): ?>
             <button class="btn-select btn-primary open-payment-modal" data-plan="termly" data-price="<?php echo $termlyPrice; ?>">
@@ -137,6 +138,8 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
             <ul class="features-list">
                 <li><i class="fas fa-check-circle"></i> Everything in Termly</li>
                 <li><i class="fas fa-check-circle"></i> 2 months free</li>
+                <li><i class="fas fa-check-circle"></i> Full access to all resources</li>
+                <li><i class="fas fa-check-circle"></i> AI Integration</li>
                 <li><i class="fas fa-check-circle"></i> Certificate of completion</li>
                 <li><i class="fas fa-check-circle"></i> 1-on-1 tutoring sessions</li>
             </ul>
