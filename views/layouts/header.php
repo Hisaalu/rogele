@@ -746,6 +746,7 @@
                         <ul class="nav-links">
                             <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
                             <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
+                            <li><a href="#pricing"><i class="fas fa-tags"></i> Pricing</a></li>
                             <li><a href="<?php echo BASE_URL; ?>/contact"><i class="fas fa-envelope"></i> Contact</a></li>
                         </ul>
                         
@@ -824,6 +825,7 @@
                 <ul class="mobile-nav-links">
                     <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="#pricing"><i class="fas fa-tags"></i> Pricing</a></li>
                     <li><a href="<?php echo BASE_URL; ?>/contact"><i class="fas fa-envelope"></i> Contact</a></li>
                 </ul>
                 <div class="mobile-auth">
@@ -838,7 +840,7 @@
         <?php endif; ?>
         
         <div class="mobile-menu-footer">
-            <p class="mobile-copyright">© <?php echo date('Y'); ?> Rays of Grace</p>
+            <p class="mobile-copyright">© <?php echo date('Y'); ?> ROGELE (Rays of Grace E-Learning Environment)</p>
         </div>
     </div>
 

@@ -97,7 +97,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
         <!-- Termly Plan (Most Popular) -->
         <div class="pricing-card popular" data-plan="termly" data-price="<?php echo $termlyPrice; ?>">
-            <div class="popular-badge">MOST POPULAR</div>
+            <div class="popular-badge">RECOMMENDED</div>
             <div class="plan-icon">
                 <i class="fas fa-chart-line"></i>
             </div>
