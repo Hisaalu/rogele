@@ -250,7 +250,7 @@ $paymentHistory = $paymentHistory ?? [];
                             <td class="amount-cell">UGX <?php echo isset($payment['amount']) ? number_format($payment['amount']) : '0'; ?></td>
                             <td>
                                 <?php 
-                                $method = $payment['payment_method'] ?? 'unknown';
+                                $method = $payment['payment_method'] ?? 'pesapal';
                                 $icon = $method === 'mobile_money' ? 'mobile-alt' : 'credit-card';
                                 ?>
                                 <i class="fas fa-<?php echo $icon; ?>"></i>

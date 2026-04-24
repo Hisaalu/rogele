@@ -97,7 +97,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
         <!-- Termly Plan (Most Popular) -->
         <div class="pricing-card popular" data-plan="termly" data-price="<?php echo $termlyPrice; ?>">
-            <div class="popular-badge">MOST POPULAR</div>
+            <div class="popular-badge">RECOMMENDED</div>
             <div class="plan-icon">
                 <i class="fas fa-chart-line"></i>
             </div>
@@ -176,7 +176,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                             <td>UGX <?php echo number_format($payment['amount']); ?></td>
                             <td>
                                 <i class="fas fa-<?php echo ($payment['payment_method'] ?? 'mobile_money') === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>"></i>
-                                <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'] ?? 'unknown')); ?>
+                                <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'] ?? 'pesapal')); ?>
                             </td>
                             <td>
                                 <span class="status-badge <?php echo $payment['status']; ?>">

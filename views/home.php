@@ -1,7 +1,24 @@
 <!-- File: /views/home.php -->
 <?php 
 $pageTitle = 'Home | ROGELE';
-require_once __DIR__ . '/layouts/header.php'; 
+require_once __DIR__ . '/layouts/header.php';
+
+// Subscription settings for pricing cards
+$subscriptionSettings = [];
+if (class_exists('Settings')) {
+    $settingsModel = new Settings();
+    $subscriptionSettings = $settingsModel->getSubscriptionSettings();
+}
+$monthlyPrice = $subscriptionSettings['monthly_price'] ?? 15000;
+$termlyPrice = $subscriptionSettings['termly_price'] ?? 40000;
+$yearlyPrice = $subscriptionSettings['yearly_price'] ?? 120000;
+
+$monthlyTotal3 = $monthlyPrice * 3;
+$monthlyTotal12 = $monthlyPrice * 12;
+$termlySavings = $monthlyTotal3 - $termlyPrice;
+$yearlySavings = $monthlyTotal12 - $yearlyPrice;
+$termlySavingsPercent = $monthlyTotal3 > 0 ? round(($termlySavings / $monthlyTotal3) * 100) : 0;
+$yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTotal12) * 100) : 0;
 ?>
 
 <style>
@@ -77,7 +94,7 @@ body {
 .badge-pulse {
     width: 8px;
     height: 8px;
-    background: green;
+    background: #10B981;
     border-radius: 50%;
     position: relative;
 }
@@ -87,7 +104,7 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #FFD700;
+    background: #10B981;
     border-radius: 50%;
     animation: pulse 2s infinite;
 }
@@ -256,7 +273,7 @@ body {
 }
 
 .section-description {
-    color: black;
+    color: #222;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -313,7 +330,7 @@ body {
 }
 
 .step-card p {
-    color: black;
+    color: #222;
     line-height: 1.6;
 }
 
@@ -372,92 +389,269 @@ body {
 }
 
 .feature-card p {
-    color: black;
+    color: #222;
     line-height: 1.6;
 }
 
-/* Classes Section */
-.classes-section {
+/* Pricing Cards Section */
+.pricing-section {
     padding: 80px 0;
     background: white;
     width: 100%;
 }
 
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+    margin-top: 50px;
+}
+
+.pricing-card {
+    background: white;
+    border-radius: 32px;
+    padding: 40px 32px;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
+}
+
+.pricing-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 45px -15px rgba(0, 0, 0, 0.2);
+}
+
+.pricing-card.popular {
+    border-color: var(--primary-orange);
+    background: linear-gradient(135deg, #FFFFFF, #FFFBEB);
+}
+
+.popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient-primary);
+    color: white;
+    padding: 6px 24px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.plan-icon {
+    width: 64px;
+    height: 64px;
+    background: #F1F5F9;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.plan-icon i {
+    font-size: 2rem;
+    color: var(--primary-orange);
+}
+
+.pricing-card.popular .plan-icon i {
+    color: var(--primary-orange);
+}
+
+.plan-name {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1E293B;
+    margin-bottom: 16px;
+}
+
+.price-wrapper {
+    margin-bottom: 8px;
+}
+
+.currency {
+    font-size: 1rem;
+    color: #222;
+    vertical-align: top;
+}
+
+.amount {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #1E293B;
+    line-height: 1;
+}
+
+.period {
+    color: #222;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+}
+
+.savings-tag {
+    display: inline-block;
+    background: #10B981;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.savings-tag.best {
+    background: var(--primary-orange);
+}
+
+.features-list {
+    list-style: none;
+    margin: 28px 0;
+    padding: 0;
+}
+
+.features-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    color: #222;
+    font-size: 0.95rem;
+}
+
+.features-list li i {
+    color: #10B981;
+    font-size: 1rem;
+    width: 20px;
+}
+
+.btn-select {
+    width: 100%;
+    padding: 14px;
+    background: #F1F5F9;
+    border: none;
+    border-radius: 60px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--secondary-purple);
+}
+
+.btn-select:hover {
+    background: var(--gradient-primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-select.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.btn-select.btn-primary:hover {
+    box-shadow: 0 10px 20px rgba(240, 103, 36, 0.3);
+}
+
+/* Classes Section */
+.classes-section {
+    padding: 80px 0;
+    background: #F8FAFC;
+    width: 100%;
+}
+
 .classes-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
     margin-top: 50px;
 }
 
 .class-card {
-    background: #F8FAFC;
-    border-radius: 16px;
+    background: white;
+    border-radius: 20px;
     overflow: hidden;
     transition: all 0.3s ease;
     border: 1px solid #E2E8F0;
 }
 
 .class-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
     border-color: var(--primary-orange);
-    box-shadow: 0 10px 30px rgba(240, 103, 36, 0.1);
+    box-shadow: 0 20px 40px rgba(240, 103, 36, 0.15);
 }
 
 .class-image {
-    height: 100px;
-    background: var(--gradient-primary);
+    height: 180px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    background-size: cover;
+    background-position: center;
+}
+
+.class-image.lower-section {
+    background: linear-gradient(135deg, #7f2677, #943a8b);
+}
+
+.class-image.upper-section {
+    background: linear-gradient(135deg, #f06724, #f27d43);
 }
 
 .class-level {
     font-size: 3rem;
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .class-content {
-    padding: 20px;
+    padding: 28px;
 }
 
 .class-content h3 {
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     margin-bottom: 8px;
     color: #1E293B;
 }
 
 .class-content p {
     font-size: 0.9rem;
-    color: black;
-    margin-bottom: 15px;
+    color: #222;
+    margin-bottom: 20px;
 }
 
 .class-features {
     list-style: none;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
 }
 
 .class-features li {
-    font-size: 0.85rem;
-    color: black;
-    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #222;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 10px;
 }
 
 .class-features i {
     color: var(--primary-orange);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    width: 18px;
 }
 
 .btn-secondary {
     background: var(--gradient-soft);
     color: var(--primary-orange);
-    padding: 8px 16px;
+    padding: 10px 20px;
     border-radius: 50px;
     text-decoration: none;
     font-size: 0.9rem;
@@ -470,6 +664,7 @@ body {
 .btn-secondary:hover {
     background: var(--gradient-primary);
     color: white;
+    transform: translateY(-2px);
 }
 
 /* CTA Section */
@@ -506,6 +701,9 @@ body {
 @media (max-width: 1024px) {
     .classes-grid {
         grid-template-columns: repeat(3, 1fr);
+    }
+    .pricing-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     }
 }
 
@@ -545,6 +743,10 @@ body {
     .classes-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    
+    .pricing-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {
@@ -583,6 +785,43 @@ body {
     
     .step-card {
         padding: 30px 20px;
+    }
+    
+    .pricing-card {
+        padding: 32px 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .classes-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+    
+    .class-image {
+        height: 140px;
+    }
+    
+    .class-level {
+        font-size: 2.2rem;
+    }
+    
+    .class-content {
+        padding: 20px;
+    }
+    
+    .class-content h3 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .class-content {
+        padding: 18px;
+    }
+    
+    .class-features li {
+        font-size: 0.85rem;
     }
 }
 
@@ -747,6 +986,93 @@ body {
         </div>
     </section>
 
+    <!-- Pricing Cards Section -->
+    <section class="pricing-section" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Pricing Plans</span>
+                <h2 class="section-title">Choose Your <span>Learning Path</span></h2>
+                <p class="section-description">
+                    Select the perfect plan for your educational journey
+                </p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Monthly Plan -->
+                <div class="pricing-card" data-plan="monthly" data-price="<?php echo $monthlyPrice; ?>">
+                    <div class="plan-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="plan-name">Monthly</h3>
+                    <div class="price-wrapper">
+                        <span class="currency">UGX</span>
+                        <span class="amount"><?php echo number_format($monthlyPrice); ?></span>
+                    </div>
+                    <p class="period">per month • cancel anytime</p>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check-circle"></i> Full access to all lessons</li>
+                        <li><i class="fas fa-check-circle"></i> Practice quizzes & assessments</li>
+                        <li><i class="fas fa-check-circle"></i> Progress tracking dashboard</li>
+                        <li><i class="fas fa-check-circle"></i> 24/7 email support</li>
+                    </ul>
+                    <button class="btn-select" onclick="window.location.href='<?php echo BASE_URL; ?>/register'">
+                        <i class="fas fa-shopping-cart"></i> Get Started
+                    </button>
+                </div>
+
+                <!-- Termly Plan (Most Popular) -->
+                <div class="pricing-card popular" data-plan="termly" data-price="<?php echo $termlyPrice; ?>">
+                    <div class="popular-badge">RECOMMENDED</div>
+                    <div class="plan-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="plan-name">Termly</h3>
+                    <div class="price-wrapper">
+                        <span class="currency">UGX</span>
+                        <span class="amount"><?php echo number_format($termlyPrice); ?></span>
+                    </div>
+                    <p class="period">per term (3 months)</p>
+                    <div class="savings-tag">Save <?php echo number_format($termlySavings); ?> UGX (<?php echo $termlySavingsPercent; ?>%)</div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check-circle"></i> Everything in Monthly</li>
+                        <li><i class="fas fa-check-circle"></i> Save <?php echo number_format($termlySavings); ?> UGX</li>
+                        <li><i class="fas fa-check-circle"></i> Priority support</li>
+                        <li><i class="fas fa-check-circle"></i> Downloadable materials</li>
+                        <li><i class="fas fa-check-circle"></i> Answers to Quizzes</li>
+                    </ul>
+                    <button class="btn-select btn-primary" onclick="window.location.href='<?php echo BASE_URL; ?>/register'">
+                        <i class="fas fa-rocket"></i> Get Started
+                    </button>
+                </div>
+
+                <!-- Yearly Plan -->
+                <div class="pricing-card" data-plan="yearly" data-price="<?php echo $yearlyPrice; ?>">
+                    <div class="plan-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3 class="plan-name">Yearly</h3>
+                    <div class="price-wrapper">
+                        <span class="currency">UGX</span>
+                        <span class="amount"><?php echo number_format($yearlyPrice); ?></span>
+                    </div>
+                    <p class="period">per year • best value</p>
+                    <div class="savings-tag best">Save <?php echo number_format($yearlySavings); ?> UGX (<?php echo $yearlySavingsPercent; ?>%)</div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check-circle"></i> Everything in Termly</li>
+                        <li><i class="fas fa-check-circle"></i> 2 months free</li>
+                        <li><i class="fas fa-check-circle"></i> Full access to all resources</li>
+                        <li><i class="fas fa-check-circle"></i> AI Integration</li>
+                        <li><i class="fas fa-check-circle"></i> Certificate of completion</li>
+                        <li><i class="fas fa-check-circle"></i> 1-on-1 tutoring sessions</li>
+                    </ul>
+                    <button class="btn-select" onclick="window.location.href='<?php echo BASE_URL; ?>/register'">
+                        <i class="fas fa-crown"></i> Get Started
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Classes Section -->
     <section class="classes-section">
         <div class="container">
@@ -759,22 +1085,47 @@ body {
             </div>
             
             <div class="classes-grid">
-                <?php for($i = 1; $i <= 7; $i++): ?>
-                <div class="class-card animate-fade-in delay-<?php echo $i % 3; ?>">
-                    <div class="class-image">
-                        <span class="class-level">P<?php echo $i; ?></span>
+                <!-- Lower Section (P1-P3) -->
+                <div class="class-card animate-fade-in">
+                    <div class="class-image lower-section">
+                        <span class="class-level">P1 - P3</span>
                     </div>
                     <div class="class-content">
-                        <h3>Primary <?php echo $i; ?></h3>
-                        <p>Complete curriculum</p>
+                        <h3>Lower Section</h3>
+                        <p>Primary 1 to Primary 3</p>
                         <ul class="class-features">
-                            <li><i class="fas fa-check"></i> All subjects</li>
-                            <li><i class="fas fa-check"></i> Practice quizzes</li>
+                            <li><i class="fas fa-check"></i> English</li>
+                            <li><i class="fas fa-check"></i> Mathematics</li>
+                            <li><i class="fas fa-check"></i> Literacy A</li>
+                            <li><i class="fas fa-check"></i> Literacy B</li>
+                            <li><i class="fas fa-check"></i> Reading & Writing Skills</li>
+                            <li><i class="fas fa-check"></i> Religious Education</li>
+                            <li><i class="fas fa-check"></i> Elementary Computer Studies</li>
                         </ul>
-                        <a href="<?php echo BASE_URL; ?>/register" class="btn-secondary">Explore</a>
+                        <a href="<?php echo BASE_URL; ?>/register" class="btn-secondary">Explore Lower Section</a>
                     </div>
                 </div>
-                <?php endfor; ?>
+                
+                <!-- Upper Section (P4-P7) -->
+                <div class="class-card animate-fade-in delay-1">
+                    <div class="class-image upper-section">
+                        <span class="class-level">P4 - P7</span>
+                    </div>
+                    <div class="class-content">
+                        <h3>Upper Section</h3>
+                        <p>Primary 4 to Primary 7</p>
+                        <ul class="class-features">
+                            <li><i class="fas fa-check"></i> Mathematics</li>
+                            <li><i class="fas fa-check"></i> English </li>
+                            <li><i class="fas fa-check"></i> Science</li>
+                            <li><i class="fas fa-check"></i> Social Studies</li>
+                            <li><i class="fas fa-check"></i> Religious Education</li>
+                            <li><i class="fas fa-check"></i> Music</li>
+                            <li><i class="fas fa-check"></i> Advanced Computer Studies</li>
+                        </ul>
+                        <a href="<?php echo BASE_URL; ?>/register" class="btn-secondary">Explore Upper Section</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
