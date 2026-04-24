@@ -498,9 +498,13 @@ class Quiz {
     public function getByTeacher($teacherId, $limit = null, $offset = 0) {
         try {
             $query = "SELECT q.*, 
+                    c.name as class_name, 
+                    s.name as subject_name,
                     COUNT(DISTINCT qa.id) as attempt_count,
                     (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
                     FROM quizzes q
+                    LEFT JOIN classes c ON q.class_id = c.id
+                    LEFT JOIN subjects s ON q.subject_id = s.id
                     LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id
                     WHERE q.teacher_id = :teacher_id
                     GROUP BY q.id
@@ -519,7 +523,7 @@ class Quiz {
             }
             
             $stmt->execute();
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [];
         }
