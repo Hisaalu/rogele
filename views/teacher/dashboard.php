@@ -613,7 +613,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .btn-view:hover {
-    background: #7C3AED;
+    background: #7f2677;
     transform: translateY(-2px);
 }
 

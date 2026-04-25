@@ -24,14 +24,14 @@ $stats = $stats ?? [];
         
         <!-- Download Buttons -->
         <div class="download-actions">
-            <button onclick="downloadResults('csv')" class="btn-download csv">
+            <!-- <button onclick="downloadResults('csv')" class="btn-download csv">
                 <i class="fas fa-file-csv"></i> Download CSV
-            </button>
+            </button> -->
             <button onclick="downloadResults('excel')" class="btn-download excel">
                 <i class="fas fa-file-excel"></i> Download Excel
             </button>
-            <button onclick="window.print()" class="btn-download print">
-                <i class="fas fa-print"></i> Print
+            <button onclick="confirmDeleteAttempts()" class="btn-download delete">
+                <i class="fas fa-trash-alt"></i> Delete All Attempts
             </button>
         </div>
     </div>
@@ -122,8 +122,7 @@ $stats = $stats ?? [];
                             <th>Score (%)</th>
                             <th>Result</th>
                             <th>Date</th>
-                        </tr>
-                    </thead>
+                        </thead>
                     <tbody>
                         <?php $counter = 1; ?>
                         <?php foreach ($results as $result): ?>
@@ -150,6 +149,30 @@ $stats = $stats ?? [];
                 </table>
             </div>
         <?php endif; ?>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Delete All Attempts</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <strong>ALL <?php echo count($results); ?> attempts</strong> for this quiz?</p>
+            <p class="warning-text">This action cannot be undone. First download the student scores and attempts cause when you delete, all the data will be permanently removed!</p>
+            <div class="confirm-input">
+                <label>Type <strong>"DELETE"</strong> to confirm:</label>
+                <input type="text" id="confirmDeleteInput" placeholder="DELETE" class="confirm-input-field">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal">Cancel</button>
+            <button id="confirmDeleteBtn" class="btn-delete-confirm" disabled>
+                <i class="fas fa-trash-alt"></i> Delete All Attempts
+            </button>
+        </div>
     </div>
 </div>
 
@@ -243,13 +266,13 @@ $stats = $stats ?? [];
     transform: translateY(-2px);
 }
 
-.btn-download.print {
-    background: #8B5CF6;
+.btn-download.delete {
+    background: #EF4444;
     color: white;
 }
 
-.btn-download.print:hover {
-    background: #7C3AED;
+.btn-download.delete:hover {
+    background: #DC2626;
     transform: translateY(-2px);
 }
 
@@ -470,6 +493,162 @@ $stats = $stats ?? [];
     color: #64748B;
 }
 
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    max-width: 450px;
+    width: 90%;
+    animation: modalSlideUp 0.3s ease;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #FEF2F2;
+    border-bottom: 2px solid #FECACA;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #B91C1C;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-close {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #94A3B8;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: #1E293B;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-body p {
+    margin-bottom: 16px;
+    color: #1E293B;
+}
+
+.warning-text {
+    background: #FEF2F2;
+    padding: 12px;
+    border-radius: 8px;
+    color: #B91C1C;
+    font-size: 0.9rem;
+    border-left: 3px solid #EF4444;
+}
+
+.confirm-input {
+    margin-top: 20px;
+}
+
+.confirm-input label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #1E293B;
+}
+
+.confirm-input-field {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #E2E8F0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.confirm-input-field:focus {
+    outline: none;
+    border-color: #EF4444;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #E2E8F0;
+}
+
+.btn-cancel-modal {
+    padding: 10px 24px;
+    background: #F1F5F9;
+    color: #475569;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel-modal:hover {
+    background: #E2E8F0;
+}
+
+.btn-delete-confirm {
+    padding: 10px 24px;
+    background: #EF4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-delete-confirm:hover:not(:disabled) {
+    background: #DC2626;
+    transform: translateY(-1px);
+}
+
+.btn-delete-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@keyframes modalSlideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .page-header {
@@ -496,25 +675,8 @@ $stats = $stats ?? [];
     }
 }
 
-@media print {
-    .download-actions,
-    .back-link,
-    .btn-icon,
-    .chart-card {
-        display: none;
-    }
-    
-    .results-container {
-        padding: 0;
-    }
-    
-    .results-table {
-        border: 1px solid #ddd;
-    }
-}
-
 /* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
     .stat-card,
     .chart-card,
     .results-card {
@@ -560,7 +722,15 @@ $stats = $stats ?? [];
     .btn-icon:hover {
         background: #334155;
     }
-} */
+    
+    .modal-content {
+        background: #1E293B;
+    }
+    
+    .modal-body p {
+        color: #F1F5F9;
+    }
+}
 </style>
 
 <!-- Chart.js -->
@@ -603,13 +773,87 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 <?php endif; ?>
 
+// Modal elements
+const modal = document.getElementById('deleteModal');
+const confirmInput = document.getElementById('confirmDeleteInput');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const closeModalBtn = document.querySelector('.modal-close');
+const cancelModalBtn = document.querySelector('.btn-cancel-modal');
+
+// Confirm delete function
+function confirmDeleteAttempts() {
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        if (confirmInput) {
+            confirmInput.value = '';
+            confirmInput.focus();
+        }
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.disabled = true;
+        }
+    }
+}
+
+function closeModal() {
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// Close modal handlers
+if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+window.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+});
+
+// Enable delete button when "DELETE" is typed
+if (confirmInput) {
+    confirmInput.addEventListener('input', function() {
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.disabled = this.value !== 'DELETE';
+        }
+    });
+}
+
+// Confirm delete action
+if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', function() {
+        const quizId = <?php echo $quiz['id'] ?? 0; ?>;
+        
+        fetch('<?php echo BASE_URL; ?>/teacher/quizzes/delete-attempts/' + quizId, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('All attempts deleted successfully!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast(data.message || 'Failed to delete attempts', 'error');
+                closeModal();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('An error occurred. Please try again.', 'error');
+            closeModal();
+        });
+    });
+}
+
 // Download results as CSV
 function downloadResults(format) {
     const table = document.getElementById('resultsTable');
     const rows = table.querySelectorAll('tr');
     let csvContent = [];
     
-    // Get headers
     const headers = [];
     const headerCells = rows[0].querySelectorAll('th');
     headerCells.forEach(cell => {
@@ -617,7 +861,6 @@ function downloadResults(format) {
     });
     csvContent.push(headers.join(','));
     
-    // Get data rows
     for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
         const cells = row.querySelectorAll('td');
@@ -625,9 +868,7 @@ function downloadResults(format) {
         
         cells.forEach(cell => {
             let content = cell.innerText.trim();
-            // Remove any HTML tags and clean up
             content = content.replace(/<[^>]*>/g, '');
-            // Escape quotes and wrap in quotes if contains comma
             if (content.includes(',') || content.includes('"') || content.includes('\n')) {
                 content = content.replace(/"/g, '""');
                 content = `"${content}"`;
@@ -645,7 +886,6 @@ function downloadResults(format) {
     const filename = `${quizTitle}_results_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.csv`;
     
     if (format === 'excel') {
-        // For Excel, we use the same CSV format but with .xls extension
         link.setAttribute('href', url);
         link.setAttribute('download', filename.replace('.csv', '.xls'));
     } else {
@@ -658,7 +898,6 @@ function downloadResults(format) {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    // Show success message
     showToast('Results downloaded successfully!', 'success');
 }
 
@@ -683,14 +922,12 @@ async function copyTableToClipboard() {
 
 // Toast notification
 function showToast(message, type = 'success') {
-    // Create toast element if it doesn't exist
     let toast = document.getElementById('toast');
     if (!toast) {
         toast = document.createElement('div');
         toast.id = 'toast';
         document.body.appendChild(toast);
         
-        // Add styles for toast
         const style = document.createElement('style');
         style.textContent = `
             #toast {
@@ -706,23 +943,16 @@ function showToast(message, type = 'success') {
                 transition: opacity 0.3s ease;
                 pointer-events: none;
             }
-            #toast.success {
-                background: #10B981;
-            }
-            #toast.error {
-                background: #EF4444;
-            }
-            #toast.info {
-                background: #3B82F6;
-            }
-            #toast.show {
-                opacity: 1;
-            }
+            #toast.success { background: #10B981; }
+            #toast.error { background: #EF4444; }
+            #toast.info { background: #3B82F6; }
+            #toast.show { opacity: 1; }
         `;
         document.head.appendChild(style);
     }
     
     toast.className = `${type} show`;
+    toast.textMessage = message;
     toast.textContent = message;
     
     setTimeout(() => {
@@ -730,7 +960,7 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// Add keyboard shortcut (Ctrl+D for download)
+// Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && e.key === 'd') {
         e.preventDefault();
@@ -738,9 +968,6 @@ document.addEventListener('keydown', function(e) {
     } else if (e.ctrlKey && e.key === 'e') {
         e.preventDefault();
         downloadResults('excel');
-    } else if (e.ctrlKey && e.key === 'p') {
-        e.preventDefault();
-        window.print();
     }
 });
 </script>
