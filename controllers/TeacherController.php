@@ -988,6 +988,9 @@ class TeacherController {
         header('Content-Type: application/json');
         
         try {
+            error_log("Delete attempts called for quiz ID: " . $quizId);
+            error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
+            
             $quiz = $this->quizModel->getById($quizId);
             
             if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
@@ -1003,11 +1006,9 @@ class TeacherController {
                 echo json_encode(['success' => false, 'message' => 'Failed to delete attempts']);
             }
         } catch (Exception $e) {
-                echo json_encode([
-                    'success' => false, 
-                    'message' => 'Debug Error: ' . $e->getMessage() 
-                ]);
-            }
+            error_log("Exception: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'An error occurred']);
+        }
         exit;
     }
 
