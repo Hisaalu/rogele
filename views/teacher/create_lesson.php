@@ -557,55 +557,6 @@ $classes = $classes ?? [];
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .form-card {
-        background: black;
-    }
-    
-    .section-title {
-        color: #F1F5F9;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .file-upload-area {
-        border-color: #334155;
-    }
-    
-    .file-upload-area:hover {
-        background: #334155;
-    }
-    
-    .file-item {
-        background: #334155;
-    }
-    
-    .file-item .file-name {
-        color: #F1F5F9;
-    }
-    
-    .btn-secondary {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #334155;
-    }
-    
-    .btn-secondary:hover {
-        background: #334155;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

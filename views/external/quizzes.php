@@ -724,51 +724,6 @@ if (!empty($quizzes)) {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .quiz-card {
-        background: #1E293B;
-    }
-    
-    .quiz-card.completed-quiz {
-        background: linear-gradient(135deg, #1E293B, #1A4731);
-    }
-    
-    .quiz-card.in-progress-quiz {
-        background: linear-gradient(135deg, #1E293B, #332411);
-    }
-    
-    .quiz-title {
-        color: #F1F5F9;
-    }
-    
-    .quiz-class {
-        background: #334155;
-        color: #94A3B8;
-    }
-    
-    .empty-state {
-        background: #1E293B;
-    }
-    
-    .feature-card {
-        background: #334155;
-    }
-    
-    .feature-card h4 {
-        color: #F1F5F9;
-    }
-    
-    .btn-results {
-        background: #334155;
-        color: #94A3B8;
-    }
-    
-    .btn-results:hover {
-        background: #8B5CF6;
-        color: white;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -771,50 +771,6 @@ window.addEventListener('resize', function() {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .stat-card,
-    .chart-card,
-    .performance-section,
-    .lessons-section {
-        background: black;
-    }
-    
-    .stat-value,
-    .chart-header h3,
-    .section-title,
-    .quiz-title {
-        color: #F1F5F9;
-    }
-    
-    .performance-table th {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .performance-table td {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .performance-table tr:hover td {
-        background: #334155;
-    }
-    
-    .lesson-stat-card {
-        background: #334155;
-    }
-    
-    .lesson-stat-card h4 {
-        color: #F1F5F9;
-    }
-    
-    .time-range-select {
-        background: black;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

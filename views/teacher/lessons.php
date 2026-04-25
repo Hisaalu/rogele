@@ -608,38 +608,6 @@ function getYoutubeId($url) {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .lesson-card {
-        background: black;
-    }
-    
-    .lesson-title {
-        color: #F1F5F9;
-    }
-    
-    .lesson-description {
-        color: #94A3B8;
-    }
-    
-    .empty-state {
-        background: black;
-    }
-    
-    .empty-state h3 {
-        color: #F1F5F9;
-    }
-    
-    .page-link {
-        background: black;
-        border-color: #334155;
-        color: #94A3B8;
-    }
-    
-    .page-link:hover {
-        background: #334155;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -664,51 +664,6 @@ $students = $students ?? [];
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .profile-card {
-        background: black;
-    }
-    
-    .profile-name {
-        color: #F1F5F9;
-    }
-    
-    .card-title {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group textarea {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .stat-value {
-        color: #F1F5F9;
-    }
-    
-    .stat-item:hover {
-        background: #334155;
-    }
-    
-    .btn-cancel {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #475569;
-    }
-    
-    .btn-cancel:hover {
-        background: #475569;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

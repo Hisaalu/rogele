@@ -843,59 +843,6 @@ input:checked + .slider:before {
     }
 }
 
-/* Dark Mode Support */
-/* @media (prefers-color-scheme: dark) {
-    .settings-card {
-        background: #1E293B;
-    }
-    
-    .card-title {
-        color: #F1F5F9;
-    }
-    
-    .card-description {
-        border-bottom-color: #334155;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .password-input-wrapper input {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .toggle-item {
-        background: #334155;
-    }
-    
-    .toggle-item:hover {
-        background: #475569;
-    }
-    
-    .toggle-info strong {
-        color: #F1F5F9;
-    }
-    
-    .password-requirements {
-        background: #334155;
-    }
-    
-    .password-requirements p {
-        color: #F1F5F9;
-    }
-    
-    .tab {
-        background: #1E293B;
-        color: #94A3B8;
-    }
-    
-    .tab:hover {
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

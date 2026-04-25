@@ -670,47 +670,7 @@ function ucfirst(string) {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .stat-card,
-    .chart-card,
-    .expiring-section,
-    .plan-details-section {
-        background: #1E293B;
-    }
-    
-    .stat-number,
-    .chart-header h3,
-    .section-title {
-        color: #F1F5F9;
-    }
-    
-    .expiring-table th {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .expiring-table td {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .expiring-table tr:hover td {
-        background: #334155;
-    }
-    
-    .plan-stats {
-        background: #334155;
-    }
-    
-    .stat-label {
-        color: #94A3B8;
-    }
-    
-    .stat-value {
-        color: #F1F5F9;
-    }
-} */
+
 </style>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
