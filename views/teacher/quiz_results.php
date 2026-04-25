@@ -766,16 +766,14 @@ if (confirmInput) {
 if (confirmDeleteBtn) {
     confirmDeleteBtn.addEventListener('click', function() {
         const quizId = <?php echo $quiz['id'] ?? 0; ?>;
+        
+        const formData = new FormData();
+        formData.append('quiz_id', quizId);
+        formData.append('action', 'delete_attempts');
+        
         fetch('<?php echo BASE_URL; ?>/teacher/quizzes/delete-attempts/' + quizId, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ 
-                _method: 'DELETE', 
-                confirm: true 
-            })
+            body: formData 
         })
         .then(response => response.json())
         .then(data => {
