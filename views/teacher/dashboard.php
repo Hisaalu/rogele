@@ -712,47 +712,6 @@ $classPerformance = $classPerformance ?? [
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .stat-card,
-    .action-card,
-    .performance-card,
-    .recent-card {
-        background: black;
-    }
-    
-    .stat-value,
-    .action-content h3,
-    .performance-header h3,
-    .card-header h3,
-    .activity-content h4 {
-        color: #F1F5F9;
-    }
-    
-    .stat-label,
-    .action-content p,
-    .activity-meta {
-        color: #94A3B8;
-    }
-    
-    .card-header {
-        border-bottom-color: #334155;
-    }
-    
-    .activity-item:hover {
-        background: #334155;
-    }
-    
-    .performance-filter {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .empty-state i {
-        color: #475569;
-    }
-} */
 </style>
 
 <!-- Chart.js -->

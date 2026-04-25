@@ -597,46 +597,7 @@ if (!isset($user) || empty($user)) {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .form-card {
-        background: #1E293B;
-    }
-    
-    .section-title {
-        color: #F1F5F9;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group select {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .btn-cancel {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #334155;
-    }
-    
-    .btn-cancel:hover {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .page-subtitle strong {
-        color: #F1F5F9;
-    }
-    
-    .danger-item {
-        background: #1E293B;
-    }
-} */
+
 </style>
 
 <script>

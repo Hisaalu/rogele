@@ -485,49 +485,6 @@ $subjects = $subjects ?? [];
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .form-card {
-        background: #black;
-    }
-    
-    .section-title {
-        color: #F1F5F9;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .checkbox-label span {
-        color: #F1F5F9;
-    }
-    
-    .btn-secondary {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #334155;
-    }
-    
-    .btn-secondary:hover {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .alert-info {
-        background: #1E3A5F;
-        color: #90CDF4;
-        border-color: #2B6CB0;
-    }
-} */
 </style>
 
 <script>

@@ -675,62 +675,6 @@ $stats = $stats ?? [];
     }
 }
 
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-    .stat-card,
-    .chart-card,
-    .results-card {
-        background: #1E293B;
-    }
-    
-    .stat-value {
-        color: #F1F5F9;
-    }
-    
-    .card-header {
-        border-bottom-color: #334155;
-    }
-    
-    .card-header h3 {
-        color: #F1F5F9;
-    }
-    
-    .results-table th {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .results-table td {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .results-table tr:hover td {
-        background: #334155;
-    }
-    
-    .student-cell strong {
-        color: #F1F5F9;
-    }
-    
-    .btn-icon {
-        background: #1E293B;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .btn-icon:hover {
-        background: #334155;
-    }
-    
-    .modal-content {
-        background: #1E293B;
-    }
-    
-    .modal-body p {
-        color: #F1F5F9;
-    }
-}
 </style>
 
 <!-- Chart.js -->

@@ -671,45 +671,6 @@ $search = $_GET['search'] ?? '';
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .filters-card,
-    .table-card {
-        background: #1E293B;
-    }
-    
-    .data-table th {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .data-table td {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .data-table tr:hover td {
-        background: #334155;
-    }
-    
-    .page-link {
-        color: #94A3B8;
-    }
-    
-    .page-link:hover {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .btn-reset {
-        color: #94A3B8;
-    }
-    
-    .btn-reset:hover {
-        background: #334155;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

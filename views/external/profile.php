@@ -674,53 +674,6 @@ require_once __DIR__ . '/../layouts/header.php';
     }
 }
 
-/* Dark Mode Support */
-/* @media (prefers-color-scheme: dark) {
-    .profile-card {
-        background: #1E293B;
-    }
-    
-    .profile-name {
-        color: #F1F5F9;
-    }
-    
-    .card-title {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .form-group input:focus {
-        border-color: #8B5CF6;
-    }
-    
-    .stat-value {
-        color: #F1F5F9;
-    }
-    
-    .stat-item:hover {
-        background: #334155;
-    }
-    
-    .btn-cancel {
-        background: #334155;
-        color: #F1F5F9;
-        border-color: #475569;
-    }
-    
-    .btn-cancel:hover {
-        background: #475569;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

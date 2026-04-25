@@ -339,39 +339,6 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .purchase-card {
-        background: #1E293B;
-    }
-    
-    .order-summary {
-        background: #334155;
-    }
-    
-    .order-summary h3,
-    .summary-item .price,
-    .summary-total {
-        color: #F1F5F9;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group select {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .trial-notice {
-        background: #1E3A5F;
-        border-color: #2563EB;
-        color: #93C5FD;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
