@@ -1003,8 +1003,11 @@ class TeacherController {
                 echo json_encode(['success' => false, 'message' => 'Failed to delete attempts']);
             }
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'An error occurred']);
-        }
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Debug Error: ' . $e->getMessage() 
+                ]);
+            }
         exit;
     }
 
