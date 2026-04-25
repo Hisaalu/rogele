@@ -22,14 +22,14 @@ require_once __DIR__ . '/../layouts/header.php';
                         <i class="fas fa-envelope"></i>
                         <h3>Email</h3>
                         <p>info@raysofgrace.ac.ug</p>
-                        <p>rogele@raysofgrace.ac.ug</p>
+                        <p>nelson.hisaalu@gmail.com</p>
                     </div>
                     
                     <div class="info-card">
                         <i class="fas fa-phone-alt"></i>
                         <h3>Phone</h3>
-                        <p>+256 778 086 883</p>
-                        <p>+256 707 610 551</p>
+                        <p>+256 786 764 239</p>
+                        <p>+256 751 719 313</p>
                     </div>
                     
                     <div class="info-card">
