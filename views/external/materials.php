@@ -530,40 +530,6 @@ function getYoutubeId($url) {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .search-section,
-    .lesson-card,
-    .empty-state {
-        background: #1E293B;
-    }
-    
-    .lesson-title {
-        color: #F1F5F9;
-    }
-    
-    .lesson-description {
-        color: #94A3B8;
-    }
-    
-    .filter-group select,
-    .search-box input {
-        background: #7f2677;
-        border-color: #f06724;
-        color: #F1F5F9;
-    }
-    
-    .btn-clear {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #f06724;
-    }
-    
-    .btn-clear:hover {
-        background: #f06724;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

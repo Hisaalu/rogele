@@ -588,31 +588,6 @@ $recentActivity = $recentActivity ?? [];
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .stat-card,
-    .action-card,
-    .dashboard-card,
-    .date-display {
-        background: #1E293B;
-    }
-    
-    .stat-value,
-    .action-content h3,
-    .user-info h4,
-    .activity-info p {
-        color: #F1F5F9;
-    }
-    
-    .card-header {
-        border-bottom-color: #334155;
-    }
-    
-    .user-item,
-    .activity-item {
-        border-bottom-color: #334155;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

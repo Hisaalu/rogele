@@ -378,7 +378,7 @@ $quizId = $quiz['id'] ?? 0;
 
 .btn-secondary {
     padding: 14px 30px;
-    background: white;
+    background: #7f2677;
     color: white;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
@@ -456,54 +456,6 @@ $quizId = $quiz['id'] ?? 0;
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .form-card {
-        background: #1E293B;
-    }
-    
-    .question-card {
-        background: #334155;
-    }
-    
-    .question-title {
-        color: #F1F5F9;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        background: #0F172A;
-        border-color: #475569;
-        color: #F1F5F9;
-    }
-    
-    .btn-add-question {
-        background: transparent;
-        color: #8B5CF6;
-        border-color: #8B5CF6;
-    }
-    
-    .btn-add-question:hover {
-        background: #f06724;
-        color: white;
-    }
-    
-    .btn-secondary {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #475569;
-    }
-    
-    .btn-secondary:hover {
-        background: #f06724;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>
