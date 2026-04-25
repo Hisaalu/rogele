@@ -863,7 +863,7 @@ body {
                     </h1>
                     
                     <p class="hero-description">
-                        Join our innovative Rays of Grace E-learning Environment (ROGELE) from Primary 1 to Primary 7. 
+                        Join our innovative Rays of Grace E-Learning Environment (ROGELE) from Primary 1 to Primary 7. 
                         Interactive lessons, smart quizzes, and progress tracking all in one place.
                     </p>
                     
@@ -912,7 +912,7 @@ body {
                 <span class="section-subtitle">Simple Process</span>
                 <h2 class="section-title">Start Learning in <span>3 Easy Steps</span></h2>
                 <p class="section-description">
-                    Get started with our platform in just a few minutes
+                    Get started with our platform with a few clicks
                 </p>
             </div>
             
@@ -923,7 +923,7 @@ body {
                         <i class="fas fa-user-plus"></i>
                     </div>
                     <h3>Create Account</h3>
-                    <p>Sign up for free and get 2 months trial access to all features</p>
+                    <p>Sign up for free and get 1 month trial access to all features</p>
                 </div>
                 
                 <div class="step-card animate-fade-in delay-1">
@@ -954,7 +954,7 @@ body {
                 <span class="section-subtitle">Why Choose Us</span>
                 <h2 class="section-title">Everything You Need For <span>Quality Education</span></h2>
                 <p class="section-description">
-                    Our platform provides comprehensive learning tools for students, teachers, and parents
+                    Our platform provides comprehensive learning tools for students, teachers, and beyond
                 </p>
             </div>
             
@@ -1059,7 +1059,7 @@ body {
                     <div class="savings-tag best">Save <?php echo number_format($yearlySavings); ?> UGX (<?php echo $yearlySavingsPercent; ?>%)</div>
                     <ul class="features-list">
                         <li><i class="fas fa-check-circle"></i> Everything in Termly</li>
-                        <li><i class="fas fa-check-circle"></i> 2 months free</li>
+                        <li><i class="fas fa-check-circle"></i> 2 months free additional time</li>
                         <li><i class="fas fa-check-circle"></i> Full access to all resources</li>
                         <li><i class="fas fa-check-circle"></i> AI Integration</li>
                         <li><i class="fas fa-check-circle"></i> Certificate of completion</li>
