@@ -1080,7 +1080,7 @@ body {
                 <span class="section-subtitle">Our Classes</span>
                 <h2 class="section-title">From <span>Primary 1 to 7</span></h2>
                 <p class="section-description">
-                    Comprehensive curriculum for every grade level
+                    Comprehensive curriculum for every class level
                 </p>
             </div>
             

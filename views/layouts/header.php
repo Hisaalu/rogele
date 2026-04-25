@@ -11,8 +11,8 @@
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="Rays of Grace E-Learning Environment - Quality education for Primary 1 to Primary 7 students. Interactive lessons, quizzes, and progress tracking.">
-    <meta name="keywords" content="e-learning, primary education, online learning, uganda education, rays of grace">
-    <meta name="author" content="Rays of Grace Junior School">
+    <meta name="keywords" content="e-learning, primary education, online learning, uganda education, rays of grace, Hisaalu Nelson">
+    <meta name="author" content="Hisaalu Nelson | Rays of Grace Junior School">
     
     <!-- Open Graph Tags -->
     <meta property="og:title" content="<?php echo SITE_NAME; ?>">
@@ -427,16 +427,22 @@
             }
             
             .logo-main {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
             
             .logo-sub {
-                display: none;
+                display: block;
+                font-size: 0.65rem; 
+                line-height: 1;
             }
             
             .logo-icon {
-                width: 40px;
-                height: 40px;
+                width: 35px;
+                height: 35px;
+            }
+
+            .logo-text {
+                gap: 2px;
             }
         }
 
