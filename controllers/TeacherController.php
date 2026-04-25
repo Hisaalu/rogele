@@ -982,6 +982,33 @@ class TeacherController {
     }
 
     /**
+     * Delete all attempts for a quiz
+     */
+    public function deleteAllAttempts($quizId) {
+        header('Content-Type: application/json');
+        
+        try {
+            $quiz = $this->quizModel->getById($quizId);
+            
+            if (!$quiz || $quiz['teacher_id'] != $_SESSION['user_id']) {
+                echo json_encode(['success' => false, 'message' => 'Quiz not found or unauthorized']);
+                exit;
+            }
+            
+            $result = $this->quizModel->deleteAllAttempts($quizId);
+            
+            if ($result) {
+                echo json_encode(['success' => true, 'message' => 'All attempts deleted successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to delete attempts']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'An error occurred']);
+        }
+        exit;
+    }
+
+    /**
      * Delete lesson material
      */
     public function deleteMaterial($materialId) {

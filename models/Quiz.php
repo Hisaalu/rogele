@@ -342,6 +342,28 @@ class Quiz {
             return null;
         }
     }
+
+    /**
+     * Delete all attempts for a quiz
+     */
+    public function deleteAllAttempts($quizId) {
+        try {
+            $stmt = $this->conn->prepare("
+                DELETE qaa FROM quiz_attempt_answers qaa
+                INNER JOIN quiz_attempts qa ON qaa.attempt_id = qa.id
+                WHERE qa.quiz_id = ?
+            ");
+            $stmt->execute([$quizId]);
+            
+            $stmt = $this->conn->prepare("DELETE FROM quiz_attempts WHERE quiz_id = ?");
+            $stmt->execute([$quizId]);
+            
+            return true;
+        } catch (PDOException $e) {
+            error_log("Delete all attempts error: " . $e->getMessage());
+            return false;
+        }
+    }
     
     // Get quiz statistics
     public function getQuizStats($quizId) {

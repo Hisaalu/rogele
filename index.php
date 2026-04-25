@@ -90,6 +90,7 @@ $routes = [
     '/teacher/quizzes/delete/{id}' => 'TeacherController@deleteQuiz',
     '/teacher/quizzes/results/{id}' => 'TeacherController@quizResults',
     '/teacher/quizzes/preview/{id}' => 'TeacherController@previewQuiz',
+    '/teacher/quizzes/delete-attempts/{id}' => 'TeacherController@deleteAllAttempts',
     '/teacher/students' => 'TeacherController@students',
     '/teacher/students/progress/{id}' => 'TeacherController@studentProgress',
     '/teacher/analytics' => 'TeacherController@analytics',

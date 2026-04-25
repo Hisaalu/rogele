@@ -47,7 +47,7 @@
                     <div class="footer-col">
                         <h4>Contact Us</h4>
                         <ul class="contact-info">
-                            <li><i class="fas fa-phone"></i> +256 778 086 883</li>
+                            <li><i class="fas fa-phone"></i> +256 786 764 239</li>
                             <li><i class="fas fa-envelope"></i> info@raysofgrace.ac.ug</li>
                             <li><i class="fas fa-map-marker"></i> Njeru, Uganda</li>
                         </ul>
