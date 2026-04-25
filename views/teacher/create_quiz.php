@@ -153,7 +153,7 @@ $subjects = $subjects ?? [];
                             type="number" 
                             id="max_attempts" 
                             name="max_attempts" 
-                            value="3" 
+                            value="1" 
                             min="1" 
                             max="10"
                         >
