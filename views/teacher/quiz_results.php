@@ -768,7 +768,7 @@ if (confirmDeleteBtn) {
         const quizId = <?php echo $quiz['id'] ?? 0; ?>;
         
         fetch('<?php echo BASE_URL; ?>/teacher/quizzes/delete-attempts/' + quizId, {
-            method: 'DELETE',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
