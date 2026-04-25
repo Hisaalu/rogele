@@ -72,8 +72,7 @@ $lessonViews = $lessonViews ?? [];
     </div>
 
     <!-- Charts Row -->
-    <div class="charts-row">
-        <!-- Quiz Performance Chart -->
+    <!-- <div class="charts-row">
         <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-chart-line"></i> Quiz Performance</h3>
@@ -88,7 +87,6 @@ $lessonViews = $lessonViews ?? [];
             </div>
         </div>
 
-        <!-- Lesson Views Chart -->
         <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-eye"></i> Lesson Views</h3>
@@ -102,7 +100,7 @@ $lessonViews = $lessonViews ?? [];
                 <canvas id="lessonViewsChart"></canvas>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Quiz Performance Table -->
     <div class="performance-section">
@@ -182,8 +180,6 @@ $lessonViews = $lessonViews ?? [];
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-// Chart.js
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -278,7 +274,7 @@ function loadQuizChart(days) {
                             max: 100,
                             title: {
                                 display: true,
-                                text: 'Score (%)',
+                                text: 'AverageScore (%)',
                                 color: 'black'
                             },
                             grid: {
@@ -335,10 +331,8 @@ function loadLessonChart(days) {
     currentLessonDays = days;
     const ctx = document.getElementById('lessonViewsChart').getContext('2d');
     
-    // Show loading state
     ctx.canvas.style.opacity = '0.5';
     
-    // Destroy existing chart if it exists
     if (lessonChart) {
         lessonChart.destroy();
     }
@@ -429,7 +423,6 @@ function refreshAnalytics() {
     window.location.href = `<?php echo BASE_URL; ?>/teacher/analytics?range=${range}`;
 }
 
-// Handle window resize
 window.addEventListener('resize', function() {
     if (quizChart) {
         quizChart.resize();
