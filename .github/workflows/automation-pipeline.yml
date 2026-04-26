@@ -1,4 +1,4 @@
-name: Full Automation Pipeline
+name: Automation Pipeline
 
 on:
   push:
