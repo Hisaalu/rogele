@@ -1,0 +1,53 @@
+name: Full Automation Pipeline
+
+on:
+  push:
+    branches: [ "local" ]
+
+env:
+  PHP_VERSION: "8.2"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Validate PHP syntax
+      run: |
+        find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+    
+    - name: Test Docker build
+      run: docker build . --file Dockerfile --tag test-build
+  
+  auto-deploy:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Setup Git
+      run: |
+        git config user.name "Deploy Bot"
+        git config user.email "deploy@github.com"
+    
+    - name: Fast-forward main to local
+      run: |
+        git checkout main
+        git merge origin/local --ff-only
+        git push origin main
+    
+    - name: Fast-forward production to main
+      run: |
+        git checkout production
+        git merge origin/main --ff-only
+        git push origin production
+    
+    - name: Notify deployment
+      run: |
+        echo "✅ Deployment complete!"
+        echo "📦 Commit: ${{ github.sha }}"
+        echo "🌐 Render is now building your app"
