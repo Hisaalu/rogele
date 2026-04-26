@@ -1,0 +1,49 @@
+name: Full Automation Pipeline
+
+on:
+  push:
+    branches: [ "local" ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Validate PHP syntax
+      run: |
+        find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+    
+    - name: Test Docker build
+      run: docker build . --file Dockerfile --tag test-build
+  
+  auto-deploy:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }} 
+        fetch-depth: 0
+    
+    - name: Setup Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+    
+    - name: Push local to main
+      run: |
+        git fetch origin
+        git checkout main || git checkout -b main
+        git merge origin/local --no-ff -m "Auto-merge from local [skip ci]"
+        git push origin main
+    
+    - name: Push main to production
+      run: |
+        git checkout production || git checkout -b production
+        git merge origin/main --no-ff -m "Auto-deploy to production [skip ci]"
+        git push origin production
