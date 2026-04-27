@@ -108,6 +108,110 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
                     <i class="fas fa-list-check"></i> Detailed Review
                 </h2>
             </div>
+
+            <p style="color: black; margin-bottom: 30px;">
+                Review your answers below. Correct answers are marked in green, incorrect in red.
+            </p>
+
+            <div class="questions-review">
+                <?php foreach ($questions as $index => $question):
+                    $userAnswer = isset($userAnswers[$question['id']]) ? $userAnswers[$question['id']] : null;
+                    
+                    if (is_numeric($userAnswer)) {
+                        $userAnswer = (int)$userAnswer;
+                    }
+                    
+                    if (is_string($userAnswer) && in_array(strtoupper($userAnswer), ['A', 'B', 'C', 'D'])) {
+                        $letterToIndex = ['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3];
+                        $userAnswer = $letterToIndex[strtoupper($userAnswer)];
+                    }
+                    
+                    $correctOption = isset($question['correct_option']) ? (int)$question['correct_option'] : 0;
+                    
+                    $isCorrect = ($userAnswer !== null && $userAnswer === $correctOption);
+                    
+                    $options = isset($question['options']) ? $question['options'] : [];
+                    $correctAnswerText = isset($options[$correctOption]) ? $options[$correctOption] : 'N/A';
+                    
+                    $userAnswerText = 'Not answered';
+                    if ($userAnswer !== null && isset($options[$userAnswer])) {
+                        $userAnswerText = $options[$userAnswer];
+                    } elseif ($userAnswer !== null && !isset($options[$userAnswer])) {
+                        $userAnswerText = 'Invalid answer';
+                    }
+                ?>
+                    <div class="review-question" style="background: #F8FAFC; border-radius: 16px; padding: 25px; margin-bottom: 20px; border-left: 4px solid <?php echo $isCorrect ? '#10B981' : '#e21414'; ?>;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="background: <?php echo $isCorrect ? '#10B981' : '#e21414'; ?>; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                                    <?php echo $index + 1; ?>
+                                </span>
+                                <span style="font-weight: 600; color: black;">Question <?php echo $index + 1; ?></span>
+                                <span style="padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: <?php echo $isCorrect ? '#F0FDF4' : '#FEF2F2'; ?>; color: <?php echo $isCorrect ? '#166534' : '#e21414'; ?>;">
+                                    <?php echo $isCorrect ? 'Correct' : 'Incorrect'; ?>
+                                </span>
+                            </div>
+                            <span style="color: black; font-size: 0.85rem;"><?php echo isset($question['points']) ? $question['points'] : 1; ?> point(s)</span>
+                        </div>
+                        
+                        <div class="question-text" style="font-size: 1rem; font-weight: 500; color: black; margin-bottom: 20px;">
+                            <?php echo htmlspecialchars($question['question_text']); ?>
+                        </div>
+                        
+                        <div class="options-review" style="margin-bottom: 15px;">
+                            <?php 
+                            $letters = ['A', 'B', 'C', 'D'];
+                            foreach ($options as $optIndex => $option):
+                                $isUserSelected = ($userAnswer == $optIndex);
+                                $isAnswerCorrect = ($optIndex == $correctOption);
+                                $bgColor = '';
+                                if ($isAnswerCorrect) {
+                                    $bgColor = '#F0FDF4';
+                                } elseif ($isUserSelected && !$isAnswerCorrect) {
+                                    $bgColor = '#FEF2F2';
+                                }
+                            ?>
+                                <div class="review-option" style="display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 8px; background: <?php echo $bgColor; ?>; border-radius: 10px; border: 1px solid <?php echo $isAnswerCorrect ? '#BBF7D0' : ($isUserSelected && !$isAnswerCorrect ? '#FECACA' : '#E2E8F0'); ?>;">
+                                    <span class="option-letter" style="width: 30px; height: 30px; background: <?php echo $isAnswerCorrect ? '#10B981' : ($isUserSelected && !$isAnswerCorrect ? '#e21414' : '#F1F5F9'); ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                                        <?php echo $letters[$optIndex]; ?>
+                                    </span>
+                                    <span class="option-text" style="flex: 1; color: black;"><?php echo htmlspecialchars($option); ?></span>
+                                    <?php if ($isAnswerCorrect): ?>
+                                        <span style="font-size: 0.7rem; color: #10B981;"><i class="fas fa-check-circle"></i> Correct Answer</span>
+                                    <?php elseif ($isUserSelected && !$isAnswerCorrect): ?>
+                                        <span style="font-size: 0.7rem; color: #e21414;"><i class="fas fa-times-circle"></i> Your Answer</span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        
+                        <div class="answer-summary" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E2E8F0;">
+                            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <span style="color: black; font-size: 0.85rem;">Your answer:</span>
+                                    <span style="color: <?php echo $isCorrect ? '#10B981' : '#e21414'; ?>; font-weight: 600;">
+                                        <?php echo htmlspecialchars($userAnswerText); ?>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span style="color: black; font-size: 0.85rem;">Correct answer:</span>
+                                    <span style="color: #10B981; font-weight: 600;">
+                                        <?php echo htmlspecialchars($correctAnswerText); ?>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <?php if (!empty($question['explanation'])): ?>
+                            <div class="explanation" style="margin-top: 15px; padding: 12px; background: #FEF3C7; border-radius: 8px;">
+                                <i class="fas fa-lightbulb" style="color: #F59E0B;"></i>
+                                <strong style="margin-left: 8px; color: #92400E;">Explanation:</strong>
+                                <p style="margin-top: 8px; color: #B45309; font-size: 0.9rem;"><?php echo htmlspecialchars($question['explanation']); ?></p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
             
             <!-- Feedback Section -->
             <div style="margin-top: 30px; padding: 20px; background: <?php echo $passed ? '#F0FDF4' : '#FEF2F2'; ?>; border-radius: 16px; text-align: center;">
