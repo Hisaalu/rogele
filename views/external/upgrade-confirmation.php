@@ -258,7 +258,7 @@ $priceCalculation = $priceCalculation ?? [];
 }
 
 .new-plan .plan-badge {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 
@@ -483,7 +483,7 @@ $priceCalculation = $priceCalculation ?? [];
 }
 
 .btn-pay {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 

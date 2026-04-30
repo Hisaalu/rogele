@@ -186,7 +186,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-edit {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 
@@ -436,7 +436,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-done {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 

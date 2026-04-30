@@ -108,7 +108,7 @@ class MailHelper {
                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 }
                 .header {
-                    background: linear-gradient(135deg, #7f2677);
+                    background-color: #7f2677;
                     padding: 40px 30px;
                     text-align: center;
                 }

@@ -231,7 +231,7 @@ $classPerformance = $classPerformance ?? [
 
 /* Welcome Banner */
 .welcome-banner {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;

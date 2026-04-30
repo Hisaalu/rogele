@@ -356,7 +356,7 @@
         }
 
         .footer-social a:hover {
-            background: linear-gradient(135deg, #7f2677);
+            background-color: #7f2677;
             transform: translateY(-3px);
         }
 
@@ -437,7 +437,7 @@
             right: 30px;
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #7f2677);
+            background-color: #7f2677;
             color: white;
             border: none;
             border-radius: 50%;

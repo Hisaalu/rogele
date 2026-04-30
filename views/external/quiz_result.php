@@ -230,7 +230,7 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
                 <a href="<?php echo BASE_URL; ?>/external/quizzes" style="background: white; color: #7f2677; border: 2px solid #7f2677; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; transition: all 0.3s ease;">
                     <i class="fas fa-redo-alt"></i> Try Another Quiz
                 </a>
-                <a href="<?php echo BASE_URL; ?>/external/materials" style="background: linear-gradient(135deg, #7f2677); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; transition: all 0.3s ease;">
+                <a href="<?php echo BASE_URL; ?>/external/materials" style="background-color: #7f2677; color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; transition: all 0.3s ease;">
                     <i class="fas fa-book-open"></i> Continue Learning
                 </a>
             </div>
