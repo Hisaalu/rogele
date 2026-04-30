@@ -839,7 +839,7 @@ class User {
                     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
                 }
                 .email-header {
-                    background: linear-gradient(135deg, #7f2677);
+                    background-color: #7f2677;
                     padding: 40px 30px;
                     text-align: center;
                 }

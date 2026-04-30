@@ -143,7 +143,7 @@ $statusFilter = $_GET['status'] ?? '';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;

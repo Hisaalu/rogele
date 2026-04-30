@@ -588,7 +588,7 @@ body {
 .gradient-text {
     font-size: clamp(1.5rem, 5vw, 2.2rem);
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
@@ -864,7 +864,7 @@ body {
 }
 
 .quick-filter.active {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     border-color: transparent;
     color: white;
 }
@@ -892,7 +892,7 @@ body {
 }
 
 .btn-apply {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
 }
@@ -959,7 +959,7 @@ body {
 }
 
 .tab-item.active {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 

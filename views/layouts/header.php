@@ -469,7 +469,7 @@
 
         .mobile-menu-header {
             padding: 30px 20px;
-            background: linear-gradient(135deg, #7f2677);
+            background-color: #7f2677;
             color: white;
             position: relative;
         }

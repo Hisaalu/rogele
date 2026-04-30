@@ -222,7 +222,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -366,7 +366,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
     padding: 14px 32px;

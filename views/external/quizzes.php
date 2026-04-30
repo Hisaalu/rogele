@@ -334,7 +334,7 @@ if (!empty($quizzes)) {
 .page-title {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -495,7 +495,7 @@ if (!empty($quizzes)) {
 }
 
 .quiz-subject {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     padding: 4px 12px;
     border-radius: 30px;
@@ -600,7 +600,7 @@ if (!empty($quizzes)) {
 
 .btn-start, .btn-resume {
     flex: 1;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     text-decoration: none;
     padding: 12px 20px;
