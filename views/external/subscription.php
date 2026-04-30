@@ -280,7 +280,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
 .badge {
     display: inline-block;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     padding: 6px 18px;
     border-radius: 50px;
@@ -360,7 +360,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 .btn-upgrade {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     padding: 12px 28px;
     border-radius: 50px;
@@ -529,7 +529,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 .btn-select.btn-primary {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 
@@ -662,7 +662,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     padding: 20px 24px;
     border-radius: 28px 28px 0 0;
     display: flex;
@@ -840,7 +840,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 .btn-submit {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 

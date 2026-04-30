@@ -122,7 +122,7 @@ $endTime = time() + $timeLimitSeconds;
     top: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     padding: 12px 20px;
     z-index: 1000;
@@ -369,7 +369,7 @@ $endTime = time() + $timeLimitSeconds;
 }
 
 .btn-submit {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
     padding: 14px 40px;
