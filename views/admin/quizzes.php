@@ -241,6 +241,10 @@ $statusFilter = $_GET['status'] ?? '';
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
+.table-responsive {
+    overflow-x: auto;
+}
+
 .data-table {
     width: 100%;
     border-collapse: collapse;
