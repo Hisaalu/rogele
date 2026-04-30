@@ -710,6 +710,9 @@
                             <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-book-open"></i> Lessons
                             </a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>">
+                                <i class="fas fa-pencil-alt"></i> Quizzes  
+                            </a></li>
                         </ul>
                         
                         <!-- User Menu with Dropdown -->
