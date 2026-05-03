@@ -543,19 +543,6 @@
     }
 }
 
-/* Dark Mode Adjustments */
-.dark-mode .footer-main {
-    background: #0a0a1a;
-}
-
-.dark-mode .newsletter-input-group {
-    background: rgba(255,255,255,0.05);
-}
-
-.dark-mode .app-button {
-    background: rgba(255,255,255,0.05);
-}
-
 /* Animations */
 @keyframes pulse {
     0% {

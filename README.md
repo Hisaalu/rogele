@@ -5,7 +5,7 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479a1.svg)](https://mysql.com)
 [![Render](https://img.shields.io/badge/Deployed%20on-Render-46e3b7.svg)](https://render.com)
 
-ROGELE (Rays of Grace E-Learning) is a comprehensive Learning Management System designed to facilitate online education with role-based access for admins, teachers, and students.
+ROGELE (Rays of Grace E-Learning Envronment) is a comprehensive Learning Management System designed to facilitate online education with role-based access for admins, teachers, and students.
 
 ## Features
 

@@ -52,7 +52,7 @@ class MailHelper {
             $this->mail->addAddress($to, $name);
             
             $this->mail->isHTML(true);
-            $this->mail->Subject = 'Password Reset Request - Rays of Grace';
+            $this->mail->Subject = 'Password Reset Request - ROGELE';
             
             $this->mail->Body = $this->getResetEmailTemplate($name, $resetLink);
             $this->mail->AltBody = "Hello $name,\n\nClick this link to reset your password: $resetLink\n\nThis link expires in 20 minutes.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nRays of Grace Team";
@@ -108,7 +108,7 @@ class MailHelper {
                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 }
                 .header {
-                    background: linear-gradient(135deg, #7f2677);
+                    background-color: #7f2677;
                     padding: 40px 30px;
                     text-align: center;
                 }
@@ -208,7 +208,7 @@ class MailHelper {
                     </div>
                 </div>
                 <div class="footer">
-                    <p>&copy; ' . date('Y') . ' ROGELE | All rights reserved.</p>
+                    <p>&copy; ' . date('Y') . ' ROGELE (Rays of Grace E-Learning Environment) | All rights reserved.</p>
                     <p>This is an automated message, please do not reply to this email.</p>
                     <p>Need help? Contact us at <a href="mailto:info@raysofgrace.ac.ug">info@raysofgrace.ac.ug</a></p>
                 </div>

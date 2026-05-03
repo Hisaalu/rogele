@@ -29,7 +29,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         <div class="trial-badge">
             <i class="fas fa-gift"></i>
             <span><?php echo $trialDays; ?> Days Free Trial on All Plans!</span>
-            <i class="fas fa-star"></i>
         </div>
         <?php endif; ?>
     </div>
@@ -82,7 +81,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                 <span class="currency">UGX</span>
                 <span class="amount"><?php echo number_format($monthlyPrice); ?></span>
             </div>
-            <p class="period">per month • cancel anytime</p>
+            <p class="period">per month • cancel with us anytime</p>
             <ul class="features-list">
                 <li><i class="fas fa-check-circle"></i> Full access to all lessons</li>
                 <li><i class="fas fa-check-circle"></i> Practice quizzes & assessments</li>
@@ -98,7 +97,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
         <!-- Termly Plan (Most Popular) -->
         <div class="pricing-card popular" data-plan="termly" data-price="<?php echo $termlyPrice; ?>">
-            <div class="popular-badge">⭐ MOST POPULAR</div>
+            <div class="popular-badge">RECOMMENDED</div>
             <div class="plan-icon">
                 <i class="fas fa-chart-line"></i>
             </div>
@@ -114,6 +113,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                 <li><i class="fas fa-check-circle"></i> Save <?php echo number_format($termlySavings); ?> UGX</li>
                 <li><i class="fas fa-check-circle"></i> Priority support</li>
                 <li><i class="fas fa-check-circle"></i> Downloadable materials</li>
+                <li><i class="fas fa-check-circle"></i> Answers to Quizzes</li>
             </ul>
             <?php if (!$currentSubscription): ?>
             <button class="btn-select btn-primary open-payment-modal" data-plan="termly" data-price="<?php echo $termlyPrice; ?>">
@@ -137,6 +137,8 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
             <ul class="features-list">
                 <li><i class="fas fa-check-circle"></i> Everything in Termly</li>
                 <li><i class="fas fa-check-circle"></i> 2 months free</li>
+                <li><i class="fas fa-check-circle"></i> Full access to all resources</li>
+                <li><i class="fas fa-check-circle"></i> AI Integration</li>
                 <li><i class="fas fa-check-circle"></i> Certificate of completion</li>
                 <li><i class="fas fa-check-circle"></i> 1-on-1 tutoring sessions</li>
             </ul>
@@ -174,7 +176,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                             <td>UGX <?php echo number_format($payment['amount']); ?></td>
                             <td>
                                 <i class="fas fa-<?php echo ($payment['payment_method'] ?? 'mobile_money') === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>"></i>
-                                <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'] ?? 'unknown')); ?>
+                                <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'] ?? 'pesapal')); ?>
                             </td>
                             <td>
                                 <span class="status-badge <?php echo $payment['status']; ?>">
@@ -199,7 +201,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         </div>
         
         <form id="paymentForm" action="<?php echo BASE_URL; ?>/external/process-pesapal-payment" method="POST">
-            <input type="hidden" name="plan" id="selectedPlan">
+            <input type="hidden" name="plan_type" id="selectedPlan">
             
             <div class="plan-summary">
                 <p>You're subscribing to: <strong id="planNameDisplay"></strong></p>
@@ -278,7 +280,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
 .badge {
     display: inline-block;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     padding: 6px 18px;
     border-radius: 50px;
@@ -358,7 +360,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 .btn-upgrade {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     padding: 12px 28px;
     border-radius: 50px;
@@ -522,11 +524,12 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
 .btn-select:hover {
     background: #f06724;
+    color: white;
     transform: translateY(-2px);
 }
 
 .btn-select.btn-primary {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 
@@ -659,7 +662,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     padding: 20px 24px;
     border-radius: 28px 28px 0 0;
     display: flex;
@@ -837,7 +840,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 .btn-submit {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 
@@ -914,90 +917,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .pricing-card {
-        background: #f06724;
-    }
-    
-    .pricing-card.popular {
-        background: linear-gradient(135deg, #f06724);
-    }
-    
-    .plan-name, .amount {
-        color: #F1F5F9;
-    }
-    
-    .features-list li {
-        color: #CBD5E0;
-    }
-    
-    .btn-select {
-        background: black;
-        color: #F1F5F9;
-    }
-    
-    .btn-select:hover {
-        background: #475569;
-    }
-    
-    .history-section {
-        background: #1E293B;
-    }
-    
-    .section-title {
-        color: #F1F5F9;
-    }
-    
-    .history-table td {
-        color: #CBD5E0;
-        border-bottom-color: #334155;
-    }
-    
-    .history-table th {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .modal-content {
-        background: #1E293B;
-    }
-    
-    .plan-summary {
-        background: #334155;
-    }
-    
-    .plan-summary p {
-        color: #F1F5F9;
-    }
-    
-    .payment-fields {
-        background: #334155;
-    }
-    
-    .input-group label {
-        color: #F1F5F9;
-    }
-    
-    .input-group input {
-        background: #1E293B;
-        border-color: #475569;
-        color: #F1F5F9;
-    }
-    
-    .method-card {
-        border-color: black;
-    }
-    
-    .method-card span {
-        color: #F1F5F9;
-    }
-    
-    .btn-cancel {
-        background: #334155;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

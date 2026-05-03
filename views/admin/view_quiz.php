@@ -158,7 +158,7 @@ $questions = $quiz['questions'] ?? [];
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 30px;
@@ -397,46 +397,6 @@ $questions = $quiz['questions'] ?? [];
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .quiz-card {
-        background: #1E293B;
-    }
-    
-    .quiz-header h2,
-    .questions-section h3 {
-        color: #F1F5F9;
-    }
-    
-    .quiz-description {
-        background: #334155;
-    }
-    
-    .quiz-description p {
-        color: #94A3B8;
-    }
-    
-    .question-item {
-        background: #334155;
-    }
-    
-    .question-text {
-        color: #F1F5F9;
-    }
-    
-    .option {
-        background: #1E293B;
-    }
-    
-    .option-text {
-        color: #F1F5F9;
-    }
-    
-    .no-questions {
-        background: #334155;
-        color: #94A3B8;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

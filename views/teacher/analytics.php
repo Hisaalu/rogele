@@ -72,8 +72,7 @@ $lessonViews = $lessonViews ?? [];
     </div>
 
     <!-- Charts Row -->
-    <div class="charts-row">
-        <!-- Quiz Performance Chart -->
+    <!-- <div class="charts-row">
         <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-chart-line"></i> Quiz Performance</h3>
@@ -88,7 +87,6 @@ $lessonViews = $lessonViews ?? [];
             </div>
         </div>
 
-        <!-- Lesson Views Chart -->
         <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-eye"></i> Lesson Views</h3>
@@ -102,7 +100,7 @@ $lessonViews = $lessonViews ?? [];
                 <canvas id="lessonViewsChart"></canvas>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Quiz Performance Table -->
     <div class="performance-section">
@@ -182,8 +180,6 @@ $lessonViews = $lessonViews ?? [];
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-// Chart.js
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -278,7 +274,7 @@ function loadQuizChart(days) {
                             max: 100,
                             title: {
                                 display: true,
-                                text: 'Score (%)',
+                                text: 'AverageScore (%)',
                                 color: 'black'
                             },
                             grid: {
@@ -335,10 +331,8 @@ function loadLessonChart(days) {
     currentLessonDays = days;
     const ctx = document.getElementById('lessonViewsChart').getContext('2d');
     
-    // Show loading state
     ctx.canvas.style.opacity = '0.5';
     
-    // Destroy existing chart if it exists
     if (lessonChart) {
         lessonChart.destroy();
     }
@@ -429,7 +423,6 @@ function refreshAnalytics() {
     window.location.href = `<?php echo BASE_URL; ?>/teacher/analytics?range=${range}`;
 }
 
-// Handle window resize
 window.addEventListener('resize', function() {
     if (quizChart) {
         quizChart.resize();
@@ -459,7 +452,7 @@ window.addEventListener('resize', function() {
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -771,50 +764,6 @@ window.addEventListener('resize', function() {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .stat-card,
-    .chart-card,
-    .performance-section,
-    .lessons-section {
-        background: black;
-    }
-    
-    .stat-value,
-    .chart-header h3,
-    .section-title,
-    .quiz-title {
-        color: #F1F5F9;
-    }
-    
-    .performance-table th {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .performance-table td {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .performance-table tr:hover td {
-        background: #334155;
-    }
-    
-    .lesson-stat-card {
-        background: #334155;
-    }
-    
-    .lesson-stat-card h4 {
-        color: #F1F5F9;
-    }
-    
-    .time-range-select {
-        background: black;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

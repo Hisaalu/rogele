@@ -386,7 +386,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -589,7 +589,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 
 .btn-primary {
     flex: 1;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
     padding: 14px 30px;
@@ -846,57 +846,6 @@ $currentStatus = $quiz['status'] ?? 'draft';
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .form-card,
-    .questions-section {
-        background: black;
-    }
-    
-    .section-title {
-        color: #F1F5F9;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .question-item {
-        background: #334155;
-    }
-    
-    .question-text {
-        color: #F1F5F9;
-    }
-    
-    .option {
-        background: black;
-        color: #94A3B8;
-    }
-    
-    .btn-secondary {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #334155;
-    }
-    
-    .btn-secondary:hover {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .empty-questions h3 {
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

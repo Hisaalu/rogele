@@ -2,6 +2,7 @@
 // File: /views/admin/profile.php
 $pageTitle = 'Profile | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
+
 ?>
 
 <div class="profile-container">
@@ -50,9 +51,9 @@ require_once __DIR__ . '/../layouts/header.php';
                         </div>
                     <?php endif; ?>
                     
-                    <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
+                    <!-- <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
                         <i class="fas fa-camera"></i>
-                    </button>
+                    </button> -->
                 </div>
                 <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Admin'); ?></h2>
                 <p class="profile-role">System Administrator</p>
@@ -186,7 +187,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -441,7 +442,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .btn-save {
     flex: 1;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
     padding: 14px 30px;
@@ -572,49 +573,6 @@ require_once __DIR__ . '/../layouts/header.php';
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .profile-card {
-        background: #1E293B;
-    }
-    
-    .profile-name {
-        color: #F1F5F9;
-    }
-    
-    .card-title {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .stat-value {
-        color: #F1F5F9;
-    }
-    
-    .stat-item:hover {
-        background: #334155;
-    }
-    
-    .btn-cancel {
-        background: #334155;
-        color: #F1F5F9;
-        border-color: #475569;
-    }
-    
-    .btn-cancel:hover {
-        background: #475569;
-    }
-} */
 </style>
 
 <script>

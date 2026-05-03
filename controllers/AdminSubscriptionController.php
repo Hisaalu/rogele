@@ -94,7 +94,7 @@ class AdminSubscriptionController {
         $result = $this->subscriptionModel->updateSubscriptionStatus($subscriptionId, $status);
         
         if ($result['success']) {
-            $_SESSION['success'] = "Subscription #{$subscriptionId} has been " . $action;
+            $_SESSION['success'] = "Subscription #{$subscriptionId} has been updated";
         } else {
             $_SESSION['error'] = $result['error'];
         }

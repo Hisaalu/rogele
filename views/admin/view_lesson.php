@@ -135,7 +135,7 @@ function getYoutubeId($url) {
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 30px;
@@ -369,33 +369,6 @@ function getYoutubeId($url) {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .lesson-card {
-        background: #1E293B;
-    }
-    
-    .lesson-header h2,
-    .lesson-content h3,
-    .video-section h3,
-    .materials-section h3 {
-        color: #F1F5F9;
-    }
-    
-    .content-body {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .material-item {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .material-item:hover {
-        background: #475569;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

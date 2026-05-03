@@ -152,7 +152,7 @@ $statusFilter = $_GET['status'] ?? '';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -248,6 +248,10 @@ $statusFilter = $_GET['status'] ?? '';
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.table-responsive {
+    overflow-x: auto;
 }
 
 .data-table {

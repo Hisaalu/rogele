@@ -44,7 +44,14 @@ $activeTab = $_GET['tab'] ?? 'password';
             <i class="fas fa-shield-alt"></i>
             <span>Privacy</span>
         </a>
-        <a href="<?php echo BASE_URL; ?>/external/delete-account?test=1" class="tab <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
+        <!-- uncomment to enable -->
+        <!-- <a href="<?php echo BASE_URL; ?>/external/delete-account?test=1" class="tab <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
+            <i class="fas fa-trash"></i>
+            <span>Delete Account</span>
+        </a> -->
+
+        <!-- temporarily disabled -->
+        <a href="javascript:void(0);" class="tab disabled" onclick="return false;">
             <i class="fas fa-trash"></i>
             <span>Delete Account</span>
         </a>
@@ -53,7 +60,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     <!-- Tab Content -->
     <div class="tab-content">
         <?php if ($activeTab === 'password'): ?>
-            <!-- Change Password Tab -->
             <div class="settings-card">
                 <h3 class="card-title">
                     <i class="fas fa-key"></i>
@@ -339,7 +345,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -369,7 +375,7 @@ $activeTab = $_GET['tab'] ?? 'password';
     background: white;
     border-radius: 12px;
     text-decoration: none;
-    color: black;
+    color: gray;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -393,7 +399,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .tab.active {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 
@@ -423,6 +429,10 @@ $activeTab = $_GET['tab'] ?? 'password';
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.card-title i {
+  color: #f06724;
 }
 
 .card-description {
@@ -742,7 +752,7 @@ input:checked + .slider:before {
 }
 
 .btn-save {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
     padding: 16px;
@@ -833,59 +843,6 @@ input:checked + .slider:before {
     }
 }
 
-/* Dark Mode Support */
-/* @media (prefers-color-scheme: dark) {
-    .settings-card {
-        background: #1E293B;
-    }
-    
-    .card-title {
-        color: #F1F5F9;
-    }
-    
-    .card-description {
-        border-bottom-color: #334155;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .password-input-wrapper input {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .toggle-item {
-        background: #334155;
-    }
-    
-    .toggle-item:hover {
-        background: #475569;
-    }
-    
-    .toggle-info strong {
-        color: #F1F5F9;
-    }
-    
-    .password-requirements {
-        background: #334155;
-    }
-    
-    .password-requirements p {
-        color: #F1F5F9;
-    }
-    
-    .tab {
-        background: #1E293B;
-        color: #94A3B8;
-    }
-    
-    .tab:hover {
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

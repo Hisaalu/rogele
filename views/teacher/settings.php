@@ -284,7 +284,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -371,7 +371,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .tab.active {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 
@@ -589,7 +589,7 @@ input:checked + .slider:before {
 
 /* Button */
 .btn-save {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
     padding: 16px;
@@ -634,51 +634,6 @@ input:checked + .slider:before {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .settings-card {
-        background: black;
-    }
-    
-    .card-title {
-        color: #F1F5F9;
-    }
-    
-    .card-description {
-        border-bottom-color: #334155;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .password-input-wrapper input {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .toggle-item {
-        background: #334155;
-    }
-    
-    .toggle-item:hover {
-        background: #475569;
-    }
-    
-    .toggle-info strong {
-        color: #F1F5F9;
-    }
-    
-    .tab {
-        background: black;
-        color: #94A3B8;
-    }
-    
-    .tab:hover {
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

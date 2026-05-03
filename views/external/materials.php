@@ -112,7 +112,7 @@ $search = $_GET['search'] ?? '';
                             </span>
                             <span>
                                 <i class="fas fa-user"></i>
-                                <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?>
+                                Tr. <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?>
                             </span>
                         </div>
 
@@ -163,7 +163,7 @@ function getYoutubeId($url) {
 .page-title {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -530,40 +530,6 @@ function getYoutubeId($url) {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .search-section,
-    .lesson-card,
-    .empty-state {
-        background: #1E293B;
-    }
-    
-    .lesson-title {
-        color: #F1F5F9;
-    }
-    
-    .lesson-description {
-        color: #94A3B8;
-    }
-    
-    .filter-group select,
-    .search-box input {
-        background: #7f2677;
-        border-color: #f06724;
-        color: #F1F5F9;
-    }
-    
-    .btn-clear {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #f06724;
-    }
-    
-    .btn-clear:hover {
-        background: #f06724;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

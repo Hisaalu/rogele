@@ -237,7 +237,7 @@ $search = $_GET['search'] ?? '';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -728,53 +728,6 @@ $search = $_GET['search'] ?? '';
     }
 }
 
-/* Dark Mode
-@media (prefers-color-scheme: dark) {
-    .quick-stat-card,
-    .filters-section,
-    .student-card,
-    .empty-state {
-        background: #1E293B;
-    }
-    
-    .quick-stat-value {
-        color: #F1F5F9;
-    }
-    
-    .student-name {
-        color: #F1F5F9;
-    }
-    
-    .stat-value {
-        color: #F1F5F9;
-    }
-    
-    .performance-bar {
-        background: #334155;
-    }
-    
-    .btn-clear {
-        background: #334155;
-        color: #F1F5F9;
-        border-color: #475569;
-    }
-    
-    .btn-clear:hover {
-        background: #475569;
-    }
-    
-    .filter-group select {
-        background: #1E293B;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .search-box input {
-        background: #1E293B;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

@@ -188,7 +188,7 @@ $search = $_GET['search'] ?? '';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -203,7 +203,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
     padding: 12px 24px;
@@ -595,39 +595,6 @@ $search = $_GET['search'] ?? '';
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .quiz-card {
-        background: #1E293B;
-        border-color: #334155;
-    }
-    
-    .quiz-title {
-        color: #F1F5F9;
-    }
-    
-    .quiz-description {
-        color: #94A3B8;
-    }
-    
-    .empty-state {
-        background: #1E293B;
-    }
-    
-    .empty-state h3 {
-        color: #F1F5F9;
-    }
-    
-    .page-link {
-        background: #1E293B;
-        border-color: #334155;
-        color: #94A3B8;
-    }
-    
-    .page-link:hover {
-        background: #334155;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

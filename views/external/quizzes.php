@@ -135,12 +135,7 @@ if (!empty($quizzes)) {
                                 <?php if ($isExpired): ?>
                                     Expired on <?php echo date('M d, Y', strtotime($endDate)); ?>
                                 <?php else: ?>
-                                    Due: <?php echo date('M d, Y', strtotime($endDate)); ?>
-                                    <?php 
-                                    $daysRemaining = ceil((strtotime($endDate) - time()) / 86400);
-                                    if ($daysRemaining <= 3 && $daysRemaining > 0): ?>
-                                        <span class="urgent">(<?php echo $daysRemaining; ?> days left!)</span>
-                                    <?php endif; ?>
+                                    Due: <?php echo date('M d, Y h:i A', strtotime($endDate)); ?>
                                 <?php endif; ?>
                             </span>
                         <?php endif; ?>
@@ -263,7 +258,7 @@ if (!empty($quizzes)) {
 }
 
 .quiz-card.no-attempts-left {
-    border: 2px solid #EF4444;
+    border: 2px solid #f06724;
     background: linear-gradient(135deg, white, #FEF2F2);
     opacity: 0.9;
 }
@@ -339,7 +334,7 @@ if (!empty($quizzes)) {
 .page-title {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -500,7 +495,7 @@ if (!empty($quizzes)) {
 }
 
 .quiz-subject {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     padding: 4px 12px;
     border-radius: 30px;
@@ -605,7 +600,7 @@ if (!empty($quizzes)) {
 
 .btn-start, .btn-resume {
     flex: 1;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     text-decoration: none;
     padding: 12px 20px;
@@ -729,51 +724,6 @@ if (!empty($quizzes)) {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .quiz-card {
-        background: #1E293B;
-    }
-    
-    .quiz-card.completed-quiz {
-        background: linear-gradient(135deg, #1E293B, #1A4731);
-    }
-    
-    .quiz-card.in-progress-quiz {
-        background: linear-gradient(135deg, #1E293B, #332411);
-    }
-    
-    .quiz-title {
-        color: #F1F5F9;
-    }
-    
-    .quiz-class {
-        background: #334155;
-        color: #94A3B8;
-    }
-    
-    .empty-state {
-        background: #1E293B;
-    }
-    
-    .feature-card {
-        background: #334155;
-    }
-    
-    .feature-card h4 {
-        color: #F1F5F9;
-    }
-    
-    .btn-results {
-        background: #334155;
-        color: #94A3B8;
-    }
-    
-    .btn-results:hover {
-        background: #8B5CF6;
-        color: white;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

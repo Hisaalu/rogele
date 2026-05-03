@@ -588,7 +588,7 @@ body {
 .gradient-text {
     font-size: clamp(1.5rem, 5vw, 2.2rem);
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
@@ -864,7 +864,7 @@ body {
 }
 
 .quick-filter.active {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     border-color: transparent;
     color: white;
 }
@@ -892,7 +892,7 @@ body {
 }
 
 .btn-apply {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
 }
@@ -959,7 +959,7 @@ body {
 }
 
 .tab-item.active {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
 }
 
@@ -1597,91 +1597,6 @@ body {
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    body {
-        background: #0F172A;
-    }
-    
-    .filter-section,
-    .chart-card,
-    .activity-feed,
-    .report-card,
-    .stat-card,
-    .date-range-indicator,
-    .btn-refresh,
-    .report-tabs {
-        background: #1E293B;
-    }
-    
-    .stat-value,
-    .feed-text,
-    .card-header h2,
-    .chart-title h3,
-    .filter-header h3,
-    .timeline-header strong {
-        color: #F1F5F9;
-    }
-    
-    .stat-label,
-    .feed-time,
-    .date-badge,
-    .filter-header p,
-    .timeline-content p {
-        color: #94A3B8;
-    }
-    
-    .input-wrapper input {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .data-table {
-        background: #1E293B;
-    }
-    
-    .data-table th {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .data-table td {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .data-table tr:hover td {
-        background: #334155;
-    }
-    
-    .stat-mini {
-        background: #334155;
-    }
-    
-    .stat-mini-value {
-        color: #F1F5F9;
-    }
-    
-    .timeline-content {
-        background: #334155;
-    }
-    
-    .btn-export {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #334155;
-    }
-    
-    .btn-export:hover {
-        border-color: #8B5CF6;
-        color: #8B5CF6;
-    }
-    
-    .empty-state {
-        background: #334155;
-    }
-} */
 </style>
 
 <script>

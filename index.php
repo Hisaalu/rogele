@@ -90,6 +90,7 @@ $routes = [
     '/teacher/quizzes/delete/{id}' => 'TeacherController@deleteQuiz',
     '/teacher/quizzes/results/{id}' => 'TeacherController@quizResults',
     '/teacher/quizzes/preview/{id}' => 'TeacherController@previewQuiz',
+    '/teacher/quizzes/delete-attempts/{id}' => 'TeacherController@deleteAllAttempts',
     '/teacher/students' => 'TeacherController@students',
     '/teacher/students/progress/{id}' => 'TeacherController@studentProgress',
     '/teacher/analytics' => 'TeacherController@analytics',
@@ -109,6 +110,10 @@ $routes = [
     '/learner/bookmarks' => 'LearnerController@bookmarks',
     
     // External user routes
+    '/external/pesapal-ipn' => 'ExternalController@pesapalIpn',
+    '/external/pesapal-callback' => 'ExternalController@pesapalCallback',
+    '/external/pesapal-test' => 'ExternalController@pesapalTest',
+    '/external/process-pesapal-payment' => 'ExternalController@processPesapalPayment',
     '/external/dashboard' => 'ExternalController@dashboard',
     '/external/materials' => 'ExternalController@materials',
     '/external/view-lesson/{id}' => 'ExternalController@viewLesson',
@@ -131,9 +136,6 @@ $routes = [
     '/external/payment-callback' => 'ExternalController@paymentCallback',
     '/external/payment-success' => 'ExternalController@paymentSuccess',
     '/external/payment-cancelled' => 'ExternalController@paymentCancelled',
-    '/external/process-pesapal-payment' => 'ExternalController@processPesapalPayment',
-    '/external/pesapal-callback' => 'ExternalController@pesapalCallback',
-    '/external/pesapal-ipn' => 'ExternalController@pesapalIpn',
     
      // Settings routes
     '/admin/settings' => 'AdminController@settings',
@@ -146,6 +148,7 @@ $routes = [
     '/admin/settings/test-email' => 'AdminController@testEmailConfig',
     '/admin/settings/clear-cache' => 'AdminController@clearCache',
     '/admin/settings/reset-defaults' => 'AdminController@resetToDefaults',
+    '/admin/update-profile' => 'AdminController@updateProfile',
     '/admin/lessons' => 'AdminController@lessons',
     '/admin/lessons/view/{id}' => 'AdminController@viewLesson',
     '/admin/lessons/approve/{id}' => 'AdminController@approveLesson',

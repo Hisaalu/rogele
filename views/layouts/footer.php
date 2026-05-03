@@ -38,6 +38,7 @@
                             <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-chevron-right"></i> Home</a></li>
                             <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
                             <li><a href="<?php echo BASE_URL; ?>/external/lessons"><i class="fas fa-chevron-right"></i> Lessons</a></li>
+                            <li><a href="#pricing"><i class="fas fa-chevron-right"></i> Pricing</a></li>
                             <li><a href="<?php echo BASE_URL; ?>/contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
                         </ul>
                     </div>
@@ -46,7 +47,7 @@
                     <div class="footer-col">
                         <h4>Contact Us</h4>
                         <ul class="contact-info">
-                            <li><i class="fas fa-phone"></i> +256 778 086 883</li>
+                            <li><i class="fas fa-phone"></i> +256 786 764 239</li>
                             <li><i class="fas fa-envelope"></i> info@raysofgrace.ac.ug</li>
                             <li><i class="fas fa-map-marker"></i> Njeru, Uganda</li>
                         </ul>
@@ -56,7 +57,7 @@
         </div>
         <div class="footer-bottom">
             <div class="container">
-                <p>&copy; <?php echo date('Y'); ?> Rays of Grace Junior School | All rights reserved.</p>
+                <p>&copy; <?php echo date('Y'); ?> ROGELE (Rays of Grace E-Learning Environment) | All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -355,7 +356,7 @@
         }
 
         .footer-social a:hover {
-            background: linear-gradient(135deg, #7f2677);
+            background-color: #7f2677;
             transform: translateY(-3px);
         }
 
@@ -436,7 +437,7 @@
             right: 30px;
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #7f2677);
+            background-color: #7f2677;
             color: white;
             border: none;
             border-radius: 50%;

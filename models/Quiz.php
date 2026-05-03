@@ -342,6 +342,28 @@ class Quiz {
             return null;
         }
     }
+
+    /**
+     * Delete all attempts for a quiz
+     */
+    public function deleteAllAttempts($quizId) {
+        try {
+            $stmt = $this->conn->prepare("
+                DELETE qaa FROM quiz_attempt_answers qaa
+                INNER JOIN quiz_attempts qa ON qaa.attempt_id = qa.id
+                WHERE qa.quiz_id = ?
+            ");
+            $stmt->execute([$quizId]);
+            
+            $stmt = $this->conn->prepare("DELETE FROM quiz_attempts WHERE quiz_id = ?");
+            $stmt->execute([$quizId]);
+            
+            return true;
+        } catch (PDOException $e) {
+            error_log("Delete all attempts error: " . $e->getMessage());
+            return false;
+        }
+    }
     
     // Get quiz statistics
     public function getQuizStats($quizId) {
@@ -498,29 +520,36 @@ class Quiz {
     public function getByTeacher($teacherId, $limit = null, $offset = 0) {
         try {
             $query = "SELECT q.*, 
+                    c.name as class_name, 
+                    s.name as subject_name,
                     COUNT(DISTINCT qa.id) as attempt_count,
                     (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
                     FROM quizzes q
+                    LEFT JOIN classes c ON q.class_id = c.id
+                    LEFT JOIN subjects s ON q.subject_id = s.id
                     LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id
                     WHERE q.teacher_id = :teacher_id
-                    GROUP BY q.id
+                    GROUP BY q.id, c.name, s.name 
                     ORDER BY q.created_at DESC";
             
-            if ($limit) {
+            if ($limit !== null) {
                 $query .= " LIMIT :limit OFFSET :offset";
             }
             
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(':teacher_id', $teacherId);
             
-            if ($limit) {
-                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            if ($limit !== null) {
+                $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
             }
             
             $stmt->execute();
-            return $stmt->fetchAll();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $results ? $results : [];
         } catch (PDOException $e) {
+            error_log("SQL Error in getByTeacher: " . $e->getMessage());
             return [];
         }
     }

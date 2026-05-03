@@ -24,14 +24,6 @@ $paymentHistory = $paymentHistory ?? [];
                 <i class="fas fa-arrow-left"></i>
                 Back to Subscriptions
             </a>
-            <?php if (($subscription['status'] ?? '') === 'active'): ?>
-                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/cancel/<?php echo $subscription['id'] ?? 0; ?>" 
-                   class="btn-cancel"
-                   onclick="return confirm('Are you sure you want to cancel this subscription?')">
-                    <i class="fas fa-ban"></i>
-                    Cancel Subscription
-                </a>
-            <?php endif; ?>
         </div>
     </div>
 
@@ -54,13 +46,23 @@ $paymentHistory = $paymentHistory ?? [];
 
     <!-- Main Content Grid -->
     <div class="details-grid">
-        <!-- Left Column - Subscription Info -->
+        <!-- Left Column - Subscription Info (REPLACED WITH DROPDOWN) -->
         <div class="info-card subscription-info">
             <div class="card-header">
                 <h2><i class="fas fa-info-circle"></i> Subscription Information</h2>
-                <span class="status-badge <?php echo $subscription['status'] ?? ''; ?>">
-                    <?php echo ucfirst($subscription['status'] ?? 'unknown'); ?>
-                </span>
+                
+                <form action="<?php echo BASE_URL; ?>/admin/subscriptions/update-status" method="POST" class="status-update-form">
+                    <input type="hidden" name="subscription_id" value="<?php echo $subscription['id'] ?? 0; ?>">
+                    <select name="status" onchange="this.form.submit()" class="status-select <?php echo $subscription['status'] ?? 'pending'; ?>">
+                        <?php 
+                        $statuses = ['active', 'expired', 'pending', 'cancelled'];
+                        foreach ($statuses as $status): ?>
+                            <option value="<?php echo $status; ?>" <?php echo (($subscription['status'] ?? 'pending') === $status) ? 'selected' : ''; ?>>
+                                <?php echo ucfirst($status); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </form>
             </div>
             
             <div class="info-content">
@@ -113,7 +115,7 @@ $paymentHistory = $paymentHistory ?? [];
                 <div class="info-row">
                     <span class="info-label">Payment Method:</span>
                     <span class="info-value">
-                        <i class="fas fa-<?php echo $subscription['payment_method'] === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>"></i>
+                        <i class="fas fa-<?php echo ($subscription['payment_method'] ?? 'mobile_money') === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>"></i>
                         <?php echo ucfirst(str_replace('_', ' ', $subscription['payment_method'] ?? 'unknown')); ?>
                     </span>
                 </div>
@@ -206,7 +208,7 @@ $paymentHistory = $paymentHistory ?? [];
             
             <div class="upgrade-item">
                 <span class="upgrade-label">Upgraded At:</span>
-                <span class="upgrade-value"><?php echo date('F j, Y h:i A', strtotime($subscription['upgraded_at'] ?? 'now')); ?></span>
+                <span class="info-value"><?php echo date('F j, Y h:i A', strtotime($subscription['created_at'] ?? 'now')); ?></span>
             </div>
             
             <div class="upgrade-item">
@@ -242,13 +244,13 @@ $paymentHistory = $paymentHistory ?? [];
                     </thead>
                     <tbody>
                         <?php foreach ($paymentHistory as $payment): ?>
-                        <?php if (is_array($payment)): // Ensure each payment is an array ?>
+                        <?php if (is_array($payment)): ?>
                         <tr>
                             <td><?php echo isset($payment['created_at']) ? date('M d, Y h:i A', strtotime($payment['created_at'])) : 'N/A'; ?></td>
                             <td class="amount-cell">UGX <?php echo isset($payment['amount']) ? number_format($payment['amount']) : '0'; ?></td>
                             <td>
                                 <?php 
-                                $method = $payment['payment_method'] ?? 'unknown';
+                                $method = $payment['payment_method'] ?? 'pesapal';
                                 $icon = $method === 'mobile_money' ? 'mobile-alt' : 'credit-card';
                                 ?>
                                 <i class="fas fa-<?php echo $icon; ?>"></i>
@@ -268,7 +270,6 @@ $paymentHistory = $paymentHistory ?? [];
             </div>
         </div>
     <?php else: ?>
-    <!-- Optional: Show a message when no payment history -->
     <div class="info-message">
         <i class="fas fa-info-circle"></i>
         <p>No payment history found for this subscription.</p>
@@ -297,7 +298,7 @@ $paymentHistory = $paymentHistory ?? [];
                 </thead>
                 <tbody>
                     <?php foreach ($userHistory as $history): 
-                        if ($history['id'] == ($subscription['id'] ?? 0)) continue; // Skip current
+                        if ($history['id'] == ($subscription['id'] ?? 0)) continue;
                     ?>
                     <tr>
                         <td>#<?php echo $history['id']; ?></td>
@@ -347,7 +348,7 @@ $paymentHistory = $paymentHistory ?? [];
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -363,7 +364,7 @@ $paymentHistory = $paymentHistory ?? [];
     gap: 15px;
 }
 
-.btn-back, .btn-cancel {
+.btn-back {
     padding: 12px 25px;
     border-radius: 12px;
     text-decoration: none;
@@ -372,21 +373,15 @@ $paymentHistory = $paymentHistory ?? [];
     align-items: center;
     gap: 8px;
     transition: all 0.3s ease;
+    background: #7f2677;
+    color: white;
 }
 
-.btn-back {
-    background: #F1F5F9;
-    color: #1E293B;
-}
-
-.btn-cancel {
-    background: #FEF2F2;
-    color: #B91C1C;
-}
-
-.btn-back:hover, .btn-cancel:hover {
+.btn-back:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    color: white;
+    background: #f06724;
 }
 
 /* Alert Messages */
@@ -446,6 +441,8 @@ $paymentHistory = $paymentHistory ?? [];
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 2px solid #F1F5F9;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .card-header h2 {
@@ -454,10 +451,40 @@ $paymentHistory = $paymentHistory ?? [];
     display: flex;
     align-items: center;
     gap: 8px;
+    margin: 0;
 }
 
 .card-header h2 i {
-    color: #8B5CF6;
+    color: #f06724;
+}
+
+/* Status Dropdown Styling */
+.status-select {
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: inherit;
+}
+
+.status-select:hover {
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+}
+
+/* Match the badge colors */
+.status-select.active { background: #F0FDF4; color: #166534; border-color: #BBF7D0; }
+.status-select.expired { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
+.status-select.pending { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+.status-select.cancelled { background: #F1F5F9; color: #64748B; border-color: #E2E8F0; }
+
+.status-update-form {
+    display: inline-flex;
+    align-items: center;
 }
 
 .info-content {
@@ -566,7 +593,7 @@ $paymentHistory = $paymentHistory ?? [];
 .avatar-placeholder {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg,#f06724);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -612,8 +639,8 @@ $paymentHistory = $paymentHistory ?? [];
 .btn-view-user {
     display: inline-block;
     padding: 10px 20px;
-    background: #EFF6FF;
-    color: #2563EB;
+    background: #7f2677;
+    color: white;
     text-decoration: none;
     border-radius: 10px;
     font-weight: 600;
@@ -621,14 +648,14 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .btn-view-user:hover {
-    background: #2563EB;
+    background: #f06724;
     color: white;
 }
 
 /* Upgrade Info */
 .upgrade-info-card {
     background: linear-gradient(135deg, #FEF3C7, #FFFAF0);
-    border: 2px solid #F59E0B;
+    border: 2px solid #7f2677;
     border-radius: 20px;
     padding: 25px;
     margin-bottom: 25px;
@@ -755,7 +782,7 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .payment-count {
-    background: #8B5CF6;
+    background: #7f2677;
     color: white;
     padding: 3px 10px;
     border-radius: 20px;
@@ -775,7 +802,7 @@ $paymentHistory = $paymentHistory ?? [];
 .info-message i {
     font-size: 2rem;
     margin-bottom: 10px;
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .info-message p {
@@ -817,6 +844,11 @@ $paymentHistory = $paymentHistory ?? [];
         align-items: flex-start;
         gap: 5px;
     }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 @media (max-width: 480px) {
@@ -828,38 +860,6 @@ $paymentHistory = $paymentHistory ?? [];
         font-size: 0.85rem;
     }
 }
-
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .info-card,
-    .payment-history-card,
-    .user-history-card {
-        background: #1E293B;
-    }
-    
-    .card-header h2,
-    .info-value,
-    .upgrade-value {
-        color: #F1F5F9;
-    }
-    
-    .payment-table th,
-    .history-table th {
-        background: #334155;
-        color: #F1F5F9;
-    }
-    
-    .payment-table td,
-    .history-table td {
-        color: #CBD5E0;
-        border-bottom-color: #334155;
-    }
-    
-    .payment-table tr:hover td,
-    .history-table tr:hover td {
-        background: #334155;
-    }
-} */
 </style>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>

@@ -55,9 +55,9 @@ $students = $students ?? [];
                         </div>
                     <?php endif; ?>
                     
-                    <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
+                    <!-- <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
                         <i class="fas fa-camera"></i>
-                    </button>
+                    </button> -->
                 </div>
                 
                 <form method="POST" action="<?php echo BASE_URL; ?>/teacher/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
@@ -244,7 +244,7 @@ $students = $students ?? [];
 .page-title {
     font-size: 2.2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -552,7 +552,7 @@ $students = $students ?? [];
 
 .btn-save {
     flex: 1;
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     color: white;
     border: none;
     padding: 14px 30px;
@@ -664,51 +664,6 @@ $students = $students ?? [];
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .profile-card {
-        background: black;
-    }
-    
-    .profile-name {
-        color: #F1F5F9;
-    }
-    
-    .card-title {
-        color: #F1F5F9;
-        border-bottom-color: #334155;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group textarea {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .stat-value {
-        color: #F1F5F9;
-    }
-    
-    .stat-item:hover {
-        background: #334155;
-    }
-    
-    .btn-cancel {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #475569;
-    }
-    
-    .btn-cancel:hover {
-        background: #475569;
-        color: #F1F5F9;
-    }
-} */
 </style>
 
 <script>

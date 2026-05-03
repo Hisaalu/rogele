@@ -59,7 +59,7 @@ if (!isset($lesson)) {
                         <i class="fas fa-file-pdf" style="color: #F97316; font-size: 1.5rem;"></i>
                         <span style="flex: 1;"><?php echo htmlspecialchars($material['file_name']); ?></span>
                         <span style="color: #64748B; font-size: 0.9rem;"><?php echo round($material['file_size'] / 1024, 2); ?> KB</span>
-                        <i class="fas fa-download" style="color: #8B5CF6;"></i>
+                        <i class="fas fa-download" style="color: #7f2677;"></i>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -91,25 +91,25 @@ function getYoutubeId($url) {
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s ease;
-        color: #94A3B8;
+        color: #7f2677;
         font-size: 1.2rem;
     }
 
     .bookmark-btn:hover {
-        border-color: #8B5CF6;
-        color: #8B5CF6;
+        border-color: #f06724;
+        color: #f06724;
         transform: scale(1.1);
     }
 
     .bookmark-btn.bookmarked {
-        background: #8B5CF6;
-        border-color: #8B5CF6;
+        background: #f06724;
+        border-color: #f06724;
         color: white;
     }
 
     .bookmark-btn.bookmarked:hover {
-        background: #7C3AED;
-        border-color: #7C3AED;
+        background: #f06724;
+        border-color: #f06724;
     }
 </style>
 

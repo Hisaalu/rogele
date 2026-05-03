@@ -11,8 +11,8 @@
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="Rays of Grace E-Learning Environment - Quality education for Primary 1 to Primary 7 students. Interactive lessons, quizzes, and progress tracking.">
-    <meta name="keywords" content="e-learning, primary education, online learning, uganda education, rays of grace">
-    <meta name="author" content="Rays of Grace Junior School">
+    <meta name="keywords" content="e-learning, primary education, online learning, uganda education, rays of grace, Hisaalu Nelson">
+    <meta name="author" content="Hisaalu Nelson | Rays of Grace Junior School">
     
     <!-- Open Graph Tags -->
     <meta property="og:title" content="<?php echo SITE_NAME; ?>">
@@ -427,16 +427,22 @@
             }
             
             .logo-main {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
             
             .logo-sub {
-                display: none;
+                display: block;
+                font-size: 0.65rem; 
+                line-height: 1;
             }
             
             .logo-icon {
-                width: 40px;
-                height: 40px;
+                width: 35px;
+                height: 35px;
+            }
+
+            .logo-text {
+                gap: 2px;
             }
         }
 
@@ -463,7 +469,7 @@
 
         .mobile-menu-header {
             padding: 30px 20px;
-            background: linear-gradient(135deg, #7f2677);
+            background-color: #7f2677;
             color: white;
             position: relative;
         }
@@ -704,6 +710,9 @@
                             <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-book-open"></i> Lessons
                             </a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>">
+                                <i class="fas fa-pencil-alt"></i> Quizzes  
+                            </a></li>
                         </ul>
                         
                         <!-- User Menu with Dropdown -->
@@ -746,6 +755,7 @@
                         <ul class="nav-links">
                             <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
                             <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
+                            <li><a href="#pricing"><i class="fas fa-tags"></i> Pricing</a></li>
                             <li><a href="<?php echo BASE_URL; ?>/contact"><i class="fas fa-envelope"></i> Contact</a></li>
                         </ul>
                         
@@ -824,6 +834,7 @@
                 <ul class="mobile-nav-links">
                     <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="#pricing"><i class="fas fa-tags"></i> Pricing</a></li>
                     <li><a href="<?php echo BASE_URL; ?>/contact"><i class="fas fa-envelope"></i> Contact</a></li>
                 </ul>
                 <div class="mobile-auth">
@@ -838,7 +849,7 @@
         <?php endif; ?>
         
         <div class="mobile-menu-footer">
-            <p class="mobile-copyright">© <?php echo date('Y'); ?> Rays of Grace</p>
+            <p class="mobile-copyright">© <?php echo date('Y'); ?> ROGELE (Rays of Grace E-Learning Environment)</p>
         </div>
     </div>
 

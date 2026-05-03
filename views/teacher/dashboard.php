@@ -21,7 +21,7 @@ $classPerformance = $classPerformance ?? [
     <div class="welcome-banner">
         <div class="welcome-content">
             <h1 class="welcome-title">
-                Welcome back, <span class="teacher-name">
+                Welcome back, Tr. <span class="teacher-name">
                     <?php 
                         $fullName = $_SESSION['user_name'] ?? 'Teacher';
                         $firstName = explode(' ', trim($fullName))[0];
@@ -231,7 +231,7 @@ $classPerformance = $classPerformance ?? [
 
 /* Welcome Banner */
 .welcome-banner {
-    background: linear-gradient(135deg, #7f2677);
+    background-color: #7f2677;
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
@@ -613,7 +613,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .btn-view:hover {
-    background: #7C3AED;
+    background: #7f2677;
     transform: translateY(-2px);
 }
 
@@ -712,47 +712,6 @@ $classPerformance = $classPerformance ?? [
     }
 }
 
-/* Dark Mode */
-/* @media (prefers-color-scheme: dark) {
-    .stat-card,
-    .action-card,
-    .performance-card,
-    .recent-card {
-        background: black;
-    }
-    
-    .stat-value,
-    .action-content h3,
-    .performance-header h3,
-    .card-header h3,
-    .activity-content h4 {
-        color: #F1F5F9;
-    }
-    
-    .stat-label,
-    .action-content p,
-    .activity-meta {
-        color: #94A3B8;
-    }
-    
-    .card-header {
-        border-bottom-color: #334155;
-    }
-    
-    .activity-item:hover {
-        background: #334155;
-    }
-    
-    .performance-filter {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .empty-state i {
-        color: #475569;
-    }
-} */
 </style>
 
 <!-- Chart.js -->
