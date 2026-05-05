@@ -1,19 +1,26 @@
 name: Sync to Hugging Face Hub
 on:
   push:
-    branches: [VPC]  # 1. GitHub will now watch your VPC branch
+    branches: [VPC]
   workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4 # Updated to v4 to fix the warning
         with:
           fetch-depth: 0
           lfs: true
+
       - name: Push to Hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        # 2. This maps your local 'VPC' branch to the remote Hugging Face 'main' branch
-        run: git push --force https://hisaalunelson:$HF_TOKEN@huggingface.co/spaces/hisaalunelson/ROGELE VPC:main
+        run: |
+          # Set identity so git doesn't complain
+          git config --global user.email "hisaalujuniornelson@gmail.com"
+          git config --global user.name "Hisaalu"
+          
+          # Use force push to ensure your VPC branch becomes the new main on HF
+          git push --force https://hisaalunelson:$HF_TOKEN@huggingface.co/spaces/hisaalunelson/ROGELE VPC:main
