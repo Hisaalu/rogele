@@ -111,11 +111,11 @@ class User {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$user) {
-                return ['success' => false, 'error' => 'User not found'];
+                return ['success' => false, 'error' => 'Invalid email or password'];
             }
             
             if (!password_verify($password, $user['password'])) {
-                return ['success' => false, 'error' => 'Invalid password'];
+                return ['success' => false, 'error' => 'Invalid email or password'];
             }
             
             if (!$user['is_active']) {
