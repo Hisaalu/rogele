@@ -178,7 +178,7 @@ $classes = $classes ?? [];
                             multiple 
                             accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png"
                         >
-                        <small class="input-hint">Allowed: PDF, DOC, PPT, XLS, Images (Max 10MB each)</small>
+                        <small class="input-hint">Allowed: PDF, DOC, PPT, XLS, Images (Max 5MB each)</small>
                     </div>
                     <div id="fileList" class="file-list"></div>
                 </div>
