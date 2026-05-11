@@ -19,7 +19,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
 
 <div style="padding: 40px 20px; max-width: 1200px; margin: 0 auto;">
     <h1 style="font-size: 2rem; margin-bottom: 20px;">
-        <span style="background: linear-gradient(135deg, #f06724); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        <span style="background-color: #f06724; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Welcome back, <?php 
                 $fullName = $_SESSION['user_name'] ?? 'User';
                 $firstName = explode(' ', trim($fullName))[0];
@@ -35,7 +35,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
         <!-- Access Status Banner -->
         <?php if ($hasActiveSubscription): ?>
             <!-- Active Subscription Banner -->
-            <div style="background: linear-gradient(135deg, #F0FDF4, #FFFFFF); border-left: 4px solid #10B981; padding: 20px; margin-bottom: 30px; border-radius: 12px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <div style="background: #F0FDF4; border-left: 4px solid #10B981; padding: 20px; margin-bottom: 30px; border-radius: 12px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <div style="background: #10B981; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-crown" style="color: white; font-size: 1.5rem;"></i>
                 </div>
@@ -53,7 +53,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
             
         <?php elseif ($isInTrial): ?>
             <!-- Active Trial Banner -->
-            <div style="background: linear-gradient(135deg, #FEF3C7, #FFFAF0); border-left: 4px solid #F59E0B; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
+            <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                     <div style="background: #F59E0B; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-hourglass-half" style="color: white; font-size: 1.5rem;"></i>
@@ -73,11 +73,11 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                         $usedDays = $trialDays - $remainingTrialDays;
                         ?>
                         <div style="background: #FFEDD5; height: 8px; border-radius: 10px; margin-top: 10px; max-width: 400px;">
-                            <div style="background: linear-gradient(90deg, #f06724); width: <?php echo $trialPercentage; ?>%; height: 100%; border-radius: 10px;"></div>
+                            <div style="background: #f06724; width: <?php echo $trialPercentage; ?>%; height: 100%; border-radius: 10px;"></div>
                         </div>
                         <p style="color: #B45309; font-size: 0.75rem; margin-top: 5px;">Day <?php echo $usedDays; ?> of <?php echo $trialDays; ?></p>
                     </div>
-                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: linear-gradient(135deg, #f06724); color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
+                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: #f06724; color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
                         Subscribe Now
                     </a>
                 </div>
@@ -85,7 +85,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
             
         <?php else: ?>
             <!-- Trial Ended Banner -->
-            <div style="background: linear-gradient(135deg, #FEF2F2, #FFFFFF); border-left: 4px solid #EF4444; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
+            <div style="background: #FEF2F2; border-left: 4px solid #EF4444; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                     <div style="background: #EF4444; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-clock" style="color: white; font-size: 1.5rem;"></i>
@@ -94,7 +94,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                         <p style="color: #B91C1C; font-weight: 700; margin-bottom: 5px;">⚠️ Trial Expired</p>
                         <p style="color: #B91C1C;">Your free trial has ended. Subscribe now to continue accessing lessons and quizzes!</p>
                     </div>
-                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
+                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: #EF4444; color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
                         Subscribe Now
                     </a>
                 </div>
@@ -144,7 +144,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                 <i class="fas fa-exclamation-triangle"></i> 
                 Your free trial has ended. To continue learning, please choose a subscription plan.
             </p>
-            <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-subscribe" style="background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block;">
+            <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-subscribe" style="background: #EF4444; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block;">
                 View Subscription Plans
             </a>
         </div>

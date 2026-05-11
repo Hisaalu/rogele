@@ -241,7 +241,7 @@
         .user-initials {
             width: 45px;
             height: 45px;
-            background: linear-gradient(135deg, #f06724);
+            background-color: #f06724;
             border-radius: 50%;
             display: flex;
             align-items: center;

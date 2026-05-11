@@ -310,7 +310,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     color: white;
     padding: 12px 28px;
     border-radius: 60px;
@@ -410,7 +410,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     color: white;
     padding: 6px 24px;
     border-radius: 50px;

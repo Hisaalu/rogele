@@ -238,7 +238,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -491,7 +491,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 .summary-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 12px;
     display: flex;
     align-items: center;
