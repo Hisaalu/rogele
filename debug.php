@@ -1,15 +1,27 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+// File: /session-test.php
 
-error_log("=== DEBUG BOOKMARK ===");
-error_log("Session user_id: " . ($_SESSION['user_id'] ?? 'none'));
-error_log("Request method: " . $_SERVER['REQUEST_METHOD']);
-error_log("POST data: " . print_r($_POST, true));
+require_once __DIR__ . '/config/config.php';
 
-echo json_encode([
-    'session_active' => isset($_SESSION['user_id']),
-    'user_id' => $_SESSION['user_id'] ?? null,
-    'method' => $_SERVER['REQUEST_METHOD'],
-    'message' => 'Debug endpoint working'
-]);
+header('Content-Type: text/html');
+
+echo "<h1>Session Test</h1>";
+echo "<p>Session ID: " . session_id() . "</p>";
+echo "<p>Session save path: " . ini_get('session.save_path') . "</p>";
+echo "<p>Cookie domain: " . ini_get('session.cookie_domain') . "</p>";
+
+if (!isset($_SESSION['test_count'])) {
+    $_SESSION['test_count'] = 1;
+    echo "<p style='color:green'>Session initialized! Count = 1</p>";
+} else {
+    $_SESSION['test_count']++;
+    echo "<p style='color:blue'>Session exists! Count = " . $_SESSION['test_count'] . "</p>";
+}
+
+echo "<h2>Full Session Data:</h2>";
+echo "<pre>";
+print_r($_SESSION);
+echo "</pre>";
+
+echo "<p><a href='session-test.php'>Refresh this page</a> - The count should increase each time.</p>";
+echo "<p><a href='" . BASE_URL . "/login'>Go to Login</a></p>";
