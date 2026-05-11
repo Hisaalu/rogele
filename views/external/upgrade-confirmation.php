@@ -189,7 +189,7 @@ $priceCalculation = $priceCalculation ?? [];
 .header-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -265,7 +265,7 @@ $priceCalculation = $priceCalculation ?? [];
 .plan-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 50%;
     display: flex;
     align-items: center;

@@ -365,7 +365,7 @@ function getYoutubeId($url) {
     height: 180px;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
 }
 
 .lesson-thumbnail img {
@@ -533,7 +533,7 @@ function getYoutubeId($url) {
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 50%;
     display: flex;
     align-items: center;

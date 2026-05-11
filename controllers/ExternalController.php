@@ -174,12 +174,16 @@ class ExternalController {
      * Toggle bookmark
      */
     public function toggleBookmark($lessonId) {
+        header('Content-Type: application/json');
+        
         if (!isset($_SESSION['user_id'])) {
             echo json_encode(['success' => false, 'error' => 'Please login first']);
             exit;
         }
         
         $userId = $_SESSION['user_id'];
+        
+        // Check if already bookmarked
         $isBookmarked = $this->lessonModel->isBookmarked($userId, $lessonId);
         
         if ($isBookmarked) {
@@ -193,7 +197,7 @@ class ExternalController {
         if ($result['success']) {
             echo json_encode(['success' => true, 'message' => $message, 'bookmarked' => !$isBookmarked]);
         } else {
-            echo json_encode(['success' => false, 'error' => $result['error']]);
+            echo json_encode(['success' => false, 'error' => $result['error'] ?? 'Operation failed']);
         }
         exit;
     }
@@ -212,6 +216,22 @@ class ExternalController {
         $bookmarks = $this->lessonModel->getBookmarks($_SESSION['user_id']);
         
         require_once __DIR__ . '/../views/external/bookmarks.php';
+    }
+
+    /**
+     * Get bookmark count for the current user
+     */
+    public function getBookmarkCount() {
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => true, 'count' => 0]);
+            exit;
+        }
+        
+        $count = $this->lessonModel->getBookmarkCount($_SESSION['user_id']);
+        echo json_encode(['success' => true, 'count' => $count]);
+        exit;
     }
     
     /**

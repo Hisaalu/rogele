@@ -270,7 +270,7 @@ $search = $_GET['search'] ?? '';
 .quick-stat-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -665,7 +665,7 @@ $search = $_GET['search'] ?? '';
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 50%;
     display: flex;
     align-items: center;

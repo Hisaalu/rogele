@@ -706,10 +706,10 @@ body {
     flex-shrink: 0;
 }
 
-.stat-card-purple .stat-icon { background: linear-gradient(135deg, #f06724); }
-.stat-card-orange .stat-icon { background: linear-gradient(135deg, #f06724); }
-.stat-card-green .stat-icon { background: linear-gradient(135deg, #f06724); }
-.stat-card-pink .stat-icon { background: linear-gradient(135deg, #f06724); }
+.stat-card-purple .stat-icon { background-color: #f06724; }
+.stat-card-orange .stat-icon { background-color: #f06724; }
+.stat-card-green .stat-icon { background-color: #f06724; }
+.stat-card-pink .stat-icon { background-color: #f06724; }
 
 .stat-content {
     flex: 1;
@@ -1104,9 +1104,9 @@ body {
     flex-shrink: 0;
 }
 
-.feed-icon.login { background: linear-gradient(135deg, #f06724); }
-.feed-icon.registration { background: linear-gradient(135deg, #f06724); }
-.feed-icon.quiz_attempt { background: linear-gradient(135deg, #f06724); }
+.feed-icon.login { background-color: #f06724; }
+.feed-icon.registration { background-color: #f06724; }
+.feed-icon.quiz_attempt { background-color: #f06724; }
 
 .feed-content {
     flex: 1;
