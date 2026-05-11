@@ -1,10 +1,9 @@
 <?php
 // File: /index.php
+require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/env.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
-require_once __DIR__ . '/config/config.php';
 
 spl_autoload_register(function ($class) {
     $paths = [
