@@ -1,9 +1,6 @@
 <?php
 // File: /models/Lesson.php
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../vendor/autoload.php';
-
-use Cloudinary\Cloudinary;
 
 class Lesson {
     private $db;
@@ -325,35 +322,36 @@ class Lesson {
      */
     public function uploadMaterials($lessonId, $files) {
         try {
-            $cloudinary = new Cloudinary([
-                'cloud' => [
-                    'cloud_name' => getenv('CLOUDINARY_CLOUD_NAME'),
-                    'api_key' => getenv('CLOUDINARY_API_KEY'),
-                    'api_secret' => getenv('CLOUDINARY_API_SECRET'),
-                ]
-            ]);
+            $targetDir = __DIR__ . '/../public/uploads/lessons/';
             
-            $uploadedCount = 0;
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0777, true);
+            }
             
             for ($i = 0; $i < count($files['name']); $i++) {
                 if ($files['error'][$i] === UPLOAD_ERR_OK) {
-                    $result = $cloudinary->uploadApi()->upload($files['tmp_name'][$i], [
-                        'folder' => 'rogele/lessons/' . $lessonId,
-                        'public_id' => time() . '_' . pathinfo($files['name'][$i], PATHINFO_FILENAME)
-                    ]);
+                    $fileName = time() . '_' . basename($files['name'][$i]);
+                    $targetFile = $targetDir . $fileName;
                     
-                    $fileUrl = $result['secure_url'];
-                    
-                    $stmt = $this->conn->prepare("INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)");
-                    $stmt->execute([$lessonId, $files['name'][$i], $fileUrl, $files['type'][$i], $files['size'][$i]]);
-                    
-                    $uploadedCount++;
+                    if (move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
+                        $dbPath = 'uploads/lessons/' . $fileName;
+                        
+                        $query = "INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) 
+                                VALUES (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
+                        
+                        $stmt = $this->conn->prepare($query);
+                        $stmt->execute([
+                            ':lesson_id' => $lessonId,
+                            ':file_name' => $files['name'][$i],
+                            ':file_path' => $dbPath,
+                            ':file_type' => $files['type'][$i],
+                            ':file_size' => $files['size'][$i]
+                        ]);
+                    }
                 }
             }
-            
-            return $uploadedCount > 0;
-        } catch (Exception $e) {
-            error_log("Cloudinary upload error: " . $e->getMessage());
+            return true;
+        } catch (PDOException $e) {
             return false;
         }
     }
