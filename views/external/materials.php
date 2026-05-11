@@ -731,7 +731,6 @@ function getYoutubeId($url) {
 <script>
 // Function to toggle bookmark from card
 function toggleCardBookmark(lessonId, buttonElement) {
-    // Disable button to prevent multiple clicks
     buttonElement.disabled = true;
     const originalIcon = buttonElement.innerHTML;
     buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
