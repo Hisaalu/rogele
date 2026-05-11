@@ -58,7 +58,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- General Settings Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
+                <div class="card-icon" style="background-color: #f06724;">
                     <i class="fas fa-globe"></i>
                 </div>
                 <div class="card-title">
@@ -141,7 +141,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- Subscription Plans Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
+                <div class="card-icon" style="background-color: #f06724;">
                     <i class="fas fa-credit-card"></i>
                 </div>
                 <div class="card-title">
@@ -246,7 +246,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- Email Configuration Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
+                <div class="card-icon" style="background-color: #f06724;">
                     <i class="fas fa-mail-bulk"></i>
                 </div>
                 <div class="card-title">
@@ -352,7 +352,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- Security Settings Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
+                <div class="card-icon" style="background-color: #f06724;">
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <div class="card-title">
@@ -423,7 +423,7 @@ $appearanceSettings = $appearanceSettings ?? [];
         <!-- Appearance Settings Card -->
         <div class="settings-card">
             <div class="card-header">
-                <div class="card-icon" style="background: linear-gradient(135deg, #f06724);">
+                <div class="card-icon" style="background-color: #f06724;">
                     <i class="fas fa-paint-brush"></i>
                 </div>
                 <div class="card-title">
@@ -888,7 +888,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 }
 
 input:checked + .toggle-slider {
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
 }
 
 input:checked + .toggle-slider:before {

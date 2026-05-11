@@ -40,7 +40,7 @@ $classPerformance = $classPerformance ?? [
     <!-- Quick Stats Grid -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-book-open"></i>
             </div>
             <div class="stat-content">
@@ -53,7 +53,7 @@ $classPerformance = $classPerformance ?? [
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-pencil-alt"></i>
             </div>
             <div class="stat-content">
@@ -66,7 +66,7 @@ $classPerformance = $classPerformance ?? [
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-content">
@@ -79,7 +79,7 @@ $classPerformance = $classPerformance ?? [
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-content">

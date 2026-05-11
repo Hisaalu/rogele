@@ -106,7 +106,7 @@ $search = $_GET['search'] ?? '';
                                     <?php if (!empty($user['profile_photo'])): ?>
                                         <img src="<?php echo BASE_URL; ?>/<?php echo $user['profile_photo']; ?>" alt="<?php echo $user['first_name']; ?>">
                                     <?php else: ?>
-                                        <div class="avatar-placeholder" style="background: linear-gradient(135deg, #f06724);">
+                                        <div class="avatar-placeholder" style="background-color: #f06724;">
                                             <?php 
                                             $initial1 = strtoupper(substr($user['first_name'] ?? 'U', 0, 1));
                                             $initial2 = strtoupper(substr($user['last_name'] ?? 'S', 0, 1));

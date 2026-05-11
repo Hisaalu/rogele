@@ -10,13 +10,22 @@ $search = $_GET['search'] ?? '';
 ?>
 
 <div class="materials-container">
-    <!-- Header -->
+    <!-- Header with Bookmark Link -->
     <div class="materials-header">
-        <h1 class="page-title">
-            <i class="fas fa-book-open"></i>
-            Learning Materials
-        </h1>
-        <p class="page-subtitle">Explore lessons and resources to enhance your knowledge</p>
+        <div class="header-left">
+            <h1 class="page-title">
+                <i class="fas fa-book-open"></i>
+                Learning Materials
+            </h1>
+            <p class="page-subtitle">Explore lessons and resources to enhance your knowledge</p>
+        </div>
+        <div class="header-actions">
+            <a href="<?php echo BASE_URL; ?>/external/bookmarks" class="bookmark-link">
+                <i class="fas fa-bookmark"></i>
+                <span>My Bookmarks</span>
+                <span class="bookmark-count" id="bookmarkCount">0</span>
+            </a>
+        </div>
     </div>
 
     <!-- Alert Messages -->
@@ -24,6 +33,7 @@ $search = $_GET['search'] ?? '';
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
             <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
         </div>
     <?php endif; ?>
     
@@ -31,6 +41,7 @@ $search = $_GET['search'] ?? '';
         <div class="alert alert-error">
             <i class="fas fa-exclamation-circle"></i>
             <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
         </div>
     <?php endif; ?>
 
@@ -78,11 +89,14 @@ $search = $_GET['search'] ?? '';
             </div>
             <h3>No Lessons Found</h3>
             <p>We couldn't find any lessons matching your criteria. Try adjusting your search or check back later!</p>
+            <a href="<?php echo BASE_URL; ?>/external/bookmarks" class="btn-view-bookmarks">
+                <i class="fas fa-bookmark"></i> View My Bookmarks
+            </a>
         </div>
     <?php else: ?>
         <div class="lessons-grid">
             <?php foreach ($lessons as $lesson): ?>
-                <div class="lesson-card">
+                <div class="lesson-card" data-lesson-id="<?php echo $lesson['id']; ?>">
                     <!-- Lesson Thumbnail -->
                     <div class="lesson-thumbnail">
                         <?php if (!empty($lesson['video_url'])): ?>
@@ -95,6 +109,13 @@ $search = $_GET['search'] ?? '';
                                 <i class="fas fa-book-open"></i>
                             </div>
                         <?php endif; ?>
+                        
+                        <!-- Bookmark button on card -->
+                        <button class="card-bookmark-btn <?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'bookmarked' : ''; ?>" 
+                                onclick="toggleCardBookmark(<?php echo $lesson['id']; ?>, this)"
+                                title="<?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'Remove from bookmarks' : 'Add to bookmarks'; ?>">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
                     </div>
 
                     <!-- Lesson Content -->
@@ -155,9 +176,18 @@ function getYoutubeId($url) {
     padding: 40px 20px;
 }
 
+/* Header with Bookmark Link */
 .materials-header {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.header-left {
+    flex: 1;
 }
 
 .page-title {
@@ -170,11 +200,55 @@ function getYoutubeId($url) {
 }
 
 .page-subtitle {
-    color: black;
+    color: #000;
     font-size: 1.1rem;
 }
 
-/* Alerts */
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+.bookmark-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #FEF3C7, #FFFAF0);
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    color: #7f2677;
+    transition: all 0.3s ease;
+    border: 1px solid #FDE68A;
+}
+
+.bookmark-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(240, 103, 36, 0.2);
+    background: #f06724;
+    color: white;
+}
+
+.bookmark-link i {
+    font-size: 1.1rem;
+}
+
+.bookmark-count {
+    background: #f06724;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.bookmark-link:hover .bookmark-count {
+    background: white;
+    color: #7f2677;
+}
+
+/* Alert Messages */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -183,6 +257,7 @@ function getYoutubeId($url) {
     align-items: center;
     gap: 12px;
     animation: slideDown 0.3s ease;
+    position: relative;
 }
 
 .alert-success {
@@ -195,6 +270,17 @@ function getYoutubeId($url) {
     background: #FEF2F2;
     color: #B91C1C;
     border: 1px solid #FECACA;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: currentColor;
+    opacity: 0.7;
+    margin-left: auto;
+    padding: 0 5px;
 }
 
 @keyframes slideDown {
@@ -261,6 +347,10 @@ function getYoutubeId($url) {
     background: white;
     min-width: 180px;
     cursor: pointer;
+}
+
+.filter-group select:focus {
+    outline: none;
     border-color: #f06724;
 }
 
@@ -282,8 +372,8 @@ function getYoutubeId($url) {
 
 .btn-clear {
     padding: 14px 30px;
-    background: #7f2677;
-    color: white;
+    background: #F1F5F9;
+    color: #475569;
     border: 2px solid #E2E8F0;
     border-radius: 12px;
     font-weight: 600;
@@ -293,8 +383,7 @@ function getYoutubeId($url) {
 }
 
 .btn-clear:hover {
-    background: #f06724;
-    border-color: #f06724;
+    background: #E2E8F0;
 }
 
 /* Lessons Grid */
@@ -312,6 +401,7 @@ function getYoutubeId($url) {
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .lesson-card:hover {
@@ -324,7 +414,7 @@ function getYoutubeId($url) {
     height: 180px;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #7f2677;
 }
 
 .lesson-thumbnail img {
@@ -366,6 +456,42 @@ function getYoutubeId($url) {
     gap: 5px;
 }
 
+/* Card Bookmark Button */
+.card-bookmark-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 35px;
+    height: 35px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #7f2677;
+    font-size: 1rem;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.card-bookmark-btn:hover {
+    transform: scale(1.1);
+    background: #f06724;
+    color: white;
+}
+
+.card-bookmark-btn.bookmarked {
+    background: #f06724;
+    color: white;
+}
+
+.card-bookmark-btn.bookmarked:hover {
+    background: #e05a1a;
+}
+
 /* Lesson Content */
 .lesson-content {
     padding: 25px;
@@ -388,7 +514,7 @@ function getYoutubeId($url) {
     gap: 15px;
     margin-bottom: 15px;
     font-size: 0.85rem;
-    color: black;
+    color: #000;
 }
 
 .lesson-meta span {
@@ -402,7 +528,7 @@ function getYoutubeId($url) {
 }
 
 .lesson-description {
-    color: black;
+    color: #000;
     font-size: 0.95rem;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -417,7 +543,7 @@ function getYoutubeId($url) {
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.9rem;
-    color: black;
+    color: #000;
 }
 
 .lesson-stats span {
@@ -431,7 +557,7 @@ function getYoutubeId($url) {
 }
 
 .btn-view {
-    background: linear-gradient(135deg, #7f2677 );
+    background-color: #7f2677;
     color: white;
     text-decoration: none;
     padding: 14px 20px;
@@ -459,6 +585,25 @@ function getYoutubeId($url) {
     transform: translateX(5px);
 }
 
+.btn-view-bookmarks {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color: #7f2677;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-view-bookmarks:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;
@@ -472,7 +617,7 @@ function getYoutubeId($url) {
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #7f2677;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -485,13 +630,13 @@ function getYoutubeId($url) {
 }
 
 .empty-state h3 {
-    color: black;
+    color: #1E293B;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
 .empty-state p {
-    color: black;
+    color: #000;
     font-size: 1rem;
     max-width: 400px;
     margin: 0 auto;
@@ -499,6 +644,11 @@ function getYoutubeId($url) {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .materials-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
     .search-form {
         flex-direction: column;
     }
@@ -518,6 +668,11 @@ function getYoutubeId($url) {
         flex-direction: column;
         gap: 8px;
     }
+    
+    .bookmark-link {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 @media (max-width: 480px) {
@@ -530,6 +685,216 @@ function getYoutubeId($url) {
     }
 }
 
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+    .search-section,
+    .lesson-card,
+    .empty-state {
+        background: #1E293B;
+    }
+    
+    .lesson-title {
+        color: #F1F5F9;
+    }
+    
+    .lesson-description,
+    .lesson-meta,
+    .lesson-stats {
+        color: #94A3B8;
+    }
+    
+    .search-box input,
+    .filter-group select {
+        background: #0F172A;
+        border-color: #334155;
+        color: #F1F5F9;
+    }
+    
+    .btn-clear {
+        background: #334155;
+        color: #94A3B8;
+        border-color: #475569;
+    }
+    
+    .btn-clear:hover {
+        background: #475569;
+        color: #F1F5F9;
+    }
+    
+    .card-bookmark-btn {
+        background: #1E293B;
+        color: #f06724;
+    }
+}
 </style>
+
+<script>
+// Function to toggle bookmark from card
+function toggleCardBookmark(lessonId, buttonElement) {
+    // Disable button to prevent multiple clicks
+    buttonElement.disabled = true;
+    const originalIcon = buttonElement.innerHTML;
+    buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    fetch(`<?php echo BASE_URL; ?>/external/toggle-bookmark/${lessonId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Toggle bookmark class
+            buttonElement.classList.toggle('bookmarked');
+            buttonElement.title = buttonElement.classList.contains('bookmarked') ? 'Remove from bookmarks' : 'Add to bookmarks';
+            buttonElement.innerHTML = '<i class="fas fa-bookmark"></i>';
+            
+            // Update bookmark count in header
+            updateBookmarkCount();
+            
+            // Show notification
+            showNotification(data.message, 'success');
+        } else {
+            buttonElement.innerHTML = originalIcon;
+            showNotification(data.error || 'Failed to update bookmark', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        buttonElement.innerHTML = originalIcon;
+        showNotification('An error occurred. Please try again.', 'error');
+    })
+    .finally(() => {
+        buttonElement.disabled = false;
+    });
+}
+
+// Function to update bookmark count in header
+function updateBookmarkCount() {
+    fetch(`<?php echo BASE_URL; ?>/external/get-bookmark-count`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const bookmarkCountSpan = document.getElementById('bookmarkCount');
+            if (bookmarkCountSpan) {
+                bookmarkCountSpan.textContent = data.count;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching bookmark count:', error);
+    });
+}
+
+// Show notification
+function showNotification(message, type) {
+    // Remove existing notification
+    const existingNotification = document.querySelector('.notification-toast');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    const notification = document.createElement('div');
+    notification.className = `notification-toast notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <span>${message}</span>
+        <button class="notification-close">&times;</button>
+    `;
+    
+    Object.assign(notification.style, {
+        position: 'fixed',
+        top: '80px',
+        right: '20px',
+        background: type === 'success' ? '#10B981' : '#EF4444',
+        color: 'white',
+        padding: '12px 20px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        zIndex: '9999',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        animation: 'slideIn 0.3s ease'
+    });
+    
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => notification.remove());
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 3000);
+}
+
+// Add animation styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        opacity: 0.7;
+        margin-left: 5px;
+        padding: 0 3px;
+    }
+    
+    .notification-close:hover {
+        opacity: 1;
+    }
+`;
+document.head.appendChild(style);
+
+// Auto-dismiss alerts
+setTimeout(() => {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
+}, 1000);
+
+// Load initial bookmark count
+document.addEventListener('DOMContentLoaded', function() {
+    updateBookmarkCount();
+});
+</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

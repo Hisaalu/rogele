@@ -483,6 +483,21 @@ class Lesson {
             return [];
         }
     }
+
+    /**
+     * Get bookmark count for a user
+     */
+    public function getBookmarkCount($userId) {
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM bookmarks WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get bookmark count error: " . $e->getMessage());
+            return 0;
+        }
+    }
     
     /**
      * Get popular lessons

@@ -251,7 +251,7 @@ require_once __DIR__ . '/../layouts/header.php';
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     display: flex;
     align-items: center;
     justify-content: center;
