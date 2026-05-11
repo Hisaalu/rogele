@@ -1,9 +1,5 @@
 <?php
 // File: /config/config.php
-/**
- * Simple .env Loader
- * Reads the .env file and puts variables into getenv()
- */
 $env = [];
 $envPath = __DIR__ . '/../.env';
 
@@ -33,7 +29,7 @@ if (getenv('RENDER')) {
     define('DB_PASS', $env['DB_PASS'] ?? ''); 
 }
 
-//Application Configuration
+// Application Configuration
 if (getenv('RENDER')) {
     define('BASE_URL', getenv('APP_URL') ?: 'https://rogele.raysofgrace.ac.ug');
     define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
@@ -44,9 +40,7 @@ if (getenv('RENDER')) {
 
 // Define ROOT_PATH once for both environments
 define('ROOT_PATH', dirname(__DIR__));
-
-// File Upload Configuration
-define('MAX_FILE_SIZE', 10485760); // 10MB
+define('MAX_FILE_SIZE', 10485760);
 define('ALLOWED_EXTENSIONS', ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'mp4', 'jpg', 'jpeg', 'png']);
 define('UPLOAD_PATH', ROOT_PATH . '/public/uploads/');
 
@@ -67,20 +61,36 @@ ini_set('error_log', ROOT_PATH . '/logs/error.log');
 // Timezone
 date_default_timezone_set('Africa/Kampala');
 
-// Session Configuration - Production settings
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', 1); 
-ini_set('session.cookie_samesite', 'Strict');
-ini_set('session.gc_maxlifetime', 1800);
-
-// Only start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+// Create session directory if it doesn't exist (for Render)
+$sessionSavePath = '/tmp/php_sessions';
+if (getenv('RENDER')) {
+    if (!is_dir($sessionSavePath)) {
+        mkdir($sessionSavePath, 0777, true);
+    }
+    ini_set('session.save_path', $sessionSavePath);
 }
 
-// Optional: Log that we're in production mode
-if (getenv('RENDER')) {
-    error_log("Application running on Render in production mode");
+// Set session cookie parameters BEFORE session start
+$cookieDomain = '.raysofgrace.ac.ug';
+
+session_set_cookie_params([
+    'lifetime' => 7200,
+    'path' => '/',
+    'domain' => $cookieDomain,
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+
+// Set session ini settings
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', 1);
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.gc_maxlifetime', 7200);
+
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 ?>
