@@ -123,7 +123,7 @@ class User {
             }
             
             if ($user['is_suspended']) {
-                return ['success' => false, 'error' => 'Your account has been suspended. Please contact support.'];
+                return ['success' => false, 'error' => 'Invalid input. Please contact support.'];
             }
             
             $updateQuery = "UPDATE users SET last_login = NOW() WHERE id = :id";
