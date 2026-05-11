@@ -6,7 +6,7 @@ RUN --mount=type=bind,source=composer.json,target=composer.json \
     --mount=type=cache,target=/tmp/cache \
     composer install --no-dev --no-interaction
 
-FROM php:8.2-apache
+FROM php:8.0.30-apache
 
 RUN docker-php-ext-install pdo pdo_mysql
 
