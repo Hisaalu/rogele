@@ -1060,19 +1060,18 @@ class ExternalController {
 
         $this->logPesapalRequest('CALLBACK', $_GET, $_POST);
 
-        $orderTrackingId = $_GET['OrderTrackingId'] 
-            ?? $_GET['order_tracking_id'] 
+        $orderTrackingId = $_GET['OrderTrackingId']
+            ?? $_GET['order_tracking_id']
             ?? null;
 
-        $orderMerchantReference = $_GET['OrderMerchantReference'] 
-            ?? $_GET['merchant_reference'] 
+        $orderMerchantReference = $_GET['OrderMerchantReference']
+            ?? $_GET['merchant_reference']
             ?? null;
 
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        // Validate callback parameters
         if (!$orderTrackingId || !$orderMerchantReference) {
 
             $_SESSION['error'] = 'Invalid payment callback received.';
@@ -1084,15 +1083,26 @@ class ExternalController {
         try {
 
             $pesapal = new Pesapal();
-            $status = $pesapal->queryPaymentStatus($orderTrackingId);
-            error_log('PesaPal Status Response: ' . print_r($status, true));
-            $paymentStatus = strtoupper(trim($status['status'] ?? ''));
-            if (!isset($status['success']) || !$status['success']) {
 
-                $_SESSION['error'] = 'Failed to verify payment status.';
+            $status = null;
+            $paymentStatus = '';
 
-                header('Location: ' . BASE_URL . '/external/subscription');
-                exit;
+            for ($i = 0; $i < 5; $i++) {
+
+                $status = $pesapal->queryPaymentStatus($orderTrackingId);
+
+                error_log('PesaPal Status Response: ' . print_r($status, true));
+
+                if (!empty($status['status'])) {
+
+                    $paymentStatus = strtoupper(trim($status['status']));
+
+                    if (in_array($paymentStatus, ['COMPLETED', 'PAID'])) {
+                        break;
+                    }
+                }
+
+                sleep(3);
             }
 
             if (in_array($paymentStatus, ['COMPLETED', 'PAID'])) {
@@ -1130,22 +1140,27 @@ class ExternalController {
                     );
                 }
 
-                $_SESSION['success'] = 'Payment completed successfully! Your subscription is now active.';
+                $_SESSION['success'] =
+                    'Payment completed successfully! Your subscription is now active.';
 
-            } elseif (in_array($paymentStatus, ['PENDING', 'PROCESSING'])) {
+            }
+            elseif (in_array($paymentStatus, ['PENDING', 'PROCESSING'])) {
 
-                $_SESSION['info'] = 'Your payment is still being processed. Please wait a few moments and refresh the page.';
+                $_SESSION['info'] =
+                    'Your payment is still being processed. Please refresh after a few moments.';
+            }
+            else {
 
-            } else {
-
-                $_SESSION['error'] = 'Payment was not completed. Status: ' . $paymentStatus;
+                $_SESSION['error'] =
+                    'Payment was not completed. Status: ' . $paymentStatus;
             }
 
         } catch (Exception $e) {
 
             error_log('PesaPal Callback Error: ' . $e->getMessage());
 
-            $_SESSION['error'] = 'An error occurred while verifying your payment.';
+            $_SESSION['error'] =
+                'An error occurred while verifying your payment.';
         }
 
         header('Location: ' . BASE_URL . '/external/subscription');
