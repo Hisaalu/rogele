@@ -322,37 +322,49 @@ class Lesson {
      */
     public function uploadMaterials($lessonId, $files) {
         try {
+
             $targetDir = __DIR__ . '/../public/uploads/lessons/';
-            
+
             if (!file_exists($targetDir)) {
                 mkdir($targetDir, 0777, true);
             }
-            
+
             for ($i = 0; $i < count($files['name']); $i++) {
-                if ($files['error'][$i] === UPLOAD_ERR_OK) {
-                    $fileName = time() . '_' . basename($files['name'][$i]);
-                    $targetFile = $targetDir . $fileName;
-                    
-                    if (move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
-                        $dbPath = 'uploads/lessons/' . $fileName;
-                        
-                        $query = "INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) 
-                                VALUES (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
-                        
-                        $stmt = $this->conn->prepare($query);
-                        $stmt->execute([
-                            ':lesson_id' => $lessonId,
-                            ':file_name' => $files['name'][$i],
-                            ':file_path' => $dbPath,
-                            ':file_type' => $files['type'][$i],
-                            ':file_size' => $files['size'][$i]
-                        ]);
-                    }
+
+                if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                    throw new Exception("Upload error code: " . $files['error'][$i]);
                 }
+
+                $fileName = time() . '_' . basename($files['name'][$i]);
+
+                $targetFile = $targetDir . $fileName;
+
+                if (!move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
+                    throw new Exception("Failed to move uploaded file.");
+                }
+
+                $dbPath = 'uploads/lessons/' . $fileName;
+
+                $query = "INSERT INTO lesson_materials 
+                (lesson_id, file_name, file_path, file_type, file_size)
+                VALUES 
+                (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
+
+                $stmt = $this->conn->prepare($query);
+
+                $stmt->execute([
+                    ':lesson_id' => $lessonId,
+                    ':file_name' => $files['name'][$i],
+                    ':file_path' => $dbPath,
+                    ':file_type' => $files['type'][$i],
+                    ':file_size' => $files['size'][$i]
+                ]);
             }
+
             return true;
-        } catch (PDOException $e) {
-            return false;
+
+        } catch (Exception $e) {
+            die($e->getMessage());
         }
     }
     
