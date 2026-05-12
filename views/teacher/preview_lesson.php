@@ -53,10 +53,12 @@ $lesson = $lesson ?? [];
             <h3>Materials</h3>
             <div class="materials-list">
                 <?php foreach ($lesson['materials'] as $material): ?>
-                <a href="<?php echo BASE_URL; ?>/<?php echo $material['file_path']; ?>" target="_blank" class="material-item">
+                <a href="<?php echo BASE_URL; ?>/public/uploads/lessons/<?php echo basename($material['file_path']); ?>" 
+                    download="<?php echo htmlspecialchars($material['file_name']); ?>" 
+                    class="material-item">
                     <i class="fas fa-file-pdf"></i>
                     <span><?php echo htmlspecialchars($material['file_name']); ?></span>
-                    <!-- <i class="fas fa-download"></i> -->
+                    <i class="fas fa-download"></i>
                 </a>
                 <?php endforeach; ?>
             </div>
@@ -196,7 +198,7 @@ function getYoutubeId($url) {
 .video-section h3 i,
 .content-section h3 i,
 .materials-section h3 i {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .video-wrapper {
@@ -255,7 +257,7 @@ function getYoutubeId($url) {
 }
 
 .material-item i:last-child {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 @media (max-width: 768px) {
