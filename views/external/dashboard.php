@@ -30,7 +30,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
     </h1>
     
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-        <h2 style="color: black; margin-bottom: 20px;">External User Dashboard</h2>
+        <h2 style="color: black; margin-bottom: 20px;">Your Dashboard</h2>
         
         <!-- Access Status Banner -->
         <?php if ($hasActiveSubscription): ?>
@@ -144,7 +144,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                 <i class="fas fa-exclamation-triangle"></i> 
                 Your free trial has ended. To continue learning, please choose a subscription plan.
             </p>
-            <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-subscribe" style="background: #EF4444; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block;">
+            <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-subscribe" style="background: #10B981; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block;">
                 View Subscription Plans
             </a>
         </div>
