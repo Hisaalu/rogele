@@ -1141,7 +1141,7 @@ class ExternalController {
                 }
 
                 $_SESSION['success'] =
-                    'Payment completed successfully! Your subscription is now active.';
+                    'Payment successful! Your subscription is now active! Enjoy.';
 
             }
             elseif (in_array($paymentStatus, ['PENDING', 'PROCESSING'])) {
