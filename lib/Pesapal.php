@@ -207,7 +207,7 @@ class Pesapal {
             }
             
             // FIX: Add /v3/ to the URL
-            $url = $this->apiBaseUrl . '/v3/api/Transactions/GetTransactionStatus?order_tracking_id=' . urlencode($orderTrackingId);
+            $url = $this->apiBaseUrl . '/v3/api/Transactions/GetTransactionStatus?orderTrackingId=' . urlencode($orderTrackingId);
             
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
