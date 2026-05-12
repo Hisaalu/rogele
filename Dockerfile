@@ -2,6 +2,7 @@
 
 FROM composer:lts AS deps
 WORKDIR /app
+
 RUN --mount=type=bind,source=composer.json,target=composer.json \
     --mount=type=cache,target=/tmp/cache \
     composer install --no-dev --no-interaction
@@ -16,8 +17,14 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 COPY uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
-COPY --from=deps app/vendor/ /var/www/html/vendor
+COPY --from=deps /app/vendor/ /var/www/html/vendor
 
 COPY . /var/www/html
+
+RUN mkdir -p /var/www/html/public/uploads/lessons
+
+RUN chown -R www-data:www-data /var/www/html/public/uploads
+
+RUN chmod -R 775 /var/www/html/public/uploads
 
 USER www-data
