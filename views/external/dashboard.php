@@ -94,7 +94,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                         <p style="color: #B91C1C; font-weight: 700; margin-bottom: 5px;">⚠️ Trial Expired</p>
                         <p style="color: #B91C1C;">Your free trial has ended. Subscribe now to continue accessing lessons and quizzes!</p>
                     </div>
-                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: #EF4444; color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
+                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: #10B981; color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
                         Subscribe Now
                     </a>
                 </div>
