@@ -318,11 +318,11 @@ class TeacherController {
             if ($bestIndex !== false) {
                 $quizStats['best_quiz'] = $quizResults[$bestIndex]['quiz_title'];
             }
-            
+            // Determine trend based on first and last quiz scores
             if (count($scores) >= 2) {
                 $firstScore = $scores[0];
                 $lastScore = $scores[count($scores) - 1];
-                $difference = $lastScore - $firstScore;
+                $difference = $firstScore - $lastScore;
                 
                 if ($difference > 10) {
                     $quizStats['trend'] = 'Improving';
