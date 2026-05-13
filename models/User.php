@@ -285,6 +285,7 @@ class User {
      */
     public function updateUserAsAdmin($userId, $data) {
         try {
+            // Check if email is being changed and if it's already taken
             $currentUser = $this->getById($userId);
             if ($currentUser && $currentUser['email'] !== $data['email']) {
                 $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
@@ -298,12 +299,14 @@ class User {
                 }
             }
             
+            // Build the query dynamically to include class_id
             $query = "UPDATE users SET 
                     first_name = :first_name,
                     last_name = :last_name,
                     email = :email,
                     phone = :phone,
                     role = :role,
+                    class_id = :class_id,
                     updated_at = NOW()
                     WHERE id = :id";
             
@@ -312,8 +315,9 @@ class User {
                 ':first_name' => $data['first_name'],
                 ':last_name' => $data['last_name'],
                 ':email' => $data['email'],
-                ':phone' => $data['phone'],
+                ':phone' => $data['phone'] ?? null,
                 ':role' => $data['role'],
+                ':class_id' => isset($data['class_id']) && !empty($data['class_id']) ? $data['class_id'] : null,
                 ':id' => $userId
             ]);
             
@@ -325,7 +329,8 @@ class User {
             return ['success' => false, 'error' => 'Failed to update user'];
             
         } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error occurred'];
+            error_log("Admin update user error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Database error occurred: ' . $e->getMessage()];
         }
     }
     
