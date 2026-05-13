@@ -32,9 +32,9 @@ if (getenv('RENDER')) {
 // Application Configuration
 if (getenv('RENDER')) {
     $appUrl = getenv('APP_URL') ?: 'https://rogele.raysofgrace.ac.ug';
-    if (strpos($appUrl, 'www.') === false) {
-        $appUrl = str_replace('https://', 'https://www.', $appUrl);
-    }
+
+    $appUrl = rtrim($appUrl, '/');
+
     define('BASE_URL', $appUrl);
     define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
 } else {
