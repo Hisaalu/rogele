@@ -9,6 +9,7 @@ $quizStats = $quizStats ?? [];
 
 // Get only last 5 quizzes for the chart
 $lastFiveQuizzes = array_slice($quizResults, 0, 5);
+$lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 ?>
 
 <div class="progress-container">
