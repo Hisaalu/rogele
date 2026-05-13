@@ -8,7 +8,7 @@ $quizResults = $quizResults ?? [];
 $quizStats = $quizStats ?? [];
 
 // Get only last 5 quizzes for the chart
-$lastFiveQuizzes = array_slice($quizResults, -5);
+$lastFiveQuizzes = array_slice($quizResults, 0, 5);
 ?>
 
 <div class="progress-container">
@@ -68,7 +68,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
     <?php if (!empty($lastFiveQuizzes)): ?>
     <div class="section-card">
         <div class="section-header">
-            <h3><i class="fas fa-chart-line"></i> Quiz Performance Trend (Last 5 Quizzes)</h3>
+            <h3><i class="fas fa-chart-line"></i> Quiz Performance for only the Last 5 Quizzes</h3>
         </div>
         <div class="chart-container">
             <canvas id="performanceChart"></canvas>
