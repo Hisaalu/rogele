@@ -246,6 +246,8 @@ class AdminController {
             header('Location: ' . BASE_URL . '/admin/users');
             exit;
         }
+
+        $classes = $this->classModel->getAllClasses();
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
@@ -253,7 +255,8 @@ class AdminController {
                 'last_name' => $_POST['last_name'] ?? '',
                 'email' => $_POST['email'] ?? '',
                 'phone' => $_POST['phone'] ?? '',
-                'role' => $_POST['role'] ?? $user['role']
+                'role' => $_POST['role'] ?? $user['role'],
+                'class_id' => $_POST['class_id'] ?? $user['class_id']
             ];
             
             if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
