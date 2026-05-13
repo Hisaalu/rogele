@@ -13,7 +13,8 @@ if (empty($classes)) {
         ['id' => 4, 'name' => 'Primary 4'],
         ['id' => 5, 'name' => 'Primary 5'],
         ['id' => 6, 'name' => 'Primary 6'],
-        ['id' => 7, 'name' => 'Primary 7']
+        ['id' => 7, 'name' => 'Primary 7'],
+        ['id' => 8, 'name' => 'Computer Class']
     ];
 }
 ?>
@@ -345,7 +346,7 @@ if (empty($classes)) {
                 <div class="form-group">
                     <div class="phone-field">
                         <span class="country-code">+256</span>
-                        <input type="tel" name="phone" id="phone" placeholder="Contact No. (e.g, 701234567)" required>
+                        <input type="tel" name="phone" id="phone" placeholder="e.g 701234567" required>
                     </div>
                 </div>
                 

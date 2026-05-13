@@ -132,6 +132,7 @@ require_once __DIR__ . '/../layouts/header.php';
                             <option value="p5">Primary 5</option>
                             <option value="p6">Primary 6</option>
                             <option value="p7">Primary 7</option>
+                            <option value="comp">Computer Class</option>
                         </select>
                     </div>
                 </div>

@@ -24,6 +24,7 @@ class User {
             'p5' => 'P5', 'primary 5' => 'P5', '5' => 'P5',
             'p6' => 'P6', 'primary 6' => 'P6', '6' => 'P6',
             'p7' => 'P7', 'primary 7' => 'P7', '7' => 'P7',
+            'computer' => 'COMP', 'computer class' => 'COMP'
         ];
         
         $classCode = $classMap[strtolower(trim($class))] ?? 'P1';
