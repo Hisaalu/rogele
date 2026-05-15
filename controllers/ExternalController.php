@@ -136,6 +136,26 @@ class ExternalController {
             $lessons = $this->lessonModel->getPublishedLessonsByClass($userClassId, $subject);
         }
         
+        $bookmarkedLessonIds = $this->lessonModel->getUserBookmarkedIds($_SESSION['user_id']);
+        
+        foreach ($lessons as $key => &$lesson) {
+            $lesson['is_bookmarked'] = in_array($lesson['id'], $bookmarkedLessonIds);
+        }
+        
+        $uniqueLessons = [];
+        $seenIds = [];
+        foreach ($lessons as $lesson) {
+            if (!in_array($lesson['id'], $seenIds)) {
+                $seenIds[] = $lesson['id'];
+                $uniqueLessons[] = $lesson;
+            }
+        }
+        
+        if (count($uniqueLessons) != count($lessons)) {
+            error_log("Duplicates found! Original: " . count($lessons) . ", Unique: " . count($uniqueLessons));
+            $lessons = $uniqueLessons;
+        }
+        
         $subjects = $this->subjectModel->getByClassId($userClassId);
         
         usort($subjects, function($a, $b) {
@@ -183,19 +203,27 @@ class ExternalController {
         
         $userId = $_SESSION['user_id'];
         
-        // Check if already bookmarked
         $isBookmarked = $this->lessonModel->isBookmarked($userId, $lessonId);
         
         if ($isBookmarked) {
             $result = $this->lessonModel->removeBookmark($userId, $lessonId);
             $message = 'Bookmark removed';
+            $newStatus = false;
         } else {
             $result = $this->lessonModel->addBookmark($userId, $lessonId);
             $message = 'Lesson bookmarked';
+            $newStatus = true;
         }
         
         if ($result['success']) {
-            echo json_encode(['success' => true, 'message' => $message, 'bookmarked' => !$isBookmarked]);
+            $count = $this->lessonModel->getBookmarkCount($userId);
+            
+            echo json_encode([
+                'success' => true, 
+                'message' => $message, 
+                'bookmarked' => $newStatus,
+                'count' => $count
+            ]);
         } else {
             echo json_encode(['success' => false, 'error' => $result['error'] ?? 'Operation failed']);
         }
@@ -300,7 +328,6 @@ class ExternalController {
                 exit;
             }
             
-            // Verify this is the current attempt
             if (isset($_SESSION['current_quiz_attempt']) && $_SESSION['current_quiz_attempt'] != $attemptId) {
                 $_SESSION['error'] = 'Invalid quiz submission';
                 header('Location: ' . BASE_URL . '/external/quizzes');

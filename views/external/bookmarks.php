@@ -299,7 +299,7 @@ $bookmarks = $bookmarks ?? [];
 .bookmark-icon {
     width: 35px;
     height: 35px;
-    background: rgba(255,255,255,0.2);
+    background-color: #f06724;
     border-radius: 50%;
     display: flex;
     align-items: center;

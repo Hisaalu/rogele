@@ -471,7 +471,7 @@ function getYoutubeId($url) {
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: #7f2677;
+    color: #777;
     font-size: 1rem;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -703,15 +703,12 @@ function toggleCardBookmark(lessonId, buttonElement) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Toggle bookmark class
             buttonElement.classList.toggle('bookmarked');
             buttonElement.title = buttonElement.classList.contains('bookmarked') ? 'Remove from bookmarks' : 'Add to bookmarks';
             buttonElement.innerHTML = '<i class="fas fa-bookmark"></i>';
             
-            // Update bookmark count in header
             updateBookmarkCount();
             
-            // Show notification
             showNotification(data.message, 'success');
         } else {
             buttonElement.innerHTML = originalIcon;
@@ -752,7 +749,6 @@ function updateBookmarkCount() {
 
 // Show notification
 function showNotification(message, type) {
-    // Remove existing notification
     const existingNotification = document.querySelector('.notification-toast');
     if (existingNotification) {
         existingNotification.remove();
