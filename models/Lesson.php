@@ -468,6 +468,21 @@ class Lesson {
     }
 
     /**
+     * Get user's bookmarked lesson IDs
+     */
+    public function getUserBookmarkedIds($userId) {
+        try {
+            $stmt = $this->conn->prepare("SELECT DISTINCT lesson_id FROM bookmarks WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            $results = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            return array_unique($results);
+        } catch (PDOException $e) {
+            error_log("Get user bookmarked IDs error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Get user's bookmarked lessons
      */
     public function getBookmarks($userId) {
