@@ -141,6 +141,7 @@ class ExternalController {
         foreach ($lessons as $key => &$lesson) {
             $lesson['is_bookmarked'] = in_array($lesson['id'], $bookmarkedLessonIds);
         }
+        unset($lesson);
         
         $uniqueLessons = [];
         $seenIds = [];

@@ -91,7 +91,7 @@ function getYoutubeId($url) {
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s ease;
-        color: #7f2677;
+        color: #666;
         font-size: 1.2rem;
     }
 
