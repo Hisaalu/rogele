@@ -10,7 +10,6 @@ $search = $_GET['search'] ?? '';
 ?>
 
 <div class="materials-container">
-    <!-- Header with Bookmark Link -->
     <div class="materials-header">
         <div class="header-left">
             <h1 class="page-title">
@@ -28,7 +27,6 @@ $search = $_GET['search'] ?? '';
         </div>
     </div>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -45,7 +43,6 @@ $search = $_GET['search'] ?? '';
         </div>
     <?php endif; ?>
 
-    <!-- Search and Filter Section -->
     <div class="search-section">
         <form method="GET" class="search-form">
             <div class="search-box">
@@ -81,7 +78,6 @@ $search = $_GET['search'] ?? '';
         </form>
     </div>
 
-    <!-- Lessons Grid -->
     <?php if (empty($lessons)): ?>
         <div class="empty-state">
             <div class="empty-icon">
@@ -97,7 +93,6 @@ $search = $_GET['search'] ?? '';
         <div class="lessons-grid">
             <?php foreach ($lessons as $lesson): ?>
                 <div class="lesson-card" data-lesson-id="<?php echo $lesson['id']; ?>">
-                    <!-- Lesson Thumbnail -->
                     <div class="lesson-thumbnail">
                         <?php if (!empty($lesson['video_url'])): ?>
                             <img src="https://img.youtube.com/vi/<?php echo getYoutubeId($lesson['video_url']); ?>/0.jpg" alt="Lesson thumbnail">
@@ -110,15 +105,13 @@ $search = $_GET['search'] ?? '';
                             </div>
                         <?php endif; ?>
                         
-                        <!-- Bookmark button on card -->
-                        <button class="card-bookmark-btn <?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'bookmarked' : ''; ?>" 
+                        <button type="button" class="card-bookmark-btn <?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'bookmarked' : ''; ?>" 
                                 onclick="toggleCardBookmark(<?php echo $lesson['id']; ?>, this)"
                                 title="<?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'Remove from bookmarks' : 'Add to bookmarks'; ?>">
                             <i class="fas fa-bookmark"></i>
                         </button>
                     </div>
 
-                    <!-- Lesson Content -->
                     <div class="lesson-content">
                         <h3 class="lesson-title"><?php echo htmlspecialchars($lesson['title']); ?></h3>
                         
@@ -689,9 +682,16 @@ function getYoutubeId($url) {
 <script>
 // Function to toggle bookmark from card
 function toggleCardBookmark(lessonId, buttonElement) {
+    if (typeof event !== 'undefined') {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
     buttonElement.disabled = true;
     const originalIcon = buttonElement.innerHTML;
     buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    showNotification('Processing...', 'info');
     
     fetch(`<?php echo BASE_URL; ?>/external/toggle-bookmark/${lessonId}`, {
         method: 'POST',
@@ -700,11 +700,21 @@ function toggleCardBookmark(lessonId, buttonElement) {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            buttonElement.classList.toggle('bookmarked');
-            buttonElement.title = buttonElement.classList.contains('bookmarked') ? 'Remove from bookmarks' : 'Add to bookmarks';
+            if (data.bookmarked) {
+                buttonElement.classList.add('bookmarked');
+                buttonElement.title = 'Remove from bookmarks';
+            } else {
+                buttonElement.classList.remove('bookmarked');
+                buttonElement.title = 'Add to bookmarks';
+            }
             buttonElement.innerHTML = '<i class="fas fa-bookmark"></i>';
             
             updateBookmarkCount();
@@ -727,7 +737,7 @@ function toggleCardBookmark(lessonId, buttonElement) {
 
 // Function to update bookmark count in header
 function updateBookmarkCount() {
-    fetch(`<?php echo BASE_URL; ?>/external/get-bookmark-count`, {
+    fetch('<?php echo BASE_URL; ?>/external/get-bookmark-count', {
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
@@ -747,17 +757,26 @@ function updateBookmarkCount() {
     });
 }
 
-// Show notification
-function showNotification(message, type) {
+// Show notification function (updated to handle info type)
+function showNotification(message, type = 'info') {
     const existingNotification = document.querySelector('.notification-toast');
     if (existingNotification) {
         existingNotification.remove();
     }
     
+    if (type === 'info' && message === 'Processing...') {
+        return;
+    }
+    
     const notification = document.createElement('div');
     notification.className = `notification-toast notification-${type}`;
+    
+    let icon = 'info-circle';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'error') icon = 'exclamation-circle';
+    
     notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <i class="fas fa-${icon}"></i>
         <span>${message}</span>
         <button class="notification-close">&times;</button>
     `;
@@ -766,7 +785,7 @@ function showNotification(message, type) {
         position: 'fixed',
         top: '80px',
         right: '20px',
-        background: type === 'success' ? '#10B981' : '#EF4444',
+        background: type === 'success' ? '#10B981' : (type === 'error' ? '#EF4444' : '#3B82F6'),
         color: 'white',
         padding: '12px 20px',
         borderRadius: '8px',
@@ -791,60 +810,63 @@ function showNotification(message, type) {
     }, 3000);
 }
 
-// Add animation styles
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
+// Add animation styles if not already added
+if (!document.querySelector('#notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'notification-styles';
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
-        to {
-            transform: translateX(0);
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            opacity: 0.7;
+            margin-left: 5px;
+            padding: 0 3px;
+        }
+        
+        .notification-close:hover {
             opacity: 1;
         }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-    
-    .notification-close {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1rem;
-        cursor: pointer;
-        opacity: 0.7;
-        margin-left: 5px;
-        padding: 0 3px;
-    }
-    
-    .notification-close:hover {
-        opacity: 1;
-    }
-`;
-document.head.appendChild(style);
+    `;
+    document.head.appendChild(style);
+}
 
-// Auto-dismiss alerts
 setTimeout(() => {
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
-            alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 300);
+            if (alert.parentElement) {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }
         }, 5000);
     });
 }, 1000);
 
-// Load initial bookmark count
 document.addEventListener('DOMContentLoaded', function() {
     updateBookmarkCount();
 });
