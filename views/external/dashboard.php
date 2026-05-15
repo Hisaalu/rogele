@@ -91,8 +91,8 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                         <i class="fas fa-clock" style="color: white; font-size: 1.5rem;"></i>
                     </div>
                     <div style="flex: 1;">
-                        <p style="color: #B91C1C; font-weight: 700; margin-bottom: 5px;">⚠️ Trial Expired</p>
-                        <p style="color: #B91C1C;">Your free trial has ended. Subscribe now to continue accessing lessons and quizzes!</p>
+                        <p style="color: #B91C1C; font-weight: 700; margin-bottom: 5px;">Trial or Subscription Ended!</p>
+                        <p style="color: #B91C1C;">Kindly subscribe now to continue accessing lessons, quizzes & more!</p>
                     </div>
                     <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: #10B981; color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
                         Subscribe Now
@@ -141,11 +141,10 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
         <?php if (!$hasAccess && !$hasActiveSubscription): ?>
         <div style="margin-top: 30px; padding: 20px; background: #FEF2F2; border-radius: 12px; text-align: center;">
             <p style="color: #B91C1C; margin-bottom: 15px;">
-                <i class="fas fa-exclamation-triangle"></i> 
-                Your free trial has ended. To continue learning, please choose a subscription plan.
+                Your free trial or subscription has ended. To continue learning, please choose a subscription plan!
             </p>
             <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-subscribe" style="background: #10B981; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block;">
-                View Subscription Plans
+                View Plans
             </a>
         </div>
         <?php endif; ?>
