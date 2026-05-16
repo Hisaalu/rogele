@@ -294,35 +294,6 @@ $quiz = $quiz ?? [];
         flex-direction: column;
     }
 }
-
-@media (prefers-color-scheme: dark) {
-    .form-card {
-        background: #1E293B;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .btn-secondary {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #334155;
-    }
-    
-    .btn-secondary:hover {
-        background: #334155;
-        color: #F1F5F9;
-    }
-}
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
