@@ -40,7 +40,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                     <i class="fas fa-crown" style="color: white; font-size: 1.5rem;"></i>
                 </div>
                 <div style="flex: 1;">
-                    <p style="color: #065F46; font-weight: 700; margin-bottom: 5px;">🌟 Active Subscription</p>
+                    <p style="color: #065F46; font-weight: 700; margin-bottom: 5px;">Active Subscription</p>
                     <p style="color: #047857;">You have full access to all premium features.</p>
                     <?php if ($subscriptionEndDate): ?>
                         <p style="color: #047857; font-size: 0.85rem;">Valid until: <?php echo date('F j, Y', strtotime($subscriptionEndDate)); ?></p>
@@ -60,7 +60,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                     </div>
                     <div style="flex: 1;">
                         <p style="color: #92400E; font-weight: 700; font-size: 1.1rem; margin-bottom: 5px;">
-                            ⏳ Trial Period: <strong><?php echo $remainingTrialDays; ?> days remaining</strong>
+                            Trial Period: <strong><?php echo $remainingTrialDays; ?> days remaining</strong>
                         </p>
                         <p style="color: #B45309; font-size: 0.95rem;">
                             You have <?php echo $remainingTrialDays; ?> days left to explore all features.
