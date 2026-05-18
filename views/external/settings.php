@@ -936,7 +936,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Final confirmation
-            if (!confirm('⚠️ FINAL WARNING: Are you absolutely sure you want to permanently delete your account?\n\nThis action CANNOT be undone and all your data will be lost forever.')) {
+            if (!confirm('FINAL WARNING: Are you absolutely sure you want to permanently delete your account?\n\nThis action CANNOT be undone and all your data will be lost forever.')) {
                 e.preventDefault();
                 return false;
             }

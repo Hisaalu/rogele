@@ -524,7 +524,7 @@ $appearanceSettings = $appearanceSettings ?? [];
                         <p>Restore all settings to factory defaults</p>
                     </div>
                 </div>
-                <a href="<?php echo BASE_URL; ?>/admin/settings/reset-defaults" class="btn-danger" onclick="return confirm('⚠️ WARNING: This will reset ALL settings to factory defaults. This action cannot be undone. Are you absolutely sure?')">
+                <a href="<?php echo BASE_URL; ?>/admin/settings/reset-defaults" class="btn-danger" onclick="return confirm('WARNING: This will reset ALL settings to factory defaults. This action cannot be undone. Are you absolutely sure?')">
                     <i class="fas fa-undo-alt"></i>
                     Reset All
                 </a>

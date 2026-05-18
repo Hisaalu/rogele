@@ -215,7 +215,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
                             <?php if (!empty($quiz['end_date'])): ?>
                                 Current deadline: <?php echo date('F j, Y \a\t g:i A', strtotime($quiz['end_date'])); ?>
                                 <?php if (strtotime($quiz['end_date']) < time()): ?>
-                                    <span class="text-warning">⚠️ This quiz has expired!</span>
+                                    <span class="text-warning">This quiz has expired!</span>
                                 <?php endif; ?>
                             <?php else: ?>
                                 Leave blank for no deadline
