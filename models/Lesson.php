@@ -392,7 +392,7 @@ class Lesson {
             ]);
             
             if ($result) {
-                return ['success' => true, 'message' => 'Lesson bookmarked successfully'];
+                return ['success' => true, 'message' => 'Added to your Bookmarks'];
             }
             
             return ['success' => false, 'error' => 'Failed to bookmark lesson'];
