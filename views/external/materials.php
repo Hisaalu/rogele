@@ -21,7 +21,7 @@ $search = $_GET['search'] ?? '';
         <div class="header-actions">
             <a href="<?php echo BASE_URL; ?>/external/bookmarks" class="bookmark-link">
                 <i class="fas fa-bookmark"></i>
-                <span>My Bookmarks</span>
+                <span>Bookmarks</span>
                 <span class="bookmark-count" id="bookmarkCount">0</span>
             </a>
         </div>
@@ -719,7 +719,8 @@ function toggleCardBookmark(lessonId, buttonElement) {
             
             updateBookmarkCount();
             
-            showNotification(data.message, 'success');
+            const notificationType = data.bookmarked ? 'success' : 'plain';
+            showNotification(data.message, notificationType);
         } else {
             buttonElement.innerHTML = originalIcon;
             showNotification(data.error || 'Failed to update bookmark', 'error');
@@ -757,7 +758,7 @@ function updateBookmarkCount() {
     });
 }
 
-// Show notification function (updated to handle info type)
+// Show notification function (No icons and no close buttons)
 function showNotification(message, type = 'info') {
     const existingNotification = document.querySelector('.notification-toast');
     if (existingNotification) {
@@ -771,37 +772,27 @@ function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification-toast notification-${type}`;
     
-    let icon = 'info-circle';
-    if (type === 'success') icon = 'check-circle';
-    if (type === 'error') icon = 'exclamation-circle';
-    
-    notification.innerHTML = `
-        <i class="fas fa-${icon}"></i>
-        <span>${message}</span>
-        <button class="notification-close">&times;</button>
-    `;
+    // Completely stripped of all icon tags and closing buttons
+    notification.innerHTML = `<span>${message}</span>`;
     
     Object.assign(notification.style, {
         position: 'fixed',
         top: '80px',
         right: '20px',
-        background: type === 'success' ? '#10B981' : (type === 'error' ? '#EF4444' : '#3B82F6'),
+        background: type === 'success' ? '#10B981' : (type === 'error' ? '#EF4444' : '#10B981'),
         color: 'white',
-        padding: '12px 20px',
+        padding: '12px 24px',
         borderRadius: '8px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
         zIndex: '9999',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
         animation: 'slideIn 0.3s ease'
     });
     
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', () => notification.remove());
-    
     document.body.appendChild(notification);
     
+    // Auto dismiss stays active since there is no click-to-close option
     setTimeout(() => {
         if (notification.parentElement) {
             notification.style.animation = 'slideOut 0.3s ease';
@@ -810,7 +801,7 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Add animation styles if not already added
+// Add animation styles (Stripped out close button styles)
 if (!document.querySelector('#notification-styles')) {
     const style = document.createElement('style');
     style.id = 'notification-styles';
@@ -835,21 +826,6 @@ if (!document.querySelector('#notification-styles')) {
                 transform: translateX(100%);
                 opacity: 0;
             }
-        }
-        
-        .notification-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            opacity: 0.7;
-            margin-left: 5px;
-            padding: 0 3px;
-        }
-        
-        .notification-close:hover {
-            opacity: 1;
         }
     `;
     document.head.appendChild(style);

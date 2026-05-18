@@ -47,7 +47,6 @@
             background: #F8FAFC;
         }
 
-        /* Header Styles */
         .site-header {
             background: white;
             box-shadow: 0 2px 20px rgba(240, 103, 36, 0.1);
@@ -71,7 +70,6 @@
             height: 80px;
         }
 
-        /* Logo */
         .logo {
             display: flex;
             align-items: center;
@@ -120,7 +118,6 @@
             color: #7f2677;
         }
 
-        /* Desktop Navigation */
         .nav-menu {
             display: flex;
             align-items: center;
@@ -167,7 +164,6 @@
             color: #7f2677;
         }
 
-        /* Auth Buttons */
         .nav-auth {
             display: flex;
             align-items: center;
@@ -226,7 +222,6 @@
             box-shadow: 0 8px 20px rgba(127, 38, 119, 0.3);
         }
 
-        /* User Dropdown Menu */
         .user-menu {
             position: relative;
             display: inline-block;
@@ -357,7 +352,6 @@
             color: #e21414;
         }
 
-        /* Mobile Menu Button */
         .mobile-toggle {
             display: none;
             flex-direction: column;
@@ -446,7 +440,6 @@
             }
         }
 
-        /* Mobile Menu Styles */
         .mobile-menu {
             position: fixed;
             top: 0;
@@ -639,7 +632,6 @@
             opacity: 1;
         }
 
-        /* Alert Messages */
         .alert {
             max-width: 1200px;
             margin: 20px auto;
@@ -686,7 +678,6 @@
     <header class="site-header">
         <div class="container">
             <nav class="navbar">
-                <!-- Logo with Image - Completely replaced the icon with your logo -->
                 <a href="<?php echo BASE_URL; ?>/" class="logo">
                     <div class="logo-icon">
                         <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="ROGELE" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'font-size: 1.8rem; color: white;\'></i>'; this.parentElement.style.background='linear-gradient(135deg, #f06724, #7f2677)'">
@@ -736,7 +727,7 @@
                                         <small><?php echo htmlspecialchars($_SESSION['user_email'] ?? ''); ?></small>
                                     </div>
                                     <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile">
-                                        <i class="fas fa-user"></i> My Profile
+                                        <i class="fas fa-user"></i> Profile
                                     </a>
                                     <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings">
                                         <i class="fas fa-cog"></i> Settings
