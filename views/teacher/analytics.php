@@ -72,7 +72,7 @@ $lessonViews = $lessonViews ?? [];
     </div>
 
     <!-- Charts Row -->
-    <!-- <div class="charts-row">
+    <div class="charts-row">
         <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-chart-line"></i> Quiz Performance</h3>
@@ -87,7 +87,7 @@ $lessonViews = $lessonViews ?? [];
             </div>
         </div>
 
-        <div class="chart-card">
+        <!-- <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-eye"></i> Lesson Views</h3>
                 <select class="chart-filter" onchange="filterLessonChart(this.value)">
@@ -99,8 +99,8 @@ $lessonViews = $lessonViews ?? [];
             <div class="chart-body">
                 <canvas id="lessonViewsChart"></canvas>
             </div>
-        </div>
-    </div> -->
+        </div> -->
+    </div>
 
     <!-- Quiz Performance Table -->
     <div class="performance-section">
@@ -571,6 +571,10 @@ window.addEventListener('resize', function() {
 .chart-body {
     height: 300px;
     position: relative;
+}
+
+.chart-header {
+    overflow-x: auto;
 }
 
 /* Performance Section */
