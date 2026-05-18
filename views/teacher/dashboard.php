@@ -27,7 +27,7 @@ $classPerformance = $classPerformance ?? [
                         $firstName = explode(' ', trim($fullName))[0];
                         echo htmlspecialchars($firstName); 
                     ?>
-                </span>! 👋
+                </span>!
             </h1>
             <p class="welcome-subtitle">Here's what's happening with your classes today</p>
         </div>

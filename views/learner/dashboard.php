@@ -11,7 +11,7 @@ require_once __DIR__ . '/../layouts/header.php';
             $fullName = $_SESSION['user_name'] ?? 'User';
             $firstName = explode(' ', trim($fullName))[0];
             echo htmlspecialchars($firstName); 
-        ?>! 📚
+        ?>!
     </h1>
     
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
