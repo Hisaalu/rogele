@@ -1,6 +1,6 @@
 <?php
 // File: /views/external/bookmarks.php
-$pageTitle = 'My Bookmarks | ROGELE';
+$pageTitle = 'Bookmarks | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $bookmarks = $bookmarks ?? [];
@@ -12,7 +12,7 @@ $bookmarks = $bookmarks ?? [];
         <div>
             <h1 class="page-title">
                 <i class="fas fa-bookmark"></i>
-                My Bookmarks
+                Bookmarks
             </h1>
             <p class="page-subtitle">Your saved lessons for quick access</p>
         </div>
@@ -99,35 +99,6 @@ $bookmarks = $bookmarks ?? [];
                 </div>
             <?php endforeach; ?>
         </div>
-        
-        <!-- Optional: Recently Added Section -->
-        <div class="recent-section">
-            <h3 class="section-title">
-                <i class="fas fa-clock"></i>
-                Recently Added
-            </h3>
-            <div class="recent-list">
-                <?php 
-                $recentBookmarks = array_slice($bookmarks, 0, 5);
-                foreach ($recentBookmarks as $bookmark): 
-                ?>
-                    <div class="recent-item">
-                        <div class="recent-icon">
-                            <i class="fas fa-bookmark"></i>
-                        </div>
-                        <div class="recent-info">
-                            <a href="<?php echo BASE_URL; ?>/external/view-lesson/<?php echo $bookmark['id']; ?>">
-                                <?php echo htmlspecialchars($bookmark['title']); ?>
-                            </a>
-                            <span class="recent-date">Added <?php echo date('M d, Y', strtotime($bookmark['bookmarked_at'])); ?></span>
-                        </div>
-                        <button class="recent-remove" onclick="removeBookmark(<?php echo $bookmark['id']; ?>, this)">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
     <?php endif; ?>
 </div>
 
@@ -135,7 +106,7 @@ $bookmarks = $bookmarks ?? [];
 <div id="removeModal" class="modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
-            <h3><i class="fas fa-question-circle"></i> Remove Bookmark</h3>
+            <h3>Remove Bookmark</h3>
             <span class="modal-close">&times;</span>
         </div>
         <div class="modal-body">
@@ -433,101 +404,6 @@ $bookmarks = $bookmarks ?? [];
     transform: translateY(-2px);
 }
 
-/* Recent Section */
-.recent-section {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    border: 1px solid #E2E8F0;
-}
-
-.section-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #1E293B;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.section-title i {
-    color: #f06724;
-}
-
-.recent-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.recent-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 12px;
-    background: #F8FAFC;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.recent-item:hover {
-    background: #F1F5F9;
-    transform: translateX(5px);
-}
-
-.recent-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #FEF3C7, #FFFAF0);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.recent-icon i {
-    color: #f06724;
-    font-size: 1rem;
-}
-
-.recent-info {
-    flex: 1;
-}
-
-.recent-info a {
-    text-decoration: none;
-    font-weight: 600;
-    color: #1E293B;
-    font-size: 0.95rem;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.recent-info a:hover {
-    color: #f06724;
-}
-
-.recent-date {
-    font-size: 0.7rem;
-    color: #000;
-}
-
-.recent-remove {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #000;
-    transition: all 0.3s ease;
-    padding: 8px;
-}
-
-.recent-remove:hover {
-    color: #EF4444;
-    transform: scale(1.1);
-}
-
 /* Modal Styles */
 .modal {
     position: fixed;
@@ -802,7 +678,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (confirmBtn) {
         confirmBtn.addEventListener('click', function() {
             if (lessonToRemove) {
-                // Show loading state
                 confirmBtn.disabled = true;
                 confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
                 
@@ -816,16 +691,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showToast('Bookmark removed successfully!', 'success');
+                        showToast('Removed from your Bookmarks!', 'success');
                         
-                        // Remove the bookmark card from DOM
                         if (removeButtonElement) {
                             const bookmarkCard = removeButtonElement.closest('.bookmark-card');
                             if (bookmarkCard) {
                                 bookmarkCard.remove();
                             }
                             
-                            // Also remove from recent list
                             const recentItems = document.querySelectorAll('.recent-item');
                             recentItems.forEach(item => {
                                 const removeBtn = item.querySelector('.recent-remove');
@@ -842,7 +715,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             statBadge.textContent = (currentCount - 1) + ' Bookmarked Lessons';
                         }
                         
-                        // If no bookmarks left, reload to show empty state
                         const remainingCards = document.querySelectorAll('.bookmark-card').length;
                         if (remainingCards === 0) {
                             location.reload();

@@ -208,11 +208,11 @@ class ExternalController {
         
         if ($isBookmarked) {
             $result = $this->lessonModel->removeBookmark($userId, $lessonId);
-            $message = 'Bookmark removed';
+            $message = 'Removed from your Bookmarks';
             $newStatus = false;
         } else {
             $result = $this->lessonModel->addBookmark($userId, $lessonId);
-            $message = 'Lesson bookmarked';
+            $message = 'Added to your Bookmarks';
             $newStatus = true;
         }
         
