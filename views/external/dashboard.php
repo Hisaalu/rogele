@@ -26,7 +26,6 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                 echo htmlspecialchars($firstName); 
             ?>!
         </span>
-        <span>👋</span>
     </h1>
     
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
