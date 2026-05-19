@@ -824,7 +824,7 @@ body {
 .input-wrapper input {
     width: 100%;
     padding: 10px 10px 10px 35px;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     font-size: 0.9rem;
     transition: all 0.3s ease;
@@ -834,7 +834,7 @@ body {
 .input-wrapper input:focus {
     outline: none;
     border-color: var(--primary-purple);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
 }
 
 .quick-filters {

@@ -386,7 +386,7 @@ $classes = $classes ?? [];
 .form-group input,
 .form-group select {
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -398,7 +398,7 @@ $classes = $classes ?? [];
 .form-group select:focus {
     outline: none;
     border-color: #7f2677;
-    box-shadow: 0 0 0 4px rgba(127, 38, 119, 0.1);
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
 }
 
 .form-group input:hover,

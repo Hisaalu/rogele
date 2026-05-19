@@ -176,7 +176,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group textarea {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -187,7 +187,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group textarea:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
 }
 
 .btn-send {
