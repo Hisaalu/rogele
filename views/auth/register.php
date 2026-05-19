@@ -128,7 +128,7 @@ if (empty($classes)) {
         .form-group select:focus {
             outline: none;
             border-color: #f06724;
-            box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.1);
+            box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
         }
 
         .phone-field {
@@ -392,7 +392,7 @@ if (empty($classes)) {
                 
                 <div class="login-link">
                     <span>Already have an account?</span>
-                    <a href="<?php echo BASE_URL; ?>/login">Sign in</a>
+                    <a href="<?php echo BASE_URL; ?>/login">Log in</a>
                 </div>
             </form>
         </div>
