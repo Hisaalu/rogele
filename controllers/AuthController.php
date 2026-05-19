@@ -329,8 +329,8 @@ class AuthController {
         
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "From: Rays of Grace <noreply@raysofgrace.com>" . "\r\n";
-        $headers .= "Reply-To: support@raysofgrace.com" . "\r\n";
+        $headers .= "From: Rays of Grace <noreply@raysofgrace.ac.ug>" . "\r\n";
+        $headers .= "Reply-To: info@raysofgrace.ac.ug" . "\r\n";
         
         $mailSent = mail($email, $subject, $message, $headers);
         
@@ -454,7 +454,7 @@ class AuthController {
                 
                 <div class="email-body">
                     <div class="greeting">
-                        Hello ' . htmlspecialchars($name) . '! 👋
+                        Hello ' . htmlspecialchars($name) . '!
                     </div>
                     
                     <div class="message">
@@ -471,7 +471,6 @@ class AuthController {
                     </div>
                     
                     <div class="expiry-note">
-                        <span>⏰</span>
                         <strong>Note:</strong> This password reset link will expire in 20 minutes for security reasons.
                     </div>
                     
@@ -482,7 +481,7 @@ class AuthController {
                     
                     <div class="footer-note">
                         <p>For security assistance, please contact our support team at 
-                        <a href="mailto:support@raysofgrace.com">support@raysofgrace.com</a>
+                        <a href="mailto:info@raysofgrace.ac.ug">info@raysofgrace.ac.ug</a>
                         </p>
                         <p style="margin-top: 15px;">© ' . date('Y') . ' ROGELE (Rays of Grace E-Learning Environment) | All rights reserved.</p>
                     </div>
