@@ -186,7 +186,7 @@ $statusFilter = $_GET['status'] ?? '';
 .search-box input {
     width: 100%;
     padding: 12px 15px 12px 45px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 8px;
     font-size: 0.95rem;
 }
@@ -194,7 +194,7 @@ $statusFilter = $_GET['status'] ?? '';
 .search-box input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 3px rgba(240, 103, 36, 0.1);
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
 }
 
 .filters-form select {

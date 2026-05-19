@@ -347,7 +347,7 @@ $search = $_GET['search'] ?? '';
 .search-box input {
     width: 100%;
     padding: 12px 15px 12px 45px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 50px;
     font-size: 0.95rem;
     transition: all 0.3s ease;
@@ -356,7 +356,7 @@ $search = $_GET['search'] ?? '';
 .search-box input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
 }
 
 .filter-group select {
