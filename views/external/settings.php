@@ -382,7 +382,7 @@ $activeTab = $_GET['tab'] ?? 'password';
     justify-content: center;
     gap: 10px;
     transition: all 0.3s ease;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
@@ -475,7 +475,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .password-input-wrapper input {
     width: 100%;
     padding: 14px 45px 14px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -484,8 +484,8 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .password-input-wrapper input:focus {
     outline: none;
-    border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    border-color: #f06724;
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
 }
 
 .password-input-wrapper input:hover {

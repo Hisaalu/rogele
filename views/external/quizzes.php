@@ -258,7 +258,7 @@ if (!empty($quizzes)) {
 }
 
 .quiz-card.no-attempts-left {
-    border: 2px solid #f06724;
+    border: 1px solid #f06724;
     background: linear-gradient(135deg, white, #FEF2F2);
     opacity: 0.9;
 }
