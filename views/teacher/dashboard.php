@@ -490,7 +490,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .view-all {
-    color: #f06724;
+    color: #000;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;

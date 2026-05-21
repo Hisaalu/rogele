@@ -54,7 +54,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                 <i class="fas fa-check-circle"></i>
             </div>
             <div class="active-content">
-                <h3>🎉 You're on the <?php echo ucfirst($currentSubscription['plan_type']); ?> Plan!</h3>
+                <h3>You're on the <?php echo ucfirst($currentSubscription['plan_type']); ?> Plan!</h3>
                 <p>Valid until <?php echo date('F j, Y', strtotime($currentSubscription['end_date'])); ?></p>
             </div>
             <?php

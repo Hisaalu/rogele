@@ -702,7 +702,7 @@ window.addEventListener('resize', function() {
 .lesson-stat-meta {
     display: flex;
     justify-content: space-between;
-    color: #000;
+    color: #555;
     font-size: 0.85rem;
     margin-bottom: 15px;
 }
