@@ -86,7 +86,7 @@ $search = $_GET['search'] ?? '';
             <h3>No Lessons Found</h3>
             <p>We couldn't find any lessons matching your criteria. Try adjusting your search or check back later!</p>
             <a href="<?php echo BASE_URL; ?>/external/bookmarks" class="btn-view-bookmarks">
-                <i class="fas fa-bookmark"></i> View My Bookmarks
+                <i class="fas fa-bookmark"></i> View Bookmarks
             </a>
         </div>
     <?php else: ?>

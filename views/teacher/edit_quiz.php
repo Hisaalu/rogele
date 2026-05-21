@@ -789,14 +789,13 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .edit-question-link {
-    color: #f06724;
+    color: #7f2677;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .edit-question-link:hover {
-    color: #7C3AED;
-    text-decoration: underline;
+    color: #f06724;
 }
 
 @keyframes slideDown {

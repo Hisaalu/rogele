@@ -499,14 +499,14 @@ $activeTab = $_GET['tab'] ?? 'password';
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: #94A3B8;
+    color: #555;
     cursor: pointer;
     padding: 5px;
     transition: color 0.3s ease;
 }
 
 .toggle-password:hover {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 /* Password Strength */

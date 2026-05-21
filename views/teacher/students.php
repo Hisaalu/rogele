@@ -157,7 +157,7 @@ $search = $_GET['search'] ?? '';
                                 </span>
                             <?php else: ?>
                                 <span class="role-badge external">
-                                    <i class="fas fa-globe"></i> External
+                                    External Student
                                 </span>
                             <?php endif; ?>
                         </div>
