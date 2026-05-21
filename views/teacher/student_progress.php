@@ -193,7 +193,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -201,7 +201,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 }
 
 .back-link:hover {
-    color: #7f2677;
+    color: #f06724;
 }
 
 .page-title {
@@ -217,7 +217,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -271,13 +271,13 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 }
 
 .student-details h2 {
-    color: black;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
 .student-details p {
-    color: black;
+    color: #555;
     margin-bottom: 5px;
     display: flex;
     align-items: center;
@@ -307,12 +307,12 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     display: block;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #7f2677;
+    color: #000;
     line-height: 1.2;
 }
 
 .quick-label {
-    color: black;
+    color: #555;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -339,7 +339,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 }
 
 .section-header h3 {
-    color: black;
+    color: #000;
     font-size: 1.2rem;
     display: flex;
     align-items: center;
@@ -389,7 +389,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 
 .progress-table th {
     background: #F8FAFC;
-    color: black;
+    color: #000;
     font-weight: 600;
     font-size: 0.85rem;
     padding: 12px 15px;
@@ -401,8 +401,9 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 
 .progress-table td {
     padding: 12px 15px;
+    font-weight: 200;
     border-bottom: 1px solid #F1F5F9;
-    color: black;
+    color: #000;
     vertical-align: middle;
 }
 
@@ -508,7 +509,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 .summary-label {
     display: block;
     font-size: 0.7rem;
-    color: black;
+    color: #000;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 3px;
@@ -518,7 +519,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     display: block;
     font-size: 1.3rem;
     font-weight: 700;
-    color: black;
+    color: #000;
 }
 
 .summary-sub {
@@ -532,7 +533,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 .empty-mini {
     text-align: center;
     padding: 60px 20px;
-    color: black;
+    color: #000;
     background: #F8FAFC;
     border-radius: 12px;
 }
@@ -549,7 +550,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 
 .empty-hint {
     font-size: 0.8rem;
-    color: black;
+    color: #000;
 }
 
 /* Responsive */
@@ -658,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     title: {
                         display: true,
                         text: 'Score (%)',
-                        color: 'black',
+                        color: '#000',
                         font: {
                             weight: 'bold'
                         }
@@ -671,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     title: {
                         display: true,
                         text: 'Quiz',
-                        color: 'black',
+                        color: '#000',
                         font: {
                             weight: 'bold'
                         }

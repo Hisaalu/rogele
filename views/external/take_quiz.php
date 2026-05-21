@@ -184,7 +184,7 @@ $endTime = time() + $timeLimitSeconds;
 }
 
 .quiz-header h1 {
-    color: black;
+    color: #000;
     margin-bottom: 20px;
 }
 
@@ -210,7 +210,7 @@ $endTime = time() + $timeLimitSeconds;
 }
 
 .quiz-warning p {
-    color: #f06724;
+    color: #555;
     font-size: 0.85rem;
     margin: 0;
 }
@@ -227,7 +227,7 @@ $endTime = time() + $timeLimitSeconds;
     display: flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     background: #F8FAFC;
     padding: 8px 16px;
     border-radius: 50px;
@@ -269,7 +269,7 @@ $endTime = time() + $timeLimitSeconds;
 
 .question-number {
     font-size: 0.75rem;
-    color: black;
+    color: #000;
     font-weight: 600;
     margin-bottom: 10px;
     text-transform: uppercase;
@@ -279,7 +279,7 @@ $endTime = time() + $timeLimitSeconds;
 .question-text {
     font-size: 1.1rem;
     font-weight: 600;
-    color: black;
+    color: #000;
     margin-bottom: 20px;
 }
 
@@ -320,7 +320,7 @@ $endTime = time() + $timeLimitSeconds;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    color: black;
+    color: #000;
     transition: all 0.3s ease;
 }
 
@@ -332,7 +332,7 @@ $endTime = time() + $timeLimitSeconds;
 
 .option-text {
     flex: 1;
-    color: black;
+    color: #000;
 }
 
 .quiz-footer {

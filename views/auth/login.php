@@ -80,13 +80,13 @@ $pageTitle = 'Login | ROGELE';
     .logo-section h1 {
         font-size: 1.5rem;
         font-weight: 600;
-        color: black;
+        color: #000;
         margin: 0;
     }
 
     .logo-section p {
         font-size: 0.85rem;
-        color: black;
+        color: #555;
         margin-top: 4px;
     }
 
@@ -198,7 +198,7 @@ $pageTitle = 'Login | ROGELE';
     .register-link {
         text-align: center;
         font-size: 0.85rem;
-        color: black;
+        color: #000;
     }
 
     .register-link a {

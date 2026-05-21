@@ -11,7 +11,6 @@ require_once __DIR__ . '/../layouts/header.php';
             <div class="section-header">
                 <h1>Contact Us</h1>
                 <p>
-                    Have questions? We'd love to hear from you. 
                     Send us a message and we'll respond as soon as possible.
                 </p>
             </div>
@@ -108,7 +107,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .section-header p {
-    color: black;
+    color: #555;
     font-size: 1.1rem;
     max-width: 600px;
     margin: 0 auto;
@@ -149,13 +148,13 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .info-card h3 {
-    color: #7f2677;
+    color: #000;
     font-size: 1.1rem;
     margin-bottom: 10px;
 }
 
 .info-card p {
-    color: black;
+    color: #555;
     font-size: 0.9rem;
     margin: 5px 0;
 }

@@ -246,11 +246,11 @@ function loadQuizChart(days) {
                             labels: {
                                 usePointStyle: true,
                                 boxWidth: 6,
-                                color: 'black'
+                                color: '#000'
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'black',
+                            backgroundColor: '#000',
                             titleColor: '#F1F5F9',
                             bodyColor: '#F1F5F9',
                             padding: 12,
@@ -275,13 +275,13 @@ function loadQuizChart(days) {
                             title: {
                                 display: true,
                                 text: 'AverageScore (%)',
-                                color: 'black'
+                                color: '#000'
                             },
                             grid: {
                                 color: '#E2E8F0'
                             },
                             ticks: {
-                                color: 'black'
+                                color: '#000'
                             }
                         },
                         y1: {
@@ -292,13 +292,13 @@ function loadQuizChart(days) {
                             title: {
                                 display: true,
                                 text: 'Attempts',
-                                color: 'black'
+                                color: '#000'
                             },
                             grid: {
                                 drawOnChartArea: false
                             },
                             ticks: {
-                                color: 'black',
+                                color: '#000',
                                 stepSize: 1,
                                 callback: function(value) {
                                     return value;
@@ -307,7 +307,7 @@ function loadQuizChart(days) {
                         },
                         x: {
                             ticks: {
-                                color: 'black',
+                                color: '#000',
                                 maxRotation: 45,
                                 minRotation: 45
                             },
@@ -362,7 +362,7 @@ function loadLessonChart(days) {
                             display: false
                         },
                         tooltip: {
-                            backgroundColor: 'black',
+                            backgroundColor: '#000',
                             titleColor: '#F1F5F9',
                             bodyColor: '#F1F5F9',
                             padding: 12,
@@ -381,7 +381,7 @@ function loadLessonChart(days) {
                                 color: '#E2E8F0'
                             },
                             ticks: {
-                                color: 'black',
+                                color: '#000',
                                 stepSize: 1,
                                 callback: function(value) {
                                     return value;
@@ -390,7 +390,7 @@ function loadLessonChart(days) {
                         },
                         x: {
                             ticks: {
-                                color: 'black',
+                                color: '#000',
                                 maxRotation: 45,
                                 minRotation: 45
                             },
@@ -462,7 +462,7 @@ window.addEventListener('resize', function() {
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -510,7 +510,7 @@ window.addEventListener('resize', function() {
 
 .stat-label {
     display: block;
-    color: black;
+    color: #555;
     font-size: 0.9rem;
     margin-bottom: 5px;
 }
@@ -519,7 +519,7 @@ window.addEventListener('resize', function() {
     display: block;
     font-size: 2rem;
     font-weight: 700;
-    color: black;
+    color: #000;
     line-height: 1.2;
 }
 
@@ -548,7 +548,7 @@ window.addEventListener('resize', function() {
 }
 
 .chart-header h3 {
-    color: black;
+    color: #000;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -587,7 +587,7 @@ window.addEventListener('resize', function() {
 }
 
 .section-title {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     margin-bottom: 20px;
 }
@@ -603,7 +603,7 @@ window.addEventListener('resize', function() {
 
 .performance-table th {
     background: #F8FAFC;
-    color: black;
+    color: #000;
     font-weight: 600;
     font-size: 0.9rem;
     padding: 15px;
@@ -614,7 +614,8 @@ window.addEventListener('resize', function() {
 .performance-table td {
     padding: 12px 15px;
     border-bottom: 1px solid #F1F5F9;
-    color: black;
+    color: #000;
+    font-weight: 300;
 }
 
 .performance-table tr:hover td {
@@ -623,7 +624,7 @@ window.addEventListener('resize', function() {
 
 .quiz-title {
     font-weight: 600;
-    color: black;
+    color: #000;
 }
 
 .number-cell {
@@ -693,7 +694,7 @@ window.addEventListener('resize', function() {
 }
 
 .lesson-stat-card h4 {
-    color: black;
+    color: #000;
     font-size: 1rem;
     margin-bottom: 10px;
 }
@@ -701,7 +702,7 @@ window.addEventListener('resize', function() {
 .lesson-stat-meta {
     display: flex;
     justify-content: space-between;
-    color: black;
+    color: #000;
     font-size: 0.85rem;
     margin-bottom: 15px;
 }
@@ -729,7 +730,7 @@ window.addEventListener('resize', function() {
 .empty-message {
     text-align: center;
     padding: 40px;
-    color: black;
+    color: #000;
 }
 
 .empty-state {
@@ -745,7 +746,7 @@ window.addEventListener('resize', function() {
 }
 
 .empty-state p {
-    color: black;
+    color: #000;
 }
 
 /* Responsive */

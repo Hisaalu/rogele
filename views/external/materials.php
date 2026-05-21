@@ -193,7 +193,7 @@ function getYoutubeId($url) {
 }
 
 .page-subtitle {
-    color: #000;
+    color: #555;
     font-size: 1.1rem;
 }
 
@@ -314,7 +314,7 @@ function getYoutubeId($url) {
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94A3B8;
+    color: #555;
 }
 
 .search-box input {
@@ -494,7 +494,7 @@ function getYoutubeId($url) {
 }
 
 .lesson-title {
-    color: #1E293B;
+    color: #000;
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 15px;
@@ -507,7 +507,7 @@ function getYoutubeId($url) {
     gap: 15px;
     margin-bottom: 15px;
     font-size: 0.85rem;
-    color: #000;
+    color: #555;
 }
 
 .lesson-meta span {
@@ -536,7 +536,7 @@ function getYoutubeId($url) {
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.9rem;
-    color: #000;
+    color: #555;
 }
 
 .lesson-stats span {
@@ -623,13 +623,13 @@ function getYoutubeId($url) {
 }
 
 .empty-state h3 {
-    color: #1E293B;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
 .empty-state p {
-    color: #000;
+    color: #555;
     font-size: 1rem;
     max-width: 400px;
     margin: 0 auto;

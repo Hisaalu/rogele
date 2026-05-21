@@ -113,7 +113,7 @@ $quiz = $quiz ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -121,7 +121,7 @@ $quiz = $quiz ?? [];
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .page-title {
@@ -137,7 +137,7 @@ $quiz = $quiz ?? [];
 }
 
 .page-subtitle {
-    color: black;
+    color: #000;
     font-size: 1rem;
     margin-bottom: 30px;
 }

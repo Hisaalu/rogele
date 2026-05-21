@@ -29,7 +29,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
     </h1>
     
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-        <h2 style="color: black; margin-bottom: 20px;">Your Dashboard</h2>
+        <h2 style="color: #000; margin-bottom: 20px;">Your Dashboard</h2>
         
         <!-- Access Status Banner -->
         <?php if ($hasActiveSubscription): ?>
@@ -127,10 +127,10 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
             </a>
             
             <!-- Subscription Card (Always accessible) -->
-            <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: transform 0.3s ease;">
+            <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: white; color: #000; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: transform 0.3s ease;">
                 <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 15px; color: #f06724;"></i>
                 <h3 style="margin-bottom: 10px;">Subscription</h3>
-                <p style="color: black; font-size: 0.9rem;">
+                <p style="color: #555; font-size: 0.9rem;">
                     <?php echo $hasActiveSubscription ? 'Manage your subscription' : ($isInTrial ? 'Upgrade to premium' : 'Subscribe to continue'); ?>
                 </p>
             </a>

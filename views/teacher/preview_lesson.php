@@ -97,7 +97,7 @@ function getYoutubeId($url) {
 }
 
 .back-link {
-    color: black;
+    color: #000;
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -109,7 +109,7 @@ function getYoutubeId($url) {
 
 .back-link:hover {
     background: #F1F5F9;
-    color: #7f2677;
+    color: #f06724;
 }
 
 .lesson-preview-card {
@@ -135,7 +135,7 @@ function getYoutubeId($url) {
 }
 
 .lesson-title {
-    color: black;
+    color: #000;
     font-size: 2rem;
     margin-bottom: 20px;
     padding-right: 100px;
@@ -154,7 +154,7 @@ function getYoutubeId($url) {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #555;
 }
 
 .lesson-meta i {
@@ -187,7 +187,7 @@ function getYoutubeId($url) {
 .video-section h3,
 .content-section h3,
 .materials-section h3 {
-    color: black;
+    color: #000;
     font-size: 1.2rem;
     margin-bottom: 15px;
     display: flex;
@@ -222,7 +222,7 @@ function getYoutubeId($url) {
     padding: 25px;
     border-radius: 12px;
     line-height: 1.8;
-    color: black;
+    color: #000;
 }
 
 .materials-list {
@@ -238,7 +238,7 @@ function getYoutubeId($url) {
     background: #F8FAFC;
     border-radius: 10px;
     text-decoration: none;
-    color: black;
+    color: #000;
     transition: all 0.3s ease;
 }
 

@@ -126,7 +126,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 }
 
 .back-link a {
-    color: #64748B;
+    color: #555;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -135,7 +135,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 }
 
 .back-link a:hover {
-    color: #8B5CF6;
+    color: #555;
 }
 
 .purchase-card {
@@ -148,7 +148,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #555, #F97316);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -156,7 +156,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 }
 
 .page-subtitle {
-    color: #64748B;
+    color: #555;
     text-align: center;
     margin-bottom: 30px;
 }
@@ -198,7 +198,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
     display: flex;
     justify-content: space-between;
     margin-bottom: 15px;
-    color: #64748B;
+    color: #555;
 }
 
 .summary-item .price {
@@ -218,7 +218,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 }
 
 .total-price {
-    color: #8B5CF6;
+    color: #555;
 }
 
 .payment-form {
@@ -242,7 +242,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 }
 
 .form-group label i {
-    color: #8B5CF6;
+    color: #555;
 }
 
 .form-group input,
@@ -263,7 +263,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 
 .input-hint {
     font-size: 0.85rem;
-    color: #64748B;
+    color: #555;
 }
 
 .terms-group {
@@ -276,16 +276,16 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 .terms-group input {
     width: 18px;
     height: 18px;
-    accent-color: #8B5CF6;
+    accent-color: #555;
 }
 
 .terms-group label {
-    color: #64748B;
+    color: #555;
     font-size: 0.95rem;
 }
 
 .terms-group a {
-    color: #8B5CF6;
+    color: #555;
     text-decoration: none;
 }
 
@@ -294,7 +294,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 }
 
 .btn-pay {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background: linear-gradient(135deg, #555, #F97316);
     color: white;
     border: none;
     padding: 16px;
@@ -319,7 +319,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: #64748B;
+    color: #555;
     font-size: 0.9rem;
     margin-top: 20px;
 }
