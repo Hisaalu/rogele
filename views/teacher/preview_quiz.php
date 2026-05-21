@@ -163,7 +163,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .subtitle {
-    color: black;
+    color: #555;
     font-size: 0.9rem;
 }
 
@@ -182,7 +182,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .btn-back {
     background: #F1F5F9;
-    color: black;
+    color: #000;
 }
 
 .btn-edit {
@@ -192,6 +192,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .btn-back:hover, .btn-edit:hover {
     transform: translateY(-2px);
+    color: #f06724;
 }
 
 .quiz-info-card {
@@ -215,7 +216,7 @@ require_once __DIR__ . '/../layouts/header.php';
     display: flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #555;
 }
 
 .stat i {
@@ -223,13 +224,13 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .quiz-description {
-    color: black;
+    color: #000;
     line-height: 1.6;
 }
 
 .quiz-description p {
     margin-top: 8px;
-    color: black;
+    color: #555;
 }
 
 .questions-preview {
@@ -237,7 +238,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .questions-preview h2 {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     margin-bottom: 20px;
     display: flex;
@@ -263,18 +264,18 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .question-number {
     font-weight: 600;
-    color: #7f2677;
+    color: #555;
 }
 
 .question-points {
-    color: black;
+    color: #555;
     font-size: 0.85rem;
 }
 
 .question-text {
     font-size: 1.1rem;
     font-weight: 600;
-    color: black;
+    color: #000;
     margin-bottom: 20px;
 }
 

@@ -3,7 +3,6 @@
 $pageTitle = 'Home | ROGELE';
 require_once __DIR__ . '/layouts/header.php';
 
-// Subscription settings for pricing cards
 $subscriptionSettings = [];
 if (class_exists('Settings')) {
     $settingsModel = new Settings();
@@ -273,7 +272,7 @@ body {
 }
 
 .section-description {
-    color: #222;
+    color: #555;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -326,11 +325,11 @@ body {
 .step-card h3 {
     font-size: 1.3rem;
     margin-bottom: 15px;
-    color: #1E293B;
+    color: #000;
 }
 
 .step-card p {
-    color: #222;
+    color: #555;
     line-height: 1.6;
 }
 
@@ -385,11 +384,11 @@ body {
 .feature-card h3 {
     font-size: 1.3rem;
     margin-bottom: 15px;
-    color: #1E293B;
+    color: #000;
 }
 
 .feature-card p {
-    color: #222;
+    color: #555;
     line-height: 1.6;
 }
 
@@ -464,7 +463,7 @@ body {
 .plan-name {
     font-size: 1.8rem;
     font-weight: 800;
-    color: #1E293B;
+    color: #000;
     margin-bottom: 16px;
 }
 
@@ -474,19 +473,19 @@ body {
 
 .currency {
     font-size: 1rem;
-    color: #222;
+    color: #555;
     vertical-align: top;
 }
 
 .amount {
     font-size: 3rem;
     font-weight: 800;
-    color: #1E293B;
+    color: #000;
     line-height: 1;
 }
 
 .period {
-    color: #222;
+    color: #555;
     font-size: 0.9rem;
     margin-bottom: 24px;
 }
@@ -517,7 +516,7 @@ body {
     align-items: center;
     gap: 12px;
     margin-bottom: 14px;
-    color: #222;
+    color: #555;
     font-size: 0.95rem;
 }
 
@@ -619,12 +618,12 @@ body {
 .class-content h3 {
     font-size: 1.5rem;
     margin-bottom: 8px;
-    color: #1E293B;
+    color: #000;
 }
 
 .class-content p {
     font-size: 0.9rem;
-    color: #222;
+    color: #555;
     margin-bottom: 20px;
 }
 
@@ -635,7 +634,7 @@ body {
 
 .class-features li {
     font-size: 0.9rem;
-    color: #222;
+    color: #555;
     margin-bottom: 10px;
     display: flex;
     align-items: center;

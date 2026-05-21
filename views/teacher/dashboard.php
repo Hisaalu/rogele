@@ -46,9 +46,6 @@ $classPerformance = $classPerformance ?? [
             <div class="stat-content">
                 <span class="stat-label">Total Lessons</span>
                 <span class="stat-value"><?php echo number_format($totalLessons); ?></span>
-                <span class="stat-trend positive">
-                    <i class="fas fa-arrow-up"></i> 3 new this month
-                </span>
             </div>
         </div>
 
@@ -59,9 +56,6 @@ $classPerformance = $classPerformance ?? [
             <div class="stat-content">
                 <span class="stat-label">Total Quizzes</span>
                 <span class="stat-value"><?php echo number_format($totalQuizzes); ?></span>
-                <span class="stat-trend positive">
-                    <i class="fas fa-arrow-up"></i> 2 new this month
-                </span>
             </div>
         </div>
 
@@ -72,9 +66,6 @@ $classPerformance = $classPerformance ?? [
             <div class="stat-content">
                 <span class="stat-label">Total Students</span>
                 <span class="stat-value"><?php echo number_format($totalStudents); ?></span>
-                <span class="stat-trend positive">
-                    <i class="fas fa-arrow-up"></i> +12% vs last month
-                </span>
             </div>
         </div>
 
@@ -85,9 +76,6 @@ $classPerformance = $classPerformance ?? [
             <div class="stat-content">
                 <span class="stat-label">Avg. Score</span>
                 <span class="stat-value"><?php echo $classPerformance['avg_score']; ?>%</span>
-                <span class="stat-trend positive">
-                    <i class="fas fa-arrow-up"></i> +5% vs last month
-                </span>
             </div>
         </div>
     </div>
@@ -320,7 +308,7 @@ $classPerformance = $classPerformance ?? [
 
 .stat-label {
     display: block;
-    color: black;
+    color: #555;
     font-size: 0.9rem;
     margin-bottom: 5px;
 }
@@ -329,7 +317,7 @@ $classPerformance = $classPerformance ?? [
     display: block;
     font-size: 2rem;
     font-weight: 700;
-    color: black;
+    color: #000;
     line-height: 1.2;
     margin-bottom: 5px;
 }
@@ -341,13 +329,9 @@ $classPerformance = $classPerformance ?? [
     gap: 4px;
 }
 
-.stat-trend.positive {
-    color: #10B981;
-}
-
 /* Section Title */
 .section-title {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 20px;
@@ -400,13 +384,13 @@ $classPerformance = $classPerformance ?? [
 }
 
 .action-content h3 {
-    color: black;
+    color: #000;
     font-size: 1rem;
     margin-bottom: 3px;
 }
 
 .action-content p {
-    color: #64748B;
+    color: #555;
     font-size: 0.8rem;
 }
 
@@ -449,7 +433,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .performance-header h3 {
-    color: black;
+    color: #000;
     font-size: 1.1rem;
     font-weight: 600;
 }
@@ -459,7 +443,7 @@ $classPerformance = $classPerformance ?? [
     border: 2px solid #E2E8F0;
     border-radius: 30px;
     font-size: 0.85rem;
-    color: black;
+    color: #000;
     background: white;
     cursor: pointer;
 }
@@ -494,7 +478,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .card-header h3 {
-    color: black;
+    color: #000;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -560,7 +544,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .activity-content h4 {
-    color: black;
+    color: #000;
     font-size: 1rem;
     margin-bottom: 5px;
     white-space: nowrap;
@@ -572,7 +556,7 @@ $classPerformance = $classPerformance ?? [
     display: flex;
     gap: 15px;
     font-size: 0.8rem;
-    color: #64748B;
+    color: #555;
     flex-wrap: wrap;
 }
 
@@ -597,7 +581,7 @@ $classPerformance = $classPerformance ?? [
 
 .activity-status.draft {
     background: #F1F5F9;
-    color: #64748B;
+    color: #555;
 }
 
 .btn-view {
@@ -630,7 +614,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .empty-state p {
-    color: #64748B;
+    color: #555;
     margin-bottom: 20px;
 }
 
@@ -779,7 +763,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        color: '#64748B',
+                        color: '#555',
                         font: {
                             size: 11
                         }

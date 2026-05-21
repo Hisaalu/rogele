@@ -244,7 +244,7 @@ $classes = $classes ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -268,7 +268,7 @@ $classes = $classes ?? [];
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -288,7 +288,7 @@ $classes = $classes ?? [];
 }
 
 .section-title {
-    color: black;
+    color: #000;
     font-size: 1.2rem;
     margin-bottom: 25px;
     display: flex;
@@ -318,7 +318,7 @@ $classes = $classes ?? [];
     gap: 8px;
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: #555;
     margin-bottom: 8px;
 }
 
@@ -401,11 +401,11 @@ $classes = $classes ?? [];
 
 .file-name {
     flex: 1;
-    color: #1E293B;
+    color: #555;
 }
 
 .file-size {
-    color: black;
+    color: #000;
     font-size: 0.85rem;
 }
 
@@ -427,7 +427,7 @@ $classes = $classes ?? [];
 }
 
 .existing-materials h4 {
-    color: #1E293B;
+    color: #555;
     margin-bottom: 10px;
     font-size: 1rem;
 }

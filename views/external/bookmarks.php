@@ -158,7 +158,7 @@ $bookmarks = $bookmarks ?? [];
 }
 
 .page-subtitle {
-    color: #000;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -205,13 +205,13 @@ $bookmarks = $bookmarks ?? [];
 }
 
 .empty-state h3 {
-    color: #1E293B;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
 .empty-state p {
-    color: #000;
+    color: #555;
     margin-bottom: 25px;
     font-size: 1rem;
 }
@@ -324,7 +324,7 @@ $bookmarks = $bookmarks ?? [];
 .lesson-title {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #1E293B;
+    color: #000;
     margin-bottom: 12px;
     line-height: 1.4;
 }
@@ -351,7 +351,7 @@ $bookmarks = $bookmarks ?? [];
     background: #F8FAFC;
     border-radius: 20px;
     font-size: 0.75rem;
-    color: #000;
+    color: #555;
 }
 
 .meta-tag i {
@@ -453,7 +453,7 @@ $bookmarks = $bookmarks ?? [];
 }
 
 .modal-close:hover {
-    color: #1E293B;
+    color: #000;
 }
 
 .modal-body {
@@ -461,7 +461,7 @@ $bookmarks = $bookmarks ?? [];
 }
 
 .modal-body p {
-    color: #1E293B;
+    color: #000;
     margin-bottom: 16px;
 }
 

@@ -83,7 +83,7 @@ $token = $token ?? '';
 
         .logo-section p {
             font-size: 0.85rem;
-            color: black;
+            color: #555;
             margin-top: 4px;
         }
 
@@ -134,7 +134,7 @@ $token = $token ?? '';
             background: none;
             border: none;
             cursor: pointer;
-            color: #999;
+            color: #555;
             font-size: 1.1rem;
             padding: 8px;
             transition: color 0.2s ease;
@@ -175,7 +175,7 @@ $token = $token ?? '';
             padding-top: 24px;
             border-top: 1px solid #eee;
             font-size: 0.85rem;
-            color: black;
+            color: #000;
         }
 
         .login-link a {
