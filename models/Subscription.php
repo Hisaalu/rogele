@@ -891,28 +891,24 @@ class Subscription {
         try {
             $transactionId = 'PESA_' . time() . '_' . $userId . '_' . rand(100, 999);
             
-            // First create or get pending subscription with plan_type
             $subscriptionId = $this->getOrCreatePendingSubscription($userId, $planType, $amount);
             
             if (!$subscriptionId) {
                 return ['success' => false, 'error' => 'Failed to create subscription record'];
             }
             
-            // Insert payment record with plan_type
             $sql = "INSERT INTO payments (
-                        user_id, 
-                        subscription_id, 
+                        user_id,
                         amount, 
                         payment_method, 
                         transaction_id,
                         phone_number,
-                        plan_type,  -- Make sure this column exists in your payments table
+                        plan_type,
                         status,
                         payment_date,
                         created_at
                     ) VALUES (
                         :user_id,
-                        :subscription_id,
                         :amount,
                         :payment_method,
                         :transaction_id,
@@ -925,7 +921,6 @@ class Subscription {
             
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-            $stmt->bindValue(':subscription_id', $subscriptionId, PDO::PARAM_INT);
             $stmt->bindValue(':amount', $amount);
             $stmt->bindValue(':payment_method', $paymentMethod);
             $stmt->bindValue(':transaction_id', $transactionId);
@@ -941,11 +936,9 @@ class Subscription {
                     'success' => true,
                     'payment_id' => $paymentId,
                     'transaction_id' => $transactionId,
-                    'subscription_id' => $subscriptionId
                 ];
             } else {
                 $error = $stmt->errorInfo();
-                error_log("[Payment] Failed to create payment: " . print_r($error, true));
                 return ['success' => false, 'error' => 'Failed to create payment record: ' . $error[2]];
             }
             
@@ -1020,13 +1013,21 @@ class Subscription {
      */
     public function updatePaymentStatus($transactionId, $status, $pesapalData = null) {
         try {
+
+            $payment = $this->getPaymentByTransactionId($transactionId);
+        
+            if (!$payment) {
+                return ['success' => false, 'error' => 'Payment not found'];
+            }
+
             $sql = "UPDATE payments 
                     SET status = :status, 
                         payment_date = CASE 
                             WHEN :status = 'completed' THEN NOW() 
                             ELSE payment_date 
                         END,
-                        payment_gateway_response = :gateway_response
+                        payment_gateway_response = :gateway_response,
+                        updated_at = NOW()
                     WHERE transaction_id = :transaction_id";
             
             $stmt = $this->conn->prepare($sql);
@@ -1042,38 +1043,80 @@ class Subscription {
             return ['success' => true];
             
         } catch (PDOException $e) {
-            error_log("Error updating payment status: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
     /**
-     * Activate subscription after successful payment
+     * Activate subscription for a successful payment
      */
-    private function activateSubscriptionForPayment($transactionId) {
+    private function activateSubscriptionForPayment($payment) {
         try {
-            $sql = "SELECT user_id, subscription_id FROM payments WHERE transaction_id = :transaction_id";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':transaction_id', $transactionId);
-            $stmt->execute();
-            $payment = $stmt->fetch(PDO::FETCH_ASSOC);
+            $this->conn->beginTransaction();
             
-            if ($payment && $payment['subscription_id']) {
-                $sql = "UPDATE subscriptions 
-                        SET status = 'active', 
-                            payment_method = 'pesapal',
-                            transaction_id = :transaction_id
-                        WHERE id = :subscription_id";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(':subscription_id', $payment['subscription_id'], PDO::PARAM_INT);
-                $stmt->bindValue(':transaction_id', $transactionId);
-                $stmt->execute();
-                
-                error_log("Subscription activated for subscription_id: " . $payment['subscription_id']);
+            $planDays = $this->getPlanDays($payment['plan_type']);
+            $startDate = date('Y-m-d H:i:s');
+            $endDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
+            
+            $currentSubscription = $this->getCurrentSubscription($payment['user_id']);
+            
+            $sql = "INSERT INTO subscriptions (
+                        user_id,
+                        plan_type,
+                        amount,
+                        start_date,
+                        end_date,
+                        status,
+                        payment_method,
+                        transaction_id,
+                        is_upgrade,
+                        created_at
+                    ) VALUES (
+                        :user_id,
+                        :plan_type,
+                        :amount,
+                        :start_date,
+                        :end_date,
+                        'active',
+                        :payment_method,
+                        :transaction_id,
+                        :is_upgrade,
+                        NOW()
+                    )";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $payment['user_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':plan_type', $payment['plan_type']);
+            $stmt->bindValue(':amount', $payment['amount']);
+            $stmt->bindValue(':start_date', $startDate);
+            $stmt->bindValue(':end_date', $endDate);
+            $stmt->bindValue(':payment_method', $payment['payment_method']);
+            $stmt->bindValue(':transaction_id', $payment['transaction_id']);
+            $stmt->bindValue(':is_upgrade', $currentSubscription ? 1 : 0, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $newSubscriptionId = $this->conn->lastInsertId();
+            
+            if ($currentSubscription) {
+                $updateSql = "UPDATE subscriptions SET status = 'expired' WHERE id = :id";
+                $updateStmt = $this->conn->prepare($updateSql);
+                $updateStmt->bindValue(':id', $currentSubscription['id'], PDO::PARAM_INT);
+                $updateStmt->execute();
             }
             
+            $this->conn->commit();
+            
+            
+            return [
+                'success' => true,
+                'subscription_id' => $newSubscriptionId,
+                'start_date' => $startDate,
+                'end_date' => $endDate
+            ];
+            
         } catch (PDOException $e) {
-            error_log("Error activating subscription: " . $e->getMessage());
+            $this->conn->rollBack();
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
@@ -1117,11 +1160,12 @@ class Subscription {
     public function createSubscription($userId, $planType, $amount, $transactionId) {
         try {
             $this->conn->beginTransaction();
+
+            $planDays = $this->getPlanDays($planType);
+            $startDate = date('Y-m-d H:i:s');
+            $endDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
             
             $currentSubscription = $this->getCurrentSubscription($userId);
-            
-            $planDays = $this->getPlanDays($planType);
-            $endDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
             
             $sql = "INSERT INTO subscriptions (
                         user_id,
@@ -1138,7 +1182,7 @@ class Subscription {
                         :user_id,
                         :plan_type,
                         :amount,
-                        NOW(),
+                        :start_date,,
                         :end_date,
                         'active',
                         'pesapal',
@@ -1151,6 +1195,7 @@ class Subscription {
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
             $stmt->bindValue(':plan_type', $planType);
             $stmt->bindValue(':amount', $amount);
+            $stmt->bindValue(':start_date', $startDate);
             $stmt->bindValue(':end_date', $endDate);
             $stmt->bindValue(':transaction_id', $transactionId);
             $stmt->bindValue(':is_upgrade', $currentSubscription ? 1 : 0, PDO::PARAM_INT);
@@ -1170,12 +1215,12 @@ class Subscription {
             return [
                 'success' => true,
                 'subscription_id' => $newSubscriptionId,
+                'start_date' => $startDate,
                 'end_date' => $endDate
             ];
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("Error creating subscription: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -1234,94 +1279,84 @@ class Subscription {
     }
 
     /**
-     * Create or update subscription after successful payment
+     * Create or update subscription after successful payment (start from NOW)
      */
     public function createOrUpdateSubscription($userId, $planType, $amount, $transactionId) {
         try {
             $this->conn->beginTransaction();
             
-            // First, check if there's an existing active subscription
-            $checkSql = "SELECT * FROM subscriptions 
-                        WHERE user_id = :user_id 
-                        AND status = 'active' 
-                        ORDER BY id DESC LIMIT 1";
-            $checkStmt = $this->conn->prepare($checkSql);
-            $checkStmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-            $checkStmt->execute();
-            $existingSubscription = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            $checkStmt = $this->conn->prepare("SELECT id FROM subscriptions WHERE transaction_id = ?");
+            $checkStmt->execute([$transactionId]);
+            $existing = $checkStmt->fetch();
             
-            // Calculate new end date
-            $planDays = $this->getPlanDays($planType);
-            $startDate = date('Y-m-d H:i:s');
-            
-            if ($existingSubscription) {
-                // Extend existing subscription instead of creating new one
-                $currentEndDate = new DateTime($existingSubscription['end_date']);
-                $now = new DateTime();
-                
-                if ($currentEndDate > $now) {
-                    // Extend from current end date
-                    $currentEndDate->modify("+{$planDays} days");
-                    $endDate = $currentEndDate->format('Y-m-d H:i:s');
-                } else {
-                    // Start new from today
-                    $endDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
-                }
-                
-                // Update existing subscription
-                $sql = "UPDATE subscriptions 
-                        SET plan_type = :plan_type,
-                            amount = :amount,
-                            start_date = :start_date,
-                            end_date = :end_date,
-                            status = 'active',
-                            payment_method = 'pesapal',
-                            transaction_id = :transaction_id,
-                            updated_at = NOW()
-                        WHERE id = :id";
-                
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(':id', $existingSubscription['id'], PDO::PARAM_INT);
-            } else {
-                // Create new subscription
-                $endDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
-                
-                $sql = "INSERT INTO subscriptions (
-                            user_id, plan_type, amount, start_date, end_date, 
-                            status, payment_method, transaction_id, created_at
-                        ) VALUES (
-                            :user_id, :plan_type, :amount, :start_date, :end_date,
-                            'active', 'pesapal', :transaction_id, NOW()
-                        )";
-                
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            if ($existing) {
+                $this->conn->commit();
+                return ['success' => true, 'subscription_id' => $existing['id']];
             }
             
+            $planDays = $this->getPlanDays($planType);
+            $startDate = date('Y-m-d H:i:s');
+            $endDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
+            
+            $currentSubscription = $this->getCurrentSubscription($userId);
+            
+            $sql = "INSERT INTO subscriptions (
+                        user_id,
+                        plan_type,
+                        amount,
+                        start_date,
+                        end_date,
+                        status,
+                        payment_method,
+                        transaction_id,
+                        is_upgrade,
+                        created_at
+                    ) VALUES (
+                        :user_id,
+                        :plan_type,
+                        :amount,
+                        :start_date,
+                        :end_date,
+                        'active',
+                        'pesapal',
+                        :transaction_id,
+                        :is_upgrade,
+                        NOW()
+                    )";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
             $stmt->bindValue(':plan_type', $planType);
             $stmt->bindValue(':amount', $amount);
             $stmt->bindValue(':start_date', $startDate);
             $stmt->bindValue(':end_date', $endDate);
             $stmt->bindValue(':transaction_id', $transactionId);
-            
+            $stmt->bindValue(':is_upgrade', $currentSubscription ? 1 : 0, PDO::PARAM_INT);
             $stmt->execute();
             
-            // Update payment record status
-            $updatePaymentSql = "UPDATE payments 
-                                SET status = 'completed', 
-                                    payment_date = NOW()
-                                WHERE transaction_id = :transaction_id";
-            $updateStmt = $this->conn->prepare($updatePaymentSql);
-            $updateStmt->bindValue(':transaction_id', $transactionId);
-            $updateStmt->execute();
+            $newSubscriptionId = $this->conn->lastInsertId();
+            
+            if ($currentSubscription) {
+                $updateSql = "UPDATE subscriptions SET status = 'expired' WHERE id = :id";
+                $updateStmt = $this->conn->prepare($updateSql);
+                $updateStmt->bindValue(':id', $currentSubscription['id'], PDO::PARAM_INT);
+                $updateStmt->execute();
+                
+                error_log("Previous subscription {$currentSubscription['id']} marked as expired");
+            }
             
             $this->conn->commit();
             
-            return ['success' => true, 'end_date' => $endDate];
+            
+            return [
+                'success' => true,
+                'subscription_id' => $newSubscriptionId,
+                'start_date' => $startDate,
+                'end_date' => $endDate
+            ];
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            error_log("Error creating/updating subscription: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }

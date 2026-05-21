@@ -21,22 +21,17 @@ class ExternalController {
     private $classesModel; 
     
     public function __construct() {
-        // Get the current action/method being called
-        // We need to check which method is being called from the backtrace
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
         $calledMethod = isset($backtrace[1]['function']) ? $backtrace[1]['function'] : '';
         
-        // List of public methods that don't require authentication
         $publicMethods = [
             'pesapalIpn',
             'pesapalCallback', 
             'pesapalTest',
-            'paymentCallback'  // Add any other callback methods
+            'paymentCallback'
         ];
         
-        // If this is a public method, skip authentication
         if (in_array($calledMethod, $publicMethods)) {
-            // Initialize models without requiring session
             $this->subscriptionModel = new Subscription();
             $this->lessonModel = new Lesson();
             $this->quizModel = new Quiz();
@@ -47,7 +42,6 @@ class ExternalController {
             return;
         }
         
-        // For all other methods, require authentication
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
