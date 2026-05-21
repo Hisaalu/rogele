@@ -29,7 +29,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
     </h1>
     
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-        <h2 style="color: #000; margin-bottom: 20px;">Your Dashboard</h2>
+        <h2 style="color: #000; margin-bottom: 20px;">Dashboard</h2>
         
         <!-- Access Status Banner -->
         <?php if ($hasActiveSubscription): ?>
