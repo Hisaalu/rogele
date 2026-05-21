@@ -187,7 +187,7 @@ $stats = $stats ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -195,7 +195,7 @@ $stats = $stats ?? [];
 }
 
 .back-link:hover {
-    color: #7f2677;
+    color: #f06724;
 }
 
 .page-header {
@@ -220,7 +220,7 @@ $stats = $stats ?? [];
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -247,7 +247,7 @@ $stats = $stats ?? [];
 
 .btn-download.csv {
     background: #F1F5F9;
-    color: #1E293B;
+    color: #000;
     border: 1px solid #E2E8F0;
 }
 
@@ -338,7 +338,7 @@ $stats = $stats ?? [];
     display: block;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1E293B;
+    color: #000;
     line-height: 1.2;
 }
 
@@ -361,7 +361,7 @@ $stats = $stats ?? [];
 }
 
 .card-header h3 {
-    color: black;
+    color: #000;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -383,7 +383,7 @@ $stats = $stats ?? [];
     padding: 5px 12px;
     border-radius: 30px;
     font-size: 0.85rem;
-    color: black;
+    color: #000;
     font-weight: 600;
 }
 
@@ -411,7 +411,7 @@ $stats = $stats ?? [];
 
 .results-table th {
     background: #F8FAFC;
-    color: black;
+    color: #000;
     font-weight: 600;
     font-size: 0.85rem;
     padding: 16px 20px;
@@ -425,7 +425,7 @@ $stats = $stats ?? [];
 .results-table td {
     padding: 14px 20px;
     border-bottom: 1px solid #F1F5F9;
-    color: #1E293B;
+    color: #000;
 }
 
 .results-table tr:hover td {
@@ -433,7 +433,7 @@ $stats = $stats ?? [];
 }
 
 .student-cell strong {
-    color: #1E293B;
+    color: #000;
 }
 
 .score-cell {
@@ -484,7 +484,7 @@ $stats = $stats ?? [];
 }
 
 .empty-state h3 {
-    color: #1E293B;
+    color: #000;
     font-size: 1.2rem;
     margin-bottom: 8px;
 }
@@ -543,7 +543,7 @@ $stats = $stats ?? [];
 }
 
 .modal-close:hover {
-    color: #1E293B;
+    color: #000;
 }
 
 .modal-body {
@@ -552,7 +552,7 @@ $stats = $stats ?? [];
 
 .modal-body p {
     margin-bottom: 16px;
-    color: #1E293B;
+    color: #000;
 }
 
 .warning-text {
@@ -572,7 +572,7 @@ $stats = $stats ?? [];
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: #1E293B;
+    color: #000;
 }
 
 .confirm-input-field {

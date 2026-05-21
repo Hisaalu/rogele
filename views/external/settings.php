@@ -355,7 +355,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -375,7 +375,7 @@ $activeTab = $_GET['tab'] ?? 'password';
     background: white;
     border-radius: 12px;
     text-decoration: none;
-    color: gray;
+    color: #555;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -395,7 +395,7 @@ $activeTab = $_GET['tab'] ?? 'password';
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
     border-color: #f06724;
-    color: #1E293B;
+    color: #555;
 }
 
 .tab.active {
@@ -424,7 +424,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .card-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: black;
+    color: #000;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -436,7 +436,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .card-description {
-    color: black;
+    color: #555;
     margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 2px solid #F1F5F9;
@@ -458,7 +458,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: #000;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -530,7 +530,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .strength-text {
     font-size: 0.85rem;
-    color: black;
+    color: #555;
 }
 
 .password-match {
@@ -547,7 +547,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .password-requirements p {
     font-weight: 600;
-    color: #1E293B;
+    color: #555;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -619,7 +619,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .toggle-info strong {
     display: block;
-    color: #1E293B;
+    color: #555;
     margin-bottom: 3px;
 }
 

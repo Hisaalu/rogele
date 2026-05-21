@@ -65,7 +65,7 @@ $priceCalculation = $priceCalculation ?? [];
 
         <!-- Price Breakdown -->
         <div class="price-breakdown">
-            <h3>💰 Payment Summary</h3>
+            <h3>Payment Summary</h3>
             
             <div class="breakdown-item">
                 <span>New Plan Price:</span>
@@ -96,7 +96,7 @@ $priceCalculation = $priceCalculation ?? [];
             <input type="hidden" name="to_plan" value="<?php echo htmlspecialchars($toPlan); ?>">
             <input type="hidden" name="amount" value="<?php echo $priceCalculation['upgrade_price'] ?? 0; ?>">
             
-            <h3>💳 Select Payment Method</h3>
+            <h3>Select Payment Method</h3>
             
             <div class="payment-methods">
                 <label class="payment-method">
@@ -204,12 +204,12 @@ $priceCalculation = $priceCalculation ?? [];
 
 .card-header h1 {
     font-size: 2rem;
-    color: black;
+    color: #000;
     margin-bottom: 10px;
 }
 
 .card-header p {
-    color: black;
+    color: #555;
 }
 
 .plan-comparison {
@@ -281,7 +281,7 @@ $priceCalculation = $priceCalculation ?? [];
 .plan-card h3 {
     font-size: 1.5rem;
     margin-bottom: 15px;
-    color: black;
+    color: #000;
 }
 
 .plan-price {
@@ -291,7 +291,7 @@ $priceCalculation = $priceCalculation ?? [];
 .plan-price span {
     font-size: 2rem;
     font-weight: 800;
-    color: black;
+    color: #000;
 }
 
 .plan-features {
@@ -306,7 +306,7 @@ $priceCalculation = $priceCalculation ?? [];
     align-items: center;
     gap: 10px;
     margin-bottom: 10px;
-    color: #4A5568;
+    color: #555;
     font-size: 0.9rem;
 }
 
@@ -335,14 +335,15 @@ $priceCalculation = $priceCalculation ?? [];
 
 .price-breakdown h3 {
     margin-bottom: 20px;
-    color: black;
+    color: #000;
 }
 
 .breakdown-item {
     display: flex;
     justify-content: space-between;
     margin-bottom: 15px;
-    color: black;
+    font-weight: 300;
+    color: #000;
 }
 
 .breakdown-item.total {

@@ -198,7 +198,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -380,7 +380,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .quiz-title {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 10px;
@@ -392,7 +392,7 @@ $search = $_GET['search'] ?? '';
     gap: 15px;
     margin-bottom: 15px;
     font-size: 0.85rem;
-    color: black;
+    color: #555;
     flex-wrap: wrap;
 }
 
@@ -407,7 +407,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .quiz-description {
-    color: black;
+    color: #000;
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -422,7 +422,7 @@ $search = $_GET['search'] ?? '';
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.85rem;
-    color: black;
+    color: #555;
     flex-wrap: wrap;
 }
 
@@ -529,13 +529,13 @@ $search = $_GET['search'] ?? '';
 }
 
 .empty-state h3 {
-    color: black;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
 .empty-state p {
-    color: black;
+    color: #555;
     margin-bottom: 25px;
 }
 

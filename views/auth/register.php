@@ -89,13 +89,13 @@ if (empty($classes)) {
         .logo-section h1 {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #1a1a1a;
+            color: #000;
             margin: 0;
         }
 
         .logo-section p {
             font-size: 0.85rem;
-            color: black;
+            color: #555;
             margin-top: 4px;
         }
 
@@ -215,7 +215,7 @@ if (empty($classes)) {
 
         .terms-group label {
             font-size: 0.8rem;
-            color: black;
+            color: #555;
             cursor: pointer;
         }
 
@@ -230,7 +230,7 @@ if (empty($classes)) {
             padding-top: 24px;
             border-top: 1px solid #eee;
             font-size: 0.85rem;
-            color: black;
+            color: #555;
         }
 
         .login-link a {

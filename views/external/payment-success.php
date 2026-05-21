@@ -9,7 +9,7 @@ require_once __DIR__ . '/../layouts/header.php';
             <i class="fas fa-check-circle"></i>
         </div>
         
-        <h1>Payment Successful! 🎉</h1>
+        <h1>Payment Successful! </h1>
         <p class="success-message">Your subscription has been activated.</p>
         
         <div class="payment-summary">

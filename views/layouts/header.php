@@ -139,7 +139,7 @@
             align-items: center;
             gap: 8px;
             padding: 10px 20px;
-            color: #1E293B;
+            color: #000;
             text-decoration: none;
             font-weight: 500;
             border-radius: 50px;
@@ -306,12 +306,12 @@
 
         .dropdown-header p {
             font-weight: 600;
-            color: black;
+            color: #000;
             margin-bottom: 3px;
         }
 
         .dropdown-header small {
-            color: black;
+            color: #555;
             font-size: 0.8rem;
         }
 
@@ -326,7 +326,7 @@
             align-items: center;
             gap: 12px;
             padding: 14px 20px;
-            color: black;
+            color: #000;
             text-decoration: none;
             transition: all 0.3s ease;
             font-size: 0.95rem;
@@ -540,7 +540,7 @@
             align-items: center;
             gap: 15px;
             padding: 15px 20px;
-            color: #1E293B;
+            color: #000;
             text-decoration: none;
             font-weight: 500;
             border-radius: 12px;

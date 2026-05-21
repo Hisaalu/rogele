@@ -25,9 +25,9 @@ if (!isset($lesson)) {
         <?php endif; ?>
     </div>
 
-    <h1 style="font-size: 2.5rem; margin-bottom: 20px; color: black;"><?php echo htmlspecialchars($lesson['title']); ?></h1>
+    <h1 style="font-size: 2.5rem; margin-bottom: 20px; color: #000;"><?php echo htmlspecialchars($lesson['title']); ?></h1>
     
-    <div style="display: flex; gap: 20px; margin-bottom: 30px; color: black; flex-wrap: wrap;">
+    <div style="display: flex; gap: 20px; margin-bottom: 30px; color: #000; flex-wrap: wrap;">
         <span><i class="fas fa-book" style="color: #f06724;"></i> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?></span>
         <span><i class="fas fa-user" style="color: #f06724;"></i> Tr. <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?></span>
         <span><i class="fas fa-eye" style="color: #f06724;"></i> <?php echo $lesson['views']; ?> views</span>
@@ -43,15 +43,15 @@ if (!isset($lesson)) {
     <?php endif; ?>
     
     <div style="background: white; border-radius: 20px; padding: 40px; margin-bottom: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-        <h2 style="color: black; margin-bottom: 20px;">Lesson Content</h2>
-        <div style="color: black; line-height: 1.8;">
+        <h2 style="color: #000; margin-bottom: 20px;">Lesson Content</h2>
+        <div style="color: #000; line-height: 1.8;">
             <?php echo nl2br(htmlspecialchars($lesson['content'] ?? 'No content available.')); ?>
         </div>
     </div>
     
     <?php if (!empty($lesson['materials'])): ?>
         <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-            <h2 style="color: black; margin-bottom: 20px;">Downloadable Materials</h2>
+            <h2 style="color: #000; margin-bottom: 20px;">Downloadable Materials</h2>
             <div style="display: grid; gap: 15px;">
                 <?php foreach ($lesson['materials'] as $material): ?>
                     <a href="<?php echo BASE_URL; ?>/public/<?php echo $material['file_path']; ?>" download 

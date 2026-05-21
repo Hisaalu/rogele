@@ -34,13 +34,13 @@ try {
                 <div style="width: 150px; height: 150px; margin: 0 auto 20px; background: linear-gradient(135deg, #8B5CF6, #f06724); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-gift" style="font-size: 4rem; color: white;"></i>
                 </div>
-                <h2 style="color: black; margin-bottom: 10px;">You're on Free Trial</h2>
-                <p style="color: black;">Enjoying full access to all features</p>
+                <h2 style="color: #000; margin-bottom: 10px;">You're on Free Trial</h2>
+                <p style="color: #000;">Enjoying full access to all features</p>
             </div>
             
             <!-- Progress Bar -->
             <div style="margin-bottom: 30px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: black;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #000;">
                     <span>Trial started: <?php echo $startDate->format('M d, Y'); ?></span>
                     <span>Trial ends: <?php echo $endDate->format('M d, Y'); ?></span>
                 </div>
@@ -49,7 +49,7 @@ try {
                 </div>
                 <div style="text-align: center; margin-top: 10px;">
                     <span style="font-size: 1.5rem; font-weight: 700; color: #8B5CF6;"><?php echo $daysLeft; ?></span>
-                    <span style="color: black;"> days remaining</span>
+                    <span style="color: #000;"> days remaining</span>
                 </div>
             </div>
             
@@ -59,7 +59,7 @@ try {
                         <i class="fas fa-exclamation-triangle" style="color: #f06724; font-size: 2rem;"></i>
                         <div>
                             <h3 style="color: #e21414; margin-bottom: 5px;">Your trial is ending soon!</h3>
-                            <p style="color: black;">Subscribe now to continue uninterrupted access to all learning materials.</p>
+                            <p style="color: #000;">Subscribe now to continue uninterrupted access to all learning materials.</p>
                         </div>
                     </div>
                 </div>
@@ -75,8 +75,8 @@ try {
         <?php else: ?>
             <div style="text-align: center;">
                 <i class="fas fa-frown" style="font-size: 4rem; color: #CBD5E1; margin-bottom: 20px;"></i>
-                <h3 style="color: black; margin-bottom: 10px;">No Active Trial</h3>
-                <p style="color: black; margin-bottom: 30px;">You don't have an active free trial.</p>
+                <h3 style="color: #000; margin-bottom: 10px;">No Active Trial</h3>
+                <p style="color: #000; margin-bottom: 30px;">You don't have an active free trial.</p>
                 <a href="<?php echo BASE_URL; ?>/external/subscription" style="display: inline-block; background: linear-gradient(135deg, #8B5CF6, #f06724); color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: 600;">
                     View Subscription Plans
                 </a>
