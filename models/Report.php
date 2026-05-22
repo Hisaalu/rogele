@@ -28,7 +28,6 @@ class Report {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get recent activity error: " . $e->getMessage());
             return [];
         }
     }
@@ -64,7 +63,6 @@ class Report {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get user report error: " . $e->getMessage());
             return [];
         }
     }
@@ -103,7 +101,6 @@ class Report {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get quiz report error: " . $e->getMessage());
             return [];
         }
     }
@@ -139,7 +136,6 @@ class Report {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get payment report error: " . $e->getMessage());
             return [];
         }
     }
@@ -172,7 +168,6 @@ class Report {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get activity report error: " . $e->getMessage());
             return [];
         }
     }
@@ -203,7 +198,6 @@ class Report {
             
             return $results;
         } catch (PDOException $e) {
-            error_log("Get user growth data error: " . $e->getMessage());
             return [];
         }
     }
@@ -229,7 +223,6 @@ class Report {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get quiz performance data error: " . $e->getMessage());
             return [];
         }
     }
@@ -262,7 +255,6 @@ class Report {
             
             return $results;
         } catch (PDOException $e) {
-            error_log("Get revenue data error: " . $e->getMessage());
             return [];
         }
     }
@@ -296,7 +288,6 @@ class Report {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get top students error: " . $e->getMessage());
             return [];
         }
     }
@@ -320,7 +311,6 @@ class Report {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get subscription stats error: " . $e->getMessage());
             return [];
         }
     }

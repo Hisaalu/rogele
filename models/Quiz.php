@@ -130,7 +130,6 @@ class Quiz {
             return $quiz;
             
         } catch (PDOException $e) {
-            error_log("Get quiz by ID error: " . $e->getMessage());
             return null;
         }
     }
@@ -198,7 +197,6 @@ class Quiz {
             }
             
             if ($attempt['status'] == 'completed') {
-                error_log("Attempt already completed - returning existing result");
                 return [
                     'success' => true,
                     'score' => $attempt['score'],
@@ -360,7 +358,6 @@ class Quiz {
             
             return true;
         } catch (PDOException $e) {
-            error_log("Delete all attempts error: " . $e->getMessage());
             return false;
         }
     }
@@ -447,7 +444,6 @@ class Quiz {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get available quizzes error: " . $e->getMessage());
             return [];
         }
     }
@@ -549,7 +545,6 @@ class Quiz {
             
             return $results ? $results : [];
         } catch (PDOException $e) {
-            error_log("SQL Error in getByTeacher: " . $e->getMessage());
             return [];
         }
     }

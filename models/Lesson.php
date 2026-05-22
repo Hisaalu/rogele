@@ -241,7 +241,6 @@ class Lesson {
             
             return ['success' => false, 'error' => 'Failed to delete lesson'];
         } catch (PDOException $e) {
-            error_log("Lesson deletion error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to delete lesson'];
         }
     }
@@ -477,7 +476,6 @@ class Lesson {
             $results = $stmt->fetchAll(PDO::FETCH_COLUMN);
             return array_unique($results);
         } catch (PDOException $e) {
-            error_log("Get user bookmarked IDs error: " . $e->getMessage());
             return [];
         }
     }
@@ -521,7 +519,6 @@ class Lesson {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get bookmark count error: " . $e->getMessage());
             return 0;
         }
     }
@@ -952,7 +949,6 @@ class Lesson {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting published lessons by class: " . $e->getMessage());
             return array();
         }
     }
@@ -998,7 +994,6 @@ class Lesson {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error searching published lessons by class: " . $e->getMessage());
             return array();
         }
     }

@@ -474,24 +474,71 @@ class Subscription {
     }
 
     /**
-     * Get user's current active subscription
+     * Check and expire subscriptions that have passed their end date
+     * This should be called on every page load or via cron job
+     */
+    public function expirePastSubscriptions() {
+        try {
+            $sql = "UPDATE subscriptions 
+                    SET status = 'expired', 
+                        updated_at = NOW() 
+                    WHERE status = 'active' 
+                    AND end_date < NOW()";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            
+            $affectedRows = $stmt->rowCount();
+            
+            if ($affectedRows > 0) {
+                error_log("Expired $affectedRows subscription(s) that passed their end date");
+            }
+            
+            return $affectedRows;
+            
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get current active subscription (checks expiry on the fly)
      */
     public function getCurrentSubscription($userId) {
         try {
+            $expireSql = "UPDATE subscriptions 
+                        SET status = 'expired' 
+                        WHERE user_id = :user_id 
+                        AND status = 'active' 
+                        AND end_date < NOW()";
+            $expireStmt = $this->conn->prepare($expireSql);
+            $expireStmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $expireStmt->execute();
+            
             $sql = "SELECT * FROM subscriptions 
                     WHERE user_id = :user_id 
                     AND status = 'active' 
                     AND end_date > NOW() 
-                    ORDER BY created_at DESC LIMIT 1";
+                    ORDER BY created_at DESC 
+                    LIMIT 1";
             
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
             $stmt->execute();
             
             return $stmt->fetch(PDO::FETCH_ASSOC);
+            
         } catch (PDOException $e) {
             return null;
         }
+    }
+
+    /**
+     * Check if user has an active subscription (with real-time expiry check)
+     */
+    public function hasActiveSubscription($userId) {
+        $subscription = $this->getCurrentSubscription($userId);
+        return !empty($subscription);
     }
 
     /**
@@ -661,7 +708,6 @@ class Subscription {
         try {
             $checkTable = $this->conn->query("SHOW TABLES LIKE 'payment_history'");
             if ($checkTable->rowCount() == 0) {
-                error_log("Payment history table does not exist");
                 return false;
             }
             
@@ -712,7 +758,6 @@ class Subscription {
             return $result;
             
         } catch (PDOException $e) {
-            error_log("Error recording payment history: " . $e->getMessage());
             return false;
         }
     }
@@ -739,7 +784,6 @@ class Subscription {
             
             return $settings;
         } catch (PDOException $e) {
-            error_log("Error getting subscription settings: " . $e->getMessage());
             return [];
         }
     }
@@ -800,7 +844,6 @@ class Subscription {
             return $results;
             
         } catch (PDOException $e) {
-            error_log("Error getting payment for subscription: " . $e->getMessage());
             return []; 
         }
     }
@@ -825,7 +868,6 @@ class Subscription {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting user payment history: " . $e->getMessage());
             return [];
         }
     }
@@ -879,7 +921,6 @@ class Subscription {
             return $history;
             
         } catch (PDOException $e) {
-            error_log("Error getting combined history: " . $e->getMessage());
             return [];
         }
     }
@@ -930,8 +971,6 @@ class Subscription {
             if ($stmt->execute()) {
                 $paymentId = $this->conn->lastInsertId();
                 
-                error_log("[Payment] Created pending payment: ID=$paymentId, Transaction=$transactionId, Plan=$planType");
-                
                 return [
                     'success' => true,
                     'payment_id' => $paymentId,
@@ -943,7 +982,6 @@ class Subscription {
             }
             
         } catch (PDOException $e) {
-            error_log("[Payment] Error creating pending payment: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
@@ -998,7 +1036,6 @@ class Subscription {
             return $this->conn->lastInsertId();
             
         } catch (PDOException $e) {
-            error_log("Error creating pending subscription: " . $e->getMessage());
             return false;
         }
     }
@@ -1136,7 +1173,6 @@ class Subscription {
             return $stmt->fetch(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting payment by transaction ID: " . $e->getMessage());
             return null;
         }
     }
@@ -1237,7 +1273,6 @@ class Subscription {
             
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error getting payment by ID: " . $e->getMessage());
             return null;
         }
     }
@@ -1254,7 +1289,6 @@ class Subscription {
             
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error getting user by ID: " . $e->getMessage());
             return null;
         }
     }
@@ -1273,7 +1307,6 @@ class Subscription {
             
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error getting PesaPal payment details: " . $e->getMessage());
             return null;
         }
     }
@@ -1341,8 +1374,6 @@ class Subscription {
                 $updateStmt = $this->conn->prepare($updateSql);
                 $updateStmt->bindValue(':id', $currentSubscription['id'], PDO::PARAM_INT);
                 $updateStmt->execute();
-                
-                error_log("Previous subscription {$currentSubscription['id']} marked as expired");
             }
             
             $this->conn->commit();
