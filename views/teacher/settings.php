@@ -90,7 +90,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                                 <div class="strength-segment"></div>
                                 <div class="strength-segment"></div>
                             </div>
-                            <span class="strength-text">Enter a strong password</span>
                         </div>
                     </div>
 
@@ -105,7 +104,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="password-match" id="passwordMatch"></div>
                     </div>
 
                     <button type="submit" class="btn-save">
@@ -464,35 +462,6 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .toggle-password:hover {
     color: #f06724;
-}
-
-/* Password Strength */
-.password-strength {
-    margin-top: 8px;
-}
-
-.strength-bar {
-    display: flex;
-    gap: 5px;
-    margin-bottom: 5px;
-}
-
-.strength-segment {
-    flex: 1;
-    height: 4px;
-    background: #E2E8F0;
-    border-radius: 2px;
-    transition: all 0.3s ease;
-}
-
-.strength-text {
-    font-size: 0.85rem;
-    color: #555;
-}
-
-.password-match {
-    font-size: 0.85rem;
-    margin-top: 5px;
 }
 
 /* Toggle Switches */
