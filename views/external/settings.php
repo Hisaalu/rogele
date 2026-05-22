@@ -92,15 +92,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="password-strength" id="passwordStrength">
-                            <div class="strength-bar">
-                                <div class="strength-segment"></div>
-                                <div class="strength-segment"></div>
-                                <div class="strength-segment"></div>
-                                <div class="strength-segment"></div>
-                            </div>
-                            <span class="strength-text">Enter a strong password</span>
-                        </div>
                     </div>
 
                     <div class="form-group">
@@ -114,7 +105,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="password-match" id="passwordMatch"></div>
                     </div>
 
                     <button type="submit" class="btn-save" id="submitBtn">
@@ -520,14 +510,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     margin-bottom: 5px;
 }
 
-.strength-segment {
-    flex: 1;
-    height: 4px;
-    background: #E2E8F0;
-    border-radius: 2px;
-    transition: all 0.3s ease;
-}
-
 .strength-text {
     font-size: 0.85rem;
     color: #555;
@@ -888,10 +870,6 @@ function checkPasswordStrength() {
             bar.style.background = '#E2E8F0';
         }
     });
-    
-    const texts = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
-    strengthText.textContent = strength > 0 ? texts[strength - 1] : 'Enter a password';
-    strengthText.style.color = strength <= 2 ? '#EF4444' : strength <= 3 ? '#F97316' : strength <= 4 ? '#EAB308' : '#10B981';
 }
 
 // Password match checker
