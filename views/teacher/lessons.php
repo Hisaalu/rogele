@@ -305,7 +305,7 @@ function getYoutubeId($url) {
 .search-box input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .btn-search {

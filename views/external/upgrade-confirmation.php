@@ -423,7 +423,7 @@ $priceCalculation = $priceCalculation ?? [];
 .payment-details .form-group input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
     transition: all 0.3s ease;
 }
 
