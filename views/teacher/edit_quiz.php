@@ -254,10 +254,6 @@ $currentStatus = $quiz['status'] ?? 'draft';
                     <i class="fas fa-save"></i>
                     Save Changes
                 </button>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </a>
             </div>
         </form>
     </div>

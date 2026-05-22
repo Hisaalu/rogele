@@ -202,10 +202,6 @@ require_once __DIR__ . '/../layouts/header.php';
                         <i class="fas fa-save"></i>
                         Save Changes
                     </button>
-                    <button type="reset" class="btn-cancel">
-                        <i class="fas fa-times"></i>
-                        Cancel
-                    </button>
                 </div>
             </form>
         </div>
@@ -541,27 +537,6 @@ require_once __DIR__ . '/../layouts/header.php';
 .btn-save:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
-}
-
-.btn-cancel {
-    padding: 14px 30px;
-    background: #7f2677;
-    color: white;
-    border: 2px solid #E2E8F0;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-}
-
-.btn-cancel:hover {
-    background: #f06724;
-    border-color: #94A3B8;
 }
 
 /* Alert Styles */

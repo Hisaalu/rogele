@@ -149,10 +149,6 @@ $quizId = $quiz['id'] ?? 0;
                     <i class="fas fa-save"></i>
                     Save Questions
                 </button>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </a>
             </div>
         </form>
     </div>

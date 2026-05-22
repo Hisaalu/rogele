@@ -12,7 +12,7 @@ if (!isset($lesson)) {
 
 <div style="padding: 40px 20px; max-width: 1000px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <a href="<?php echo BASE_URL; ?>/external/materials" style="color: #7f2677; text-decoration: none;">
+        <a href="<?php echo BASE_URL; ?>/external/materials" style="color: #000; text-decoration: none;">
             <i class="fas fa-arrow-left"></i> Back to Materials
         </a>
         
@@ -27,7 +27,7 @@ if (!isset($lesson)) {
 
     <h1 style="font-size: 2.5rem; margin-bottom: 20px; color: #000;"><?php echo htmlspecialchars($lesson['title']); ?></h1>
     
-    <div style="display: flex; gap: 20px; margin-bottom: 30px; color: #000; flex-wrap: wrap;">
+    <div style="display: flex; gap: 20px; margin-bottom: 30px; color: #555; flex-wrap: wrap;">
         <span><i class="fas fa-book" style="color: #f06724;"></i> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?></span>
         <span><i class="fas fa-user" style="color: #f06724;"></i> Tr. <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?></span>
         <span><i class="fas fa-eye" style="color: #f06724;"></i> <?php echo $lesson['views']; ?> views</span>

@@ -210,10 +210,6 @@ $subjects = $subjects ?? [];
                     <i class="fas fa-save"></i>
                     Create Quiz
                 </button>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </a>
             </div>
         </form>
     </div>
