@@ -227,7 +227,7 @@ $endTime = time() + $timeLimitSeconds;
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #000;
+    color: #555;
     background: #F8FAFC;
     padding: 8px 16px;
     border-radius: 50px;

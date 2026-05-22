@@ -602,7 +602,7 @@ $stats = $stats ?? [];
 .btn-cancel-modal {
     padding: 10px 24px;
     background: #F1F5F9;
-    color: #475569;
+    color: #000;
     border: none;
     border-radius: 8px;
     font-weight: 600;

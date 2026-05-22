@@ -220,10 +220,6 @@ $students = $students ?? [];
                         <i class="fas fa-save"></i>
                         Save Changes
                     </button>
-                    <button type="reset" class="btn-cancel">
-                        <i class="fas fa-undo"></i>
-                        Reset
-                    </button>
                 </div>
             </form>
         </div>
@@ -571,28 +567,6 @@ $students = $students ?? [];
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
 
-.btn-cancel {
-    padding: 14px 30px;
-    background: #7f2677;
-    color: white;
-    border: 2px solid #E2E8F0;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-}
-
-.btn-cancel:hover {
-    background: #f06724;
-    border-color: #f06724;
-    color: white;
-}
-
 /* Responsive Design */
 @media (max-width: 992px) {
     .profile-grid {
@@ -625,10 +599,6 @@ $students = $students ?? [];
     
     .form-actions {
         flex-direction: column;
-    }
-    
-    .btn-save, .btn-cancel {
-        width: 100%;
     }
     
     .profile-photo-wrapper {
