@@ -224,10 +224,6 @@ $classes = $classes ?? [];
                     <i class="fas fa-save"></i>
                     Update Lesson
                 </button>
-                <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </a>
             </div>
         </form>
     </div>

@@ -394,7 +394,7 @@ $priceCalculation = $priceCalculation ?? [];
 }
 
 .method-content {
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 16px;
     padding: 15px;
     display: flex;
@@ -440,7 +440,7 @@ $priceCalculation = $priceCalculation ?? [];
 .form-group input {
     width: 100%;
     padding: 12px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
 }
 
@@ -479,8 +479,8 @@ $priceCalculation = $priceCalculation ?? [];
 }
 
 .btn-cancel {
-    background: #F1F5F9;
-    color: #1E293B;
+    background: #7f2677;
+    color: white;
 }
 
 .btn-pay {

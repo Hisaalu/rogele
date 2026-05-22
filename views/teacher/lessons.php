@@ -464,6 +464,10 @@ function getYoutubeId($url) {
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.85rem;
+    color: #555;
+}
+
+.lesson-stats i{
     color: #f06724;
 }
 

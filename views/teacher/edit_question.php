@@ -94,9 +94,6 @@ $quiz = $quiz ?? [];
                 <button type="submit" class="btn-primary">
                     <i class="fas fa-save"></i> Update Question
                 </button>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
             </div>
         </form>
     </div>
