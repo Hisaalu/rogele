@@ -161,7 +161,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                 <table class="history-table">
                     <thead>
                         <tr>
-                            <th>Date</th>
+                            <th>Subscription Date</th>
                             <th>Plan</th>
                             <th>Amount</th>
                             <th>Payment Method</th>
