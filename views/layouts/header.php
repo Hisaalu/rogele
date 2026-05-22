@@ -608,11 +608,6 @@
             text-align: center;
         }
 
-        .mobile-copyright {
-            font-size: 0.8rem;
-            color: #94A3B8;
-        }
-
         .mobile-overlay {
             display: none;
             position: fixed;
@@ -838,10 +833,6 @@
                 </div>
             </div>
         <?php endif; ?>
-        
-        <div class="mobile-menu-footer">
-            <p class="mobile-copyright">© <?php echo date('Y'); ?> ROGELE (Rays of Grace E-Learning Environment)</p>
-        </div>
     </div>
 
     <!-- Mobile Overlay -->
