@@ -329,7 +329,6 @@ class User {
             return ['success' => false, 'error' => 'Failed to update user'];
             
         } catch (PDOException $e) {
-            error_log("Admin update user error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error occurred: ' . $e->getMessage()];
         }
     }

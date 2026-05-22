@@ -25,7 +25,6 @@ class Subject {
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get all subjects error: " . $e->getMessage());
             return [];
         }
     }
@@ -42,7 +41,6 @@ class Subject {
             $stmt->execute([':class_id' => $classId]);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get subjects by class error: " . $e->getMessage());
             return [];
         }
     }
@@ -63,7 +61,6 @@ class Subject {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting subjects by class: " . $e->getMessage());
             return [];
         }
     }
