@@ -218,6 +218,7 @@ function loadQuizChart(days) {
                         label: 'Average Score',
                         data: data.scores,
                         borderColor: '#7f2677',
+                        borderWidth: 1,
                         backgroundColor: 'rgba(139, 92, 246, 0.1)',
                         tension: 0.4,
                         fill: true,
@@ -226,6 +227,7 @@ function loadQuizChart(days) {
                         label: 'Attempts',
                         data: data.attempts,
                         borderColor: '#F97316',
+                        borderWidth: 1,
                         backgroundColor: 'rgba(249, 115, 22, 0.1)',
                         tension: 0.4,
                         fill: true,
@@ -278,7 +280,7 @@ function loadQuizChart(days) {
                                 color: '#000'
                             },
                             grid: {
-                                color: '#E2E8F0'
+                                display: false // <-- Changed this from color: '#E2E8F0' to hide the lines
                             },
                             ticks: {
                                 color: '#000'
@@ -295,7 +297,7 @@ function loadQuizChart(days) {
                                 color: '#000'
                             },
                             grid: {
-                                drawOnChartArea: false
+                                drawOnChartArea: false // Keeps the right axis line, hides inner grids
                             },
                             ticks: {
                                 color: '#000',
@@ -312,7 +314,7 @@ function loadQuizChart(days) {
                                 minRotation: 45
                             },
                             grid: {
-                                display: false
+                                display: false // Already correctly hiding vertical grid lines
                             }
                         }
                     }
