@@ -110,7 +110,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                     <?php echo $hasAccess ? 'Access all lessons and resources' : 'Subscribe to access lessons'; ?>
                 </p>
                 <?php if (!$hasAccess): ?>
-                    <div style="margin-top: 10px; font-size: 0.8rem;">🔒 Locked</div>
+                    <div style="margin-top: 10px; font-size: 0.8rem; color: #B91C1C;">Locked</div>
                 <?php endif; ?>
             </a>
             
@@ -122,7 +122,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                     <?php echo $hasAccess ? 'Test your knowledge' : 'Subscribe to access quizzes'; ?>
                 </p>
                 <?php if (!$hasAccess): ?>
-                    <div style="margin-top: 10px; font-size: 0.8rem;">🔒 Locked</div>
+                    <div style="margin-top: 10px; font-size: 0.8rem; color: #B91C1C;">Locked</div>
                 <?php endif; ?>
             </a>
             
