@@ -1014,7 +1014,7 @@ body {
                         <li><i class="fas fa-check-circle"></i> Progress tracking dashboard</li>
                         <li><i class="fas fa-check-circle"></i> 24/7 email support</li>
                     </ul>
-                    <button class="btn-select" onclick="window.location.href='<?php echo BASE_URL; ?>/register'">
+                    <button class="btn-select" onclick="window.location.href='<?php echo BASE_URL; ?>/login'">
                         <i class="fas fa-shopping-cart"></i> Get Started
                     </button>
                 </div>
@@ -1039,7 +1039,7 @@ body {
                         <li><i class="fas fa-check-circle"></i> Downloadable materials</li>
                         <li><i class="fas fa-check-circle"></i> Answers to Quizzes</li>
                     </ul>
-                    <button class="btn-select btn-primary" onclick="window.location.href='<?php echo BASE_URL; ?>/register'">
+                    <button class="btn-select btn-primary" onclick="window.location.href='<?php echo BASE_URL; ?>/login'">
                         <i class="fas fa-rocket"></i> Get Started
                     </button>
                 </div>
@@ -1064,7 +1064,7 @@ body {
                         <li><i class="fas fa-check-circle"></i> Certificate of completion</li>
                         <li><i class="fas fa-check-circle"></i> 1-on-1 tutoring sessions</li>
                     </ul>
-                    <button class="btn-select" onclick="window.location.href='<?php echo BASE_URL; ?>/register'">
+                    <button class="btn-select" onclick="window.location.href='<?php echo BASE_URL; ?>/login'">
                         <i class="fas fa-crown"></i> Get Started
                     </button>
                 </div>
@@ -1101,7 +1101,7 @@ body {
                             <li><i class="fas fa-check"></i> Religious Education</li>
                             <li><i class="fas fa-check"></i> Elementary Computer Studies</li>
                         </ul>
-                        <a href="<?php echo BASE_URL; ?>/register" class="btn-secondary">Explore Lower Section</a>
+                        <a href="<?php echo BASE_URL; ?>/login" class="btn-secondary">Explore Lower Section</a>
                     </div>
                 </div>
                 
@@ -1122,7 +1122,7 @@ body {
                             <li><i class="fas fa-check"></i> Music</li>
                             <li><i class="fas fa-check"></i> Advanced Computer Studies</li>
                         </ul>
-                        <a href="<?php echo BASE_URL; ?>/register" class="btn-secondary">Explore Upper Section</a>
+                        <a href="<?php echo BASE_URL; ?>/login" class="btn-secondary">Explore Upper Section</a>
                     </div>
                 </div>
             </div>
