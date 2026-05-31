@@ -479,7 +479,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .class-select {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     font-family: 'Inter', sans-serif;
