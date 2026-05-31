@@ -405,7 +405,7 @@ if (!empty($quizzes)) {
 }
 
 .empty-state h3 {
-    color: #555;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
@@ -444,7 +444,7 @@ if (!empty($quizzes)) {
 }
 
 .feature-card h4 {
-    color: #555;
+    color: #000;
     margin-bottom: 10px;
 }
 
