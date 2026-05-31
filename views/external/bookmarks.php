@@ -395,7 +395,7 @@ $bookmarks = $bookmarks ?? [];
     border-radius: 40px;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: #000;
+    color: #7f2677;
     font-weight: 600;
 }
 

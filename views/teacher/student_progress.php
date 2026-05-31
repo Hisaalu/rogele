@@ -606,19 +606,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: quizScores,
                     borderColor: '#f06724',
                     backgroundColor: 'rgba(240, 103, 36, 0.1)',
-                    borderWidth: 3,
+                    borderWidth: 1,
                     pointBackgroundColor: '#f06724',
                     pointBorderColor: 'white',
                     pointRadius: 6,
                     pointHoverRadius: 8,
                     fill: true,
-                    tension: 0.3
+                    tension: 0.4
                 },
                 {
-                    label: 'Passing Score (50%)',
+                    label: 'Passing Score',
                     data: Array(quizScores.length).fill(passingScore),
                     borderColor: '#10B981',
-                    borderWidth: 2,
+                    borderWidth: 1,
                     borderDash: [5, 5],
                     pointRadius: 0,
                     fill: false,
@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 x: {
                     title: {
                         display: true,
-                        text: 'Quiz',
+                        text: 'Quiz Name',
                         color: '#000',
                         font: {
                             weight: 'bold'
