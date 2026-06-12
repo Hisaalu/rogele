@@ -55,7 +55,7 @@ require_once __DIR__ . '/../layouts/header.php';
                     </button> -->
                 </div>
                 <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></h2>
-                <p class="profile-role"><?php echo ucfirst($_SESSION['user_role'] ?? 'user'); ?></p>
+                <p class="profile-role"><?php echo ucfirst($_SESSION[''] ?? 'Student'); ?></p>
                 
                 <form method="POST" action="<?php echo BASE_URL; ?>/external/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
                     <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" style="display: none;" onchange="document.getElementById('photoUploadForm').submit()">

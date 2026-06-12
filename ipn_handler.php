@@ -1,30 +1,24 @@
 <?php
-// File: ipn_handler.php - Enhanced with better logging
-
-// Force logging to a specific location
+// File: ipn_handler.php 
 error_reporting(E_ALL);
-ini_set('display_errors', 1);  // Temporarily enable to see errors
+ini_set('display_errors', 1); 
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/logs/php_errors.log');
 
-// Log function with direct file writing
 function ipn_log($message) {
     $logDir = __DIR__ . '/logs';
     if (!file_exists($logDir)) {
         mkdir($logDir, 0777, true);
     }
     $logFile = $logDir . '/ipn_handler.log';
-    // Use file_put_contents with LOCK_EX to ensure writing
     file_put_contents($logFile, date('Y-m-d H:i:s') . ' - ' . $message . "\n", FILE_APPEND | LOCK_EX);
 }
 
-// Log startup
 ipn_log("=========================================");
 ipn_log("IPN Handler Started");
 ipn_log("GET: " . json_encode($_GET));
 ipn_log("POST: " . json_encode($_POST));
 
-// If view_logs is requested, show the log
 if (isset($_GET['view_logs'])) {
     $logFile = __DIR__ . '/logs/ipn_handler.log';
     if (file_exists($logFile)) {
@@ -36,19 +30,16 @@ if (isset($_GET['view_logs'])) {
     exit;
 }
 
-// If test mode, just return ok
 if (isset($_GET['test'])) {
     echo "IPN Handler is working";
     exit;
 }
 
-// Include required files
 ipn_log("Loading required files...");
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/pesapal.php';
 require_once __DIR__ . '/lib/Pesapal.php';
 
-// Get parameters
 $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
 $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
 
@@ -62,7 +53,6 @@ if (!$orderTrackingId || !$orderMerchantReference) {
     exit;
 }
 
-// Verify payment with PesaPal
 ipn_log("Verifying payment with PesaPal API...");
 
 try {
@@ -76,7 +66,6 @@ try {
     exit;
 }
 
-// Check if payment is completed
 $isCompleted = false;
 if ($paymentStatus['success'] && isset($paymentStatus['status'])) {
     $status = strtoupper($paymentStatus['status']);
@@ -93,7 +82,6 @@ if (!$isCompleted) {
 
 ipn_log("Payment is COMPLETED! Processing subscription...");
 
-// Connect to database
 try {
     $db = Database::getInstance();
     $pdo = $db->getConnection();
@@ -105,7 +93,6 @@ try {
     exit;
 }
 
-// Get payment record
 try {
     $stmt = $pdo->prepare("SELECT * FROM payments WHERE transaction_id = ?");
     $stmt->execute([$orderMerchantReference]);
@@ -126,18 +113,15 @@ try {
         exit;
     }
     
-    // Update payment
     $updateStmt = $pdo->prepare("UPDATE payments SET status = 'completed', payment_date = NOW() WHERE transaction_id = ?");
     $updateStmt->execute([$orderMerchantReference]);
     ipn_log("Payment status updated to completed");
     
-    // Get plan details
     $planType = $payment['plan_type'] ?? 'monthly';
     $planDays = $planType === 'monthly' ? 30 : ($planType === 'termly' ? 90 : 365);
     $endDate = date('Y-m-d H:i:s', strtotime("+{$planDays} days"));
     ipn_log("Plan: $planType, End date: $endDate");
     
-    // Check for existing subscription
     $subStmt = $pdo->prepare("SELECT id FROM subscriptions WHERE user_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1");
     $subStmt->execute([$payment['user_id']]);
     $existingSub = $subStmt->fetch(PDO::FETCH_ASSOC);

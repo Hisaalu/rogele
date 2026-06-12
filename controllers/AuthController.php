@@ -1,352 +1,81 @@
 <?php
-// File: /controllers/AuthController.php
+// File: /controllers/AuthController.php - Optimized Auth Controller
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Classes.php';
 require_once __DIR__ . '/../helpers/MailHelper.php';
 
 class AuthController {
     private $userModel;
     private $mailHelper;
+    private $classModel;
     
     public function __construct() {
         $this->userModel = new User();
         $this->mailHelper = new MailHelper();
-        $this->classes = new Classes();
+        $this->classModel = new Classes();
     }
     
-    public function login() {
-        if (isset($_SESSION['user_id'])) {
-            $this->redirectToDashboard();
-            return;
-        }
-        
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = trim($_POST['username'] ?? '');
-            $password = $_POST['password'] ?? '';
-            
-            if (empty($username) || empty($password)) {
-                $_SESSION['error'] = 'Please enter both username and password';
-                header('Location: ' . BASE_URL . '/login');
-                exit;
-            }
-            
-            $result = $this->userModel->login($username, $password);
-            if (!$result['success']) {
-                error_log("Error message: " . ($result['error'] ?? 'Unknown error'));
-            }
-            
-            if ($result['success']) {
-                $_SESSION['user_id'] = $result['user']['id'];
-                $_SESSION['user_role'] = $result['user']['role'];
-                $_SESSION['user_name'] = $result['user']['first_name'] . ' ' . $result['user']['last_name'];
-                $_SESSION['user_email'] = $result['user']['email'];
-                
-                
-                if (isset($result['user']['force_password_change']) && $result['user']['force_password_change']) {
-                    $_SESSION['force_password_change'] = true;
-                }
-                
-                $this->redirectToDashboard();
-                exit;
-            } else {
-                $_SESSION['error'] = $result['error'] ?? 'Login failed. Please try again.';
-                header('Location: ' . BASE_URL . '/login');
-                exit;
-            }
-        }
-        
-        require_once __DIR__ . '/../views/auth/login.php';
-    }
-    
-    /**
-     * Process registration
-     */
-    public function register() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            if (isset($this->classModel)) {
-                $classes = $this->classModel->getAllClasses();
-            } else {
-                $classes = [];
-            }
-            require_once __DIR__ . '/../views/auth/register.php';
-            return;
-        }
-        
-        $firstName = trim($_POST['first_name'] ?? '');
-        $lastName = trim($_POST['last_name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $phone = trim($_POST['phone'] ?? '');
-        $classId = trim($_POST['class_id'] ?? '');
-        $password = $_POST['password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
-        
-        if (empty($firstName) || empty($lastName) || empty($email) || empty($phone) || empty($classId) || empty($password)) {
-            $_SESSION['error'] = 'Please fill in all fields';
-            header('Location: ' . BASE_URL . '/register');
-            exit;
-        }
-        
-        if ($password !== $confirmPassword) {
-            $_SESSION['error'] = 'Passwords do not match';
-            header('Location: ' . BASE_URL . '/register');
-            exit;
-        }
-        
-        if (strlen($password) < 8) {
-            $_SESSION['error'] = 'Password must be at least 8 characters';
-            header('Location: ' . BASE_URL . '/register');
-            exit;
-        }
-        
-        $userData = [
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'email' => $email,
-            'phone' => $phone,
-            'class_id' => $classId,
-            'password' => $password,
-            'role' => 'external'
-        ];
-        
-        $result = $this->userModel->register($userData);
-        
-        if ($result['success']) {
-            $_SESSION['user_id'] = $result['user']['id'];
-            $_SESSION['user_role'] = $result['user']['role'];
-            $_SESSION['user_name'] = $result['user']['first_name'] . ' ' . $result['user']['last_name'];
-            $_SESSION['user_email'] = $result['user']['email'];
-            
-            error_log("User auto-logged in after registration: " . $email);
-            
-            $this->redirectToDashboard();
-            exit;
-        } else {
-            $_SESSION['error'] = $result['error'] ?? 'Registration failed. Please try again.';
-            header('Location: ' . BASE_URL . '/register');
-            exit;
-        }
-    }
-    
-    /**
-     * Process logout
-     */
-    public function logout() {
-        session_destroy();
-        header('Location: ' . BASE_URL . '/login');
+    // ==================== HELPER METHODS ====================
+    private function redirect($url) {
+        header('Location: ' . $url);
         exit;
     }
     
-    /**
-     * Change password (for users forced to change on next login)
-     */
-    public function changePassword() {
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/login');
-            exit;
-        }
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $oldPassword = $_POST['old_password'] ?? '';
-            $newPassword = $_POST['new_password'] ?? '';
-            $confirmPassword = $_POST['confirm_password'] ?? '';
-            
-            if ($newPassword !== $confirmPassword) {
-                $_SESSION['error'] = 'New passwords do not match';
-            } else {
-                $result = $this->userModel->changePassword($_SESSION['user_id'], $oldPassword, $newPassword);
-                
-                if ($result['success']) {
-                    unset($_SESSION['force_password_change']);
-                    $_SESSION['success'] = 'Password changed successfully';
-                    header('Location: ' . BASE_URL . '/dashboard');
-                    exit;
-                } else {
-                    $_SESSION['error'] = $result['error'];
-                }
-            }
-        }
-        
-        require_once __DIR__ . '/../views/auth/change_password.php';
+    private function redirectWithError($message, $url) {
+        $_SESSION['error'] = $message;
+        $this->redirect($url);
     }
     
-    /**
-     * Redirect to dashboard based on user role
-     */
+    private function redirectWithSuccess($message, $url) {
+        $_SESSION['success'] = $message;
+        $this->redirect($url);
+    }
+    
+    private function isPostRequest() {
+        return $_SERVER['REQUEST_METHOD'] === 'POST';
+    }
+    
+    private function validateRequiredFields($data, $fields) {
+        $errors = [];
+        foreach ($fields as $field) {
+            if (empty($data[$field])) {
+                $errors[] = ucfirst(str_replace('_', ' ', $field)) . ' is required';
+            }
+        }
+        return $errors;
+    }
+    
+    private function validatePassword($password, $confirmPassword) {
+        if ($password !== $confirmPassword) {
+            return 'Passwords do not match';
+        }
+        if (strlen($password) < 8) {
+            return 'Password must be at least 8 characters';
+        }
+        return null;
+    }
+    
     private function redirectToDashboard() {
-        switch ($_SESSION['user_role']) {
-            case 'admin':
-                header('Location: ' . BASE_URL . '/admin/dashboard');
-                break;
-            case 'teacher':
-                header('Location: ' . BASE_URL . '/teacher/dashboard');
-                break;
-            case 'learner':
-                header('Location: ' . BASE_URL . '/learner/dashboard');
-                break;
-            case 'external':
-                header('Location: ' . BASE_URL . '/external/dashboard');
-                break;
-            default:
-                header('Location: ' . BASE_URL . '/login');
-        }
-        exit;
+        $urls = [
+            'admin' => BASE_URL . '/admin/dashboard',
+            'teacher' => BASE_URL . '/teacher/dashboard',
+            'learner' => BASE_URL . '/learner/dashboard',
+            'external' => BASE_URL . '/external/dashboard'
+        ];
+        $this->redirect($urls[$_SESSION['user_role']] ?? BASE_URL . '/login');
     }
-
-    /**
-     * Show forgot password form
-     */
-    public function forgotPassword() {
-        $hideFooter = true;
-        require_once __DIR__ . '/../views/auth/forgot-password.php';
-    }
-
-    /**
-     * Process forgot password request (updated)
-     */
-    public function processForgotPassword() {
-        $hideFooter = true;
+    
+    private function setUserSession($user) {
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_role'] = $user['role'];
+        $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
+        $_SESSION['user_email'] = $user['email'];
         
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/forgot-password');
-            exit;
-        }
-        
-        $email = $_POST['email'] ?? '';
-        
-        if (empty($email)) {
-            $_SESSION['error'] = 'Please enter your email address';
-            header('Location: ' . BASE_URL . '/forgot-password');
-            exit;
-        }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = 'Please enter a valid email address';
-            header('Location: ' . BASE_URL . '/forgot-password');
-            exit;
-        }
-        
-        $user = $this->userModel->getByEmail($email);
-        
-        if ($user) {
-            $token = bin2hex(random_bytes(32));
-            $expires = date('Y-m-d H:i:s', strtotime('+20 minutes'));
-            
-            $saved = $this->userModel->saveResetToken($user['id'], $token, $expires);
-            
-            if ($saved) {
-                $resetLink = BASE_URL . "/reset-password?token=" . $token;
-                
-                $sent = $this->mailHelper->sendResetEmail($email, $user['first_name'], $resetLink);
-                
-                if ($sent) {
-                    $_SESSION['success'] = 'Password reset link sent to email.';
-                } else {
-                    $_SESSION['debug_reset_link'] = $resetLink;
-                    $_SESSION['info'] = 'Email could not be sent. Please use the debug link below to reset your password.';
-                }
-            } else {
-                $_SESSION['error'] = 'Failed to process request. Please try again.';
-            }
-        } else {
-            $_SESSION['error'] = 'We couldn\'t find a user with the provided email address!';
-        }
-        
-        header('Location: ' . BASE_URL . '/forgot-password');
-        exit;
-    }
-
-    /**
-     * Process reset password
-     */
-    public function processResetPassword() {
-        $hideFooter = true;
-        
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/login');
-            exit;
-        }
-        
-        $token = $_POST['token'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
-        
-        
-        if (empty($token) || empty($password) || empty($confirmPassword)) {
-            $_SESSION['error'] = 'All fields are required';
-            header('Location: ' . BASE_URL . '/reset-password?token=' . urlencode($token));
-            exit;
-        }
-        
-        if ($password !== $confirmPassword) {
-            $_SESSION['error'] = 'Passwords do not match';
-            header('Location: ' . BASE_URL . '/reset-password?token=' . urlencode($token));
-            exit;
-        }
-        
-        if (strlen($password) < 8) {
-            $_SESSION['error'] = 'Password must be at least 8 characters long';
-            header('Location: ' . BASE_URL . '/reset-password?token=' . urlencode($token));
-            exit;
-        }
-        
-        $user = $this->userModel->getUserByResetToken($token);
-        
-        if (!$user) {
-            $_SESSION['error'] = 'Invalid or expired reset link. Please request a new one.';
-            header('Location: ' . BASE_URL . '/forgot-password');
-            exit;
-        }
-        
-        $result = $this->userModel->updatePassword($user['id'], $password);
-        
-        if ($result['success']) {
-            $this->userModel->clearResetToken($user['id']);
-            
-            $_SESSION['success'] = 'Your password has been reset successfully!';
-            header('Location: ' . BASE_URL . '/login');
-            exit;
-        } else {
-            $_SESSION['error'] = 'Failed to reset password. Please try again.';
-            header('Location: ' . BASE_URL . '/reset-password?token=' . urlencode($token));
-            exit;
+        if (isset($user['force_password_change']) && $user['force_password_change']) {
+            $_SESSION['force_password_change'] = true;
         }
     }
-
-    /**
-     * Send reset email (updated with actual email sending)
-     */
-    private function sendResetEmail($email, $token, $name) {
-        $resetLink = BASE_URL . "/reset-password?token=" . $token;
-        
-        $subject = "Password Reset Request - Rays of Grace";
-        
-        $message = $this->getResetEmailTemplate($name, $resetLink);
-        
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "From: Rays of Grace <noreply@raysofgrace.ac.ug>" . "\r\n";
-        $headers .= "Reply-To: info@raysofgrace.ac.ug" . "\r\n";
-        
-        $mailSent = mail($email, $subject, $message, $headers);
-        
-        if ($mailSent) {
-            error_log("Email sent successfully to: " . $email);
-        } else {
-            error_log("Failed to send email to: " . $email);
-            $_SESSION['debug_reset_link'] = $resetLink;
-        }
-        
-        return $mailSent;
-    }
-
-    /**
-     * Get reset email template
-     */
+    
     private function getResetEmailTemplate($name, $resetLink) {
         return '
         <!DOCTYPE html>
@@ -491,10 +220,176 @@ class AuthController {
         </html>
         ';
     }
-
-    /**
-     * Show reset password form
-     */
+    
+    // ==================== PUBLIC METHODS ====================
+    public function login() {
+        if (isset($_SESSION['user_id'])) {
+            $this->redirectToDashboard();
+            return;
+        }
+        
+        $hideFooter = true;
+        
+        if ($this->isPostRequest()) {
+            $username = trim($_POST['username'] ?? '');
+            $password = $_POST['password'] ?? '';
+            
+            if (empty($username) || empty($password)) {
+                $this->redirectWithError('Please enter both username and password', BASE_URL . '/login');
+            }
+            
+            $result = $this->userModel->login($username, $password);
+            
+            if (!$result['success']) {
+                error_log("Error message: " . ($result['error'] ?? 'Unknown error'));
+            }
+            
+            if ($result['success']) {
+                $this->setUserSession($result['user']);
+                $this->redirectToDashboard();
+            } else {
+                $this->redirectWithError($result['error'] ?? 'Login failed. Please try again.', BASE_URL . '/login');
+            }
+        }
+        
+        require_once __DIR__ . '/../views/auth/login.php';
+    }
+    
+    public function register() {
+        $hideFooter = true;
+        
+        if (!$this->isPostRequest()) {
+            $classes = $this->classModel->getAllClasses();
+            require_once __DIR__ . '/../views/auth/register.php';
+            return;
+        }
+        
+        $data = [
+            'first_name' => trim($_POST['first_name'] ?? ''),
+            'last_name' => trim($_POST['last_name'] ?? ''),
+            'email' => trim($_POST['email'] ?? ''),
+            'phone' => trim($_POST['phone'] ?? ''),
+            'class_id' => trim($_POST['class_id'] ?? ''),
+            'password' => $_POST['password'] ?? '',
+            'confirm_password' => $_POST['confirm_password'] ?? ''
+        ];
+        
+        $errors = $this->validateRequiredFields($data, ['first_name', 'last_name', 'email', 'phone', 'class_id', 'password']);
+        
+        if (empty($errors)) {
+            $passwordError = $this->validatePassword($data['password'], $data['confirm_password']);
+            if ($passwordError) {
+                $errors[] = $passwordError;
+            }
+        }
+        
+        if (!empty($errors)) {
+            $this->redirectWithError(implode(', ', $errors), BASE_URL . '/register');
+        }
+        
+        $userData = [
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'class_id' => $data['class_id'],
+            'password' => $data['password'],
+            'role' => 'external'
+        ];
+        
+        $result = $this->userModel->register($userData);
+        
+        if ($result['success']) {
+            $this->setUserSession($result['user']);
+            error_log("User auto-logged in after registration: " . $data['email']);
+            $this->redirectToDashboard();
+        } else {
+            $this->redirectWithError($result['error'] ?? 'Registration failed. Please try again.', BASE_URL . '/register');
+        }
+    }
+    
+    public function logout() {
+        session_destroy();
+        $this->redirect(BASE_URL . '/login');
+    }
+    
+    public function changePassword() {
+        if (!isset($_SESSION['user_id'])) {
+            $this->redirect(BASE_URL . '/login');
+        }
+        
+        if ($this->isPostRequest()) {
+            $oldPassword = $_POST['old_password'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+            
+            if ($newPassword !== $confirmPassword) {
+                $_SESSION['error'] = 'New passwords do not match';
+            } else {
+                $result = $this->userModel->changePassword($_SESSION['user_id'], $oldPassword, $newPassword);
+                
+                if ($result['success']) {
+                    unset($_SESSION['force_password_change']);
+                    $this->redirectWithSuccess('Password changed successfully', BASE_URL . '/dashboard');
+                } else {
+                    $_SESSION['error'] = $result['error'];
+                }
+            }
+        }
+        
+        require_once __DIR__ . '/../views/auth/change_password.php';
+    }
+    
+    public function forgotPassword() {
+        $hideFooter = true;
+        require_once __DIR__ . '/../views/auth/forgot-password.php';
+    }
+    
+    public function processForgotPassword() {
+        $hideFooter = true;
+        
+        if (!$this->isPostRequest()) {
+            $this->redirect(BASE_URL . '/forgot-password');
+        }
+        
+        $email = $_POST['email'] ?? '';
+        
+        if (empty($email)) {
+            $this->redirectWithError('Please enter your email address', BASE_URL . '/forgot-password');
+        }
+        
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->redirectWithError('Please enter a valid email address', BASE_URL . '/forgot-password');
+        }
+        
+        $user = $this->userModel->getByEmail($email);
+        
+        if ($user) {
+            $token = bin2hex(random_bytes(32));
+            $expires = date('Y-m-d H:i:s', strtotime('+20 minutes'));
+            
+            $saved = $this->userModel->saveResetToken($user['id'], $token, $expires);
+            
+            if ($saved) {
+                $resetLink = BASE_URL . "/reset-password?token=" . $token;
+                $sent = $this->mailHelper->sendResetEmail($email, $user['first_name'], $resetLink);
+                
+                if ($sent) {
+                    $_SESSION['success'] = 'Password reset link sent to email.';
+                } else {
+                    $_SESSION['debug_reset_link'] = $resetLink;
+                    $_SESSION['info'] = 'Email could not be sent. Please use the debug link below to reset your password.';
+                }
+            } else {
+                $_SESSION['error'] = 'Failed to process request. Please try again.';
+            }
+        } else {
+            $_SESSION['error'] = 'We couldn\'t find a user with the provided email address!';
+        }
+        
+        $this->redirect(BASE_URL . '/forgot-password');
+    }
+    
     public function resetPassword($token = null) {
         $hideFooter = true;
         
@@ -512,21 +407,54 @@ class AuthController {
         }
         
         if (empty($resetToken)) {
-            $_SESSION['error'] = 'Invalid reset link';
-            header('Location: ' . BASE_URL . '/login');
-            exit;
+            $this->redirectWithError('Invalid reset link', BASE_URL . '/login');
         }
         
         $user = $this->userModel->getUserByResetToken($resetToken);
         
         if (!$user) {
-            $_SESSION['error'] = 'Invalid or expired reset link. Please request a new one.';
-            header('Location: ' . BASE_URL . '/forgot-password');
-            exit;
+            $this->redirectWithError('Invalid or expired reset link. Please request a new one.', BASE_URL . '/forgot-password');
         }
         
         $token = $resetToken;
         require_once __DIR__ . '/../views/auth/reset-password.php';
+    }
+    
+    public function processResetPassword() {
+        $hideFooter = true;
+        
+        if (!$this->isPostRequest()) {
+            $this->redirect(BASE_URL . '/login');
+        }
+        
+        $token = $_POST['token'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        
+        if (empty($token) || empty($password) || empty($confirmPassword)) {
+            $_SESSION['error'] = 'All fields are required';
+            $this->redirect(BASE_URL . '/reset-password?token=' . urlencode($token));
+        }
+        
+        $passwordError = $this->validatePassword($password, $confirmPassword);
+        if ($passwordError) {
+            $this->redirectWithError($passwordError, BASE_URL . '/reset-password?token=' . urlencode($token));
+        }
+        
+        $user = $this->userModel->getUserByResetToken($token);
+        
+        if (!$user) {
+            $this->redirectWithError('Invalid or expired reset link. Please request a new one.', BASE_URL . '/forgot-password');
+        }
+        
+        $result = $this->userModel->updatePassword($user['id'], $password);
+        
+        if ($result['success']) {
+            $this->userModel->clearResetToken($user['id']);
+            $this->redirectWithSuccess('Your password has been reset successfully!', BASE_URL . '/login');
+        } else {
+            $this->redirectWithError('Failed to reset password. Please try again.', BASE_URL . '/reset-password?token=' . urlencode($token));
+        }
     }
 }
 ?>

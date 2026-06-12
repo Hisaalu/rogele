@@ -14,7 +14,7 @@ $pageTitle = 'Forgot Password | ROGELE';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
     <style>
         * {

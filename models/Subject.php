@@ -11,9 +11,6 @@ class Subject {
         $this->conn = $this->db->getConnection();
     }
     
-    /**
-     * Get all subjects
-     */
     public function getAll() {
         try {
             $query = "SELECT s.*, c.name as class_name 
@@ -29,9 +26,6 @@ class Subject {
         }
     }
     
-    /**
-     * Get subjects by class
-     */
     public function getByClass($classId) {
         try {
             $query = "SELECT * FROM subjects 
@@ -45,9 +39,6 @@ class Subject {
         }
     }
 
-    /**
-     * Get subjects by class ID
-     */
     public function getByClassId($classId) {
         try {
             $query = "SELECT * FROM subjects 
@@ -61,6 +52,23 @@ class Subject {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    public function getByTeacher($teacherId) {
+        try {
+            $query = "SELECT s.*, c.name as class_name 
+                    FROM subjects s
+                    LEFT JOIN classes c ON s.class_id = c.id
+                    WHERE s.teacher_id = :teacher_id 
+                    AND s.is_active = 1
+                    ORDER BY c.name, s.name";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':teacher_id' => $teacherId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Get subjects by teacher error: " . $e->getMessage());
             return [];
         }
     }

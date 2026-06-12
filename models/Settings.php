@@ -1,57 +1,119 @@
 <?php
-// File: /models/Settings.php
+// File: /models/Settings.php - Optimized Settings Model
 require_once __DIR__ . '/../config/database.php';
 
 class Settings {
     private $db;
     private $conn;
+    private $settingsCache = null;
+    private $groupCache = [];
+
+    const DEFAULTS = [
+        'site_name' => 'Rays of Grace E-Learning',
+        'site_description' => 'Quality education for every child, anywhere, anytime.',
+        'contact_email' => 'info@raysofgrace.ac.ug',
+        'monthly_price' => 15000,
+        'termly_price' => 40000,
+        'yearly_price' => 120000,
+        'trial_days' => 60,
+        'smtp_host' => 'smtp.gmail.com',
+        'smtp_port' => 587,
+        'smtp_username' => 'noreply@raysofgrace.ac.ug',
+        'smtp_password' => '',
+        'from_email' => 'noreply@raysofgrace.ac.ug',
+        'enable_2fa' => true,
+        'session_timeout' => 60,
+        'strong_passwords' => true,
+        'theme_color' => '#8B5CF6',
+        'accent_color' => '#F97316',
+        'dark_mode' => true
+    ];
+    
+    private $defaultSettingsList = [
+        ['site_name', 'Rays of Grace E-Learning'],
+        ['site_description', 'Quality education for every child, anywhere, anytime.'],
+        ['contact_email', 'info@raysofgrace.ac.ug'],
+        ['monthly_price', '15000'],
+        ['termly_price', '40000'],
+        ['yearly_price', '120000'],
+        ['trial_days', '60'],
+        ['smtp_host', 'smtp.gmail.com'],
+        ['smtp_port', '587'],
+        ['smtp_username', 'noreply@raysofgrace.ac.ug'],
+        ['smtp_password', ''],
+        ['from_email', 'noreply@raysofgrace.ac.ug'],
+        ['enable_2fa', '1'],
+        ['session_timeout', '60'],
+        ['strong_passwords', '1'],
+        ['theme_color', '#8B5CF6'],
+        ['accent_color', '#F97316'],
+        ['dark_mode', '1']
+    ];
     
     public function __construct() {
         $this->db = Database::getInstance();
         $this->conn = $this->db->getConnection();
     }
     
-    /**
-     * Get all settings
-     */
-    public function getAllSettings() {
+    // ==================== HELPER METHODS ====================
+    private function loadAllSettings() {
+        if ($this->settingsCache !== null) {
+            return $this->settingsCache;
+        }
+        
         try {
-            $query = "SELECT * FROM settings ORDER BY setting_key";
+            $query = "SELECT setting_key, setting_value FROM settings ORDER BY setting_key";
             $stmt = $this->conn->prepare($query);
             $stmt->execute();
             
-            $settings = [];
+            $this->settingsCache = [];
             $results = $stmt->fetchAll();
             
             foreach ($results as $row) {
-                $settings[$row['setting_key']] = $row['setting_value'];
+                $this->settingsCache[$row['setting_key']] = $row['setting_value'];
             }
             
-            return $settings;
+            return $this->settingsCache;
         } catch (PDOException $e) {
             return [];
         }
     }
     
-    /**
-     * Get a specific setting
-     */
-    public function getSetting($key) {
-        try {
-            $query = "SELECT setting_value FROM settings WHERE setting_key = :key";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':key' => $key]);
-            $result = $stmt->fetch();
-            
-            return $result ? $result['setting_value'] : null;
-        } catch (PDOException $e) {
-            return null;
-        }
+    private function invalidateCache() {
+        $this->settingsCache = null;
+        $this->groupCache = [];
     }
     
-    /**
-     * Update or insert a setting
-     */
+    private function getWithDefault($key, $default) {
+        $settings = $this->loadAllSettings();
+        $value = $settings[$key] ?? $default;
+        
+        if (in_array($key, ['enable_2fa', 'strong_passwords', 'dark_mode'])) {
+            return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        }
+        
+        if (in_array($key, ['monthly_price', 'termly_price', 'yearly_price', 'trial_days', 'session_timeout', 'smtp_port'])) {
+            return (int)$value;
+        }
+        
+        return $value;
+    }
+    
+    // ==================== PUBLIC METHODS ====================
+    public function getAllSettings() {
+        return $this->loadAllSettings();
+    }
+    
+    public function getSetting($key) {
+        $settings = $this->loadAllSettings();
+        return $settings[$key] ?? null;
+    }
+    
+    public function get($key, $default = null) {
+        $settings = $this->loadAllSettings();
+        return $settings[$key] ?? $default;
+    }
+    
     public function setSetting($key, $value) {
         try {
             $checkQuery = "SELECT id FROM settings WHERE setting_key = :key";
@@ -65,18 +127,18 @@ class Settings {
             }
             
             $stmt = $this->conn->prepare($query);
-            return $stmt->execute([
-                ':key' => $key,
-                ':value' => $value
-            ]);
+            $result = $stmt->execute([':key' => $key, ':value' => $value]);
+            
+            if ($result) {
+                $this->invalidateCache();
+            }
+            
+            return $result;
         } catch (PDOException $e) {
             return false;
         }
     }
     
-    /**
-     * Update multiple settings at once
-     */
     public function updateSettings($settings) {
         try {
             $this->conn->beginTransaction();
@@ -86,6 +148,7 @@ class Settings {
             }
             
             $this->conn->commit();
+            $this->invalidateCache();
             return true;
         } catch (PDOException $e) {
             $this->conn->rollBack();
@@ -93,110 +156,64 @@ class Settings {
         }
     }
     
-    /**
-     * Get general settings
-     */
     public function getGeneralSettings() {
-        $settings = $this->getAllSettings();
         return [
-            'site_name' => $settings['site_name'] ?? 'Rays of Grace E-Learning',
-            'site_description' => $settings['site_description'] ?? 'Quality education for every child, anywhere, anytime.',
-            'contact_email' => $settings['contact_email'] ?? 'info@raysofgrace.com'
+            'site_name' => $this->getWithDefault('site_name', self::DEFAULTS['site_name']),
+            'site_description' => $this->getWithDefault('site_description', self::DEFAULTS['site_description']),
+            'contact_email' => $this->getWithDefault('contact_email', self::DEFAULTS['contact_email'])
         ];
     }
     
-    /**
-     * Get subscription settings
-     */
     public function getSubscriptionSettings() {
-        $settings = $this->getAllSettings();
         return [
-            'monthly_price' => $settings['monthly_price'] ?? 15000,
-            'termly_price' => $settings['termly_price'] ?? 40000,
-            'yearly_price' => $settings['yearly_price'] ?? 120000,
-            'trial_days' => $settings['trial_days'] ?? 60
+            'monthly_price' => $this->getWithDefault('monthly_price', self::DEFAULTS['monthly_price']),
+            'termly_price' => $this->getWithDefault('termly_price', self::DEFAULTS['termly_price']),
+            'yearly_price' => $this->getWithDefault('yearly_price', self::DEFAULTS['yearly_price']),
+            'trial_days' => $this->getWithDefault('trial_days', self::DEFAULTS['trial_days'])
         ];
     }
     
-    /**
-     * Get email settings
-     */
     public function getEmailSettings() {
-        $settings = $this->getAllSettings();
         return [
-            'smtp_host' => $settings['smtp_host'] ?? 'smtp.gmail.com',
-            'smtp_port' => $settings['smtp_port'] ?? 587,
-            'smtp_username' => $settings['smtp_username'] ?? 'noreply@raysofgrace.com',
-            'smtp_password' => $settings['smtp_password'] ?? '',
-            'from_email' => $settings['from_email'] ?? 'noreply@raysofgrace.com'
+            'smtp_host' => $this->getWithDefault('smtp_host', self::DEFAULTS['smtp_host']),
+            'smtp_port' => $this->getWithDefault('smtp_port', self::DEFAULTS['smtp_port']),
+            'smtp_username' => $this->getWithDefault('smtp_username', self::DEFAULTS['smtp_username']),
+            'smtp_password' => $this->getWithDefault('smtp_password', self::DEFAULTS['smtp_password']),
+            'from_email' => $this->getWithDefault('from_email', self::DEFAULTS['from_email'])
         ];
     }
     
-    /**
-     * Get security settings
-     */
     public function getSecuritySettings() {
-        $settings = $this->getAllSettings();
         return [
-            'enable_2fa' => $settings['enable_2fa'] ?? true,
-            'session_timeout' => $settings['session_timeout'] ?? 60,
-            'strong_passwords' => $settings['strong_passwords'] ?? true
+            'enable_2fa' => $this->getWithDefault('enable_2fa', self::DEFAULTS['enable_2fa']),
+            'session_timeout' => $this->getWithDefault('session_timeout', self::DEFAULTS['session_timeout']),
+            'strong_passwords' => $this->getWithDefault('strong_passwords', self::DEFAULTS['strong_passwords'])
         ];
     }
     
-    /**
-     * Get appearance settings
-     */
     public function getAppearanceSettings() {
-        $settings = $this->getAllSettings();
         return [
-            'theme_color' => $settings['theme_color'] ?? '#8B5CF6',
-            'accent_color' => $settings['accent_color'] ?? '#F97316',
-            'dark_mode' => $settings['dark_mode'] ?? true
+            'theme_color' => $this->getWithDefault('theme_color', self::DEFAULTS['theme_color']),
+            'accent_color' => $this->getWithDefault('accent_color', self::DEFAULTS['accent_color']),
+            'dark_mode' => $this->getWithDefault('dark_mode', self::DEFAULTS['dark_mode'])
         ];
     }
     
-    /**
-     * Reset to defaults
-     */
     public function resetToDefaults() {
         try {
             $this->conn->beginTransaction();
             
             $this->conn->exec("DELETE FROM settings");
             
-            $defaults = [
-                ['site_name', 'Rays of Grace E-Learning'],
-                ['site_description', 'Quality education for every child, anywhere, anytime.'],
-                ['contact_email', 'info@raysofgrace.com'],
-                ['monthly_price', '15000'],
-                ['termly_price', '40000'],
-                ['yearly_price', '120000'],
-                ['trial_days', '60'],
-                ['smtp_host', 'smtp.gmail.com'],
-                ['smtp_port', '587'],
-                ['smtp_username', 'noreply@raysofgrace.com'],
-                ['smtp_password', ''],
-                ['from_email', 'noreply@raysofgrace.com'],
-                ['enable_2fa', '1'],
-                ['session_timeout', '60'],
-                ['strong_passwords', '1'],
-                ['theme_color', '#8B5CF6'],
-                ['accent_color', '#F97316'],
-                ['dark_mode', '1']
-            ];
-            
             $insertQuery = "INSERT INTO settings (setting_key, setting_value, created_at, updated_at) VALUES (:key, :value, NOW(), NOW())";
             $stmt = $this->conn->prepare($insertQuery);
             
-            foreach ($defaults as $default) {
-                $stmt->execute([
-                    ':key' => $default[0],
-                    ':value' => $default[1]
-                ]);
+            foreach ($this->defaultSettingsList as $default) {
+                $stmt->execute([':key' => $default[0], ':value' => $default[1]]);
             }
             
             $this->conn->commit();
+            $this->invalidateCache();
             return true;
         } catch (PDOException $e) {
             $this->conn->rollBack();
@@ -204,49 +221,18 @@ class Settings {
         }
     }
     
-    /**
-     * Clear cache (you can implement your cache clearing logic here)
-     */
     public function clearCache() {
+        $this->invalidateCache();
         return true;
     }
-
-    /**
-     * Get a setting value by key
-     * 
-     * @param string $key The setting key
-     * @param mixed $default Default value if setting not found
-     * @return mixed The setting value
-     */
-    public function get($key, $default = null) {
-        try {
-            $sql = "SELECT setting_value FROM settings WHERE setting_key = :key";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':key', $key);
-            $stmt->execute();
-            
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($result) {
-                return $result['setting_value'];
-            }
-            
-            return $default;
-            
-        } catch (PDOException $e) {
-            return $default;
-        }
-    }
-
-     /**
-     * Get multiple settings by group
-     * 
-     * @param string $group The setting group
-     * @return array Array of settings
-     */
+    
     public function getSettingsByGroup($group) {
+        if (isset($this->groupCache[$group])) {
+            return $this->groupCache[$group];
+        }
+        
         try {
-            $sql = "SELECT * FROM settings WHERE setting_group = :group";
+            $sql = "SELECT setting_key, setting_value FROM settings WHERE setting_group = :group";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':group', $group);
             $stmt->execute();
@@ -258,8 +244,8 @@ class Settings {
                 $settings[$row['setting_key']] = $row['setting_value'];
             }
             
+            $this->groupCache[$group] = $settings;
             return $settings;
-            
         } catch (PDOException $e) {
             return [];
         }

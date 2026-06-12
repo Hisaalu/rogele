@@ -128,7 +128,7 @@ $search = $_GET['search'] ?? '';
                         <?php else: ?>
                             <div class="avatar-placeholder">
                                 <?php 
-                                $initial = strtoupper(substr($student['first_name'] ?? 'S', 0, 1));
+                                $initial = strtoupper(substr($student['first_name'] ?? 'S', 0, 2));
                                 echo $initial;
                                 ?>
                             </div>
@@ -157,7 +157,7 @@ $search = $_GET['search'] ?? '';
                                 </span>
                             <?php else: ?>
                                 <span class="role-badge external">
-                                    External Student
+                                    Student
                                 </span>
                             <?php endif; ?>
                         </div>
