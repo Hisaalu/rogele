@@ -1,10 +1,21 @@
-# syntax=docker/dockerfile:1
+FROM php:8.2-apache
 
-FROM composer:lts AS deps
-WORKDIR /app
-RUN --mount=type=bind,source=composer.json,target=composer.json \
-    --mount=type=cache,target=/tmp/cache \
-    composer install --no-dev --no-interaction
+RUN apt-get update && apt-get install -y \
+    libmariadb-dev \
+    libzip-dev \
+    unzip \
+    git \
+    curl \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+    mysqli \
+    pdo \
+    pdo_mysql \
+    zip \
+    gd
 
 FROM php:8.0.30-apache
 
