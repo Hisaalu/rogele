@@ -5,64 +5,102 @@ require_once __DIR__ . '/../config/database.php';
 class Classes {
     private $db;
     private $conn;
+    private $classCache = [];
+    private $allClassesCache = null;
+    private $activeClassesCache = null;
     
     public function __construct() {
         $this->db = Database::getInstance();
         $this->conn = $this->db->getConnection();
     }
     
-    /**
-     * Get all classes
-     */
-    public function getAll() {
+    // ==================== HELPER METHODS ====================
+    private function executeQuery($query, $params = [], $fetchAll = true) {
         try {
-            $query = "SELECT * FROM classes ORDER BY level";
             $stmt = $this->conn->prepare($query);
+            
+            foreach ($params as $key => $value) {
+                $type = is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
+                $stmt->bindValue($key, $value, $type);
+            }
+            
             $stmt->execute();
-            return $stmt->fetchAll();
+            return $fetchAll ? $stmt->fetchAll() : $stmt;
         } catch (PDOException $e) {
-            return [];
+            return $fetchAll ? [] : null;
         }
     }
     
-    /**
-     * Get class by ID
-     */
+    private function executeUpdate($query, $params, $successMessage, $errorMessage) {
+        try {
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute($params);
+            
+            if ($result) {
+                $this->invalidateCache();
+                return ['success' => true, 'message' => $successMessage];
+            }
+            return ['success' => false, 'error' => $errorMessage];
+        } catch (PDOException $e) {
+            return ['success' => false, 'error' => 'Database error'];
+        }
+    }
+    
+    private function invalidateCache() {
+        $this->classCache = [];
+        $this->allClassesCache = null;
+        $this->activeClassesCache = null;
+    }
+    
+    private function getCachedClass($id) {
+        if (isset($this->classCache[$id])) {
+            return $this->classCache[$id];
+        }
+        
+        $query = "SELECT * FROM classes WHERE id = :id";
+        $result = $this->executeQuery($query, [':id' => $id], false);
+        $this->classCache[$id] = $result ? $result->fetch() : null;
+        return $this->classCache[$id];
+    }
+    
+    private function getBaseQuery($activeOnly = false) {
+        $query = "SELECT * FROM classes";
+        if ($activeOnly) {
+            $query .= " WHERE is_active = 1";
+        }
+        $query .= " ORDER BY level";
+        return $query;
+    }
+    
+    // ==================== PUBLIC METHODS ====================
+    public function getAll() {
+        if ($this->allClassesCache !== null) {
+            return $this->allClassesCache;
+        }
+        
+        $query = $this->getBaseQuery(false);
+        $this->allClassesCache = $this->executeQuery($query);
+        return $this->allClassesCache;
+    }
+    
     public function getById($id) {
-        try {
-            $query = "SELECT * FROM classes WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $id]);
-            return $stmt->fetch();
-        } catch (PDOException $e) {
-            return null;
-        }
+        return $this->getCachedClass($id);
     }
     
-    /**
-     * Get classes by teacher
-     */
     public function getByTeacher($teacherId) {
-        try {
-            $query = "SELECT DISTINCT c.* FROM classes c 
-                      LEFT JOIN subjects s ON c.id = s.class_id 
-                      WHERE s.teacher_id = :teacher_id 
-                      ORDER BY c.level";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':teacher_id' => $teacherId]);
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            return [];
-        }
+        $query = "SELECT DISTINCT c.* FROM classes c 
+                  LEFT JOIN subjects s ON c.id = s.class_id 
+                  WHERE s.teacher_id = :teacher_id 
+                  ORDER BY c.level";
+        
+        return $this->executeQuery($query, [':teacher_id' => $teacherId]);
     }
     
-    /**
-     * Create class
-     */
     public function create($data) {
+        $query = "INSERT INTO classes (name, level, description, is_active, created_at) 
+                  VALUES (:name, :level, :description, :is_active, NOW())";
+        
         try {
-            $query = "INSERT INTO classes (name, level, description, is_active, created_at) 
-                      VALUES (:name, :level, :description, :is_active, NOW())";
             $stmt = $this->conn->prepare($query);
             $result = $stmt->execute([
                 ':name' => $data['name'],
@@ -72,6 +110,7 @@ class Classes {
             ]);
             
             if ($result) {
+                $this->invalidateCache();
                 return ['success' => true, 'id' => $this->conn->lastInsertId()];
             }
             return ['success' => false, 'error' => 'Failed to create class'];
@@ -80,39 +119,29 @@ class Classes {
         }
     }
     
-    /**
-     * Update class
-     */
     public function update($id, $data) {
-        try {
-            $query = "UPDATE classes SET 
-                      name = :name,
-                      level = :level,
-                      description = :description,
-                      is_active = :is_active,
-                      updated_at = NOW()
-                      WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([
+        $query = "UPDATE classes SET 
+                  name = :name,
+                  level = :level,
+                  description = :description,
+                  is_active = :is_active,
+                  updated_at = NOW()
+                  WHERE id = :id";
+        
+        return $this->executeUpdate(
+            $query,
+            [
                 ':name' => $data['name'],
                 ':level' => $data['level'],
                 ':description' => $data['description'] ?? null,
                 ':is_active' => $data['is_active'] ?? 1,
                 ':id' => $id
-            ]);
-            
-            if ($result) {
-                return ['success' => true, 'message' => 'Class updated successfully'];
-            }
-            return ['success' => false, 'error' => 'Failed to update class'];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error'];
-        }
+            ],
+            'Class updated successfully',
+            'Failed to update class'
+        );
     }
     
-    /**
-     * Delete class
-     */
     public function delete($id) {
         try {
             $checkQuery = "SELECT COUNT(*) as count FROM subjects WHERE class_id = :class_id";
@@ -129,6 +158,7 @@ class Classes {
             $result = $stmt->execute([':id' => $id]);
             
             if ($result) {
+                $this->invalidateCache();
                 return ['success' => true, 'message' => 'Class deleted successfully'];
             }
             return ['success' => false, 'error' => 'Failed to delete class'];
@@ -137,87 +167,52 @@ class Classes {
         }
     }
     
-    /**
-     * Get class by level
-     */
     public function getByLevel($level) {
-        try {
-            $query = "SELECT * FROM classes WHERE level = :level";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':level' => $level]);
-            return $stmt->fetch();
-        } catch (PDOException $e) {
-            return null;
-        }
+        $query = "SELECT * FROM classes WHERE level = :level";
+        $result = $this->executeQuery($query, [':level' => $level], false);
+        return $result ? $result->fetch() : null;
     }
     
-    /**
-     * Get active classes
-     */
     public function getActive() {
-        try {
-            $query = "SELECT * FROM classes WHERE is_active = 1 ORDER BY level";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute();
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            return [];
+        if ($this->activeClassesCache !== null) {
+            return $this->activeClassesCache;
         }
+        
+        $query = $this->getBaseQuery(true);
+        $this->activeClassesCache = $this->executeQuery($query);
+        return $this->activeClassesCache;
     }
-
-    /**
-     * Get classes taught by a teacher
-     */
+    
     public function getClassesByTeacher($teacherId) {
-        try {
-            $query = "SELECT DISTINCT c.*
-                    FROM classes c
-                    JOIN subjects s ON c.id = s.class_id
-                    WHERE s.teacher_id = :teacher_id
-                    AND c.is_active = 1
-                    ORDER BY c.level";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':teacher_id' => $teacherId]);
-            
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            return [];
-        }
+        $query = "SELECT DISTINCT c.*
+                  FROM classes c
+                  JOIN subjects s ON c.id = s.class_id
+                  WHERE s.teacher_id = :teacher_id
+                  AND c.is_active = 1
+                  ORDER BY c.level";
+        
+        return $this->executeQuery($query, [':teacher_id' => $teacherId]);
     }
-
-    /**
-     * Count classes taught by a teacher
-     */
+    
     public function countClassesByTeacher($teacherId) {
-        try {
-            $query = "SELECT COUNT(DISTINCT c.id) as total
-                    FROM classes c
-                    JOIN subjects s ON c.id = s.class_id
-                    WHERE s.teacher_id = :teacher_id
-                    AND c.is_active = 1";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':teacher_id' => $teacherId]);
-            $result = $stmt->fetch();
-            
-            return $result['total'] ?? 0;
-        } catch (PDOException $e) {
-            return 0;
-        }
+        $query = "SELECT COUNT(DISTINCT c.id) as total
+                  FROM classes c
+                  JOIN subjects s ON c.id = s.class_id
+                  WHERE s.teacher_id = :teacher_id
+                  AND c.is_active = 1";
+        
+        $result = $this->executeQuery($query, [':teacher_id' => $teacherId], false);
+        $data = $result ? $result->fetch() : null;
+        return $data['total'] ?? 0;
     }
-
-    /**
-     * Get ALL classes
-     */
+    
     public function getAllClasses() {
-        try {
-            $stmt = $this->conn->prepare("SELECT id, name FROM classes ORDER BY name");
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
+        if ($this->allClassesCache !== null) {
+            return $this->allClassesCache;
         }
+        
+        $this->getAll(); 
+        return $this->allClassesCache;
     }
 }
 ?>

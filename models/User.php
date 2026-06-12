@@ -1,151 +1,36 @@
 <?php
-// File: /models/User.php
+// File: /models/User.php 
 require_once __DIR__ . '/../config/database.php';
 
 class User {
     private $db;
     private $conn;
+    private $subscriptionModel = null;
+    private $userCache = [];
+    private $classNameCache = [];
     
     public function __construct() {
         $this->db = Database::getInstance();
         $this->conn = $this->db->getConnection();
     }
     
-    /**
-     * Generate registration number for learners
-     */
-    private function generateRegistrationNumber($class) {
-        $prefix = 'ROG';
-        $classMap = [
-            'p1' => 'P1', 'primary 1' => 'P1', '1' => 'P1',
-            'p2' => 'P2', 'primary 2' => 'P2', '2' => 'P2',
-            'p3' => 'P3', 'primary 3' => 'P3', '3' => 'P3',
-            'p4' => 'P4', 'primary 4' => 'P4', '4' => 'P4',
-            'p5' => 'P5', 'primary 5' => 'P5', '5' => 'P5',
-            'p6' => 'P6', 'primary 6' => 'P6', '6' => 'P6',
-            'p7' => 'P7', 'primary 7' => 'P7', '7' => 'P7',
-            'computer' => 'COMP', 'computer class' => 'COMP'
-        ];
-        
-        $classCode = $classMap[strtolower(trim($class))] ?? 'P1';
-        $unique = str_pad(mt_rand(1, 999), 3, '0', STR_PAD_LEFT);
-        
-        return $prefix . '-' . $classCode . '-' . $unique;
-    }
-
-    /**
-     * Registration of new users
-     */
-    public function register($data) {
-        try {
-            // Check if email already exists
-            $checkQuery = "SELECT id FROM users WHERE email = :email";
-            $checkStmt = $this->conn->prepare($checkQuery);
-            $checkStmt->execute([':email' => $data['email']]);
-            
-            if ($checkStmt->fetch()) {
-                return ['success' => false, 'error' => 'Email already registered'];
-            }
-            
-            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
-            
-            $registrationNumber = null;
-            if (isset($data['role']) && $data['role'] === 'learner') {
-                $registrationNumber = $this->generateRegistrationNumber($data['class_id'] ?? 'P1');
-            }
-            
-            $query = "INSERT INTO users (
-                registration_number, email, password, first_name, last_name, 
-                phone, role, class_id, email_verified, is_active, created_at
-            ) VALUES (
-                :registration_number, :email, :password, :first_name, :last_name,
-                :phone, :role, :class_id, 1, 1, NOW()
-            )";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                ':registration_number' => $registrationNumber,
-                ':email' => $data['email'],
-                ':password' => $hashedPassword,
-                ':first_name' => $data['first_name'],
-                ':last_name' => $data['last_name'],
-                ':phone' => $data['phone'],
-                ':role' => $data['role'] ?? 'learner',
-                ':class_id' => $data['class_id'] ?? null
-            ]);
-            
-            $userId = $this->conn->lastInsertId();
-            
-            $this->logActivity($userId, 'REGISTRATION', 'User registered successfully');
-            
-            $userData = $this->getById($userId);
-            unset($userData['password']);
-            
-            return [
-                'success' => true, 
-                'user_id' => $userId, 
-                'user' => $userData,
-                'message' => 'Registration successful!'
-            ];
-            
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Registration failed. Please try again.'];
+    // ==================== HELPER METHODS ====================
+    private function getSubscriptionModel() {
+        if ($this->subscriptionModel === null) {
+            require_once __DIR__ . '/Subscription.php';
+            $this->subscriptionModel = new Subscription();
         }
+        return $this->subscriptionModel;
     }
     
-    /**
-     * Login user
-     */
-    public function login($username, $password) {
-        try {
-            
-            $query = "SELECT u.*, c.name as class_name 
-                    FROM users u 
-                    LEFT JOIN classes c ON u.class_id = c.id 
-                    WHERE u.email = :email OR u.registration_number = :reg_no";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindValue(':email', $username);
-            $stmt->bindValue(':reg_no', $username);
-            $stmt->execute();
-            
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$user) {
-                return ['success' => false, 'error' => 'Invalid email or password'];
-            }
-            
-            if (!password_verify($password, $user['password'])) {
-                return ['success' => false, 'error' => 'Invalid email or password'];
-            }
-            
-            if (!$user['is_active']) {
-                return ['success' => false, 'error' => 'Your account is not active. Please contact support.'];
-            }
-            
-            if ($user['is_suspended']) {
-                return ['success' => false, 'error' => 'Invalid input. Please contact support.'];
-            }
-            
-            $updateQuery = "UPDATE users SET last_login = NOW() WHERE id = :id";
-            $updateStmt = $this->conn->prepare($updateQuery);
-            $updateStmt->execute([':id' => $user['id']]);
-            
-            $this->logActivity($user['id'], 'LOGIN', 'User logged in successfully');
-            
-            unset($user['password']);
-            
-            return ['success' => true, 'user' => $user];
-            
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
+    private function getCachedUser($id, $forceRefresh = false) {
+        if ($forceRefresh || !isset($this->userCache[$id])) {
+            $this->userCache[$id] = $this->getByIdFromDB($id);
         }
+        return $this->userCache[$id];
     }
     
-    /**
-     * Get user by ID
-     */
-    public function getById($id) {
+    private function getByIdFromDB($id) {
         try {
             $query = "SELECT u.*, c.name as class_name 
                     FROM users u 
@@ -159,634 +44,32 @@ class User {
         }
     }
     
-    /**
-     * Get user by email
-     */
-    public function getByEmail($email) {
-        try {
-            $query = "SELECT * FROM users WHERE email = :email";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':email' => $email]);
-            return $stmt->fetch();
-        } catch (PDOException $e) {
-            return null;
+    private function isEmailTaken($email, $excludeUserId = null) {
+        $query = "SELECT id FROM users WHERE email = :email";
+        $params = [':email' => $email];
+        
+        if ($excludeUserId) {
+            $query .= " AND id != :id";
+            $params[':id'] = $excludeUserId;
         }
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetch() !== false;
     }
     
-    /**
-     * Get user profile with all details
-     */
-    public function getProfile($userId) {
+    private function deleteRelatedRecords($userId, $table) {
         try {
-            $query = "SELECT u.*, 
-                    ft.start_date as trial_start, 
-                    ft.end_date as trial_end,
-                    s.plan_type, s.status as subscription_status, 
-                    s.end_date as subscription_end
-                    FROM users u
-                    LEFT JOIN free_trials ft ON u.id = ft.user_id
-                    LEFT JOIN subscriptions s ON u.id = s.user_id AND s.status = 'active'
-                    WHERE u.id = :id";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $userId]);
-            
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($user) {
-                unset($user['password']);
-            }
-            
-            return $user;
-        } catch (PDOException $e) {
-            return null;
-        }
-    }
-    
-    /**
-     * Update user profile with class selection
-     */
-    public function updateProfile($userId, $data) {
-        try {
-            $currentUser = $this->getById($userId);
-            if ($currentUser && $currentUser['email'] !== $data['email']) {
-                $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
-                $checkStmt = $this->conn->prepare($checkQuery);
-                $checkStmt->execute([
-                    ':email' => $data['email'],
-                    ':id' => $userId
-                ]);
-                if ($checkStmt->fetch()) {
-                    return ['success' => false, 'error' => 'Email already taken by another user'];
-                }
-            }
-            
-            $query = "UPDATE users SET 
-                    first_name = :first_name,
-                    last_name = :last_name,
-                    email = :email,
-                    phone = :phone,
-                    class_id = :class_id,
-                    bio = :bio,
-                    qualification = :qualification,
-                    specialization = :specialization,
-                    updated_at = NOW()
-                    WHERE id = :id";
-            
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([
-                ':first_name' => $data['first_name'],
-                ':last_name' => $data['last_name'],
-                ':email' => $data['email'],
-                ':phone' => $data['phone'],
-                ':class_id' => $data['class_id'],
-                ':bio' => $data['bio'] ?? null,
-                ':qualification' => $data['qualification'] ?? null,
-                ':specialization' => $data['specialization'] ?? null,
-                ':id' => $userId
-            ]);
-            
-            if ($result) {
-                if ($currentUser && $currentUser['class_id'] != $data['class_id']) {
-                    $oldClass = $this->getClassName($currentUser['class_id']);
-                    $newClass = $this->getClassName($data['class_id']);
-                    $this->logActivity($userId, 'CLASS_CHANGE', "Class changed from {$oldClass} to {$newClass}");
-                }
-                
-                $this->logActivity($userId, 'PROFILE_UPDATE', 'User updated profile');
-                return ['success' => true, 'message' => 'Profile updated successfully'];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to update profile'];
-            
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error occurred'];
-        }
-    }
-
-    /**
-     * Get class name by ID
-     */
-    private function getClassName($classId) {
-        if (!$classId) return 'None';
-        try {
-            $query = "SELECT name FROM classes WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $classId]);
-            $result = $stmt->fetch();
-            return $result ? $result['name'] : 'Unknown';
-        } catch (PDOException $e) {
-            return 'Unknown';
-        }
-    }
-
-    /**
-     * Update user as admin (without affecting session)
-     */
-    public function updateUserAsAdmin($userId, $data) {
-        try {
-            // Check if email is being changed and if it's already taken
-            $currentUser = $this->getById($userId);
-            if ($currentUser && $currentUser['email'] !== $data['email']) {
-                $checkQuery = "SELECT id FROM users WHERE email = :email AND id != :id";
-                $checkStmt = $this->conn->prepare($checkQuery);
-                $checkStmt->execute([
-                    ':email' => $data['email'],
-                    ':id' => $userId
-                ]);
-                if ($checkStmt->fetch()) {
-                    return ['success' => false, 'error' => 'Email already taken by another user'];
-                }
-            }
-            
-            // Build the query dynamically to include class_id
-            $query = "UPDATE users SET 
-                    first_name = :first_name,
-                    last_name = :last_name,
-                    email = :email,
-                    phone = :phone,
-                    role = :role,
-                    class_id = :class_id,
-                    updated_at = NOW()
-                    WHERE id = :id";
-            
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([
-                ':first_name' => $data['first_name'],
-                ':last_name' => $data['last_name'],
-                ':email' => $data['email'],
-                ':phone' => $data['phone'] ?? null,
-                ':role' => $data['role'],
-                ':class_id' => isset($data['class_id']) && !empty($data['class_id']) ? $data['class_id'] : null,
-                ':id' => $userId
-            ]);
-            
-            if ($result) {
-                $this->logActivity($userId, 'ADMIN_UPDATE', 'User updated by admin');
-                return ['success' => true, 'message' => 'User updated successfully'];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to update user'];
-            
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error occurred: ' . $e->getMessage()];
-        }
-    }
-    
-    /**
-     * Change password
-     */
-    public function changePassword($userId, $currentPassword, $newPassword) {
-        try {
-            $query = "SELECT password FROM users WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':id' => $userId]);
-            $user = $stmt->fetch();
-            
-            if (!$user) {
-                return ['success' => false, 'error' => 'User not found'];
-            }
-            
-            if (!password_verify($currentPassword, $user['password'])) {
-                return ['success' => false, 'error' => 'Current password is incorrect'];
-            }
-            
-            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-            $updateQuery = "UPDATE users SET password = :password, updated_at = NOW() WHERE id = :id";
-            $updateStmt = $this->conn->prepare($updateQuery);
-            $result = $updateStmt->execute([
-                ':password' => $hashedPassword,
-                ':id' => $userId
-            ]);
-            
-            if ($result) {
-                $this->logActivity($userId, 'PASSWORD_CHANGE', 'User changed password');
-                return ['success' => true, 'message' => 'Password changed successfully'];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to change password'];
-            
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error occurred'];
-        }
-    }
-    
-    /**
-     * Delete user account
-     * 
-     * @param int $userId User ID
-     * @param string $password User's password for verification
-     * @return array Result with success status and message
-     */
-    public function deleteAccount($userId, $password) {
-        try {
-            
-            $sql = "SELECT password FROM users WHERE id = :user_id";
+            $sql = "DELETE FROM {$table} WHERE user_id = :user_id";
             $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-            $stmt->execute();
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$user) {
-                return ['success' => false, 'error' => 'User not found'];
-            }
-            
-            if (!password_verify($password, $user['password'])) {
-                return ['success' => false, 'error' => 'Incorrect password. Please try again.'];
-            }
-            
-            $this->conn->beginTransaction();
-            
-            // Delete quiz attempt answers
-            try {
-                $sql = "DELETE qaa FROM quiz_attempt_answers qaa 
-                        INNER JOIN quiz_attempts qa ON qaa.attempt_id = qa.id 
-                        WHERE qa.user_id = :user_id";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-                $stmt->execute();
-                $count = $stmt->rowCount();
-            } catch (PDOException $e) {
-                error_log("Error deleting quiz_attempt_answers: " . $e->getMessage());
-            }
-            
-            try {
-                $sql = "DELETE FROM quiz_attempts WHERE user_id = :user_id";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-                $stmt->execute();
-                $count = $stmt->rowCount();
-            } catch (PDOException $e) {
-                error_log("Error deleting quiz_attempts: " . $e->getMessage());
-            }
-            
-            try {
-                $sql = "DELETE FROM subscriptions WHERE user_id = :user_id";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-                $stmt->execute();
-                $count = $stmt->rowCount();
-            } catch (PDOException $e) {
-                error_log("Error deleting subscriptions: " . $e->getMessage());
-            }
-            
-            try {
-                $sql = "DELETE FROM payments WHERE user_id = :user_id";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-                $stmt->execute();
-                $count = $stmt->rowCount();
-            } catch (PDOException $e) {
-                error_log("Error deleting payments: " . $e->getMessage());
-            }
-            
-            try {
-                $sql = "DELETE FROM bookmarks WHERE user_id = :user_id";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-                $stmt->execute();
-                $count = $stmt->rowCount();
-            } catch (PDOException $e) {
-                error_log("Error deleting bookmarks: " . $e->getMessage());
-            }
-            
-            try {
-                $sql = "DELETE FROM lesson_progress WHERE user_id = :user_id";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-                $stmt->execute();
-                $count = $stmt->rowCount();
-            } catch (PDOException $e) {
-                error_log("Error deleting lesson_progress: " . $e->getMessage());
-            }
-            
-            $sql = "DELETE FROM users WHERE id = :user_id";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-            $stmt->execute();
-            $count = $stmt->rowCount();
-            
-            if ($count == 0) {
-                throw new Exception("User record not deleted");
-            }
-            
-            $this->conn->commit();
-            
-            
-            return ['success' => true, 'message' => 'Account deleted successfully'];
-            
-        } catch (PDOException $e) {
-            $this->conn->rollBack();
-            return ['success' => false, 'error' => 'Failed to delete account. Database error: ' . $e->getMessage()];
-        } catch (Exception $e) {
-            $this->conn->rollBack();
-            return ['success' => false, 'error' => 'Failed to delete account. Error: ' . $e->getMessage()];
-        }
-    }
-    
-    /**
-     * Upload profile photo
-     */
-    public function uploadProfilePhoto($userId, $file) {
-        try {
-            $targetDir = __DIR__ . '/../public/uploads/profiles/';
-            
-            if (!file_exists($targetDir)) {
-                mkdir($targetDir, 0777, true);
-            }
-            
-            $fileName = time() . '_' . basename($file['name']);
-            $targetFile = $targetDir . $fileName;
-            
-            $check = getimagesize($file['tmp_name']);
-            if ($check === false) {
-                return ['success' => false, 'error' => 'File is not an image'];
-            }
-            
-            if ($file['size'] > 2097152) {
-                return ['success' => false, 'error' => 'File size must be less than 2MB'];
-            }
-            
-            $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
-            
-            if (!in_array($imageFileType, $allowedTypes)) {
-                return ['success' => false, 'error' => 'Only JPG, JPEG, PNG & GIF files are allowed'];
-            }
-            
-            if (move_uploaded_file($file['tmp_name'], $targetFile)) {
-                $photoPath = 'uploads/profiles/' . $fileName;
-                $query = "UPDATE users SET profile_photo = :photo WHERE id = :id";
-                $stmt = $this->conn->prepare($query);
-                $stmt->execute([
-                    ':photo' => $photoPath,
-                    ':id' => $userId
-                ]);
-                
-                return ['success' => true, 'photo' => $photoPath];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to upload photo'];
-            
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Failed to upload photo'];
-        }
-    }
-    
-    /**
-     * Start free trial for external users
-     */
-    private function startFreeTrial($userId) {
-        try {
-            $startDate = date('Y-m-d H:i:s');
-            $endDate = date('Y-m-d H:i:s', strtotime('+' . FREE_TRIAL_DAYS . ' days'));
-            
-            $query = "INSERT INTO free_trials (user_id, start_date, end_date) 
-                    VALUES (:user_id, :start_date, :end_date)";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                ':user_id' => $userId,
-                ':start_date' => $startDate,
-                ':end_date' => $endDate
-            ]);
-            
+            $stmt->execute([':user_id' => $userId]);
             return true;
         } catch (PDOException $e) {
+            error_log("Error deleting from {$table}: " . $e->getMessage());
             return false;
         }
     }
     
-    /**
-     * Check if user has active access
-     */
-    public function hasAccess($userId) {
-        try {
-            
-            $userQuery = "SELECT role, created_at FROM users WHERE id = :id";
-            $userStmt = $this->conn->prepare($userQuery);
-            $userStmt->execute([':id' => $userId]);
-            $user = $userStmt->fetch();
-            
-            if (!$user) {
-                return false;
-            }
-            
-            if (in_array($user['role'], ['learner', 'teacher', 'admin'])) {
-                return true;
-            }
-            
-            if ($user['role'] === 'external') {
-                $createdAt = new DateTime($user['created_at']);
-                $now = new DateTime();
-                $daysPassed = $createdAt->diff($now)->days;
-                $trialDays = 60; 
-                
-                if ($daysPassed < $trialDays) {
-                    return true;
-                }
-            }
-            
-            $subQuery = "SELECT * FROM subscriptions WHERE user_id = :user_id AND status = 'active' AND end_date > NOW()";
-            $subStmt = $this->conn->prepare($subQuery);
-            $subStmt->execute([':user_id' => $userId]);
-            
-            if ($subStmt->fetch()) {
-                return true;
-            }
-            
-            return false;
-            
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
-    
-    /**
-     * Verify email
-     */
-    public function verifyEmail($token) {
-        try {
-            $query = "UPDATE users SET email_verified = 1, verification_token = NULL 
-                    WHERE verification_token = :token";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':token' => $token]);
-            
-            if ($stmt->rowCount() > 0) {
-                return ['success' => true, 'message' => 'Email verified successfully'];
-            }
-            
-            return ['success' => false, 'error' => 'Invalid or expired verification token'];
-            
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Verification failed'];
-        }
-    }
-    
-    /**
-     * Request password reset
-     */
-    public function requestPasswordReset($email) {
-        try {
-            $user = $this->getByEmail($email);
-            
-            if (!$user) {
-                return ['success' => false, 'error' => 'Email not found'];
-            }
-            
-            $resetToken = bin2hex(random_bytes(32));
-            $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
-            
-            $query = "UPDATE users SET reset_token = :token, reset_expires = :expires WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                ':token' => $resetToken,
-                ':expires' => $expires,
-                ':id' => $user['id']
-            ]);
-            
-            $this->sendResetEmail($email, $resetToken, $user['first_name']);
-            
-            return ['success' => true, 'message' => 'Password reset instructions sent to your email'];
-            
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Failed to process request'];
-        }
-    }
-    
-    /**
-     * Reset password
-     */
-    public function resetPassword($token, $newPassword) {
-        try {
-            $query = "SELECT id FROM users WHERE reset_token = :token AND reset_expires > NOW()";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([':token' => $token]);
-            $user = $stmt->fetch();
-            
-            if (!$user) {
-                return ['success' => false, 'error' => 'Invalid or expired reset token'];
-            }
-            
-            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-            $updateQuery = "UPDATE users SET password = :password, reset_token = NULL, reset_expires = NULL WHERE id = :id";
-            $updateStmt = $this->conn->prepare($updateQuery);
-            $updateStmt->execute([
-                ':password' => $hashedPassword,
-                ':id' => $user['id']
-            ]);
-            
-            return ['success' => true, 'message' => 'Password reset successful'];
-            
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Failed to reset password'];
-        }
-    }
-    
-    /**
-     * Save password reset token
-     */
-    public function saveResetToken($userId, $token, $expires) {
-        try {
-            
-            $stmt = $this->conn->prepare("DELETE FROM password_resets WHERE user_id = ?");
-            $stmt->execute([$userId]);
-            
-            $stmt = $this->conn->prepare("
-                INSERT INTO password_resets (user_id, token, expires_at) 
-                VALUES (?, ?, ?)
-            ");
-            $result = $stmt->execute([$userId, $token, $expires]);
-            
-            if ($result) {
-                $insertId = $this->conn->lastInsertId();
-            }
-            
-            return $result;
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
-    
-    /**
-     * Get user by reset token
-     */
-    public function getUserByResetToken($token) {
-        try {
-            
-            $stmt = $this->conn->prepare("
-                SELECT pr.*, u.*, pr.token as reset_token, pr.expires_at 
-                FROM password_resets pr
-                INNER JOIN users u ON pr.user_id = u.id
-                WHERE pr.token = ? 
-                AND pr.expires_at > NOW()
-                AND pr.used = 0
-            ");
-            $stmt->execute([$token]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($result) {
-                return $result;
-            } else {
-                $stmt2 = $this->conn->prepare("
-                    SELECT * FROM password_resets 
-                    WHERE token = ?
-                ");
-                $stmt2->execute([$token]);
-                $tokenRecord = $stmt2->fetch(PDO::FETCH_ASSOC);
-                
-                if ($tokenRecord) {
-                } else {
-                    error_log("Token not found in database");
-                }
-                
-                return null;
-            }
-        } catch (PDOException $e) {
-            return null;
-        }
-    }
-    
-    /**
-     * Clear reset token after password change
-     */
-    public function clearResetToken($userId) {
-        try {
-            $stmt = $this->conn->prepare("
-                UPDATE password_resets 
-                SET used = 1 
-                WHERE user_id = ?
-            ");
-            return $stmt->execute([$userId]);
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
-    
-     /**
-     * Update user password
-     */
-    public function updatePassword($userId, $newPassword) {
-        try {
-            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-            
-            $stmt = $this->conn->prepare("UPDATE users SET password = ? WHERE id = ?");
-            $success = $stmt->execute([$hashedPassword, $userId]);
-            
-            return [
-                'success' => $success,
-                'error' => $success ? null : 'Failed to update password'
-            ];
-        } catch (PDOException $e) {
-            return [
-                'success' => false,
-                'error' => 'Database error occurred'
-            ];
-        }
-    }
-    
-    /**
-     * Log activity
-     */
     private function logActivity($userId, $action, $description) {
         try {
             $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
@@ -807,16 +90,25 @@ class User {
         }
     }
     
-    /**
-     * Send verification email
-     */
-    private function sendVerificationEmail($email, $token, $name) {
-        $verificationLink = BASE_URL . "/verify-email?token=" . $token;
+    private function generateRegistrationNumber($class) {
+        $prefix = 'ROG';
+        $classMap = [
+            'p1' => 'P1', 'primary 1' => 'P1', '1' => 'P1',
+            'p2' => 'P2', 'primary 2' => 'P2', '2' => 'P2',
+            'p3' => 'P3', 'primary 3' => 'P3', '3' => 'P3',
+            'p4' => 'P4', 'primary 4' => 'P4', '4' => 'P4',
+            'p5' => 'P5', 'primary 5' => 'P5', '5' => 'P5',
+            'p6' => 'P6', 'primary 6' => 'P6', '6' => 'P6',
+            'p7' => 'P7', 'primary 7' => 'P7', '7' => 'P7',
+            'computer' => 'COMP', 'computer class' => 'COMP'
+        ];
+        
+        $classCode = $classMap[strtolower(trim($class))] ?? 'P1';
+        $unique = str_pad(mt_rand(1, 999), 3, '0', STR_PAD_LEFT);
+        
+        return $prefix . '-' . $classCode . '-' . $unique;
     }
     
-    /**
-     * Send reset email
-     */
     private function sendResetEmail($email, $token, $name) {
         $resetLink = BASE_URL . "/reset-password?token=" . $token;
         
@@ -922,13 +214,13 @@ class User {
         <body>
             <div class='email-container'>
                 <div class='email-header'>
-                    <h1>🔐 Password Reset Request</h1>
+                    <h1>Password Reset Request</h1>
                     <p>Rays of Grace E-Learning</p>
                 </div>
                 
                 <div class='email-body'>
                     <div class='greeting'>
-                        Hello " . htmlspecialchars($name) . "! 👋
+                        Hello " . htmlspecialchars($name) . "! 
                     </div>
                     
                     <div class='message'>
@@ -941,11 +233,10 @@ class User {
                     </div>
                     
                     <div class='reset-button'>
-                        <a href='" . $resetLink . "'>🔓 Reset Your Password</a>
+                        <a href='" . $resetLink . "'>Reset Your Password</a>
                     </div>
                     
                     <div class='expiry-note'>
-                        <span>⏰</span>
                         <strong>Note:</strong> This password reset link will expire in 20 minutes for security reasons.
                     </div>
                     
@@ -976,24 +267,555 @@ class User {
         
         if ($mailSent) {
             error_log("Password reset email sent successfully to: $email");
-            error_log("Reset link: $resetLink");
         } else {
             error_log("Failed to send password reset email to: $email");
-            error_log("Reset link (would have been sent): $resetLink");
+            error_log("Reset link: $resetLink");
         }
         
         return $mailSent;
     }
     
-    /**
-     * =====================================================
-     * ADMIN METHODS
-     * =====================================================
-     */
+    // ==================== USER MANAGEMENT ====================
+    public function register($data) {
+        try {
+            if ($this->isEmailTaken($data['email'])) {
+                return ['success' => false, 'error' => 'Email already registered'];
+            }
+            
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+            
+            $registrationNumber = null;
+            if (isset($data['role']) && $data['role'] === 'learner') {
+                $registrationNumber = $this->generateRegistrationNumber($data['class_id'] ?? 'P1');
+            }
+            
+            $query = "INSERT INTO users (
+                registration_number, email, password, first_name, last_name, 
+                phone, role, class_id, email_verified, is_active, created_at
+            ) VALUES (
+                :registration_number, :email, :password, :first_name, :last_name,
+                :phone, :role, :class_id, 1, 1, NOW()
+            )";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':registration_number' => $registrationNumber,
+                ':email' => $data['email'],
+                ':password' => $hashedPassword,
+                ':first_name' => $data['first_name'],
+                ':last_name' => $data['last_name'],
+                ':phone' => $data['phone'],
+                ':role' => $data['role'] ?? 'learner',
+                ':class_id' => $data['class_id'] ?? null
+            ]);
+            
+            $userId = $this->conn->lastInsertId();
+            
+            $this->logActivity($userId, 'REGISTRATION', 'User registered successfully');
+            
+            $userData = $this->getById($userId);
+            unset($userData['password']);
+            
+            return [
+                'success' => true, 
+                'user_id' => $userId, 
+                'user' => $userData,
+                'message' => 'Registration successful!'
+            ];
+            
+        } catch (PDOException $e) {
+            return ['success' => false, 'error' => 'Registration failed. Please try again.'];
+        }
+    }
     
-    /**
-     * Get all users (for admin) - SINGLE VERSION
-     */
+    public function login($username, $password) {
+        try {
+            $query = "SELECT u.*, c.name as class_name 
+                    FROM users u 
+                    LEFT JOIN classes c ON u.class_id = c.id 
+                    WHERE u.email = :email OR u.registration_number = :reg_no";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':email', $username);
+            $stmt->bindValue(':reg_no', $username);
+            $stmt->execute();
+            
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$user || !password_verify($password, $user['password'])) {
+                return ['success' => false, 'error' => 'Invalid email or password'];
+            }
+            
+            if (!$user['is_active']) {
+                return ['success' => false, 'error' => 'Your account is not active. Please contact support.'];
+            }
+            
+            if ($user['is_suspended']) {
+                return ['success' => false, 'error' => 'Invalid input. Please contact support.'];
+            }
+            
+            $updateQuery = "UPDATE users SET last_login = NOW() WHERE id = :id";
+            $updateStmt = $this->conn->prepare($updateQuery);
+            $updateStmt->execute([':id' => $user['id']]);
+            
+            $this->logActivity($user['id'], 'LOGIN', 'User logged in successfully');
+            
+            unset($user['password']);
+            
+            return ['success' => true, 'user' => $user];
+            
+        } catch (PDOException $e) {
+            return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+    
+    public function getById($id) {
+        return $this->getCachedUser($id);
+    }
+    
+    public function getByEmail($email) {
+        try {
+            $query = "SELECT * FROM users WHERE email = :email";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':email' => $email]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+    
+    public function getProfile($userId) {
+        try {
+            $query = "SELECT u.*, 
+                    ft.start_date as trial_start, 
+                    ft.end_date as trial_end,
+                    s.plan_type, s.status as subscription_status, 
+                    s.end_date as subscription_end
+                    FROM users u
+                    LEFT JOIN free_trials ft ON u.id = ft.user_id
+                    LEFT JOIN subscriptions s ON u.id = s.user_id AND s.status = 'active'
+                    WHERE u.id = :id";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':id' => $userId]);
+            
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($user) {
+                unset($user['password']);
+            }
+            
+            return $user;
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+    
+    public function updateProfile($userId, $data) {
+        try {
+            $currentUser = $this->getCachedUser($userId, true);
+            
+            if ($currentUser && $currentUser['email'] !== $data['email']) {
+                if ($this->isEmailTaken($data['email'], $userId)) {
+                    return ['success' => false, 'error' => 'Email already taken by another user'];
+                }
+            }
+            
+            $query = "UPDATE users SET 
+                    first_name = :first_name,
+                    last_name = :last_name,
+                    email = :email,
+                    phone = :phone,
+                    class_id = :class_id,
+                    bio = :bio,
+                    qualification = :qualification,
+                    specialization = :specialization,
+                    updated_at = NOW()
+                    WHERE id = :id";
+            
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([
+                ':first_name' => $data['first_name'],
+                ':last_name' => $data['last_name'],
+                ':email' => $data['email'],
+                ':phone' => $data['phone'],
+                ':class_id' => $data['class_id'],
+                ':bio' => $data['bio'] ?? null,
+                ':qualification' => $data['qualification'] ?? null,
+                ':specialization' => $data['specialization'] ?? null,
+                ':id' => $userId
+            ]);
+            
+            if ($result) {
+                unset($this->userCache[$userId]);
+                
+                if ($currentUser && isset($currentUser['class_id']) && $currentUser['class_id'] != $data['class_id']) {
+                    $oldClass = $this->getClassName($currentUser['class_id']);
+                    $newClass = $this->getClassName($data['class_id']);
+                    $this->logActivity($userId, 'CLASS_CHANGE', "Class changed from {$oldClass} to {$newClass}");
+                }
+                
+                $this->logActivity($userId, 'PROFILE_UPDATE', 'User updated profile');
+                return ['success' => true, 'message' => 'Profile updated successfully'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to update profile'];
+            
+        } catch (PDOException $e) {
+            return ['success' => false, 'error' => 'Database error occurred'];
+        }
+    }
+    
+    private function getClassName($classId) {
+        if (!$classId) return 'None';
+        
+        if (isset($this->classNameCache[$classId])) {
+            return $this->classNameCache[$classId];
+        }
+        
+        try {
+            $query = "SELECT name FROM classes WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':id' => $classId]);
+            $result = $stmt->fetch();
+            $this->classNameCache[$classId] = $result ? $result['name'] : 'Unknown';
+            return $this->classNameCache[$classId];
+        } catch (PDOException $e) {
+            return 'Unknown';
+        }
+    }
+    
+    public function updateUserAsAdmin($userId, $data) {
+        try {
+            $currentUser = $this->getCachedUser($userId, true);
+            
+            if ($currentUser && $currentUser['email'] !== $data['email']) {
+                if ($this->isEmailTaken($data['email'], $userId)) {
+                    return ['success' => false, 'error' => 'Email already taken by another user'];
+                }
+            }
+            
+            $query = "UPDATE users SET 
+                    first_name = :first_name,
+                    last_name = :last_name,
+                    email = :email,
+                    phone = :phone,
+                    role = :role,
+                    class_id = :class_id,
+                    updated_at = NOW()
+                    WHERE id = :id";
+            
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([
+                ':first_name' => $data['first_name'],
+                ':last_name' => $data['last_name'],
+                ':email' => $data['email'],
+                ':phone' => $data['phone'] ?? null,
+                ':role' => $data['role'],
+                ':class_id' => isset($data['class_id']) && !empty($data['class_id']) ? $data['class_id'] : null,
+                ':id' => $userId
+            ]);
+            
+            if ($result) {
+                unset($this->userCache[$userId]);
+                $this->logActivity($userId, 'ADMIN_UPDATE', 'User updated by admin');
+                return ['success' => true, 'message' => 'User updated successfully'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to update user'];
+            
+        } catch (PDOException $e) {
+            return ['success' => false, 'error' => 'Database error occurred: ' . $e->getMessage()];
+        }
+    }
+    
+    public function changePassword($userId, $currentPassword, $newPassword) {
+        try {
+            $query = "SELECT password FROM users WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':id' => $userId]);
+            $user = $stmt->fetch();
+            
+            if (!$user) {
+                return ['success' => false, 'error' => 'User not found'];
+            }
+            
+            if (!password_verify($currentPassword, $user['password'])) {
+                return ['success' => false, 'error' => 'Current password is incorrect'];
+            }
+            
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            $updateQuery = "UPDATE users SET password = :password, updated_at = NOW() WHERE id = :id";
+            $updateStmt = $this->conn->prepare($updateQuery);
+            $result = $updateStmt->execute([
+                ':password' => $hashedPassword,
+                ':id' => $userId
+            ]);
+            
+            if ($result) {
+                $this->logActivity($userId, 'PASSWORD_CHANGE', 'User changed password');
+                return ['success' => true, 'message' => 'Password changed successfully'];
+            }
+            
+            return ['success' => false, 'error' => 'Failed to change password'];
+            
+        } catch (PDOException $e) {
+            return ['success' => false, 'error' => 'Database error occurred'];
+        }
+    }
+    
+    public function deleteAccount($userId, $password) {
+        try {
+            $sql = "SELECT password FROM users WHERE id = :user_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$user) {
+                return ['success' => false, 'error' => 'User not found'];
+            }
+            
+            if (!password_verify($password, $user['password'])) {
+                return ['success' => false, 'error' => 'Incorrect password. Please try again.'];
+            }
+            
+            $this->conn->beginTransaction();
+            
+            $relatedTables = ['quiz_attempt_answers', 'quiz_attempts', 'subscriptions', 'payments', 'bookmarks', 'lesson_progress'];
+            
+            foreach ($relatedTables as $table) {
+                if ($table === 'quiz_attempt_answers') {
+                    try {
+                        $sql = "DELETE qaa FROM quiz_attempt_answers qaa 
+                                INNER JOIN quiz_attempts qa ON qaa.attempt_id = qa.id 
+                                WHERE qa.user_id = :user_id";
+                        $stmt = $this->conn->prepare($sql);
+                        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+                        $stmt->execute();
+                    } catch (PDOException $e) {
+                        error_log("Error deleting quiz_attempt_answers: " . $e->getMessage());
+                    }
+                } else {
+                    $this->deleteRelatedRecords($userId, $table);
+                }
+            }
+            
+            $sql = "DELETE FROM users WHERE id = :user_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() == 0) {
+                throw new Exception("User record not deleted");
+            }
+            
+            $this->conn->commit();
+            
+            return ['success' => true, 'message' => 'Account deleted successfully'];
+            
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'error' => 'Failed to delete account. Database error: ' . $e->getMessage()];
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'error' => 'Failed to delete account. Error: ' . $e->getMessage()];
+        }
+    }
+    
+    private function startFreeTrial($userId) {
+        try {
+            $startDate = date('Y-m-d H:i:s');
+            $endDate = date('Y-m-d H:i:s', strtotime('+' . FREE_TRIAL_DAYS . ' days'));
+            
+            $query = "INSERT INTO free_trials (user_id, start_date, end_date) 
+                    VALUES (:user_id, :start_date, :end_date)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':user_id' => $userId,
+                ':start_date' => $startDate,
+                ':end_date' => $endDate
+            ]);
+            
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+    
+    public function hasAccess($userId) {
+        try {
+            $userQuery = "SELECT role, created_at FROM users WHERE id = :id";
+            $userStmt = $this->conn->prepare($userQuery);
+            $userStmt->execute([':id' => $userId]);
+            $user = $userStmt->fetch();
+            
+            if (!$user) return false;
+            
+            if (in_array($user['role'], ['learner', 'teacher', 'admin'])) {
+                return true;
+            }
+            
+            if ($user['role'] === 'external') {
+                $createdAt = new DateTime($user['created_at']);
+                $now = new DateTime();
+                $daysPassed = $createdAt->diff($now)->days;
+                $trialDays = 60;
+                
+                if ($daysPassed < $trialDays) {
+                    return true;
+                }
+            }
+            
+            $subQuery = "SELECT * FROM subscriptions WHERE user_id = :user_id AND status = 'active' AND end_date > NOW()";
+            $subStmt = $this->conn->prepare($subQuery);
+            $subStmt->execute([':user_id' => $userId]);
+            
+            return $subStmt->fetch() !== false;
+            
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+    
+    public function requestPasswordReset($email) {
+        try {
+            $user = $this->getByEmail($email);
+            
+            if (!$user) {
+                return ['success' => false, 'error' => 'Email not found'];
+            }
+            
+            $resetToken = bin2hex(random_bytes(32));
+            $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
+            
+            $query = "UPDATE users SET reset_token = :token, reset_expires = :expires WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':token' => $resetToken,
+                ':expires' => $expires,
+                ':id' => $user['id']
+            ]);
+            
+            $this->sendResetEmail($email, $resetToken, $user['first_name']);
+            
+            return ['success' => true, 'message' => 'Password reset instructions sent to your email'];
+            
+        } catch (PDOException $e) {
+            return ['success' => false, 'error' => 'Failed to process request'];
+        }
+    }
+    
+    public function resetPassword($token, $newPassword) {
+        try {
+            $query = "SELECT id FROM users WHERE reset_token = :token AND reset_expires > NOW()";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':token' => $token]);
+            $user = $stmt->fetch();
+            
+            if (!$user) {
+                return ['success' => false, 'error' => 'Invalid or expired reset token'];
+            }
+            
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            $updateQuery = "UPDATE users SET password = :password, reset_token = NULL, reset_expires = NULL WHERE id = :id";
+            $updateStmt = $this->conn->prepare($updateQuery);
+            $updateStmt->execute([
+                ':password' => $hashedPassword,
+                ':id' => $user['id']
+            ]);
+            
+            unset($this->userCache[$user['id']]);
+            
+            return ['success' => true, 'message' => 'Password reset successful'];
+            
+        } catch (PDOException $e) {
+            return ['success' => false, 'error' => 'Failed to reset password'];
+        }
+    }
+    
+    public function saveResetToken($userId, $token, $expires) {
+        try {
+            $stmt = $this->conn->prepare("DELETE FROM password_resets WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            
+            $stmt = $this->conn->prepare("
+                INSERT INTO password_resets (user_id, token, expires_at) 
+                VALUES (?, ?, ?)
+            ");
+            return $stmt->execute([$userId, $token, $expires]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+    
+    public function getUserByResetToken($token) {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT pr.*, u.*, pr.token as reset_token, pr.expires_at 
+                FROM password_resets pr
+                INNER JOIN users u ON pr.user_id = u.id
+                WHERE pr.token = ? 
+                AND pr.expires_at > NOW()
+                AND pr.used = 0
+            ");
+            $stmt->execute([$token]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return $result;
+            }
+            
+            $stmt2 = $this->conn->prepare("SELECT * FROM password_resets WHERE token = ?");
+            $stmt2->execute([$token]);
+            $tokenRecord = $stmt2->fetch(PDO::FETCH_ASSOC);
+            
+            if ($tokenRecord) {
+                error_log("Token found but expired or used: " . $token);
+            } else {
+                error_log("Token not found in database: " . $token);
+            }
+            
+            return null;
+        } catch (PDOException $e) {
+            error_log("Error getting user by reset token: " . $e->getMessage());
+            return null;
+        }
+    }
+    
+    public function clearResetToken($userId) {
+        try {
+            $stmt = $this->conn->prepare("UPDATE password_resets SET used = 1 WHERE user_id = ?");
+            return $stmt->execute([$userId]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+    
+    public function updatePassword($userId, $newPassword) {
+        try {
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            
+            $stmt = $this->conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $success = $stmt->execute([$hashedPassword, $userId]);
+            
+            if ($success) {
+                unset($this->userCache[$userId]);
+            }
+            
+            return [
+                'success' => $success,
+                'error' => $success ? null : 'Failed to update password'
+            ];
+        } catch (PDOException $e) {
+            return [
+                'success' => false,
+                'error' => 'Database error occurred'
+            ];
+        }
+    }
+    
+    // ==================== ADMIN METHODS ====================
     public function getAllUsers($role = null, $limit = 20, $offset = 0) {
         try {
             $query = "SELECT u.*, c.name as class_name 
@@ -1032,9 +854,6 @@ class User {
         }
     }
     
-    /**
-     * Search users by name, email, or ID - FIXED VERSION
-     */
     public function searchUsers($searchTerm) {
         try {
             $searchPattern = '%' . $searchTerm . '%';
@@ -1073,9 +892,6 @@ class User {
         }
     }
     
-    /**
-     * Suspend user
-     */
     public function suspendUser($userId) {
         try {
             $query = "UPDATE users SET is_suspended = 1, updated_at = NOW() WHERE id = :id";
@@ -1083,6 +899,7 @@ class User {
             $stmt->execute([':id' => $userId]);
             
             if ($stmt->rowCount() > 0) {
+                unset($this->userCache[$userId]);
                 $this->logActivity($userId, 'SUSPEND', 'User account suspended');
                 return ['success' => true, 'message' => 'User suspended successfully'];
             }
@@ -1094,9 +911,6 @@ class User {
         }
     }
     
-    /**
-     * Activate user
-     */
     public function activateUser($userId) {
         try {
             $query = "UPDATE users SET is_suspended = 0, updated_at = NOW() WHERE id = :id";
@@ -1104,6 +918,7 @@ class User {
             $stmt->execute([':id' => $userId]);
             
             if ($stmt->rowCount() > 0) {
+                unset($this->userCache[$userId]);
                 $this->logActivity($userId, 'ACTIVATE', 'User account activated');
                 return ['success' => true, 'message' => 'User activated successfully'];
             }
@@ -1115,9 +930,6 @@ class User {
         }
     }
     
-    /**
-     * Delete user (admin version)
-     */
     public function deleteUser($userId) {
         try {
             $user = $this->getById($userId);
@@ -1130,9 +942,7 @@ class User {
             $tables = ['subscriptions', 'free_trials', 'payments', 'activity_logs', 'bookmarks', 'quiz_attempts'];
             
             foreach ($tables as $table) {
-                $deleteQuery = "DELETE FROM $table WHERE user_id = :user_id";
-                $deleteStmt = $this->conn->prepare($deleteQuery);
-                $deleteStmt->execute([':user_id' => $userId]);
+                $this->deleteRelatedRecords($userId, $table);
             }
             
             $deleteUser = "DELETE FROM users WHERE id = :id";
@@ -1141,6 +951,7 @@ class User {
             
             $this->conn->commit();
             
+            unset($this->userCache[$userId]);
             $this->logActivity($userId, 'DELETE', 'User account deleted by admin');
             
             return ['success' => true, 'message' => 'User deleted successfully'];
@@ -1150,10 +961,7 @@ class User {
             return ['success' => false, 'error' => 'Failed to delete user'];
         }
     }
-
-    /**
-     * Get count of active users today
-     */
+    
     public function getActiveToday() {
         try {
             $query = "SELECT COUNT(DISTINCT user_id) as count 
@@ -1167,10 +975,7 @@ class User {
             return 0;
         }
     }
-
-    /**
-     * Get count of new users today
-     */
+    
     public function getNewUsersToday() {
         try {
             $query = "SELECT COUNT(*) as count 
@@ -1184,10 +989,7 @@ class User {
             return 0;
         }
     }
-
-    /**
-     * Get students count by teacher with filters
-     */
+    
     public function countStudentsByTeacher($teacherId, $classId = null, $search = null) {
         try {
             $query = "SELECT COUNT(DISTINCT u.id) as total
@@ -1234,17 +1036,10 @@ class User {
             return 0;
         }
     }
-
-    /**
-     * Get remaining trial days for a user
-     * 
-     * @param int $userId The user ID
-     * @param int $trialDays Total trial days (default 60)
-     * @return int Remaining trial days (0 if expired or subscribed)
-     */
+    
     public function getRemainingTrialDays($userId, $trialDays = 60) {
         try {
-            $subscriptionModel = new Subscription();
+            $subscriptionModel = $this->getSubscriptionModel();
             $activeSubscription = $subscriptionModel->getCurrentSubscription($userId);
             
             if ($activeSubscription) {
@@ -1266,7 +1061,6 @@ class User {
             $now = new DateTime();
             
             $daysPassed = $createdAt->diff($now)->days;
-            
             $remainingDays = max(0, $trialDays - $daysPassed);
             
             return $remainingDays;
@@ -1275,14 +1069,7 @@ class User {
             return $trialDays;
         }
     }
-
-    /**
-     * Get user's trial end date
-     * 
-     * @param int $userId User ID
-     * @param int $trialDays Total trial days (default 60)
-     * @return string|null Trial end date or null
-     */
+    
     public function getTrialEndDate($userId, $trialDays = 60) {
         try {
             $sql = "SELECT created_at FROM users WHERE id = :user_id";
@@ -1305,17 +1092,10 @@ class User {
             return null;
         }
     }
-
-    /**
-     * Check if user is still in trial period
-     * 
-     * @param int $userId The user ID
-     * @param int $trialDays Total trial days (default 60)
-     * @return bool True if still in trial, false otherwise
-     */
+    
     public function isInTrialPeriod($userId, $trialDays = 60) {
         try {
-            $subscriptionModel = new Subscription();
+            $subscriptionModel = $this->getSubscriptionModel();
             $activeSubscription = $subscriptionModel->getCurrentSubscription($userId);
             
             if ($activeSubscription) {
@@ -1343,17 +1123,10 @@ class User {
             return false;
         }
     }
-
-    /**
-     * Get trial status for user
-     * 
-     * @param int $userId The user ID
-     * @param int $trialDays Total trial days
-     * @return array Trial status information
-     */
+    
     public function getTrialStatus($userId, $trialDays = 60) {
         try {
-            $subscriptionModel = new Subscription();
+            $subscriptionModel = $this->getSubscriptionModel();
             $activeSubscription = $subscriptionModel->getCurrentSubscription($userId);
             
             if ($activeSubscription) {
@@ -1388,13 +1161,16 @@ class User {
             $daysPassed = $createdAt->diff($now)->days;
             $remainingDays = max(0, $trialDays - $daysPassed);
             
+            $endDate = clone $createdAt;
+            $endDate->modify("+{$trialDays} days");
+            
             return [
                 'is_trial' => $remainingDays > 0,
                 'has_subscription' => false,
                 'remaining_days' => $remainingDays,
                 'trial_ended' => $remainingDays <= 0,
                 'trial_start_date' => $user['created_at'],
-                'trial_end_date' => $createdAt->modify("+{$trialDays} days")->format('Y-m-d H:i:s'),
+                'trial_end_date' => $endDate->format('Y-m-d H:i:s'),
                 'message' => $remainingDays > 0 ? "Trial ends in {$remainingDays} days" : "Trial has ended"
             ];
             
@@ -1408,15 +1184,9 @@ class User {
             ];
         }
     }
-
-    /**
-     * Get ALL students with their statistics
-     */
+    
     public function getStudentsWithStats($teacherId, $classId = null, $search = null) {
         try {
-            
-            $conn = $this->conn;
-            
             $query = "
                 SELECT 
                     u.id,
@@ -1460,7 +1230,7 @@ class User {
             $query .= " GROUP BY u.id, u.first_name, u.last_name, u.email, u.phone, u.role, u.profile_photo, u.class_id, c.name
                         ORDER BY u.first_name ASC";
             
-            $stmt = $conn->prepare($query);
+            $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
             
             $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1471,30 +1241,24 @@ class User {
                 $student['lessons_viewed'] = (int)$student['lessons_viewed'];
             }
             
-            
             return $students;
             
         } catch (PDOException $e) {
             return [];
         }
     }
-
-    /**
-     * Add student to class (for backward compatibility)
-     */
+    
     public function addStudentToClass($userId, $classId) {
         try {
             $stmt = $this->conn->prepare("UPDATE users SET class_id = ? WHERE id = ?");
             $stmt->execute([$classId, $userId]);
+            unset($this->userCache[$userId]);
             return true;
         } catch (PDOException $e) {
             return false;
         }
     }
-
-    /**
-     * Count total students (learners and external users)
-     */
+    
     public function countTotalStudents() {
         try {
             $stmt = $this->conn->prepare("

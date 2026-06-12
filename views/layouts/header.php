@@ -22,7 +22,7 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
-    <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
+    <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -154,7 +154,8 @@
             transition: transform 0.3s ease;
         }
 
-        .nav-links a:hover {
+        .nav-links a:hover,
+        .nav-links a.active {
             background: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
             color: #f06724;
         }
@@ -162,6 +163,26 @@
         .nav-links a:hover i {
             transform: translateY(-2px);
             color: #7f2677;
+        }
+
+        .badge-new {
+            background-color: #0000FF;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-left: 8px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0, 0, 255, 0.25);
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .nav-auth {
@@ -338,7 +359,8 @@
             font-size: 1.1rem;
         }
 
-        .dropdown-content a:hover {
+        .dropdown-content a:hover,
+        .dropdown-content a.active {
             background: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
             padding-left: 25px;
         }
@@ -554,7 +576,8 @@
             font-size: 1.2rem;
         }
 
-        .mobile-nav-links a:hover {
+        .mobile-nav-links a:hover,
+        .mobile-nav-links a.active {
             background: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
             transform: translateX(5px);
         }
@@ -687,9 +710,6 @@
                     <!-- Desktop Navigation for Logged-in Users -->
                     <div class="nav-menu">
                         <ul class="nav-links">
-                            <li><a href="<?php echo BASE_URL; ?>/" class="<?php echo basename($_SERVER['REQUEST_URI']) == '' ? 'active' : ''; ?>">
-                                <i class="fas fa-home"></i> Home
-                            </a></li>
                             <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a></li>
@@ -698,6 +718,9 @@
                             </a></li>
                             <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-pencil-alt"></i> Quizzes  
+                            </a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/homework" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'homework') !== false) ? 'active' : ''; ?>">
+                                <i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span>
                             </a></li>
                         </ul>
                         
@@ -721,10 +744,10 @@
                                         <p><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></p>
                                         <small><?php echo htmlspecialchars($_SESSION['user_email'] ?? ''); ?></small>
                                     </div>
-                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile">
+                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'profile') !== false ? 'active' : ''; ?>">
                                         <i class="fas fa-user"></i> Profile
                                     </a>
-                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings">
+                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'settings') !== false ? 'active' : ''; ?>">
                                         <i class="fas fa-cog"></i> Settings
                                     </a>
                                     <div class="dropdown-divider"></div>
@@ -795,12 +818,12 @@
             </div>
             <div class="mobile-menu-content">
                 <ul class="mobile-nav-links">
-                    <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons"><i class="fas fa-book-open"></i> Lessons</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile"><i class="fas fa-user"></i> Profile</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>"><i class="fas fa-book-open"></i> Lessons</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/homework" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'homework') !== false ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span> </a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'profile') !== false ? 'active' : ''; ?>"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'settings') !== false ? 'active' : ''; ?>"><i class="fas fa-cog"></i> Settings</a></li>
                     <li><a href="<?php echo BASE_URL; ?>/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </div>

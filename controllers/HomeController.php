@@ -5,9 +5,6 @@ class HomeController {
         require_once __DIR__ . '/../views/home.php';
     }
 
-    /**
-     * Send contact email
-     */
     public function sendContact() {
         header('Content-Type: application/json');
         
@@ -146,9 +143,6 @@ class HomeController {
         exit;
     }
 
-    /**
-     * Contact page
-     */
     public function contact() {
         $hideFooter = false;
         require_once __DIR__ . '/../views/contact/send-contact.php';

@@ -30,7 +30,8 @@ if (empty($classes)) {
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
-    
+    <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
+
     <style>
         * {
             margin: 0;
