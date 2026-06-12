@@ -148,7 +148,7 @@ $classPerformance = $classPerformance ?? [
                 <?php else: ?>
                     <?php 
                     // Show only the last 5 lessons
-                    $displayLessons = array_slice($recentLessons, 0, 5);
+                    $displayLessons = array_slice($recentLessons, 0, 4);
                     foreach ($displayLessons as $lesson): 
                     ?>
                     <div class="activity-item">
@@ -187,7 +187,7 @@ $classPerformance = $classPerformance ?? [
                 <?php else: ?>
                     <?php 
                     // Show only the last 5 quizzes
-                    $displayQuizzes = array_slice($recentQuizzes, 0, 5);
+                    $displayQuizzes = array_slice($recentQuizzes, 0, 4);
                     foreach ($displayQuizzes as $quiz): 
                     ?>
                     <div class="activity-item">

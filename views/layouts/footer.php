@@ -21,7 +21,7 @@
                             </div>
                         </div>
                         <p class="footer-about">
-                            Providing quality education through innovative e-learning solutions since 2016.
+                            Providing quality education through innovative e-learning solutions since 2015.
                         </p>
                         <div class="footer-social">
                             <a href="https://www.facebook.com/profile.php?id=100057146993995" target="_blank"><i class="fab fa-facebook-f"></i></a>

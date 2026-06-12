@@ -1,5 +1,5 @@
 <?php
-// File: /controllers/ExportController.php
+// File: /controllers/ExportController.php - Optimized Export Controller
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Report.php';
 require_once __DIR__ . '/../models/Quiz.php';
@@ -13,11 +13,15 @@ class ExportController {
     private $quizModel;
     private $subscriptionModel;
     private $settingsModel;
+    private $cachedTotalUsers = null;
+    private $cachedTotalTeachers = null;
+    private $cachedTotalLearners = null;
+    private $cachedTotalExternal = null;
+    private $cachedTotalAdmins = null;
     
     public function __construct() {
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-            header('Location: ' . BASE_URL . '/login');
-            exit;
+            $this->redirect(BASE_URL . '/login');
         }
         
         $this->userModel = new User();
@@ -29,266 +33,254 @@ class ExportController {
         if (ob_get_length()) ob_clean();
     }
     
-    /**
-     * Export Overview Report
-     */
-    private function exportOverview($start_date, $end_date, $days) {
-        
-        $totalUsers = count($this->userModel->getAllUsers(null, 0, 0));
-        $totalTeachers = count($this->userModel->getAllUsers('teacher', 0, 0));
-        $totalLearners = count($this->userModel->getAllUsers('learner', 0, 0));
-        $totalExternal = count($this->userModel->getAllUsers('external', 0, 0));
-        $totalAdmins = count($this->userModel->getAllUsers('admin', 0, 0));
-        
-        $recentActivity = $this->reportModel->getRecentActivity(10);
-        $userGrowthData = $this->reportModel->getUserGrowthData($days);
-        $revenueData = $this->reportModel->getRevenueData($days);
-        
+    // ==================== HELPER METHODS ====================  
+    private function redirect($url) {
+        header('Location: ' . $url);
+        exit;
+    }
+    
+    private function getSiteName() {
         $settings = $this->settingsModel->getGeneralSettings();
-        $siteName = $settings['site_name'] ?? 'ROGELE';
+        return $settings['site_name'] ?? 'ROGELE';
+    }
+    
+    private function calculateDaysDifference($start_date, $end_date) {
+        $date1 = new DateTime($start_date);
+        $date2 = new DateTime($end_date);
+        return $date1->diff($date2)->days + 1;
+    }
+    
+    private function formatDateRange($start_date, $end_date) {
+        return date('M d, Y', strtotime($start_date)) . ' - ' . date('M d, Y', strtotime($end_date));
+    }
+    
+    private function getCachedUserStats() {
+        if ($this->cachedTotalUsers === null) {
+            $this->cachedTotalUsers = count($this->userModel->getAllUsers(null, 0, 0));
+            $this->cachedTotalTeachers = count($this->userModel->getAllUsers('teacher', 0, 0));
+            $this->cachedTotalLearners = count($this->userModel->getAllUsers('learner', 0, 0));
+            $this->cachedTotalExternal = count($this->userModel->getAllUsers('external', 0, 0));
+            $this->cachedTotalAdmins = count($this->userModel->getAllUsers('admin', 0, 0));
+        }
         
+        return [
+            'total_users' => $this->cachedTotalUsers,
+            'total_teachers' => $this->cachedTotalTeachers,
+            'total_learners' => $this->cachedTotalLearners,
+            'total_external' => $this->cachedTotalExternal,
+            'total_admins' => $this->cachedTotalAdmins
+        ];
+    }
+    
+    private function initializePDF($title, $subtitle = null) {
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        
         $pdf->SetCreator('ROGELE');
         $pdf->SetAuthor('Admin');
-        $pdf->SetTitle('Overview Report');
-        $pdf->SetSubject('Platform Analytics');
-        $pdf->SetKeywords('report, analytics, overview');
-        
+        $pdf->SetTitle($title);
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
-        
         $pdf->AddPage();
         
-        $pdf->SetFont('helvetica', '', 11);
+        return $pdf;
+    }
+    
+    private function addPDFHeader($pdf, $reportTitle, $dateRange) {
+        $siteName = $this->getSiteName();
         
         $pdf->SetFont('helvetica', 'B', 20);
-        $pdf->SetTextColor(139, 92, 246); 
+        $pdf->SetTextColor(139, 92, 246);
         $pdf->Cell(0, 20, $siteName, 0, 1, 'C');
+        
         $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->SetTextColor(249, 115, 22); 
-        $pdf->Cell(0, 10, 'Overview Report', 0, 1, 'C');
+        $pdf->SetTextColor(249, 115, 22);
+        $pdf->Cell(0, 10, $reportTitle, 0, 1, 'C');
+        
         $pdf->SetFont('helvetica', '', 11);
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(0, 8, 'Date Range: ' . date('M d, Y', strtotime($start_date)) . ' - ' . date('M d, Y', strtotime($end_date)), 0, 1, 'C');
+        $pdf->Cell(0, 8, 'Date Range: ' . $dateRange, 0, 1, 'C');
         $pdf->Ln(10);
+    }
+    
+    private function addPDFFooter($pdf) {
+        $pdf->Ln(10);
+        $pdf->SetFont('helvetica', 'I', 8);
+        $pdf->SetTextColor(100, 100, 100);
+        $pdf->Cell(0, 5, 'Generated on ' . date('F j, Y H:i:s'), 0, 1, 'C');
+    }
+    
+    private function createUserStatsHTML() {
+        $stats = $this->getCachedUserStats();
         
-        $pdf->SetFont('helvetica', 'B', 14);
-        $pdf->SetTextColor(249, 115, 22); 
-        $pdf->Cell(0, 10, 'Platform Statistics', 0, 1, 'L');
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('helvetica', '', 11);
-        
-        $html = '
+        return '
         <style>
             table { border-collapse: collapse; width: 100%; }
             th { background-color: #7f2677; color: white; padding: 10px; text-align: left; }
             td { padding: 8px; border-bottom: 1px solid #ddd; }
-            .total-row { background-color: #f0f0f0; font-weight: bold; }
         </style>
         <table border="1" cellpadding="5">
-            <thead>
-                <tr>
-                    <th>Metric</th>
-                    <th>Count</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Metric</th><th>Count</th></tr></thead>
             <tbody>
-                <tr>
-                    <td>Total Users</td>
-                    <td>' . number_format($totalUsers) . '</td>
-                </tr>
-                <tr>
-                    <td>Administrators</td>
-                    <td>' . number_format($totalAdmins) . '</td>
-                </tr>
-                <tr>
-                    <td>Teachers</td>
-                    <td>' . number_format($totalTeachers) . '</td>
-                </tr>
-                <tr>
-                    <td>Learners</td>
-                    <td>' . number_format($totalLearners) . '</td>
-                </tr>
-                <tr>
-                    <td>External Users</td>
-                    <td>' . number_format($totalExternal) . '</td>
-                </tr>
+                <tr><td>Total Users</td><td>' . number_format($stats['total_users']) . '</td></tr>
+                <tr><td>Administrators</td><td>' . number_format($stats['total_admins']) . '</td></tr>
+                <tr><td>Teachers</td><td>' . number_format($stats['total_teachers']) . '</td></tr>
+                <tr><td>Learners</td><td>' . number_format($stats['total_learners']) . '</td></tr>
+                <tr><td>External Users</td><td>' . number_format($stats['total_external']) . '</td></tr>
             </tbody>
         </table>';
+    }
+    
+    private function createDataTableHTML($data, $headers, $formatCallbacks = []) {
+        if (empty($data)) {
+            return '<p>No data available for the selected date range.</p>';
+        }
         
-        $pdf->writeHTML($html, true, false, true, false, '');
+        $html = '<table border="1" cellpadding="4">
+            <thead><tr>';
+        
+        foreach ($headers as $header) {
+            $html .= '<th>' . htmlspecialchars($header) . '</th>';
+        }
+        
+        $html .= '</tr></thead><tbody>';
+        
+        foreach ($data as $row) {
+            $html .= '<tr>';
+            foreach ($headers as $index => $header) {
+                $field = strtolower(str_replace(' ', '_', $header));
+                $value = $row[$field] ?? $row[array_search($header, array_keys($row))] ?? '';
+                
+                if (isset($formatCallbacks[$index])) {
+                    $value = $formatCallbacks[$index]($value, $row);
+                }
+                
+                $html .= '<td>' . htmlspecialchars($value) . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        
+        $html .= '</tbody></table>';
+        return $html;
+    }
+    
+    private function addSectionHeader($pdf, $title) {
+        $pdf->SetFont('helvetica', 'B', 14);
+        $pdf->SetTextColor(249, 115, 22);
+        $pdf->Cell(0, 10, $title, 0, 1, 'L');
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', '', 11);
+    }
+    
+    // ==================== EXPORT METHODS ====================
+    private function exportOverview($start_date, $end_date, $days) {
+        $stats = $this->getCachedUserStats();
+        $recentActivity = $this->reportModel->getRecentActivity(10);
+        $userGrowthData = $this->reportModel->getUserGrowthData($days);
+        $revenueData = $this->reportModel->getRevenueData($days);
+        
+        $pdf = $this->initializePDF('Overview Report');
+        $this->addPDFHeader($pdf, 'Overview Report', $this->formatDateRange($start_date, $end_date));
+        
+        $this->addSectionHeader($pdf, 'Platform Statistics');
+        $pdf->writeHTML($this->createUserStatsHTML(), true, false, true, false, '');
         $pdf->Ln(10);
         
         if (!empty($userGrowthData)) {
-            $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->SetTextColor(249, 115, 22);
-            $pdf->Cell(0, 10, 'User Growth (Last ' . $days . ' days)', 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
+            $this->addSectionHeader($pdf, 'User Growth (Last ' . $days . ' days)');
             $pdf->SetFont('helvetica', '', 10);
             
-            $html = '<table border="1" cellpadding="4">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>New Users</th>
-                    </tr>
-                </thead>
+            $growthHtml = '<table border="1" cellpadding="4">
+                <thead><tr><th>Date</th><th>New Users</th></tr></thead>
                 <tbody>';
             
             foreach ($userGrowthData as $row) {
-                $html .= '<tr>
+                $growthHtml .= '<tr>
                     <td>' . date('M d, Y', strtotime($row['date'])) . '</td>
                     <td>' . $row['new_users'] . '</td>
                 </tr>';
             }
             
-            $html .= '</tbody></table>';
-            $pdf->writeHTML($html, true, false, true, false, '');
+            $growthHtml .= '</tbody></table>';
+            $pdf->writeHTML($growthHtml, true, false, true, false, '');
             $pdf->Ln(10);
         }
         
         if (!empty($revenueData)) {
-            $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->SetTextColor(249, 115, 22);
-            $pdf->Cell(0, 10, 'Revenue (Last ' . $days . ' days)', 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
+            $this->addSectionHeader($pdf, 'Revenue (Last ' . $days . ' days)');
             $pdf->SetFont('helvetica', '', 10);
             
-            $html = '<table border="1" cellpadding="4">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Revenue (UGX)</th>
-                    </tr>
-                </thead>
+            $revenueHtml = '<table border="1" cellpadding="4">
+                <thead><tr><th>Date</th><th>Revenue (UGX)</th></tr></thead>
                 <tbody>';
             
             foreach ($revenueData as $row) {
-                $html .= '<tr>
+                $revenueHtml .= '<tr>
                     <td>' . date('M d, Y', strtotime($row['date'])) . '</td>
                     <td>UGX ' . number_format($row['revenue']) . '</td>
                 </tr>';
             }
             
-            $html .= '</tbody></table>';
-            $pdf->writeHTML($html, true, false, true, false, '');
+            $revenueHtml .= '</tbody></table>';
+            $pdf->writeHTML($revenueHtml, true, false, true, false, '');
             $pdf->Ln(10);
         }
         
         if (!empty($recentActivity)) {
-            $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->SetTextColor(249, 115, 22);
-            $pdf->Cell(0, 10, 'Recent Activity', 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
+            $this->addSectionHeader($pdf, 'Recent Activity');
             $pdf->SetFont('helvetica', '', 9);
             
-            $html = '<table border="1" cellpadding="4">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Action</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
+            $activityHtml = '<table border="1" cellpadding="4">
+                <thead><tr><th>User</th><th>Action</th><th>Time</th></tr></thead>
                 <tbody>';
             
             foreach ($recentActivity as $activity) {
-                $html .= '<tr>
+                $activityHtml .= '<tr>
                     <td>' . htmlspecialchars($activity['first_name'] . ' ' . $activity['last_name']) . '</td>
                     <td>' . htmlspecialchars($activity['description']) . '</td>
                     <td>' . date('M d, Y H:i', strtotime($activity['created_at'])) . '</td>
                 </tr>';
             }
             
-            $html .= '</tbody></table>';
-            $pdf->writeHTML($html, true, false, true, false, '');
+            $activityHtml .= '</tbody></table>';
+            $pdf->writeHTML($activityHtml, true, false, true, false, '');
         }
         
-        $pdf->Ln(10);
-        $pdf->SetFont('helvetica', 'I', 8);
-        $pdf->SetTextColor(100, 100, 100);
-        $pdf->Cell(0, 5, 'Generated on ' . date('F j, Y H:i:s'), 0, 1, 'C');
-        
+        $this->addPDFFooter($pdf);
         $pdf->Output('Overview_Report_' . date('Y-m-d') . '.pdf', 'D');
         exit;
     }
     
-    /**
-     * Export Payments Report
-     */
     private function exportPayments($start_date, $end_date) {
         $data = $this->reportModel->getPaymentReport($start_date, $end_date);
         
-        $settings = $this->settingsModel->getGeneralSettings();
-        $siteName = $settings['site_name'] ?? 'Rays of Grace';
-        
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        $pdf->AddPage();
-        
-        $pdf->SetFont('helvetica', 'B', 20);
-        $pdf->SetTextColor(139, 92, 246);
-        $pdf->Cell(0, 20, $siteName, 0, 1, 'C');
-        $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->SetTextColor(249, 115, 22);
-        $pdf->Cell(0, 10, 'Revenue Report', 0, 1, 'C');
-        $pdf->SetFont('helvetica', '', 11);
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(0, 8, 'Date Range: ' . date('M d, Y', strtotime($start_date)) . ' - ' . date('M d, Y', strtotime($end_date)), 0, 1, 'C');
-        $pdf->Ln(10);
+        $pdf = $this->initializePDF('Revenue Report');
+        $this->addPDFHeader($pdf, 'Revenue Report', $this->formatDateRange($start_date, $end_date));
         
         if (!empty($data)) {
             $totalRevenue = array_sum(array_column($data, 'total_amount'));
             $totalTransactions = array_sum(array_column($data, 'transaction_count'));
             $avgAmount = $totalTransactions > 0 ? round($totalRevenue / $totalTransactions) : 0;
             
-            $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->SetTextColor(249, 115, 22);
-            $pdf->Cell(0, 10, 'Revenue Summary', 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
-            $pdf->SetFont('helvetica', '', 11);
+            $this->addSectionHeader($pdf, 'Revenue Summary');
             
-            $html = '
+            $summaryHtml = '
             <table border="1" cellpadding="6">
-                <tr>
-                    <td><strong>Total Revenue:</strong></td>
-                    <td>UGX ' . number_format($totalRevenue) . '</td>
-                </tr>
-                <tr>
-                    <td><strong>Total Transactions:</strong></td>
-                    <td>' . number_format($totalTransactions) . '</td>
-                </tr>
-                <tr>
-                    <td><strong>Average Transaction Value:</strong></td>
-                    <td>UGX ' . number_format($avgAmount) . '</td>
-                </tr>
+                <tr><td><strong>Total Revenue:</strong></td><td>UGX ' . number_format($totalRevenue) . '</td></tr>
+                <tr><td><strong>Total Transactions:</strong></td><td>' . number_format($totalTransactions) . '</td></tr>
+                <tr><td><strong>Average Transaction Value:</strong></td><td>UGX ' . number_format($avgAmount) . '</td></tr>
             </table>';
             
-            $pdf->writeHTML($html, true, false, true, false, '');
+            $pdf->writeHTML($summaryHtml, true, false, true, false, '');
             $pdf->Ln(10);
             
-            $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->SetTextColor(249, 115, 22);
-            $pdf->Cell(0, 10, 'Transaction Details', 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
+            $this->addSectionHeader($pdf, 'Transaction Details');
             $pdf->SetFont('helvetica', '', 10);
             
-            $html = '<table border="1" cellpadding="4">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Transactions</th>
-                        <th>Total Amount</th>
-                        <th>Avg Amount</th>
-                        <th>Payment Method</th>
-                    </tr>
-                </thead>
+            $detailsHtml = '<table border="1" cellpadding="4">
+                <thead><tr><th>Date</th><th>Transactions</th><th>Total Amount</th><th>Avg Amount</th><th>Payment Method</th></tr></thead>
                 <tbody>';
             
             foreach ($data as $row) {
-                $html .= '<tr>
+                $detailsHtml .= '<tr>
                     <td>' . date('M d, Y', strtotime($row['date'])) . '</td>
                     <td>' . number_format($row['transaction_count']) . '</td>
                     <td>UGX ' . number_format($row['total_amount']) . '</td>
@@ -297,145 +289,89 @@ class ExportController {
                 </tr>';
             }
             
-            $html .= '</tbody></table>';
-            $pdf->writeHTML($html, true, false, true, false, '');
+            $detailsHtml .= '</tbody></table>';
+            $pdf->writeHTML($detailsHtml, true, false, true, false, '');
         } else {
             $pdf->SetFont('helvetica', '', 12);
             $pdf->Cell(0, 10, 'No payment data available for the selected date range.', 0, 1, 'C');
         }
         
-        $pdf->Ln(10);
-        $pdf->SetFont('helvetica', 'I', 8);
-        $pdf->SetTextColor(100, 100, 100);
-        $pdf->Cell(0, 5, 'Generated on ' . date('F j, Y H:i:s'), 0, 1, 'C');
-        
+        $this->addPDFFooter($pdf);
         $pdf->Output('Revenue_Report_' . date('Y-m-d') . '.pdf', 'D');
         exit;
     }
     
-    /**
-     * Export Activity Report
-     */
     private function exportActivity($start_date, $end_date) {
         $data = $this->reportModel->getActivityReport($start_date, $end_date);
         
-        $settings = $this->settingsModel->getGeneralSettings();
-        $siteName = $settings['site_name'] ?? 'Rays of Grace';
-        
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        $pdf->AddPage();
-        
-        $pdf->SetFont('helvetica', 'B', 20);
-        $pdf->SetTextColor(139, 92, 246);
-        $pdf->Cell(0, 20, $siteName, 0, 1, 'C');
-        $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->SetTextColor(249, 115, 22);
-        $pdf->Cell(0, 10, 'Activity Log', 0, 1, 'C');
-        $pdf->SetFont('helvetica', '', 11);
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(0, 8, 'Date Range: ' . date('M d, Y', strtotime($start_date)) . ' - ' . date('M d, Y', strtotime($end_date)), 0, 1, 'C');
-        $pdf->Ln(10);
+        $pdf = $this->initializePDF('Activity Log');
+        $this->addPDFHeader($pdf, 'Activity Log', $this->formatDateRange($start_date, $end_date));
         
         if (!empty($data)) {
             $actionCounts = [];
             foreach ($data as $row) {
-                if (!isset($actionCounts[$row['action']])) {
-                    $actionCounts[$row['action']] = 0;
-                }
-                $actionCounts[$row['action']] += $row['count'];
+                $action = $row['action'];
+                $actionCounts[$action] = ($actionCounts[$action] ?? 0) + $row['count'];
             }
             
-            $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->SetTextColor(249, 115, 22);
-            $pdf->Cell(0, 10, 'Activity Summary', 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
-            $pdf->SetFont('helvetica', '', 11);
+            $this->addSectionHeader($pdf, 'Activity Summary');
             
-            $html = '<table border="1" cellpadding="6">
-                <thead>
-                    <tr>
-                        <th>Action Type</th>
-                        <th>Count</th>
-                    </tr>
-                </thead>
+            $summaryHtml = '<table border="1" cellpadding="6">
+                <thead><tr><th>Action Type</th><th>Count</th></tr></thead>
                 <tbody>';
             
             foreach ($actionCounts as $action => $count) {
-                $html .= '<tr>
+                $summaryHtml .= '<tr>
                     <td>' . str_replace('_', ' ', $action) . '</td>
                     <td>' . number_format($count) . '</td>
                 </tr>';
             }
             
-            $html .= '</tbody></table>';
-            $pdf->writeHTML($html, true, false, true, false, '');
+            $summaryHtml .= '</tbody></table>';
+            $pdf->writeHTML($summaryHtml, true, false, true, false, '');
             $pdf->Ln(10);
             
-            $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->SetTextColor(249, 115, 22);
-            $pdf->Cell(0, 10, 'Activity Timeline', 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
+            $this->addSectionHeader($pdf, 'Activity Timeline');
             $pdf->SetFont('helvetica', '', 10);
             
-            $html = '<table border="1" cellpadding="4">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Action</th>
-                        <th>Count</th>
-                    </tr>
-                </thead>
+            $timelineHtml = '<table border="1" cellpadding="4">
+                <thead><tr><th>Date</th><th>Action</th><th>Count</th></tr></thead>
                 <tbody>';
             
             foreach ($data as $row) {
-                $html .= '<tr>
+                $timelineHtml .= '<tr>
                     <td>' . date('M d, Y', strtotime($row['date'])) . '</td>
                     <td>' . str_replace('_', ' ', $row['action']) . '</td>
                     <td>' . number_format($row['count']) . '</td>
                 </tr>';
             }
             
-            $html .= '</tbody></table>';
-            $pdf->writeHTML($html, true, false, true, false, '');
+            $timelineHtml .= '</tbody></table>';
+            $pdf->writeHTML($timelineHtml, true, false, true, false, '');
         } else {
             $pdf->SetFont('helvetica', '', 12);
             $pdf->Cell(0, 10, 'No activity data available for the selected date range.', 0, 1, 'C');
         }
         
-        $pdf->Ln(10);
-        $pdf->SetFont('helvetica', 'I', 8);
-        $pdf->SetTextColor(100, 100, 100);
-        $pdf->Cell(0, 5, 'Generated on ' . date('F j, Y H:i:s'), 0, 1, 'C');
-        
+        $this->addPDFFooter($pdf);
         $pdf->Output('Activity_Report_' . date('Y-m-d') . '.pdf', 'D');
         exit;
     }
-
-    /**
-     * Main export handler - called by router
-     */
+    
     public function export() {
         $type = $_GET['type'] ?? 'overview';
         $start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
         $end_date = $_GET['end_date'] ?? date('Y-m-d');
+        $days = $this->calculateDaysDifference($start_date, $end_date);
         
-        $date1 = new DateTime($start_date);
-        $date2 = new DateTime($end_date);
-        $days = $date1->diff($date2)->days + 1;
+        $exportMethods = [
+            'payments' => 'exportPayments',
+            'activity' => 'exportActivity',
+            'overview' => 'exportOverview'
+        ];
         
-        switch ($type) {
-            case 'payments':
-                $this->exportPayments($start_date, $end_date);
-                break;
-            case 'activity':
-                $this->exportActivity($start_date, $end_date);
-                break;
-            case 'overview':
-            default:
-                $this->exportOverview($start_date, $end_date, $days);
-                break;
-        }
+        $method = $exportMethods[$type] ?? 'exportOverview';
+        $this->$method($start_date, $end_date, $days);
     }
 }
+?>
