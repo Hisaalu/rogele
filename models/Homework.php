@@ -616,9 +616,8 @@ class Homework {
                 FROM homework h
                 LEFT JOIN classes c ON h.class_id = c.id
                 LEFT JOIN subjects s ON h.subject_id = s.id
-                WHERE h.teacher_id = ?
+                WHERE h.teacher_id = :teacher_id
             ";
-            $params = [$teacherId];
             
             if ($status === 'active') {
                 $query .= " AND h.due_date > NOW()";
@@ -626,12 +625,14 @@ class Homework {
                 $query .= " AND h.due_date < NOW()";
             }
             
-            $query .= " ORDER BY h.created_at DESC LIMIT ? OFFSET ?";
-            $params[] = $limit;
-            $params[] = $offset;
+            $query .= " ORDER BY h.created_at DESC LIMIT :limit OFFSET :offset";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute($params);
+            $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
+            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            
+            $stmt->execute();
             $homeworks = $stmt->fetchAll();
             
             foreach ($homeworks as &$homework) {
