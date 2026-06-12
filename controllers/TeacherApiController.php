@@ -1,11 +1,13 @@
 <?php
-// File: /controllers/TeacherApiController.php
+// File: /controllers/TeacherApiController.php 
+
 require_once __DIR__ . '/../models/Quiz.php';
 require_once __DIR__ . '/../models/Lesson.php';
 
 class TeacherApiController {
     private $quizModel;
     private $lessonModel;
+    private $teacherId;
     
     public function __construct() {
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'teacher') {
@@ -14,21 +16,24 @@ class TeacherApiController {
             exit;
         }
         
+        $this->teacherId = $_SESSION['user_id'];
         $this->quizModel = new Quiz();
         $this->lessonModel = new Lesson();
     }
     
-    /**
-     * Get quiz performance data for charts
-     */
-    public function quizPerformance() {
-        $teacherId = $_SESSION['user_id'];
-        $days = $_GET['days'] ?? 30;
+    private function sendError(string $message, int $code = 500): void {
+        http_response_code($code);
+        echo json_encode(['error' => $message]);
+        exit;
+    }
+    
+    public function quizPerformance(): void {
+        $days = isset($_GET['days']) ? max(1, (int)$_GET['days']) : 30;
         
         header('Content-Type: application/json');
         
         try {
-            $data = $this->quizModel->getDailyPerformance($teacherId, $days);
+            $data = $this->quizModel->getDailyPerformance($this->teacherId, $days);
             
             $labels = [];
             $scores = [];
@@ -46,23 +51,18 @@ class TeacherApiController {
                 'attempts' => $attempts
             ]);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            $this->sendError($e->getMessage());
         }
         exit;
     }
     
-    /**
-     * Get lesson views data for charts
-     */
-    public function lessonViews() {
-        $teacherId = $_SESSION['user_id'];
-        $days = $_GET['days'] ?? 30;
+    public function lessonViews(): void {
+        $days = isset($_GET['days']) ? max(1, (int)$_GET['days']) : 30;
         
         header('Content-Type: application/json');
         
         try {
-            $data = $this->lessonModel->getDailyViews($teacherId, $days);
+            $data = $this->lessonModel->getDailyViews($this->teacherId, $days);
             
             $labels = [];
             $views = [];
@@ -77,9 +77,9 @@ class TeacherApiController {
                 'views' => $views
             ]);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            $this->sendError($e->getMessage());
         }
         exit;
     }
 }
+?>

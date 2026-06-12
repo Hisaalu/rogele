@@ -1,10 +1,9 @@
 <?php
 // File: /index.php
+require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/env.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
-require_once __DIR__ . '/config/config.php';
 
 spl_autoload_register(function ($class) {
     $paths = [
@@ -98,16 +97,20 @@ $routes = [
     '/teacher/quizzes/publish/{id}' => 'TeacherController@publishQuiz',
     '/teacher/quizzes/unpublish/{id}' => 'TeacherController@unpublishQuiz',
     '/teacher/quizzes/edit-question/{id}' => 'TeacherController@editQuestion',
+    '/teacher/homework' => 'TeacherHomeworkController@index',
+    '/teacher/homework/create' => 'TeacherHomeworkController@create',
+    '/teacher/homework/edit/{id}' => 'TeacherHomeworkController@edit',
+    '/teacher/homework/delete/{id}' => 'TeacherHomeworkController@delete',
+    '/teacher/homework/submissions/{id}' => 'TeacherHomeworkController@submissions',
+    '/teacher/homework/grade-submission' => 'TeacherHomeworkController@gradeSubmission',
+    '/teacher/homework/delete-attachment/{id}' => 'TeacherHomeworkController@deleteAttachment',
+    '/teacher/homework/download-file/{id}' => 'TeacherHomeworkController@downloadFile',
+    '/teacher/homework/toggle-submissions' => 'TeacherHomeworkController@toggleSubmissions',
     
      // Teacher API routes
     '/teacher/api/quiz-performance' => 'TeacherApiController@quizPerformance',
     '/teacher/api/lesson-views' => 'TeacherApiController@lessonViews',
     
-    // Learner routes
-    '/learner/dashboard' => 'LearnerController@dashboard',
-    '/learner/materials' => 'LearnerController@materials',
-    '/learner/quizzes' => 'LearnerController@quizzes',
-    '/learner/bookmarks' => 'LearnerController@bookmarks',
     
     // External user routes
     '/external/pesapal-ipn' => 'ExternalController@pesapalIpn',
@@ -117,6 +120,9 @@ $routes = [
     '/external/dashboard' => 'ExternalController@dashboard',
     '/external/materials' => 'ExternalController@materials',
     '/external/view-lesson/{id}' => 'ExternalController@viewLesson',
+    '/external/toggle-bookmark/{id}' => 'ExternalController@toggleBookmark',
+    '/external/bookmarks' => 'ExternalController@bookmarks',
+    '/external/get-bookmark-count' => 'ExternalController@getBookmarkCount',
     '/external/subscription' => 'ExternalController@subscription',
     '/external/purchase' => 'ExternalController@purchase',
     '/external/lessons' => 'ExternalController@materials',
@@ -136,6 +142,11 @@ $routes = [
     '/external/payment-callback' => 'ExternalController@paymentCallback',
     '/external/payment-success' => 'ExternalController@paymentSuccess',
     '/external/payment-cancelled' => 'ExternalController@paymentCancelled',
+    '/external/homework' => 'ExternalHomeworkController@index',
+    '/external/homework/view/{id}' => 'ExternalHomeworkController@view',
+    '/external/homework/submit/{id}' => 'ExternalHomeworkController@submit',
+    '/external/homework/download-attachment/{id}' => 'ExternalHomeworkController@downloadAttachment',
+    '/external/homework/delete-submission/{id}' => 'ExternalHomeworkController@deleteSubmission',
     
      // Settings routes
     '/admin/settings' => 'AdminController@settings',

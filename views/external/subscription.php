@@ -54,7 +54,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                 <i class="fas fa-check-circle"></i>
             </div>
             <div class="active-content">
-                <h3>🎉 You're on the <?php echo ucfirst($currentSubscription['plan_type']); ?> Plan!</h3>
+                <h3>You're on the <?php echo ucfirst($currentSubscription['plan_type']); ?> Plan!</h3>
                 <p>Valid until <?php echo date('F j, Y', strtotime($currentSubscription['end_date'])); ?></p>
             </div>
             <?php
@@ -161,7 +161,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                 <table class="history-table">
                     <thead>
                         <tr>
-                            <th>Date</th>
+                            <th>Subscription Date</th>
                             <th>Plan</th>
                             <th>Amount</th>
                             <th>Payment Method</th>
@@ -293,14 +293,14 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 .page-title {
     font-size: 3rem;
     font-weight: 800;
-    background: linear-gradient(135deg, black);
+    background: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 16px;
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1.2rem;
     max-width: 600px;
     margin: 0 auto;
@@ -310,7 +310,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     color: white;
     padding: 12px 28px;
     border-radius: 60px;
@@ -401,7 +401,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 .pricing-card.popular {
-    border-color: #7f2677;
+    border-color: #f06724;
     background: linear-gradient(135deg, #FFFFFF, #FFFBEB);
 }
 
@@ -410,7 +410,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #f06724);
+    background-color: #7f2677;
     color: white;
     padding: 6px 24px;
     border-radius: 50px;
@@ -442,7 +442,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 .plan-name {
     font-size: 1.8rem;
     font-weight: 800;
-    color: black;
+    color: #000;
     margin-bottom: 16px;
 }
 
@@ -452,19 +452,19 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
 .currency {
     font-size: 1rem;
-    color: black;
+    color: #000;
     vertical-align: top;
 }
 
 .amount {
     font-size: 3rem;
     font-weight: 800;
-    color: black;
+    color: #000;
     line-height: 1;
 }
 
 .period {
-    color: black;
+    color: #555;
     font-size: 0.9rem;
     margin-bottom: 24px;
 }
@@ -495,7 +495,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     align-items: center;
     gap: 12px;
     margin-bottom: 14px;
-    color: black;
+    color: #555;
     font-size: 0.95rem;
 }
 
@@ -547,7 +547,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
 .section-title {
     font-size: 1.5rem;
-    color: black;
+    color: #000;
     margin-bottom: 24px;
     display: flex;
     align-items: center;
@@ -576,14 +576,15 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     padding: 12px 16px;
     background: #F8FAFC;
     font-weight: 600;
-    color: black;
+    color: #000;
     border-radius: 12px;
 }
 
 .history-table td {
     padding: 12px 16px;
     border-bottom: 1px solid #E2E8F0;
-    color: black;
+    color: #000;
+    font-weight: 300;
 }
 
 .status-badge {
@@ -740,13 +741,13 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 }
 
 .method-option input:checked + .method-card {
-    border-color: #7f2677;
+    border-color: #f06724;
     background: #F8FAFC;
 }
 
 .method-card i {
     font-size: 1.5rem;
-    color: black;
+    color: #000;
     margin-bottom: 8px;
     display: block;
 }
@@ -771,14 +772,14 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: black;
+    color: #000;
     font-size: 0.9rem;
 }
 
 .input-group input {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -786,13 +787,14 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
 .input-group input:focus {
     outline: none;
-    border-color: black;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .input-group small {
     display: block;
     margin-top: 6px;
-    color: black;
+    color: #000;
     font-size: 0.75rem;
 }
 

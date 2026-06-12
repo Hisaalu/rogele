@@ -11,7 +11,7 @@ $pageTitle = 'Login | ROGELE';
     <title><?php echo $pageTitle; ?></title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
     <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
 
     <!-- Font Awesome 6 (required for icons) -->
@@ -80,13 +80,13 @@ $pageTitle = 'Login | ROGELE';
     .logo-section h1 {
         font-size: 1.5rem;
         font-weight: 600;
-        color: black;
+        color: #000;
         margin: 0;
     }
 
     .logo-section p {
         font-size: 0.85rem;
-        color: black;
+        color: #555;
         margin-top: 4px;
     }
 
@@ -113,7 +113,7 @@ $pageTitle = 'Login | ROGELE';
     .form-group input:focus {
         outline: none;
         border-color: #f06724;
-        box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.1);
+        box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
     }
 
     .form-group input::placeholder {
@@ -184,20 +184,6 @@ $pageTitle = 'Login | ROGELE';
         font-size: 0.85rem;
     }
 
-    .checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        color: black;
-    }
-
-    .checkbox-label input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        cursor: pointer;
-    }
-
     .forgot-link {
         color: #7f2677;
         text-decoration: none;
@@ -211,11 +197,8 @@ $pageTitle = 'Login | ROGELE';
     /* Register Link */
     .register-link {
         text-align: center;
-        margin-top: 24px;
-        padding-top: 24px;
-        border-top: 1px solid #eee;
         font-size: 0.85rem;
-        color: black;
+        color: #000;
     }
 
     .register-link a {
@@ -371,23 +354,18 @@ $pageTitle = 'Login | ROGELE';
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="form-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="remember" id="remember">
-                        <span>Remember me</span>
-                    </label>
                     <a href="<?php echo BASE_URL; ?>/forgot-password" class="forgot-link">Forgot password?</a>
+                    <div class="register-link">
+                        <a href="<?php echo BASE_URL; ?>/register">Create account</a>
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn-login" id="loginButton">
                     Log in
                 </button>
                 
-                <div class="register-link">
-                    <span>Don't have an account?</span>
-                    <a href="<?php echo BASE_URL; ?>/register">Create account</a>
-                </div>
             </form>
         </div>
     </div>
@@ -401,19 +379,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const togglePassword = document.getElementById('togglePassword');
     
-    // Auto-focus on email field
     if (usernameInput) {
         usernameInput.focus();
     }
     
-    // Toggle password visibility
     if (togglePassword && passwordInput) {
         togglePassword.addEventListener('click', function() {
-            // Toggle the type attribute
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
             
-            // Toggle the eye icon
             const icon = this.querySelector('i');
             if (icon) {
                 icon.classList.toggle('fa-eye');
@@ -434,7 +408,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Show loading state
             loginButton.classList.add('loading');
             loginButton.textContent = '';
         });

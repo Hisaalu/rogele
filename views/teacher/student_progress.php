@@ -8,7 +8,8 @@ $quizResults = $quizResults ?? [];
 $quizStats = $quizStats ?? [];
 
 // Get only last 5 quizzes for the chart
-$lastFiveQuizzes = array_slice($quizResults, -5);
+$lastFiveQuizzes = array_slice($quizResults, 0, 5);
+$lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 ?>
 
 <div class="progress-container">
@@ -68,7 +69,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
     <?php if (!empty($lastFiveQuizzes)): ?>
     <div class="section-card">
         <div class="section-header">
-            <h3><i class="fas fa-chart-line"></i> Quiz Performance Trend (Last 5 Quizzes)</h3>
+            <h3><i class="fas fa-chart-line"></i> Quiz Performance for only the Last 5 Quizzes</h3>
         </div>
         <div class="chart-container">
             <canvas id="performanceChart"></canvas>
@@ -192,7 +193,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -200,7 +201,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 }
 
 .back-link:hover {
-    color: #7f2677;
+    color: #f06724;
 }
 
 .page-title {
@@ -216,7 +217,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -238,7 +239,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -270,13 +271,13 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 }
 
 .student-details h2 {
-    color: black;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
 .student-details p {
-    color: black;
+    color: #555;
     margin-bottom: 5px;
     display: flex;
     align-items: center;
@@ -306,12 +307,12 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
     display: block;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #7f2677;
+    color: #000;
     line-height: 1.2;
 }
 
 .quick-label {
-    color: black;
+    color: #555;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -338,7 +339,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 }
 
 .section-header h3 {
-    color: black;
+    color: #000;
     font-size: 1.2rem;
     display: flex;
     align-items: center;
@@ -388,7 +389,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 
 .progress-table th {
     background: #F8FAFC;
-    color: black;
+    color: #000;
     font-weight: 600;
     font-size: 0.85rem;
     padding: 12px 15px;
@@ -400,8 +401,9 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 
 .progress-table td {
     padding: 12px 15px;
+    font-weight: 200;
     border-bottom: 1px solid #F1F5F9;
-    color: black;
+    color: #000;
     vertical-align: middle;
 }
 
@@ -491,7 +493,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 .summary-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -507,7 +509,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 .summary-label {
     display: block;
     font-size: 0.7rem;
-    color: black;
+    color: #000;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 3px;
@@ -517,7 +519,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
     display: block;
     font-size: 1.3rem;
     font-weight: 700;
-    color: black;
+    color: #000;
 }
 
 .summary-sub {
@@ -531,7 +533,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 .empty-mini {
     text-align: center;
     padding: 60px 20px;
-    color: black;
+    color: #000;
     background: #F8FAFC;
     border-radius: 12px;
 }
@@ -548,7 +550,7 @@ $lastFiveQuizzes = array_slice($quizResults, -5);
 
 .empty-hint {
     font-size: 0.8rem;
-    color: black;
+    color: #000;
 }
 
 /* Responsive */
@@ -604,19 +606,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: quizScores,
                     borderColor: '#f06724',
                     backgroundColor: 'rgba(240, 103, 36, 0.1)',
-                    borderWidth: 3,
+                    borderWidth: 1,
                     pointBackgroundColor: '#f06724',
                     pointBorderColor: 'white',
                     pointRadius: 6,
                     pointHoverRadius: 8,
                     fill: true,
-                    tension: 0.3
+                    tension: 0.4
                 },
                 {
-                    label: 'Passing Score (50%)',
+                    label: 'Passing Score',
                     data: Array(quizScores.length).fill(passingScore),
                     borderColor: '#10B981',
-                    borderWidth: 2,
+                    borderWidth: 1,
                     borderDash: [5, 5],
                     pointRadius: 0,
                     fill: false,
@@ -657,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     title: {
                         display: true,
                         text: 'Score (%)',
-                        color: 'black',
+                        color: '#000',
                         font: {
                             weight: 'bold'
                         }
@@ -669,8 +671,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 x: {
                     title: {
                         display: true,
-                        text: 'Quiz',
-                        color: 'black',
+                        text: 'Quiz Name',
+                        color: '#000',
                         font: {
                             weight: 'bold'
                         }

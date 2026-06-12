@@ -21,11 +21,15 @@
                             </div>
                         </div>
                         <p class="footer-about">
-                            Providing quality education through innovative e-learning solutions since 2016.
+                            Providing quality education through innovative e-learning solutions since 2015.
                         </p>
                         <div class="footer-social">
                             <a href="https://www.facebook.com/profile.php?id=100057146993995" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                            <a href="https://x.com/raysofgracejr" target="_blank"><i class="fab fa-twitter"></i></a>
+                            <a href="https://x.com/raysofgracejr" target="_blank" aria-label="X (formerly Twitter)">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width: 16px; height: 16px; fill: currentColor; vertical-align: middle;">
+                                    <path d="M389.2 48h70.6L305.6 224.2 487 464H345.3L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/>
+                                </svg>
+                            </a>
                             <a href="https://www.linkedin.com/company/raysofgracejr" target="_blank"><i class="fab fa-linkedin-in"></i></a>
                             <a href="https://www.youtube.com/@raysofgraceacademy" target="_blank"><i class="fab fa-youtube"></i></a>
                         </div>
@@ -71,7 +75,6 @@
     <!-- JavaScript for Mobile Menu -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Get elements
         const mobileToggle = document.getElementById('mobileToggle');
         const mobileMenu = document.getElementById('mobileMenu');
         const mobileClose = document.getElementById('mobileClose');
@@ -179,7 +182,6 @@
 
         // Back to Top Button functionality
         if (backToTop) {
-            // Show/hide button based on scroll position
             window.addEventListener('scroll', function() {
                 if (window.scrollY > 2500) {
                     backToTop.classList.add('show');
@@ -188,7 +190,6 @@
                 }
             });
 
-            // Scroll to top when clicked
             backToTop.addEventListener('click', function() {
                 window.scrollTo({
                     top: 0,
@@ -198,26 +199,21 @@
         }
     });
 
-     // ===== CLICK DROPDOWN FUNCTIONALITY =====
+     //click drop down functionality
      document.addEventListener('DOMContentLoaded', function() {
-         // Get elements
          const userMenuButton = document.getElementById('userMenuButton');
          const userDropdown = document.getElementById('userDropdown');
          
          if (userMenuButton && userDropdown) {
-             // Toggle dropdown on click
              userMenuButton.addEventListener('click', function(event) {
                  event.stopPropagation();
                  event.preventDefault();
                  
-                 // Toggle show class
                  userDropdown.classList.toggle('show');
                  
-                 // Toggle active class on button
                  this.classList.toggle('active');
              });
              
-             // Close dropdown when clicking outside
              document.addEventListener('click', function(event) {
                  if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
                      userDropdown.classList.remove('show');
@@ -225,7 +221,6 @@
                  }
              });
              
-             // Close dropdown when pressing Escape key
              document.addEventListener('keydown', function(event) {
                  if (event.key === 'Escape') {
                      userDropdown.classList.remove('show');
@@ -271,7 +266,6 @@
              mobileOverlay.addEventListener('click', closeMobileMenu);
          }
          
-         // Close mobile menu on escape key
          document.addEventListener('keydown', function(event) {
              if (event.key === 'Escape') {
                  closeMobileMenu();
@@ -281,7 +275,6 @@
     </script>
 
     <style>
-        /* Footer Styles */
         .site-footer {
             background: linear-gradient(135deg, #1E293B, #0F172A);
             color: white;
@@ -469,7 +462,6 @@
             transform: scale(0.95);
         }
 
-        /* Mobile Responsive for Back to Top */
         @media (max-width: 768px) {
             .back-to-top {
                 bottom: 20px;

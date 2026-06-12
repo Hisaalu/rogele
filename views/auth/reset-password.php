@@ -83,7 +83,7 @@ $token = $token ?? '';
 
         .logo-section p {
             font-size: 0.85rem;
-            color: black;
+            color: #555;
             margin-top: 4px;
         }
 
@@ -109,7 +109,7 @@ $token = $token ?? '';
         .form-group input:focus {
             outline: none;
             border-color: #f06724;
-            box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.1);
+            box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
         }
 
         .form-group input::placeholder {
@@ -134,7 +134,7 @@ $token = $token ?? '';
             background: none;
             border: none;
             cursor: pointer;
-            color: #999;
+            color: #555;
             font-size: 1.1rem;
             padding: 8px;
             transition: color 0.2s ease;
@@ -175,7 +175,7 @@ $token = $token ?? '';
             padding-top: 24px;
             border-top: 1px solid #eee;
             font-size: 0.85rem;
-            color: black;
+            color: #000;
         }
 
         .login-link a {

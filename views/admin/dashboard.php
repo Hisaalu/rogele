@@ -37,7 +37,7 @@ $recentActivity = $recentActivity ?? [];
     <!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-content">
@@ -50,7 +50,7 @@ $recentActivity = $recentActivity ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-chalkboard-teacher"></i>
             </div>
             <div class="stat-content">
@@ -63,7 +63,7 @@ $recentActivity = $recentActivity ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-user-graduate"></i>
             </div>
             <div class="stat-content">
@@ -76,7 +76,7 @@ $recentActivity = $recentActivity ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-globe"></i>
             </div>
             <div class="stat-content">
@@ -161,7 +161,7 @@ $recentActivity = $recentActivity ?? [];
                             <?php if (!empty($user['profile_photo'])): ?>
                                 <img src="<?php echo BASE_URL; ?>/<?php echo $user['profile_photo']; ?>" alt="<?php echo $user['first_name']; ?>">
                             <?php else: ?>
-                                <div class="avatar-placeholder" style="background: linear-gradient(135deg, #f06724);">
+                                <div class="avatar-placeholder" style="background-color: #f06724;">
                                     <?php echo strtoupper(substr($user['first_name'] ?? 'U', 0, 1) . substr($user['last_name'] ?? 'S', 0, 1)); ?>
                                 </div>
                             <?php endif; ?>

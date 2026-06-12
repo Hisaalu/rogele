@@ -11,7 +11,6 @@ require_once __DIR__ . '/../layouts/header.php';
             <div class="section-header">
                 <h1>Contact Us</h1>
                 <p>
-                    Have questions? We'd love to hear from you. 
                     Send us a message and we'll respond as soon as possible.
                 </p>
             </div>
@@ -108,7 +107,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .section-header p {
-    color: black;
+    color: #555;
     font-size: 1.1rem;
     max-width: 600px;
     margin: 0 auto;
@@ -149,13 +148,13 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .info-card h3 {
-    color: #7f2677;
+    color: #000;
     font-size: 1.1rem;
     margin-bottom: 10px;
 }
 
 .info-card p {
-    color: black;
+    color: #555;
     font-size: 0.9rem;
     margin: 5px 0;
 }
@@ -176,7 +175,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group textarea {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -187,7 +186,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group textarea:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .btn-send {

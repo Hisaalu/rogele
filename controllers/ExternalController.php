@@ -18,36 +18,27 @@ class ExternalController {
     private $userModel;
     private $settingsModel;
     private $subjectModel;
-    private $classesModel; 
+    private $classesModel;
+    private $userId;
+    
+    private $publicMethods = ['pesapalIpn', 'pesapalCallback', 'pesapalTest', 'paymentCallback'];
     
     public function __construct() {
-        // Get the current action/method being called
-        // We need to check which method is being called from the backtrace
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
         $calledMethod = isset($backtrace[1]['function']) ? $backtrace[1]['function'] : '';
         
-        // List of public methods that don't require authentication
-        $publicMethods = [
-            'pesapalIpn',
-            'pesapalCallback', 
-            'pesapalTest',
-            'paymentCallback'  // Add any other callback methods
-        ];
+        $this->subscriptionModel = new Subscription();
+        $this->lessonModel = new Lesson();
+        $this->quizModel = new Quiz();
+        $this->userModel = new User();
+        $this->settingsModel = new Settings();
+        $this->subjectModel = new Subject();
+        $this->classesModel = new Classes();
         
-        // If this is a public method, skip authentication
-        if (in_array($calledMethod, $publicMethods)) {
-            // Initialize models without requiring session
-            $this->subscriptionModel = new Subscription();
-            $this->lessonModel = new Lesson();
-            $this->quizModel = new Quiz();
-            $this->userModel = new User();
-            $this->settingsModel = new Settings();
-            $this->subjectModel = new Subject();
-            $this->classesModel = new Classes();
+        if (in_array($calledMethod, $this->publicMethods)) {
             return;
         }
         
-        // For all other methods, require authentication
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -62,18 +53,10 @@ class ExternalController {
             exit;
         }
         
-        $this->subscriptionModel = new Subscription();
-        $this->lessonModel = new Lesson();
-        $this->quizModel = new Quiz();
-        $this->userModel = new User();
-        $this->settingsModel = new Settings();
-        $this->subjectModel = new Subject();
-        $this->classesModel = new Classes();
+        $this->userId = $_SESSION['user_id'];
     }
     
-    /**
-     * Redirect to dashboard based on user role
-     */
+    // ==================== HELPER METHODS ====================
     private function redirectToRoleDashboard() {
         switch ($_SESSION['user_role']) {
             case 'admin':
@@ -91,13 +74,118 @@ class ExternalController {
         exit;
     }
     
-   /**
-     * External User Dashboard
-     */
+    private function redirect($url) {
+        header('Location: ' . $url);
+        exit;
+    }
+    
+    private function redirectWithError($message, $url) {
+        $_SESSION['error'] = $message;
+        $this->redirect($url);
+    }
+    
+    private function redirectWithSuccess($message, $url) {
+        $_SESSION['success'] = $message;
+        $this->redirect($url);
+    }
+    
+    private function isPostRequest() {
+        return $_SERVER['REQUEST_METHOD'] === 'POST';
+    }
+    
+    private function sanitize($input) {
+        return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
+    }
+    
+    private function validateRequiredFields($data, $fields) {
+        $errors = [];
+        foreach ($fields as $field) {
+            if (empty($data[$field])) {
+                $errors[] = ucfirst(str_replace('_', ' ', $field)) . ' is required';
+            }
+        }
+        return $errors;
+    }
+    
+    private function getUserClassId() {
+        $user = $this->userModel->getById($this->userId);
+        return $user['class_id'] ?? null;
+    }
+    
+    private function getPlanPrice($planType) {
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
+        $prices = [
+            'monthly' => $subscriptionSettings['monthly_price'] ?? 15000,
+            'termly' => $subscriptionSettings['termly_price'] ?? 40000,
+            'yearly' => $subscriptionSettings['yearly_price'] ?? 120000
+        ];
+        return $prices[$planType] ?? 0;
+    }
+    
+    private function logPesapalRequest($type, $get, $post) {
+        $logDir = __DIR__ . '/../logs';
+        if (!file_exists($logDir)) {
+            mkdir($logDir, 0777, true);
+        }
+        
+        $logFile = $logDir . '/pesapal_' . date('Y-m-d') . '.log';
+        
+        $logData = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'type' => $type,
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            'get' => $get,
+            'post' => $post,
+            'server' => [
+                'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
+                'http_host' => $_SERVER['HTTP_HOST'] ?? 'unknown',
+                'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown'
+            ]
+        ];
+        
+        file_put_contents($logFile, json_encode($logData) . "\n", FILE_APPEND);
+    }
+    
+    private function checkAccess() {
+        $userId = $this->userId;
+        $trialDays = $this->settingsModel->get('trial_days', 60);
+        
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($userId);
+        
+        if ($currentSubscription) {
+            return true; 
+        }
+        
+        $trialStatus = $this->userModel->getTrialStatus($userId, $trialDays);
+        
+        if ($trialStatus['is_trial']) {
+            return true;
+        }
+        
+        $_SESSION['error'] = 'Your free trial has ended. Please subscribe to continue accessing lessons and quizzes.';
+        header('Location: ' . BASE_URL . '/external/subscription');
+        exit;
+    }
+    
+    private function hasAccess() {
+        $userId = $this->userId;
+        $trialDays = $this->settingsModel->get('trial_days', 60);
+        
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($userId);
+        if ($currentSubscription) {
+            return true;
+        }
+        
+        $trialStatus = $this->userModel->getTrialStatus($userId, $trialDays);
+        return $trialStatus['is_trial'];
+    }
+    
+    // ==================== DASHBOARD & PROFILE ====================
     public function dashboard() {
         $hideFooter = true;
-
-        $userId = $_SESSION['user_id'];
+        
+        $userId = $this->userId;
         $trialDays = $this->settingsModel->get('trial_days', 60);
         $remainingTrialDays = $this->userModel->getRemainingTrialDays($userId, $trialDays);
         $isInTrial = $remainingTrialDays > 0;
@@ -108,23 +196,138 @@ class ExternalController {
         $trialPercentage = $trialDays > 0 ? min(100, round(($daysPassed / $trialDays) * 100)) : 0;
         $currentPlan = $currentSubscription['plan_type'] ?? null;
         $subscriptionEndDate = $currentSubscription['end_date'] ?? null;
-
+        
         require_once __DIR__ . '/../views/external/dashboard.php';
     }
     
-    /**
-     * Display learning materials for external users
-     */
+    public function profile() {
+        $this->checkAccess();
+        $hideFooter = true;
+        
+        $userId = $this->userId;
+        $profile = $this->userModel->getProfile($userId);
+        $classes = $this->classesModel->getAll();
+        $trialDays = $this->settingsModel->get('trial_days', 60);
+        $trialEndDate = $this->userModel->getTrialEndDate($userId, $trialDays);
+        $remainingTrialDays = $this->userModel->getRemainingTrialDays($userId, $trialDays);
+        
+        if ($profile) {
+            $profile['trial_end'] = $trialEndDate;
+            $profile['trial_days_remaining'] = $remainingTrialDays;
+            $profile['trial_active'] = $remainingTrialDays > 0;
+        }
+        
+        require_once __DIR__ . '/../views/external/profile.php';
+    }
+    
+    public function updateProfile() {
+        $this->checkAccess();
+        
+        if (!$this->isPostRequest()) {
+            $this->redirect(BASE_URL . '/external/profile');
+        }
+        
+        $userId = $this->userId;
+        
+        $data = [
+            'first_name' => trim($_POST['first_name'] ?? ''),
+            'last_name' => trim($_POST['last_name'] ?? ''),
+            'email' => trim($_POST['email'] ?? ''),
+            'phone' => trim($_POST['phone'] ?? ''),
+            'class_id' => !empty($_POST['class_id']) ? (int)$_POST['class_id'] : null
+        ];
+        
+        $errors = $this->validateRequiredFields($data, ['first_name', 'last_name', 'email']);
+        if (empty($errors) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Invalid email format';
+        }
+        
+        if (!empty($errors)) {
+            $this->redirectWithError(implode(', ', $errors), BASE_URL . '/external/profile');
+        }
+        
+        $result = $this->userModel->updateProfile($userId, $data);
+        
+        if ($result['success']) {
+            $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
+            $_SESSION['user_email'] = $data['email'];
+            $this->redirectWithSuccess('Profile updated successfully!', BASE_URL . '/external/profile');
+        } else {
+            $this->redirectWithError($result['error'] ?? 'Failed to update profile', BASE_URL . '/external/profile');
+        }
+    }
+    
+    public function settings() {
+        $hideFooter = true;
+        require_once __DIR__ . '/../views/external/settings.php';
+    }
+    
+    public function changePassword() {
+        if (!$this->isPostRequest()) {
+            $this->redirect(BASE_URL . '/external/settings?tab=password');
+        }
+        
+        $currentPassword = $_POST['current_password'] ?? '';
+        $newPassword = $_POST['new_password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        
+        if ($newPassword !== $confirmPassword) {
+            $this->redirectWithError('New passwords do not match', BASE_URL . '/external/settings?tab=password');
+        }
+        
+        if (strlen($newPassword) < 8) {
+            $this->redirectWithError('Password must be at least 8 characters long', BASE_URL . '/external/settings?tab=password');
+        }
+        
+        $result = $this->userModel->changePassword($this->userId, $currentPassword, $newPassword);
+        
+        if ($result['success']) {
+            $this->redirectWithSuccess($result['message'], BASE_URL . '/external/settings?tab=password');
+        } else {
+            $this->redirectWithError($result['error'], BASE_URL . '/external/settings?tab=password');
+        }
+    }
+    
+    public function deleteAccount() {
+        if (!$this->isPostRequest()) {
+            $this->redirect(BASE_URL . '/external/settings?tab=delete');
+        }
+        
+        $password = $_POST['password'] ?? '';
+        
+        if (empty($password)) {
+            $this->redirectWithError('Please enter your password to confirm account deletion.', BASE_URL . '/external/settings?tab=delete');
+        }
+        
+        $user = $this->userModel->getById($this->userId);
+        if (!$user) {
+            $_SESSION['error'] = 'User not found.';
+            $this->redirect(BASE_URL . '/login');
+        }
+        
+        $result = $this->userModel->deleteAccount($this->userId, $password);
+        
+        if ($result['success']) {
+            session_destroy();
+            session_start();
+            $_SESSION['success'] = 'Your account has been successfully deleted!';
+            $this->redirect(BASE_URL . '/login');
+        } else {
+            $this->redirectWithError($result['error'], BASE_URL . '/external/settings?tab=delete');
+        }
+    }
+    
+    public function trialStatus() {
+        $hideFooter = true;
+        require_once __DIR__ . '/../views/external/trial_status.php';
+    }
+    
+    // ==================== LESSONS & MATERIALS ====================
     public function materials() {
         $this->checkAccess();
         $hideFooter = true;
         
-        if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-        
-        $user = $this->userModel->getById($_SESSION['user_id']);
+        $user = $this->userModel->getById($this->userId);
         $userClassId = $user['class_id'] ?? null;
         
         $search = isset($_GET['search']) ? trim($_GET['search']) : null;
@@ -134,6 +337,27 @@ class ExternalController {
             $lessons = $this->lessonModel->searchPublishedByClass($search, $userClassId, $subject);
         } else {
             $lessons = $this->lessonModel->getPublishedLessonsByClass($userClassId, $subject);
+        }
+        
+        $bookmarkedLessonIds = $this->lessonModel->getUserBookmarkedIds($this->userId);
+        
+        foreach ($lessons as $key => &$lesson) {
+            $lesson['is_bookmarked'] = in_array($lesson['id'], $bookmarkedLessonIds);
+        }
+        unset($lesson);
+        
+        $uniqueLessons = [];
+        $seenIds = [];
+        foreach ($lessons as $lesson) {
+            if (!in_array($lesson['id'], $seenIds)) {
+                $seenIds[] = $lesson['id'];
+                $uniqueLessons[] = $lesson;
+            }
+        }
+        
+        if (count($uniqueLessons) != count($lessons)) {
+            error_log("Duplicates found! Original: " . count($lessons) . ", Unique: " . count($uniqueLessons));
+            $lessons = $uniqueLessons;
         }
         
         $subjects = $this->subjectModel->getByClassId($userClassId);
@@ -147,144 +371,126 @@ class ExternalController {
         require_once __DIR__ . '/../views/external/materials.php';
     }
     
-    /**
-     * View single lesson
-     */
     public function viewLesson($lessonId) {
         $this->checkAccess();
         $hideFooter = true;
         
-        if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-        
-        $lesson = $this->lessonModel->getPublishedLessonById($lessonId, $_SESSION['user_id']);
+        $lesson = $this->lessonModel->getPublishedLessonById($lessonId, $this->userId);
         
         if (!$lesson) {
-            $_SESSION['error'] = 'Lesson not found or not available.';
-            header('Location: ' . BASE_URL . '/external/materials');
-            exit;
+            $this->redirectWithError('Lesson not found or not available.', BASE_URL . '/external/materials');
         }
         
         require_once __DIR__ . '/../views/external/view_lesson.php';
     }
     
-    /**
-     * Toggle bookmark
-     */
     public function toggleBookmark($lessonId) {
-        if (!isset($_SESSION['user_id'])) {
+        header('Content-Type: application/json');
+        
+        if (!isset($this->userId)) {
             echo json_encode(['success' => false, 'error' => 'Please login first']);
             exit;
         }
         
-        $userId = $_SESSION['user_id'];
+        $userId = $this->userId;
+        
         $isBookmarked = $this->lessonModel->isBookmarked($userId, $lessonId);
         
         if ($isBookmarked) {
             $result = $this->lessonModel->removeBookmark($userId, $lessonId);
-            $message = 'Bookmark removed';
+            $message = 'Removed from your Bookmarks';
+            $newStatus = false;
         } else {
             $result = $this->lessonModel->addBookmark($userId, $lessonId);
-            $message = 'Lesson bookmarked';
+            $message = 'Added to your Bookmarks';
+            $newStatus = true;
         }
         
         if ($result['success']) {
-            echo json_encode(['success' => true, 'message' => $message, 'bookmarked' => !$isBookmarked]);
+            $count = $this->lessonModel->getBookmarkCount($userId);
+            
+            echo json_encode([
+                'success' => true, 
+                'message' => $message, 
+                'bookmarked' => $newStatus,
+                'count' => $count
+            ]);
         } else {
-            echo json_encode(['success' => false, 'error' => $result['error']]);
+            echo json_encode(['success' => false, 'error' => $result['error'] ?? 'Operation failed']);
         }
         exit;
     }
     
-    /**
-     * Get user's bookmarks
-     */
     public function bookmarks() {
         $hideFooter = true;
         
-        if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+        if (!$this->hasAccess()) {
+            $this->redirectWithError('Please subscribe to access bookmarks.', BASE_URL . '/external/subscription');
         }
         
-        $bookmarks = $this->lessonModel->getBookmarks($_SESSION['user_id']);
+        $bookmarks = $this->lessonModel->getBookmarks($this->userId);
         
         require_once __DIR__ . '/../views/external/bookmarks.php';
     }
     
-    /**
-     * Display quizzes for external users based on their class
-     */
+    public function getBookmarkCount() {
+        header('Content-Type: application/json');
+        
+        if (!isset($this->userId)) {
+            echo json_encode(['success' => true, 'count' => 0]);
+            exit;
+        }
+        
+        $count = $this->lessonModel->getBookmarkCount($this->userId);
+        echo json_encode(['success' => true, 'count' => $count]);
+        exit;
+    }
+    
+    // ==================== QUIZZES ====================
     public function quizzes() {
         $this->checkAccess();
         $hideFooter = true;
         
-        if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-        
-        $user = $this->userModel->getById($_SESSION['user_id']);
+        $user = $this->userModel->getById($this->userId);
         $userClassId = $user['class_id'] ?? null;
         
         if (!$userClassId) {
-            $this->setFlashMessage('warning', 'Please select a class in your profile to access quizzes.');
-            header('Location: ' . BASE_URL . '/profile');
-            exit;
+            $_SESSION['warning'] = 'Please select a class in your profile to access quizzes.';
+            $this->redirect(BASE_URL . '/profile');
         }
-
-        $quizzes = $this->quizModel->getQuizzesByClass($userClassId);
         
-        $results = $this->quizModel->getUserQuizResults($_SESSION['user_id']);
+        $quizzes = $this->quizModel->getQuizzesByClass($userClassId);
+        $results = $this->quizModel->getUserQuizResults($this->userId);
         
         require_once __DIR__ . '/../views/external/quizzes.php';
     }
     
-    /**
-     * Take a quiz
-     */
     public function takeQuiz($quizId) {
         $this->checkAccess();
         $hideFooter = true;
         
-        if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-        
         $availability = $this->quizModel->getQuizAvailabilityStatus($quizId);
         
         if (!$availability['available']) {
-            $_SESSION['error'] = $availability['message'];
-            header('Location: ' . BASE_URL . '/external/quizzes');
-            exit;
+            $this->redirectWithError($availability['message'], BASE_URL . '/external/quizzes');
         }
         
-        $remainingAttempts = $this->quizModel->getRemainingAttempts($_SESSION['user_id'], $quizId);
+        $remainingAttempts = $this->quizModel->getRemainingAttempts($this->userId, $quizId);
         
         if ($remainingAttempts <= 0) {
-            $_SESSION['error'] = 'You have used all your attempts for this quiz. Maximum attempts reached.';
-            header('Location: ' . BASE_URL . '/external/quizzes');
-            exit;
+            $this->redirectWithError('You have used all your attempts for this quiz. Maximum attempts reached.', BASE_URL . '/external/quizzes');
         }
         
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($this->isPostRequest()) {
             $attemptId = $_POST['attempt_id'] ?? null;
             $answers = $_POST['answers'] ?? [];
             
             if (!$attemptId) {
-                $_SESSION['error'] = 'Invalid quiz attempt';
-                header('Location: ' . BASE_URL . '/external/quizzes');
-                exit;
+                $this->redirectWithError('Invalid quiz attempt', BASE_URL . '/external/quizzes');
             }
             
-            // Verify this is the current attempt
             if (isset($_SESSION['current_quiz_attempt']) && $_SESSION['current_quiz_attempt'] != $attemptId) {
-                $_SESSION['error'] = 'Invalid quiz submission';
-                header('Location: ' . BASE_URL . '/external/quizzes');
-                exit;
+                $this->redirectWithError('Invalid quiz submission', BASE_URL . '/external/quizzes');
             }
             
             $result = $this->quizModel->submitAttempt($attemptId, $answers);
@@ -295,28 +501,21 @@ class ExternalController {
                 unset($_SESSION['quiz_start_time']);
                 
                 $_SESSION['quiz_result'] = $result;
-                header("Location: " . BASE_URL . "/external/quiz-result/" . $attemptId);
-                exit;
+                $this->redirect(BASE_URL . "/external/quiz-result/" . $attemptId);
             } else {
-                $_SESSION['error'] = $result['error'] ?? 'Failed to submit quiz';
-                header("Location: " . BASE_URL . "/external/take-quiz/" . $quizId);
-                exit;
+                $this->redirectWithError($result['error'] ?? 'Failed to submit quiz', BASE_URL . "/external/take-quiz/" . $quizId);
             }
         } else {
-            if ($this->quizModel->hasReachedMaxAttempts($_SESSION['user_id'], $quizId)) {
-                $_SESSION['error'] = 'You have used all your attempts for this quiz. Maximum attempts reached.';
-                header('Location: ' . BASE_URL . '/external/quizzes');
-                exit;
+            if ($this->quizModel->hasReachedMaxAttempts($this->userId, $quizId)) {
+                $this->redirectWithError('You have used all your attempts for this quiz. Maximum attempts reached.', BASE_URL . '/external/quizzes');
             }
             
             $questionCount = $this->quizModel->getQuestionCount($quizId);
             if ($questionCount == 0) {
-                $_SESSION['error'] = 'This quiz has no questions yet. Please contact the teacher.';
-                header('Location: ' . BASE_URL . '/external/quizzes');
-                exit;
+                $this->redirectWithError('This quiz has no questions yet. Please contact the teacher.', BASE_URL . '/external/quizzes');
             }
             
-            $result = $this->quizModel->startAttempt($quizId, $_SESSION['user_id']);
+            $result = $this->quizModel->startAttempt($quizId, $this->userId);
             
             if ($result['success']) {
                 $quiz = $this->quizModel->getById($quizId);
@@ -329,44 +528,16 @@ class ExternalController {
                 
                 require_once __DIR__ . '/../views/external/take_quiz.php';
             } else {
-                $_SESSION['error'] = $result['error'] ?? 'Failed to start quiz';
-                header('Location: ' . BASE_URL . '/external/quizzes');
-                exit;
+                $this->redirectWithError($result['error'] ?? 'Failed to start quiz', BASE_URL . '/external/quizzes');
             }
         }
     }
-
-    /**
-     * Get user's quiz results
-     */
-    public function getUserQuizResults($userId) {
-        try {
-            $sql = "SELECT a.*, q.title as quiz_title 
-                    FROM quiz_attempts a
-                    LEFT JOIN quizzes q ON a.quiz_id = q.id
-                    WHERE a.user_id = :user_id AND a.status = 'completed'
-                    ORDER BY a.completed_at DESC";
-            
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-        } catch (PDOException $e) {
-            return [];
-        }
-    }
-
-    /**
-     * View quiz result
-     */
+    
     public function quizResult($attemptId) {
         $hideFooter = true;
         
-        if (!$this->userModel->hasAccess($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+        if (!$this->hasAccess()) {
+            $this->redirectWithError('Please subscribe to view quiz results.', BASE_URL . '/external/subscription');
         }
         
         $result = $_SESSION['quiz_result'] ?? null;
@@ -374,7 +545,7 @@ class ExternalController {
         
         $attemptDetails = $this->quizModel->getAttemptDetails($attemptId);
         
-        if (!$attemptDetails || $attemptDetails['user_id'] != $_SESSION['user_id']) {
+        if (!$attemptDetails || $attemptDetails['user_id'] != $this->userId) {
             header('HTTP/1.0 404 Not Found');
             echo "Result not found";
             exit;
@@ -400,21 +571,16 @@ class ExternalController {
         require_once __DIR__ . '/../views/external/quiz_result.php';
     }
     
-    /**
-     * Show subscription page
-     */
+    // ==================== SUBSCRIPTION & PAYMENT ====================
     public function subscription() {
         $hideFooter = true;
-        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($this->userId);
         $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
-        $paymentHistory = $this->subscriptionModel->getCombinedHistory($_SESSION['user_id']);
-        $rawPaymentHistory = $this->subscriptionModel->getUserPaymentHistory($_SESSION['user_id']);
+        $paymentHistory = $this->subscriptionModel->getCombinedHistory($this->userId);
+        $rawPaymentHistory = $this->subscriptionModel->getUserPaymentHistory($this->userId);
         require_once __DIR__ . '/../views/external/subscription.php';
     }
     
-    /**
-     * Display purchase page
-     */
     public function purchase() {
         $hideFooter = true;
         
@@ -429,238 +595,84 @@ class ExternalController {
         
         require_once __DIR__ . '/../views/external/purchase.php';
     }
-
-    /**
-     * Send payment confirmation email
-     */
-    private function sendPaymentConfirmationEmail($userId, $planType, $amount) {
+    
+    public function processPesapalPayment() {
+        if (!$this->isPostRequest()) {
+            $this->redirect(BASE_URL . '/external/subscription');
+        }
+        
+        $userId = $this->userId;
+        $planType = $_POST['plan_type'] ?? 'monthly';
+        
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
+        
+        $defaultPrices = [
+            'monthly' => 15000,
+            'termly' => 40000,
+            'yearly' => 120000
+        ];
+        
+        $amount = $defaultPrices[$planType];
+        
+        if (!empty($subscriptionSettings)) {
+            $priceKey = $planType . '_price';
+            if (isset($subscriptionSettings[$priceKey]) && !empty($subscriptionSettings[$priceKey])) {
+                $amount = (float)$subscriptionSettings[$priceKey];
+            }
+        }
+        
+        if ($amount <= 0) {
+            $this->redirectWithError('Invalid subscription amount. Please contact support.', BASE_URL . '/external/subscription');
+        }
+        
+        $phone = $_POST['phone_number'] ?? '';
+        
         $user = $this->userModel->getById($userId);
         
         if (!$user) {
-            return;
+            $this->redirectWithError('User not found.', BASE_URL . '/external/subscription');
         }
         
-        $subject = "Payment Confirmation - " . ucfirst($planType) . " Subscription";
+        $paymentResult = $this->subscriptionModel->createPendingPayment(
+            $userId,
+            $planType,
+            $amount,
+            'pesapal',
+            $phone
+        );
         
-        $message = "
-        <html>
-        <head>
-            <style>
-                body { font-family: Arial, sans-serif; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 30px; text-align: center; }
-                .content { padding: 30px; background: #f9f9f9; }
-                .amount { font-size: 24px; font-weight: bold; color: #8B5CF6; }
-                .button { background: #8B5CF6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; }
-            </style>
-        </head>
-        <body>
-            <div class='container'>
-                <div class='header'>
-                    <h2>Payment Confirmation</h2>
-                </div>
-                <div class='content'>
-                    <h3>Hello " . htmlspecialchars($user['first_name']) . "!</h3>
-                    <p>Thank you for your subscription payment. Your account has been successfully activated.</p>
-                    <p><strong>Plan:</strong> " . ucfirst($planType) . "</p>
-                    <p><strong>Amount Paid:</strong> <span class='amount'>UGX " . number_format($amount) . "</span></p>
-                    <p>You now have full access to all premium features!</p>
-                    <p style='text-align: center; margin-top: 30px;'>
-                        <a href='" . BASE_URL . "/external/dashboard' class='button'>Go to Dashboard</a>
-                    </p>
-                </div>
-            </div>
-        </body>
-        </html>
-        ";
-        
-        $headers = "MIME-Version: 1.0\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-        $headers .= "From: Rays of Grace <noreply@raysofgrace.com>\r\n";
-        
-        mail($user['email'], $subject, $message, $headers);
-    }
-    
-    /**
-     * Display profile page
-     */
-    public function profile() {
-        $this->checkAccess();
-        $hideFooter = true;
-        
-        $userId = $_SESSION['user_id'];
-        $profile = $this->userModel->getProfile($userId);
-        
-        $classes = $this->classesModel->getAll();
-        
-        $userClassId = $profile['class_id'] ?? null;
-        
-        $trialDays = $this->settingsModel->get('trial_days', 60);
-        $trialEndDate = $this->userModel->getTrialEndDate($_SESSION['user_id'], $trialDays);
-        $remainingTrialDays = $this->userModel->getRemainingTrialDays($_SESSION['user_id'], $trialDays);
-        
-        if ($profile) {
-            $profile['trial_end'] = $trialEndDate;
-            $profile['trial_days_remaining'] = $remainingTrialDays;
-            $profile['trial_active'] = $remainingTrialDays > 0;
+        if (!$paymentResult['success']) {
+            $this->redirectWithError($paymentResult['error'], BASE_URL . '/external/subscription');
         }
         
-        require_once __DIR__ . '/../views/external/profile.php';
-    }
-
-    /**
-     * Update profile with class selection
-     */
-    public function updateProfile() {
-        $this->checkAccess();
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/external/profile');
-            exit;
-        }
-        
-        $userId = $_SESSION['user_id'];
-        
-        $data = [
-            'first_name' => trim($_POST['first_name'] ?? ''),
-            'last_name' => trim($_POST['last_name'] ?? ''),
-            'email' => trim($_POST['email'] ?? ''),
-            'phone' => trim($_POST['phone'] ?? ''),
-            'class_id' => !empty($_POST['class_id']) ? (int)$_POST['class_id'] : null
+        $pesapal = new Pesapal();
+        $paymentData = [
+            'amount' => $amount,
+            'description' => ucfirst($planType) . " Subscription - ROGELE",
+            'reference' => $paymentResult['transaction_id'],
+            'first_name' => $user['first_name'],
+            'last_name' => $user['last_name'],
+            'email' => $user['email'],
+            'phone' => $phone
         ];
         
-        $errors = [];
-        if (empty($data['first_name'])) $errors[] = 'First name is required';
-        if (empty($data['last_name'])) $errors[] = 'Last name is required';
-        if (empty($data['email'])) $errors[] = 'Email is required';
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email format';
+        $result = $pesapal->submitPayment($paymentData);
         
-        if (!empty($errors)) {
-            $_SESSION['error'] = implode(', ', $errors);
-            header('Location: ' . BASE_URL . '/external/profile');
-            exit;
-        }
-        
-        $result = $this->userModel->updateProfile($userId, $data);
-        
-        if ($result['success']) {
-            $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
-            $_SESSION['user_email'] = $data['email'];
+        if (isset($result['success']) && $result['success'] && isset($result['redirect_url'])) {
+            $_SESSION['pending_payment'] = [
+                'transaction_id' => $paymentResult['transaction_id'],
+                'plan_type' => $planType,
+                'amount' => $amount,
+                'payment_id' => $paymentResult['payment_id']
+            ];
             
-            $oldClassId = $this->userModel->getById($userId)['class_id'] ?? null;
-            if ($oldClassId != $data['class_id']) {
-                $_SESSION['success'] = 'Profile updated successfully! Your class has been updated.';
-            } else {
-                $_SESSION['success'] = 'Profile updated successfully!';
-            }
+            $this->redirect($result['redirect_url']);
         } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to update profile';
-        }
-        
-        header('Location: ' . BASE_URL . '/external/profile');
-        exit;
-    }
-    
-    /**
-     * Display settings page
-     */
-    public function settings() {
-        $hideFooter = true;
-        require_once __DIR__ . '/../views/external/settings.php';
-    }
-    
-    /**
-     * Change password
-     */
-    public function changePassword() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/external/settings?tab=password');
-            exit;
-        }
-        
-        $currentPassword = $_POST['current_password'] ?? '';
-        $newPassword = $_POST['new_password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
-        
-        if ($newPassword !== $confirmPassword) {
-            $_SESSION['error'] = 'New passwords do not match';
-            header('Location: ' . BASE_URL . '/external/settings?tab=password');
-            exit;
-        }
-        
-        if (strlen($newPassword) < 8) {
-            $_SESSION['error'] = 'Password must be at least 8 characters long';
-            header('Location: ' . BASE_URL . '/external/settings?tab=password');
-            exit;
-        }
-        
-        $result = $this->userModel->changePassword($_SESSION['user_id'], $currentPassword, $newPassword);
-        
-        if ($result['success']) {
-            $_SESSION['success'] = $result['message'];
-        } else {
-            $_SESSION['error'] = $result['error'];
-        }
-        
-        header('Location: ' . BASE_URL . '/external/settings?tab=password');
-        exit;
-    }
-    
-   /**
-     * Delete account
-     */
-    public function deleteAccount() {
-        
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
-            exit;
-        }
-        
-        $password = $_POST['password'] ?? '';
-        
-        if (empty($password)) {
-            $_SESSION['error'] = 'Please enter your password to confirm account deletion.';
-            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
-            exit;
-        }
-        
-        $user = $this->userModel->getById($_SESSION['user_id']);
-        if (!$user) {
-            $_SESSION['error'] = 'User not found.';
-            header('Location: ' . BASE_URL . '/login');
-            exit;
-        }
-        
-        $result = $this->userModel->deleteAccount($_SESSION['user_id'], $password);
-        
-        if ($result['success']) {
-            session_destroy();
-            session_start();
-            $_SESSION['success'] = 'Your account has been successfully deleted!';
-            header('Location: ' . BASE_URL . '/login');
-            exit;
-        } else {
-            $_SESSION['error'] = $result['error'];
-            header('Location: ' . BASE_URL . '/external/settings?tab=delete');
-            exit;
+            $errorMsg = isset($result['message']) ? $result['message'] : 'Payment processing failed. Please try again.';
+            $this->redirectWithError($errorMsg, BASE_URL . '/external/subscription');
         }
     }
     
-    /**
-     * Display trial status
-     */
-    public function trialStatus() {
-        $hideFooter = true;
-        require_once __DIR__ . '/../views/external/trial_status.php';
-    }
-
-    /**
-     * Show upgrade confirmation page
-     */
     public function upgradeConfirmation() {
         $hideFooter = true;
         
@@ -668,17 +680,13 @@ class ExternalController {
         $toPlan = $_GET['to'] ?? '';
         
         if (empty($fromPlan) || empty($toPlan)) {
-            $_SESSION['error'] = 'Invalid upgrade request';
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+            $this->redirectWithError('Invalid upgrade request', BASE_URL . '/external/subscription');
         }
         
-        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($_SESSION['user_id']);
+        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($this->userId);
         
         if (!$currentSubscription) {
-            $_SESSION['error'] = 'No active subscription found';
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+            $this->redirectWithError('No active subscription found', BASE_URL . '/external/subscription');
         }
         
         $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
@@ -750,43 +758,27 @@ class ExternalController {
         
         require_once __DIR__ . '/../views/external/upgrade-confirmation.php';
     }
-
-    /**
-     * Process upgrade via PesaPal
-     */
+    
     public function processUpgrade() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+        if (!$this->isPostRequest()) {
+            $this->redirect(BASE_URL . '/external/subscription');
         }
-
-        $userId = $_SESSION['user_id'];
+        
+        $userId = $this->userId;
         $fromPlan = $_POST['from_plan'] ?? '';
         $toPlan = $_POST['to_plan'] ?? '';
         $amount = (float)($_POST['amount'] ?? 0);
-
-        // 1. Basic Validation
+        
         if (empty($fromPlan) || empty($toPlan) || $amount <= 0) {
-            $_SESSION['error'] = 'Invalid upgrade request or amount.';
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+            $this->redirectWithError('Invalid upgrade request or amount.', BASE_URL . '/external/subscription');
         }
-
-        // 2. Prepare PesaPal Data
+        
         $user = $this->userModel->getById($userId);
         
         if (!$user) {
-            $_SESSION['error'] = 'User not found.';
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+            $this->redirectWithError('User not found.', BASE_URL . '/external/subscription');
         }
         
-        $pesapal = new Pesapal();
-        
-        // Create a unique reference for this upgrade
-        $reference = 'UPG_' . time() . '_' . $userId . '_' . rand(1000, 9999);
-        
-        // Store payment intent in database first
         $paymentResult = $this->subscriptionModel->createPendingPayment(
             $userId, 
             $toPlan, 
@@ -796,26 +788,23 @@ class ExternalController {
         );
         
         if (!$paymentResult['success']) {
-            $_SESSION['error'] = $paymentResult['error'];
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+            $this->redirectWithError($paymentResult['error'], BASE_URL . '/external/subscription');
         }
         
+        $pesapal = new Pesapal();
         $paymentData = [
             'amount' => $amount,
             'description' => "Upgrade from " . ucfirst($fromPlan) . " to " . ucfirst($toPlan),
-            'reference' => $paymentResult['transaction_id'], // Use the stored transaction ID
+            'reference' => $paymentResult['transaction_id'],
             'first_name' => $user['first_name'],
             'last_name' => $user['last_name'],
             'email' => $user['email'],
             'phone' => $user['phone'] ?? ''
         ];
-
-        // 3. Initiate PesaPal Order
+        
         $result = $pesapal->submitPayment($paymentData);
-
+        
         if ($result['success'] && isset($result['redirect_url'])) {
-            // Store upgrade intent in session
             $_SESSION['pending_upgrade'] = [
                 'transaction_id' => $paymentResult['transaction_id'],
                 'from_plan' => $fromPlan,
@@ -824,19 +813,12 @@ class ExternalController {
                 'payment_id' => $paymentResult['payment_id']
             ];
             
-            // Redirect to PesaPal
-            header('Location: ' . $result['redirect_url']);
-            exit;
+            $this->redirect($result['redirect_url']);
         } else {
-            $_SESSION['error'] = $result['message'] ?? 'Payment processing failed. Please try again.';
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
+            $this->redirectWithError($result['message'] ?? 'Payment processing failed. Please try again.', BASE_URL . '/external/subscription');
         }
     }
-
-    /**
-     * Upgrade success page
-     */
+    
     public function upgradeSuccess() {
         $hideFooter = true;
         
@@ -850,212 +832,101 @@ class ExternalController {
         
         require_once __DIR__ . '/../views/external/upgrade-success.php';
     }
-
-    /**
-     * Helper method to get plan price
-     */
-    private function getPlanPrice($planType) {
-        $prices = [
-            'monthly' => 15000,
-            'termly' => 40000,
-            'yearly' => 120000
-        ];
-        
-        return $prices[$planType] ?? 0;
-    }
-
-    /**
-     * Send upgrade confirmation email
-     */
-    private function sendUpgradeConfirmationEmail($userId, $fromPlan, $toPlan, $amount, $newEndDate) {
-        $user = $this->userModel->getById($userId);
-        
-        $to = $user['email'];
-        $subject = "Your ROGELE Subscription Has Been Upgraded! 🎉";
-        
-        $message = "
-        <html>
-        <head>
-            <style>
-                body { font-family: Arial, sans-serif; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; }
-                .content { padding: 30px; background: #f9f9f9; }
-                .button { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 30px; text-decoration: none; border-radius: 50px; display: inline-block; }
-            </style>
-        </head>
-        <body>
-            <div class='container'>
-                <div class='header'>
-                    <h2>Subscription Upgrade Confirmation</h2>
-                </div>
-                <div class='content'>
-                    <h3>Congratulations, {$user['first_name']}! 🎊</h3>
-                    <p>Your subscription has been successfully upgraded from <strong>" . ucfirst($fromPlan) . "</strong> to <strong>" . ucfirst($toPlan) . "</strong>!</p>
-                    
-                    <h4>Upgrade Summary:</h4>
-                    <ul>
-                        <li><strong>Previous Plan:</strong> " . ucfirst($fromPlan) . "</li>
-                        <li><strong>New Plan:</strong> " . ucfirst($toPlan) . "</li>
-                        <li><strong>Upgrade Amount Paid:</strong> UGX " . number_format($amount) . "</li>
-                        <li><strong>New Expiry Date:</strong> " . date('F j, Y', strtotime($newEndDate)) . "</li>
-                    </ul>
-                    
-                    <p>You now have access to all premium features of the " . ucfirst($toPlan) . " plan!</p>
-                    
-                    <p style='text-align: center; margin-top: 30px;'>
-                        <a href='" . BASE_URL . "/external/dashboard' class='button'>Go to Dashboard</a>
-                    </p>
-                    
-                    <p>Thank you for choosing Rays of Grace E-Learning!</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        ";
-        
-        $this->sendEmail($to, $subject, $message);
-    }
-
-    /**
-     * Send email using PHP's mail function or your preferred mail library
-     */
-    private function sendEmail($to, $subject, $message, $headers = []) {
-        try {
-            $defaultHeaders = [
-                'MIME-Version: 1.0',
-                'Content-type: text/html; charset=utf-8',
-                'From: ROGELE <noreply@raysofgrace.com>',
-                'Reply-To: support@raysofgrace.com',
-                'X-Mailer: PHP/' . phpversion()
-            ];
-            
-            $allHeaders = array_merge($defaultHeaders, $headers);
-            
-            if (mail($to, $subject, $message, implode("\r\n", $allHeaders))) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
-
-    /**
-     * Process PesaPal payment
-     */
-    public function processPesapalPayment() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-        
-        $userId = $_SESSION['user_id'];
-        $planType = $_POST['plan_type'] ?? 'monthly';
-        
-        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
-        
-        $defaultPrices = [
-            'monthly' => 15000,
-            'termly' => 40000,
-            'yearly' => 120000
-        ];
-        
-        $amount = $defaultPrices[$planType];
-        
-        if (!empty($subscriptionSettings)) {
-            $priceKey = $planType . '_price';
-            if (isset($subscriptionSettings[$priceKey]) && !empty($subscriptionSettings[$priceKey])) {
-                $amount = (float)$subscriptionSettings[$priceKey];
-            }
-        }
-        
-        if ($amount <= 0) {
-            $_SESSION['error'] = 'Invalid subscription amount. Please contact support.';
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-        
-        $phone = $_POST['phone_number'] ?? '';
-        
-        $user = $this->userModel->getById($userId);
-        
-        if (!$user) {
-            $_SESSION['error'] = 'User not found.';
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-        
-        $paymentResult = $this->subscriptionModel->createPendingPayment(
-            $userId,
-            $planType,
-            $amount,
-            'pesapal',
-            $phone
-        );
-        
-        if (!$paymentResult['success']) {
-            $_SESSION['error'] = $paymentResult['error'];
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-        
-        $pesapal = new Pesapal();
-        $paymentData = [
-            'amount' => $amount,
-            'description' => ucfirst($planType) . " Subscription - ROGELE",
-            'reference' => $paymentResult['transaction_id'],
-            'first_name' => $user['first_name'],
-            'last_name' => $user['last_name'],
-            'email' => $user['email'],
-            'phone' => $phone
-        ];
-        
-        $result = $pesapal->submitPayment($paymentData);
-        
-        if (isset($result['success']) && $result['success'] && isset($result['redirect_url'])) {
-            $_SESSION['pending_payment'] = [
-                'transaction_id' => $paymentResult['transaction_id'],
-                'plan_type' => $planType,
-                'amount' => $amount,
-                'payment_id' => $paymentResult['payment_id']
-            ];
-            
-            header('Location: ' . $result['redirect_url']);
-            exit;
-        } else {
-            $errorMsg = isset($result['message']) ? $result['message'] : 'Payment processing failed. Please try again.';
-            $_SESSION['error'] = $errorMsg;
-            header('Location: ' . BASE_URL . '/external/subscription');
-            exit;
-        }
-    }
-
-    /**
-     * Handle PesaPal callback - This is for redirect after payment
-     */
+    
+    // ==================== PESAPAL CALLBACKS ====================
     public function pesapalCallback() {
         $this->logPesapalRequest('CALLBACK', $_GET, $_POST);
         
         $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
         $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
         
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
         if (!$orderTrackingId || !$orderMerchantReference) {
-            if (session_status() === PHP_SESSION_NONE) session_start();
             $_SESSION['error'] = 'Invalid payment callback received.';
-            header('Location: ' . BASE_URL . '/external/subscription');
+            $this->redirect(BASE_URL . '/external/subscription');
+        }
+        
+        try {
+            $pesapal = new Pesapal();
+            $status = null;
+            $paymentStatus = '';
+            
+            for ($i = 0; $i < 5; $i++) {
+                $status = $pesapal->queryPaymentStatus($orderTrackingId);
+                error_log('PesaPal Status Response: ' . print_r($status, true));
+                
+                if (!empty($status['status'])) {
+                    $paymentStatus = strtoupper(trim($status['status']));
+                    if (in_array($paymentStatus, ['COMPLETED', 'PAID'])) {
+                        break;
+                    }
+                }
+                sleep(3);
+            }
+            
+            if (in_array($paymentStatus, ['COMPLETED', 'PAID'])) {
+                $payment = $this->subscriptionModel->getPaymentByTransactionId($orderMerchantReference);
+                
+                if (!$payment) {
+                    $_SESSION['error'] = 'Payment completed but payment record was not found.';
+                    $this->redirect(BASE_URL . '/external/subscription');
+                }
+                
+                if ($payment['status'] !== 'completed') {
+                    $this->subscriptionModel->updatePaymentStatus(
+                        $orderMerchantReference,
+                        'completed',
+                        json_encode($status)
+                    );
+                    
+                    $this->subscriptionModel->createOrUpdateSubscription(
+                        $payment['user_id'],
+                        $payment['plan_type'] ?? 'monthly',
+                        $status['amount'] ?? $payment['amount'],
+                        $orderMerchantReference
+                    );
+                    
+                    $this->sendPaymentConfirmationEmail(
+                        $payment['user_id'],
+                        $payment['plan_type'] ?? 'monthly',
+                        $status['amount'] ?? $payment['amount']
+                    );
+                }
+                
+                $_SESSION['success'] = 'Payment successful! Your subscription is now active! Enjoy.';
+            } elseif (in_array($paymentStatus, ['PENDING', 'PROCESSING'])) {
+                $_SESSION['info'] = 'Your payment is still being processed. Please refresh after a few moments.';
+            } else {
+                $_SESSION['error'] = 'Payment was not completed. Status: ' . $paymentStatus;
+            }
+        } catch (Exception $e) {
+            error_log('PesaPal Callback Error: ' . $e->getMessage());
+            $_SESSION['error'] = 'An error occurred while verifying your payment.';
+        }
+        
+        $this->redirect(BASE_URL . '/external/subscription');
+    }
+    
+    public function pesapalIpn() {
+        error_reporting(0);
+        $this->logPesapalRequest('IPN', $_GET, $_POST);
+        
+        $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
+        $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
+        
+        if (!$orderTrackingId || !$orderMerchantReference) {
+            http_response_code(200); 
+            echo "Missing parameters";
             exit;
         }
         
         $pesapal = new Pesapal();
         $status = $pesapal->queryPaymentStatus($orderTrackingId);
         
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        
         if ($status['success'] && strtoupper($status['status']) === 'COMPLETED') {
-            
             $payment = $this->subscriptionModel->getPaymentByTransactionId($orderMerchantReference);
             
             if ($payment) {
@@ -1073,65 +944,6 @@ class ExternalController {
                         $orderMerchantReference
                     );
                     
-                    $this->sendPaymentConfirmationEmail(
-                        $payment['user_id'],
-                        $payment['plan_type'] ?? 'monthly',
-                        $status['amount'] ?? $payment['amount']
-                    );
-                }
-                
-                $_SESSION['success'] = 'Payment completed successfully! Your subscription is now active.';
-            } else {
-                $_SESSION['error'] = 'Payment completed but could not find your payment record.';
-            }
-        } else {
-            $_SESSION['error'] = 'Payment was not completed. Status: ' . ($status['status'] ?? 'Unknown');
-        }
-        header('Location: ' . BASE_URL . '/external/subscription');
-        exit;
-    }
-
-    /**
-     * Handle PesaPal IPN (Instant Payment Notification) - NO SESSION, NO REDIRECTS
-     */
-    public function pesapalIpn() {
-        error_reporting(0);
-        $this->logPesapalRequest('IPN', $_GET, $_POST);
-        
-        $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
-        $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
-        
-        if (!$orderTrackingId || !$orderMerchantReference) {
-            http_response_code(200); 
-            echo "Missing parameters";
-            exit;
-        }
-        
-        // Query payment status
-        $pesapal = new Pesapal();
-        $status = $pesapal->queryPaymentStatus($orderTrackingId);
-        
-        if ($status['success'] && strtoupper($status['status']) === 'COMPLETED') {
-            
-            $payment = $this->subscriptionModel->getPaymentByTransactionId($orderMerchantReference);
-            
-            if ($payment) {
-                
-                if ($payment['status'] !== 'completed') {
-                    $updateResult = $this->subscriptionModel->updatePaymentStatus(
-                        $orderMerchantReference,
-                        'completed',
-                        $status
-                    );
-
-                    $subscriptionResult = $this->subscriptionModel->createOrUpdateSubscription(
-                        $payment['user_id'],
-                        $payment['plan_type'] ?? 'monthly',
-                        $status['amount'] ?? $payment['amount'],
-                        $orderMerchantReference
-                    );
-                    
-                    // Send email
                     $this->sendPaymentConfirmationEmail(
                         $payment['user_id'],
                         $payment['plan_type'] ?? 'monthly',
@@ -1155,10 +967,7 @@ class ExternalController {
         
         exit;
     }
-
-    /**
-     * Test endpoint to check if IPN is reachable
-     */
+    
     public function pesapalTest() {
         $this->logPesapalRequest('TEST', $_GET, $_POST);
         
@@ -1173,312 +982,6 @@ class ExternalController {
             'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown'
         ]);
         exit;
-    }
-
-    /**
-     * Log PesaPal requests for debugging
-     */
-    private function logPesapalRequest($type, $get, $post) {
-        $logDir = __DIR__ . '/../logs';
-        if (!file_exists($logDir)) {
-            mkdir($logDir, 0777, true);
-        }
-        
-        $logFile = $logDir . '/pesapal_' . date('Y-m-d') . '.log';
-        
-        $logData = [
-            'timestamp' => date('Y-m-d H:i:s'),
-            'type' => $type,
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
-            'get' => $get,
-            'post' => $post,
-            'server' => [
-                'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
-                'http_host' => $_SERVER['HTTP_HOST'] ?? 'unknown',
-                'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown'
-            ]
-        ];
-        
-        file_put_contents($logFile, json_encode($logData) . "\n", FILE_APPEND);
-    }
-
-    /**
-     * Activate subscription after successful payment
-     */
-    private function activatePesapalSubscription($reference) {
-        $payment = $this->subscriptionModel->getPaymentByTransactionId($reference);
-        
-        if (!$payment) {
-            return false;
-        }
-        
-        $existingSubscription = $this->subscriptionModel->getCurrentSubscription($payment['user_id']);
-        if ($existingSubscription && $existingSubscription['status'] === 'active') {
-            return true;
-        }
-        
-        $subscriptionResult = $this->subscriptionModel->createOrUpdateSubscription(
-            $payment['user_id'],
-            $payment['plan_type'],
-            $payment['amount'],
-            $reference
-        );
-        
-        if ($subscriptionResult['success']) {
-            $this->sendPaymentConfirmationEmail(
-                $payment['user_id'],
-                $payment['plan_type'],
-                $payment['amount']
-            );
-            
-            return true;
-        }
-        
-        return false;
-    }
-
-    /**
-     * Check if user has access to content (trial or subscription)
-     * Redirects to subscription page if no access
-     */
-    private function checkAccess() {
-        $userId = $_SESSION['user_id'];
-        $trialDays = $this->settingsModel->get('trial_days', 60);
-        
-        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($userId);
-        
-        if ($currentSubscription) {
-            return true; 
-        }
-        
-        $trialStatus = $this->userModel->getTrialStatus($userId, $trialDays);
-        
-        if ($trialStatus['is_trial']) {
-            return true;
-        }
-        
-        $_SESSION['error'] = 'Your free trial has ended. Please subscribe to continue accessing lessons and quizzes.';
-        header('Location: ' . BASE_URL . '/external/subscription');
-        exit;
-    }
-
-    /**
-     * Check if user has access (returns boolean, no redirect)
-     */
-    private function hasAccess() {
-        $userId = $_SESSION['user_id'];
-        $trialDays = $this->settingsModel->get('trial_days', 60);
-        
-        $currentSubscription = $this->subscriptionModel->getCurrentSubscription($userId);
-        if ($currentSubscription) {
-            return true;
-        }
-        
-        $trialStatus = $this->userModel->getTrialStatus($userId, $trialDays);
-        return $trialStatus['is_trial'];
-    }
-
-    /**
-     * Get user's answers for a specific attempt
-     * 
-     * @param int $attemptId The attempt ID
-     * @return array Array of answers with question_id as key
-     */
-    public function getUserAnswers($attemptId) {
-        try {
-            $sql = "SELECT question_id, selected_answer, is_correct 
-                    FROM quiz_attempt_answers 
-                    WHERE attempt_id = :attempt_id";
-            
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $answers = [];
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $answer = $row['selected_answer'];
-                if (is_numeric($answer)) {
-                    $answer = (int)$answer;
-                }
-                $answers[$row['question_id']] = $answer;
-            }
-            
-            return $answers;
-            
-        } catch (PDOException $e) {
-            return [];
-        }
-    }
-
-    /**
-     * Submit an attempt
-     */
-    public function submitAttempt($attemptId, $answers) {
-        try {
-            $this->conn->beginTransaction();
-            
-            $sql = "SELECT * FROM quiz_attempts WHERE id = :attempt_id";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
-            $stmt->execute();
-            $attempt = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$attempt) {
-                return ['success' => false, 'error' => 'Attempt not found'];
-            }
-            
-            if ($attempt['status'] == 'completed') {
-                return ['success' => false, 'error' => 'Quiz already submitted'];
-            }
-            
-            $quizId = $attempt['quiz_id'];
-            $questions = $this->getQuestions($quizId);
-            
-            $correctAnswers = 0;
-            $totalQuestions = count($questions);
-            
-            $deleteSql = "DELETE FROM quiz_attempt_answers WHERE attempt_id = :attempt_id";
-            $deleteStmt = $this->conn->prepare($deleteSql);
-            $deleteStmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
-            $deleteStmt->execute();
-            
-            $answerSql = "INSERT INTO quiz_attempt_answers (attempt_id, question_id, selected_answer, is_correct) 
-                        VALUES (:attempt_id, :question_id, :selected_answer, :is_correct)";
-            
-            $answerStmt = $this->conn->prepare($answerSql);
-            
-            foreach ($questions as $question) {
-                $correctOption = $question['correct_option'];
-                $userAnswer = isset($answers[$question['id']]) ? $answers[$question['id']] : null;
-                
-                if (is_numeric($userAnswer)) {
-                    $userAnswer = (int)$userAnswer;
-                }
-                
-                if (is_string($userAnswer) && in_array(strtoupper($userAnswer), ['A', 'B', 'C', 'D'])) {
-                    $letterToIndex = ['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3];
-                    $userAnswer = $letterToIndex[strtoupper($userAnswer)];
-                }
-                
-                $isCorrect = ($userAnswer !== null && $userAnswer == $correctOption) ? 1 : 0;
-                
-                if ($isCorrect) {
-                    $correctAnswers++;
-                }
-                
-                
-                $answerStmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
-                $answerStmt->bindValue(':question_id', $question['id'], PDO::PARAM_INT);
-                $answerStmt->bindValue(':selected_answer', $userAnswer);
-                $answerStmt->bindValue(':is_correct', $isCorrect, PDO::PARAM_INT);
-                $answerStmt->execute();
-            }
-            
-            $score = ($totalQuestions > 0) ? round(($correctAnswers / $totalQuestions) * 100) : 0;
-            
-            $sql = "UPDATE quiz_attempts 
-                    SET score = :score, 
-                        correct_answers = :correct_answers,
-                        total_questions = :total_questions,
-                        status = 'completed',
-                        completed_at = NOW()
-                    WHERE id = :attempt_id";
-            
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':score', $score);
-            $stmt->bindValue(':correct_answers', $correctAnswers);
-            $stmt->bindValue(':total_questions', $totalQuestions);
-            $stmt->bindValue(':attempt_id', $attemptId, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $this->conn->commit();
-            
-            return [
-                'success' => true,
-                'score' => $score,
-                'correct' => $correctAnswers,
-                'total' => $totalQuestions,
-                'attempt_id' => $attemptId
-            ];
-            
-        } catch (PDOException $e) {
-            $this->conn->rollBack();
-            return ['success' => false, 'error' => 'Failed to submit quiz: ' . $e->getMessage()];
-        }
-    }
-
-    /**
-     * Get quiz by ID (with status check for external users)
-     */
-    public function getById($quizId, $checkPublished = true) {
-        try {
-            $sql = "SELECT q.*, 
-                        (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
-                    FROM quizzes q
-                    WHERE q.id = :id";
-            
-            if ($checkPublished) {
-                $sql .= " AND q.status = 'published'";
-            }
-            
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':id', $quizId, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $quiz = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($quiz) {
-                $quiz['time_limit'] = $quiz['time_limit'] ?? 15;
-                $quiz['passing_score'] = $quiz['passing_score'] ?? 70;
-                $quiz['max_attempts'] = $quiz['max_attempts'] ?? 3;
-            }
-            
-            return $quiz;
-            
-        } catch (PDOException $e) {
-            return null;
-        }
-    }
-
-    /**
-     * Get all questions for a quiz
-     */
-    public function getQuestions($quizId) {
-        try {
-            $sql = "SELECT * FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id ASC";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            foreach ($questions as &$question) {
-                $options = [];
-                if (!empty($question['option_a'])) $options[] = $question['option_a'];
-                if (!empty($question['option_b'])) $options[] = $question['option_b'];
-                if (!empty($question['option_c'])) $options[] = $question['option_c'];
-                if (!empty($question['option_d'])) $options[] = $question['option_d'];
-                
-                $question['options'] = $options;
-                
-                $correctMap = [
-                    'A' => 0,
-                    'B' => 1,
-                    'C' => 2,
-                    'D' => 3
-                ];
-                $correctAnswer = strtoupper(trim($question['correct_answer']));
-                $question['correct_option'] = $correctMap[$correctAnswer] ?? 0;
-                
-                $question['question_text'] = $question['question'];
-            }
-            
-            return $questions;
-            
-        } catch (PDOException $e) {
-            return [];
-        }
     }
 }
 ?>

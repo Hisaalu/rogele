@@ -215,7 +215,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
                             <?php if (!empty($quiz['end_date'])): ?>
                                 Current deadline: <?php echo date('F j, Y \a\t g:i A', strtotime($quiz['end_date'])); ?>
                                 <?php if (strtotime($quiz['end_date']) < time()): ?>
-                                    <span class="text-warning">⚠️ This quiz has expired!</span>
+                                    <span class="text-warning">This quiz has expired!</span>
                                 <?php endif; ?>
                             <?php else: ?>
                                 Leave blank for no deadline
@@ -254,10 +254,6 @@ $currentStatus = $quiz['status'] ?? 'draft';
                     <i class="fas fa-save"></i>
                     Save Changes
                 </button>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </a>
             </div>
         </form>
     </div>
@@ -337,7 +333,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -396,7 +392,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -422,7 +418,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .section-title {
-    color: black;
+    color: #000;
     font-size: 1.2rem;
     margin-bottom: 25px;
     display: flex;
@@ -436,7 +432,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 
 .question-count {
     font-size: 0.9rem;
-    color: black;
+    color: #000;
     font-weight: normal;
 }
 
@@ -457,7 +453,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
     gap: 8px;
     font-weight: 600;
     font-size: 0.95rem;
-    color: black;
+    color: #555;
     margin-bottom: 8px;
 }
 
@@ -475,7 +471,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 .form-group textarea {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -487,13 +483,13 @@ $currentStatus = $quiz['status'] ?? 'draft';
 .form-group textarea:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .input-hint {
     display: block;
     font-size: 0.8rem;
-    color: black;
+    color: #555;
     margin-top: 5px;
 }
 
@@ -525,7 +521,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 
 .checkbox-label span {
     font-weight: 500;
-    color: black;
+    color: #000;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -612,8 +608,8 @@ $currentStatus = $quiz['status'] ?? 'draft';
 
 .btn-secondary {
     padding: 14px 30px;
-    background: white;
-    color: black;
+    background: #7f2677;
+    color: white;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -628,9 +624,9 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .btn-secondary:hover {
-    background: #F1F5F9;
-    border-color: #94A3B8;
-    color: black;
+    background: #f06724;
+    border-color: #f06724;
+    color: white;
 }
 
 /* Questions Section */
@@ -700,12 +696,12 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .empty-questions h3 {
-    color: black;
+    color: #000;
     margin-bottom: 10px;
 }
 
 .empty-questions p {
-    color: black;
+    color: #000;
     margin-bottom: 25px;
 }
 
@@ -743,7 +739,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .question-text {
-    color: black;
+    color: #000;
     font-weight: 600;
     margin-bottom: 10px;
     font-size: 1.1rem;
@@ -777,7 +773,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .question-meta {
-    color: black;
+    color: #000;
     font-size: 0.85rem;
     display: flex;
     gap: 15px;
@@ -789,14 +785,13 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .edit-question-link {
-    color: #f06724;
+    color: #7f2677;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .edit-question-link:hover {
-    color: #7C3AED;
-    text-decoration: underline;
+    color: #f06724;
 }
 
 @keyframes slideDown {

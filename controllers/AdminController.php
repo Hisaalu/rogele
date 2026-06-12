@@ -1,5 +1,5 @@
 <?php
-// File: /controllers/AdminController.php
+// File: /controllers/AdminController.php - Optimized Admin Controller
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Report.php';
 require_once __DIR__ . '/../models/Quiz.php';
@@ -14,18 +14,19 @@ class AdminController {
     private $quizModel;
     private $subscriptionModel;
     private $settingsModel;
-     private $lessonModel;
+    private $lessonModel;
     private $classModel;
+    private $itemsPerPage = 10;
+    private $lessonsPerPage = 15;
+    private $quizzesPerPage = 15;
     
     public function __construct() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/login');
-            exit;
+            $this->redirect(BASE_URL . '/login');
         }
         
         if ($_SESSION['user_role'] !== 'admin') {
             $this->redirectToRoleDashboard();
-            exit;
         }
         
         $this->userModel = new User();
@@ -37,46 +38,77 @@ class AdminController {
         $this->classModel = new Classes();
     }
     
-    private function redirectToRoleDashboard() {
-        switch ($_SESSION['user_role']) {
-            case 'teacher':
-                header('Location: ' . BASE_URL . '/teacher/dashboard');
-                break;
-            case 'learner':
-                header('Location: ' . BASE_URL . '/learner/dashboard');
-                break;
-            case 'external':
-                header('Location: ' . BASE_URL . '/external/dashboard');
-                break;
-            default:
-                header('Location: ' . BASE_URL . '/login');
-        }
+    // ==================== HELPER METHODS ====================
+    private function redirect($url) {
+        header('Location: ' . $url);
         exit;
     }
     
-    /**
-     * Admin Dashboard
-     */
-    public function dashboard() {
-        $hideFooter = true;
-        
-        $totalUsers = count($this->userModel->getAllUsers(null, 0, 0));
-        $totalTeachers = count($this->userModel->getAllUsers('teacher', 0, 0));
-        $totalLearners = count($this->userModel->getAllUsers('learner', 0, 0));
-        $totalExternal = count($this->userModel->getAllUsers('external', 0, 0));
-        
-        $recentUsers = $this->userModel->getAllUsers(null, 5, 0);
-        $recentActivity = $this->reportModel->getRecentActivity(10);
-        
-        require_once __DIR__ . '/../views/admin/dashboard.php';
+    private function redirectWithError($message, $url) {
+        $_SESSION['error'] = $message;
+        $this->redirect($url);
     }
     
-    /**
-     * Admin Profile Page
-     */
-    public function profile() {
-        $hideFooter = true;
-        
+    private function redirectWithSuccess($message, $url) {
+        $_SESSION['success'] = $message;
+        $this->redirect($url);
+    }
+    
+    private function isPostRequest() {
+        return $_SERVER['REQUEST_METHOD'] === 'POST';
+    }
+    
+    private function sanitize($input) {
+        return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
+    }
+    
+    private function validateRequiredFields($data, $fields) {
+        $errors = [];
+        foreach ($fields as $field) {
+            if (empty($data[$field])) {
+                $errors[] = ucfirst(str_replace('_', ' ', $field)) . ' is required';
+            }
+        }
+        return $errors;
+    }
+    
+    private function validateEmail($email) {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+    
+    private function getPaginationParams($defaultPage = 1) {
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : $defaultPage;
+        $offset = ($page - 1) * $this->itemsPerPage;
+        return ['page' => $page, 'offset' => $offset];
+    }
+    
+    private function getLessonPaginationParams() {
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $offset = ($page - 1) * $this->lessonsPerPage;
+        return ['page' => $page, 'offset' => $offset];
+    }
+    
+    private function getQuizPaginationParams() {
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $offset = ($page - 1) * $this->quizzesPerPage;
+        return ['page' => $page, 'offset' => $offset];
+    }
+    
+    private function redirectToRoleDashboard() {
+        $urls = [
+            'teacher' => BASE_URL . '/teacher/dashboard',
+            'learner' => BASE_URL . '/learner/dashboard',
+            'external' => BASE_URL . '/external/dashboard'
+        ];
+        $this->redirect($urls[$_SESSION['user_role']] ?? BASE_URL . '/login');
+    }
+    
+    private function setUserSession($user) {
+        $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
+        $_SESSION['user_email'] = $user['email'];
+    }
+    
+    private function getAdminProfileData() {
         $profile = $this->userModel->getProfile($_SESSION['user_id']);
         
         if (!$profile) {
@@ -93,173 +125,166 @@ class AdminController {
             ];
         }
         
+        return $profile;
+    }
+    
+    private function handleSettingSave($settings, $successMessage, $errorMessage) {
+        $result = $this->settingsModel->updateSettings($settings);
+        
+        if ($result) {
+            $this->redirectWithSuccess($successMessage, BASE_URL . '/admin/settings');
+        } else {
+            $this->redirectWithError($errorMessage, BASE_URL . '/admin/settings');
+        }
+    }
+    
+    // ==================== DASHBOARD & PROFILE ====================
+    public function dashboard() {
+        $hideFooter = true;
+        
+        $totalUsers = count($this->userModel->getAllUsers(null, 0, 0));
+        $totalTeachers = count($this->userModel->getAllUsers('teacher', 0, 0));
+        $totalLearners = count($this->userModel->getAllUsers('learner', 0, 0));
+        $totalExternal = count($this->userModel->getAllUsers('external', 0, 0));
+        
+        $recentUsers = $this->userModel->getAllUsers(null, 5, 0);
+        $recentActivity = $this->reportModel->getRecentActivity(10);
+        
+        require_once __DIR__ . '/../views/admin/dashboard.php';
+    }
+    
+    public function profile() {
+        $hideFooter = true;
+        $profile = $this->getAdminProfileData();
         require_once __DIR__ . '/../views/admin/profile.php';
     }
     
-    /**
-     * Update admin profile
-     */
     public function updateProfile() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/admin/profile');
-            exit;
+        if (!$this->isPostRequest()) {
+            $this->redirect(BASE_URL . '/admin/profile');
         }
         
-        $firstName = trim($_POST['first_name'] ?? '');
-        $lastName  = trim($_POST['last_name'] ?? '');
-        $email     = trim($_POST['email'] ?? '');
-        $phone     = trim($_POST['phone'] ?? '');
-
         $data = [
-            'first_name' => $firstName,
-            'last_name'  => $lastName,
-            'email'      => $email,
-            'phone'      => $phone
+            'first_name' => trim($_POST['first_name'] ?? ''),
+            'last_name' => trim($_POST['last_name'] ?? ''),
+            'email' => trim($_POST['email'] ?? ''),
+            'phone' => trim($_POST['phone'] ?? '')
         ];
         
-        if (empty($firstName) || empty($lastName) || empty($email)) {
-            $_SESSION['error'] = 'Please fill in all required fields';
-            header('Location: ' . BASE_URL . '/admin/profile');
-            exit;
+        $errors = $this->validateRequiredFields($data, ['first_name', 'last_name', 'email']);
+        
+        if (empty($errors) && !$this->validateEmail($data['email'])) {
+            $errors[] = 'Please enter a valid email address';
         }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = 'Please enter a valid email address';
-            header('Location: ' . BASE_URL . '/admin/profile');
-            exit;
+        
+        if (!empty($errors)) {
+            $this->redirectWithError(implode(', ', $errors), BASE_URL . '/admin/profile');
         }
         
         $result = $this->userModel->updateProfile($_SESSION['user_id'], $data);
         
         if ($result['success']) {
-            $_SESSION['user_name'] = $firstName . ' ' . $lastName;
-            $_SESSION['user_email'] = $email;
-            
-            $_SESSION['success'] = 'Profile updated successfully!';
+            $this->setUserSession($data);
+            $this->redirectWithSuccess('Profile updated successfully!', BASE_URL . '/admin/profile');
         } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to update profile.';
+            $this->redirectWithError($result['error'] ?? 'Failed to update profile.', BASE_URL . '/admin/profile');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/profile');
-        exit;
     }
     
-    /**
-     * Update profile photo
-     */
     public function updateProfilePhoto() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['profile_photo'])) {
-            header('Location: ' . BASE_URL . '/admin/profile');
-            exit;
+        if (!$this->isPostRequest() || !isset($_FILES['profile_photo'])) {
+            $this->redirect(BASE_URL . '/admin/profile');
         }
         
         $result = $this->userModel->uploadProfilePhoto($_SESSION['user_id'], $_FILES['profile_photo']);
         
         if ($result['success']) {
-            $_SESSION['success'] = 'Profile photo updated successfully';
+            $this->redirectWithSuccess('Profile photo updated successfully', BASE_URL . '/admin/profile');
         } else {
-            $_SESSION['error'] = $result['error'];
+            $this->redirectWithError($result['error'], BASE_URL . '/admin/profile');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/profile');
-        exit;
     }
     
-    /**
-     * User Management
-     */
+    // ==================== USER MANAGEMENT ====================
     public function users() {
         $hideFooter = true;
         
-        $page = $_GET['page'] ?? 1;
         $role = $_GET['role'] ?? null;
         $search = $_GET['search'] ?? null;
-        
-        $limit = 10;
-        $offset = ($page - 1) * $limit;
+        $pagination = $this->getPaginationParams();
         
         if ($search) {
             $users = $this->userModel->searchUsers($search);
+            $totalUsers = count($users);
         } else {
-            $users = $this->userModel->getAllUsers($role, $limit, $offset);
+            $users = $this->userModel->getAllUsers($role, $this->itemsPerPage, $pagination['offset']);
+            $totalUsers = count($this->userModel->getAllUsers($role, 0, 0));
         }
         
-        $totalUsers = count($this->userModel->getAllUsers($role, 0, 0));
-        $totalPages = ceil($totalUsers / $limit);
+        $totalPages = ceil($totalUsers / $this->itemsPerPage);
         
         require_once __DIR__ . '/../views/admin/users.php';
     }
     
-    /**
-     * Create User Form
-     */
     public function createUser() {
         $hideFooter = true;
         
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($this->isPostRequest()) {
             $data = [
-                'first_name' => $_POST['first_name'] ?? '',
-                'last_name' => $_POST['last_name'] ?? '',
-                'email' => $_POST['email'] ?? '',
-                'phone' => $_POST['phone'] ?? '',
+                'first_name' => $this->sanitize($_POST['first_name'] ?? ''),
+                'last_name' => $this->sanitize($_POST['last_name'] ?? ''),
+                'email' => $this->sanitize($_POST['email'] ?? ''),
+                'phone' => $this->sanitize($_POST['phone'] ?? ''),
                 'password' => $_POST['password'] ?? 'Password123',
                 'role' => $_POST['role'] ?? 'external',
                 'class' => $_POST['class'] ?? null
             ];
             
-            $errors = [];
-            if (empty($data['first_name'])) $errors[] = 'First name is required';
-            if (empty($data['last_name'])) $errors[] = 'Last name is required';
-            if (empty($data['email'])) $errors[] = 'Email is required';
-            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email format';
+            $errors = $this->validateRequiredFields($data, ['first_name', 'last_name', 'email']);
+            
+            if (empty($errors) && !$this->validateEmail($data['email'])) {
+                $errors[] = 'Invalid email format';
+            }
             
             if (empty($errors)) {
                 $result = $this->userModel->register($data);
                 
                 if ($result['success']) {
-                    $_SESSION['success'] = 'User created successfully';
-                    header('Location: ' . BASE_URL . '/admin/users');
-                    exit;
+                    $this->redirectWithSuccess('User created successfully', BASE_URL . '/admin/users');
                 } else {
-                    $_SESSION['error'] = $result['error'];
+                    $this->redirectWithError($result['error'], BASE_URL . '/admin/users');
                 }
             } else {
-                $_SESSION['error'] = implode('<br>', $errors);
+                $this->redirectWithError(implode('<br>', $errors), BASE_URL . '/admin/users');
             }
         }
         
         require_once __DIR__ . '/../views/admin/create_user.php';
     }
     
-    /**
-     * Edit User
-     */
     public function editUser($userId) {
         $hideFooter = true;
         
         $user = $this->userModel->getById($userId);
         
         if (!$user) {
-            $_SESSION['error'] = 'User not found';
-            header('Location: ' . BASE_URL . '/admin/users');
-            exit;
+            $this->redirectWithError('User not found', BASE_URL . '/admin/users');
         }
         
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $classes = $this->classModel->getAllClasses();
+        
+        if ($this->isPostRequest()) {
             $data = [
-                'first_name' => $_POST['first_name'] ?? '',
-                'last_name' => $_POST['last_name'] ?? '',
-                'email' => $_POST['email'] ?? '',
-                'phone' => $_POST['phone'] ?? '',
-                'role' => $_POST['role'] ?? $user['role']
+                'first_name' => $this->sanitize($_POST['first_name'] ?? ''),
+                'last_name' => $this->sanitize($_POST['last_name'] ?? ''),
+                'email' => $this->sanitize($_POST['email'] ?? ''),
+                'phone' => $this->sanitize($_POST['phone'] ?? ''),
+                'role' => $_POST['role'] ?? $user['role'],
+                'class_id' => $_POST['class_id'] ?? $user['class_id']
             ];
             
             if (empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
-                $_SESSION['error'] = 'Please fill in all required fields';
-                header('Location: ' . BASE_URL . '/admin/users/edit/' . $userId);
-                exit;
+                $this->redirectWithError('Please fill in all required fields', BASE_URL . '/admin/users/edit/' . $userId);
             }
             
             $result = $this->userModel->updateUserAsAdmin($userId, $data);
@@ -273,88 +298,61 @@ class AdminController {
             }
             
             if ($result['success']) {
-                $_SESSION['success'] = 'User updated successfully';
+                $this->redirectWithSuccess('User updated successfully', BASE_URL . '/admin/users');
             } else {
-                $_SESSION['error'] = $result['error'];
+                $this->redirectWithError($result['error'], BASE_URL . '/admin/users');
             }
-            
-            header('Location: ' . BASE_URL . '/admin/users');
-            exit;
         }
         
         require_once __DIR__ . '/../views/admin/edit_user.php';
     }
     
-    /**
-     * Suspend User
-     */
     public function suspendUser($userId) {
         if ($_SESSION['user_id'] == $userId) {
-            $_SESSION['error'] = 'You cannot suspend your own account';
-            header('Location: ' . BASE_URL . '/admin/users');
-            exit;
+            $this->redirectWithError('You cannot suspend your own account', BASE_URL . '/admin/users');
         }
         
         $result = $this->userModel->suspendUser($userId);
         
         if ($result['success']) {
-            $_SESSION['success'] = $result['message'];
+            $this->redirectWithSuccess($result['message'], BASE_URL . '/admin/users');
         } else {
-            $_SESSION['error'] = $result['error'];
+            $this->redirectWithError($result['error'], BASE_URL . '/admin/users');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/users');
-        exit;
     }
     
-    /**
-     * Activate User
-     */
     public function activateUser($userId) {
         $result = $this->userModel->activateUser($userId);
         
         if ($result['success']) {
-            $_SESSION['success'] = $result['message'];
+            $this->redirectWithSuccess($result['message'], BASE_URL . '/admin/users');
         } else {
-            $_SESSION['error'] = $result['error'];
+            $this->redirectWithError($result['error'], BASE_URL . '/admin/users');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/users');
-        exit;
     }
     
-    /**
-     * Delete User
-     */
     public function deleteUser($userId) {
         if ($_SESSION['user_id'] == $userId) {
-            $_SESSION['error'] = 'You cannot delete your own account';
-            header('Location: ' . BASE_URL . '/admin/users');
-            exit;
+            $this->redirectWithError('You cannot delete your own account', BASE_URL . '/admin/users');
         }
         
         $result = $this->userModel->deleteUser($userId);
         
         if ($result['success']) {
-            $_SESSION['success'] = $result['message'];
+            $this->redirectWithSuccess($result['message'], BASE_URL . '/admin/users');
         } else {
-            $_SESSION['error'] = $result['error'];
+            $this->redirectWithError($result['error'], BASE_URL . '/admin/users');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/users');
-        exit;
     }
     
-    /**
-     * Reports Page
-     */
+    // ==================== REPORTS ====================
     public function reports() {
         $hideFooter = true;
         
         $type = $_GET['type'] ?? 'overview';
         $start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
         $end_date = $_GET['end_date'] ?? date('Y-m-d');
-        $days = $_GET['days'] ?? 30;
+        $days = (int)($_GET['days'] ?? 30);
         
         $totalUsers = count($this->userModel->getAllUsers(null, 0, 0));
         $totalTeachers = count($this->userModel->getAllUsers('teacher', 0, 0));
@@ -373,65 +371,35 @@ class AdminController {
         $totalRevenue = $this->subscriptionModel->getTotalRevenue();
         $totalSubscriptions = $this->subscriptionModel->getTotalSubscriptions();
         
-        switch ($type) {
-            case 'users':
-                $data = $this->reportModel->getUserReport($start_date, $end_date);
-                break;
-            case 'quizzes':
-                $data = $this->reportModel->getQuizReport($start_date, $end_date);
-                break;
-            case 'payments':
-                $data = $this->reportModel->getPaymentReport($start_date, $end_date);
-                break;
-            case 'activity':
-                $data = $this->reportModel->getActivityReport($start_date, $end_date);
-                break;
-            default:
-                $data = [];
-        }
+        $reportTypes = ['users' => 'getUserReport', 'quizzes' => 'getQuizReport', 'payments' => 'getPaymentReport', 'activity' => 'getActivityReport'];
+        $data = isset($reportTypes[$type]) ? $this->reportModel->{$reportTypes[$type]}($start_date, $end_date) : [];
         
         require_once __DIR__ . '/../views/admin/reports.php';
     }
     
-    /**
-     * Export Report
-     */
     public function exportReport() {
         $type = $_GET['type'] ?? 'users';
         $format = $_GET['format'] ?? 'csv';
         $startDate = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
         $endDate = $_GET['end_date'] ?? date('Y-m-d');
         
-        switch ($type) {
-            case 'users':
-                $data = $this->reportModel->getUserReport($startDate, $endDate);
-                $filename = 'users_report_' . date('Y-m-d') . '.' . $format;
-                break;
-            case 'quizzes':
-                $data = $this->reportModel->getQuizReport($startDate, $endDate);
-                $filename = 'quizzes_report_' . date('Y-m-d') . '.' . $format;
-                break;
-            case 'payments':
-                $data = $this->reportModel->getPaymentReport($startDate, $endDate);
-                $filename = 'payments_report_' . date('Y-m-d') . '.' . $format;
-                break;
-            default:
-                $data = [];
-                $filename = 'report_' . date('Y-m-d') . '.' . $format;
-        }
+        $reportMethods = [
+            'users' => 'getUserReport',
+            'quizzes' => 'getQuizReport',
+            'payments' => 'getPaymentReport'
+        ];
+        
+        $data = isset($reportMethods[$type]) ? $this->reportModel->{$reportMethods[$type]}($startDate, $endDate) : [];
+        $filename = $type . '_report_' . date('Y-m-d') . '.' . $format;
         
         if ($format === 'csv' && !empty($data)) {
             $this->reportModel->exportToCSV($data, $filename);
         }
         
-        $_SESSION['success'] = 'Report exported successfully';
-        header('Location: ' . BASE_URL . '/admin/reports');
-        exit;
+        $this->redirectWithSuccess('Report exported successfully', BASE_URL . '/admin/reports');
     }
     
-    /**
-     * Settings Page
-     */
+    // ==================== SETTINGS ====================
     public function settings() {
         $hideFooter = true;
         
@@ -444,16 +412,8 @@ class AdminController {
         require_once __DIR__ . '/../views/admin/settings.php';
     }
     
-    /**
-     * Save General Settings
-     */
     public function saveGeneralSettings() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/admin/settings');
-            exit;
-        }
+        if (!$this->isPostRequest()) $this->redirect(BASE_URL . '/admin/settings');
         
         $settings = [
             'site_name' => $_POST['site_name'] ?? 'Rays of Grace E-Learning',
@@ -461,118 +421,50 @@ class AdminController {
             'contact_email' => $_POST['contact_email'] ?? ''
         ];
         
-        $result = $this->settingsModel->updateSettings($settings);
-        
-        if ($result) {
-            $_SESSION['success'] = 'General settings saved successfully!';
-        } else {
-            $_SESSION['error'] = 'Failed to save general settings.';
-        }
-        
-        header('Location: ' . BASE_URL . '/admin/settings');
-        exit;
+        $this->handleSettingSave($settings, 'General settings saved successfully!', 'Failed to save general settings.');
     }
     
-    /**
-     * Save Subscription Settings
-     */
     public function saveSubscriptionSettings() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/admin/settings');
-            exit;
-        }
+        if (!$this->isPostRequest()) $this->redirect(BASE_URL . '/admin/settings');
         
         $settings = [
-            'monthly_price' => $_POST['monthly_price'] ?? 15000,
-            'termly_price' => $_POST['termly_price'] ?? 40000,
-            'yearly_price' => $_POST['yearly_price'] ?? 120000,
-            'trial_days' => $_POST['trial_days'] ?? 60
+            'monthly_price' => (float)($_POST['monthly_price'] ?? 15000),
+            'termly_price' => (float)($_POST['termly_price'] ?? 40000),
+            'yearly_price' => (float)($_POST['yearly_price'] ?? 120000),
+            'trial_days' => (int)($_POST['trial_days'] ?? 60)
         ];
         
-        $result = $this->settingsModel->updateSettings($settings);
-        
-        if ($result) {
-            $_SESSION['success'] = 'Subscription settings saved successfully!';
-        } else {
-            $_SESSION['error'] = 'Failed to save subscription settings.';
-        }
-        
-        header('Location: ' . BASE_URL . '/admin/settings');
-        exit;
+        $this->handleSettingSave($settings, 'Subscription settings saved successfully!', 'Failed to save subscription settings.');
     }
     
-    /**
-     * Save Email Settings
-     */
     public function saveEmailSettings() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/admin/settings');
-            exit;
-        }
+        if (!$this->isPostRequest()) $this->redirect(BASE_URL . '/admin/settings');
         
         $settings = [
             'smtp_host' => $_POST['smtp_host'] ?? 'smtp.gmail.com',
-            'smtp_port' => $_POST['smtp_port'] ?? 587,
+            'smtp_port' => (int)($_POST['smtp_port'] ?? 587),
             'smtp_username' => $_POST['smtp_username'] ?? '',
             'smtp_password' => $_POST['smtp_password'] ?? '',
             'from_email' => $_POST['from_email'] ?? ''
         ];
         
-        $result = $this->settingsModel->updateSettings($settings);
-        
-        if ($result) {
-            $_SESSION['success'] = 'Email settings saved successfully!';
-        } else {
-            $_SESSION['error'] = 'Failed to save email settings.';
-        }
-        
-        header('Location: ' . BASE_URL . '/admin/settings');
-        exit;
+        $this->handleSettingSave($settings, 'Email settings saved successfully!', 'Failed to save email settings.');
     }
     
-    /**
-     * Save Security Settings
-     */
     public function saveSecuritySettings() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/admin/settings');
-            exit;
-        }
+        if (!$this->isPostRequest()) $this->redirect(BASE_URL . '/admin/settings');
         
         $settings = [
             'enable_2fa' => isset($_POST['enable_2fa']) ? 1 : 0,
-            'session_timeout' => $_POST['session_timeout'] ?? 60,
+            'session_timeout' => (int)($_POST['session_timeout'] ?? 60),
             'strong_passwords' => isset($_POST['strong_passwords']) ? 1 : 0
         ];
         
-        $result = $this->settingsModel->updateSettings($settings);
-        
-        if ($result) {
-            $_SESSION['success'] = 'Security settings saved successfully!';
-        } else {
-            $_SESSION['error'] = 'Failed to save security settings.';
-        }
-        
-        header('Location: ' . BASE_URL . '/admin/settings');
-        exit;
+        $this->handleSettingSave($settings, 'Security settings saved successfully!', 'Failed to save security settings.');
     }
     
-    /**
-     * Save Appearance Settings
-     */
     public function saveAppearanceSettings() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/admin/settings');
-            exit;
-        }
+        if (!$this->isPostRequest()) $this->redirect(BASE_URL . '/admin/settings');
         
         $settings = [
             'theme_color' => $_POST['theme_color'] ?? '#8B5CF6',
@@ -580,277 +472,169 @@ class AdminController {
             'dark_mode' => isset($_POST['dark_mode']) ? 1 : 0
         ];
         
-        $result = $this->settingsModel->updateSettings($settings);
-        
-        if ($result) {
-            $_SESSION['success'] = 'Appearance settings saved successfully!';
-        } else {
-            $_SESSION['error'] = 'Failed to save appearance settings.';
-        }
-        
-        header('Location: ' . BASE_URL . '/admin/settings');
-        exit;
+        $this->handleSettingSave($settings, 'Appearance settings saved successfully!', 'Failed to save appearance settings.');
     }
     
-    /**
-     * Save All Settings
-     */
     public function saveAllSettings() {
-        $hideFooter = true;
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/admin/settings');
-            exit;
-        }
+        if (!$this->isPostRequest()) $this->redirect(BASE_URL . '/admin/settings');
         
         $settings = [
             'site_name' => $_POST['site_name'] ?? 'Rays of Grace E-Learning',
             'site_description' => $_POST['site_description'] ?? '',
             'contact_email' => $_POST['contact_email'] ?? '',
-            
-            'monthly_price' => $_POST['monthly_price'] ?? 15000,
-            'termly_price' => $_POST['termly_price'] ?? 40000,
-            'yearly_price' => $_POST['yearly_price'] ?? 120000,
-            'trial_days' => $_POST['trial_days'] ?? 60,
-            
+            'monthly_price' => (float)($_POST['monthly_price'] ?? 15000),
+            'termly_price' => (float)($_POST['termly_price'] ?? 40000),
+            'yearly_price' => (float)($_POST['yearly_price'] ?? 120000),
+            'trial_days' => (int)($_POST['trial_days'] ?? 60),
             'smtp_host' => $_POST['smtp_host'] ?? 'smtp.gmail.com',
-            'smtp_port' => $_POST['smtp_port'] ?? 587,
+            'smtp_port' => (int)($_POST['smtp_port'] ?? 587),
             'smtp_username' => $_POST['smtp_username'] ?? '',
             'smtp_password' => $_POST['smtp_password'] ?? '',
             'from_email' => $_POST['from_email'] ?? '',
-            
             'enable_2fa' => isset($_POST['enable_2fa']) ? 1 : 0,
-            'session_timeout' => $_POST['session_timeout'] ?? 60,
+            'session_timeout' => (int)($_POST['session_timeout'] ?? 60),
             'strong_passwords' => isset($_POST['strong_passwords']) ? 1 : 0,
-            
             'theme_color' => $_POST['theme_color'] ?? '#7f2677',
             'accent_color' => $_POST['accent_color'] ?? '#f06724',
             'dark_mode' => isset($_POST['dark_mode']) ? 1 : 0
         ];
         
-        $result = $this->settingsModel->updateSettings($settings);
-        
-        if ($result) {
-            $_SESSION['success'] = 'All settings saved successfully!';
-        } else {
-            $_SESSION['error'] = 'Failed to save settings.';
-        }
-        
-        header('Location: ' . BASE_URL . '/admin/settings');
-        exit;
+        $this->handleSettingSave($settings, 'All settings saved successfully!', 'Failed to save settings.');
     }
     
-    /**
-     * Test Email Configuration
-     */
     public function testEmailConfig() {
-        $hideFooter = true;
-        
-        $emailSettings = $this->settingsModel->getEmailSettings();
-        
-        $_SESSION['success'] = 'Email test successful! Check your inbox.';
-        
-        header('Location: ' . BASE_URL . '/admin/settings');
-        exit;
+        $this->redirectWithSuccess('Email test successful! Check your inbox.', BASE_URL . '/admin/settings');
     }
     
-    /**
-     * Clear Cache
-     */
     public function clearCache() {
-        $hideFooter = true;
-        
         $result = $this->settingsModel->clearCache();
         
         if ($result) {
-            $_SESSION['success'] = 'Cache cleared successfully!';
+            $this->redirectWithSuccess('Cache cleared successfully!', BASE_URL . '/admin/settings');
         } else {
-            $_SESSION['error'] = 'Failed to clear cache.';
+            $this->redirectWithError('Failed to clear cache.', BASE_URL . '/admin/settings');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/settings');
-        exit;
     }
     
-    /**
-     * Reset to Defaults
-     */
     public function resetToDefaults() {
-        $hideFooter = true;
-        
         $result = $this->settingsModel->resetToDefaults();
         
         if ($result) {
-            $_SESSION['success'] = 'All settings have been reset to defaults.';
+            $this->redirectWithSuccess('All settings have been reset to defaults.', BASE_URL . '/admin/settings');
         } else {
-            $_SESSION['error'] = 'Failed to reset settings.';
+            $this->redirectWithError('Failed to reset settings.', BASE_URL . '/admin/settings');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/settings');
-        exit;
     }
-
-    /**
-     * View all lessons (for admin)
-     */
+    
+    // ==================== LESSONS MANAGEMENT ====================
     public function lessons() {
         $hideFooter = true;
         
-        $page = $_GET['page'] ?? 1;
         $search = $_GET['search'] ?? null;
         $teacherId = $_GET['teacher'] ?? null;
         $status = $_GET['status'] ?? null;
+        $pagination = $this->getLessonPaginationParams();
         
-        $limit = 15;
-        $offset = ($page - 1) * $limit;
-        
-        $lessons = $this->lessonModel->getAllLessons($search, $teacherId, $status, $limit, $offset);
+        $lessons = $this->lessonModel->getAllLessons($search, $teacherId, $status, $this->lessonsPerPage, $pagination['offset']);
         $totalLessons = $this->lessonModel->countAllLessons($search, $teacherId, $status);
-        $totalPages = ceil($totalLessons / $limit);
+        $totalPages = ceil($totalLessons / $this->lessonsPerPage);
         $teachers = $this->userModel->getAllUsers('teacher');
         
         require_once __DIR__ . '/../views/admin/lessons.php';
     }
-
-    /**
-     * View single lesson (admin)
-     */
+    
     public function viewLesson($lessonId) {
         $hideFooter = true;
         
         $lesson = $this->lessonModel->getById($lessonId);
         
         if (!$lesson) {
-            $_SESSION['error'] = 'Lesson not found.';
-            header('Location: ' . BASE_URL . '/admin/lessons');
-            exit;
+            $this->redirectWithError('Lesson not found.', BASE_URL . '/admin/lessons');
         }
         
         require_once __DIR__ . '/../views/admin/view_lesson.php';
     }
-
-    /**
-     * Approve lesson
-     */
+    
     public function approveLesson($lessonId) {
         $result = $this->lessonModel->approve($lessonId);
         
         if ($result['success']) {
-            $_SESSION['success'] = 'Lesson approved successfully.';
+            $this->redirectWithSuccess('Lesson approved successfully.', BASE_URL . '/admin/lessons');
         } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to approve lesson.';
+            $this->redirectWithError($result['error'] ?? 'Failed to approve lesson.', BASE_URL . '/admin/lessons');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/lessons');
-        exit;
     }
-
-    /**
-     * Reject/Disapprove lesson
-     */
+    
     public function rejectLesson($lessonId) {
         $result = $this->lessonModel->reject($lessonId);
         
         if ($result['success']) {
-            $_SESSION['success'] = 'Lesson rejected.';
+            $this->redirectWithSuccess('Lesson rejected.', BASE_URL . '/admin/lessons');
         } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to reject lesson.';
+            $this->redirectWithError($result['error'] ?? 'Failed to reject lesson.', BASE_URL . '/admin/lessons');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/lessons');
-        exit;
     }
-
-    /**
-     * View all quizzes (for admin)
-     */
+    
+    // ==================== QUIZZES MANAGEMENT ====================
     public function quizzes() {
         $hideFooter = true;
         
-        $page = $_GET['page'] ?? 1;
         $search = $_GET['search'] ?? null;
         $teacherId = $_GET['teacher'] ?? null;
         $status = $_GET['status'] ?? null;
+        $pagination = $this->getQuizPaginationParams();
         
-        $limit = 15;
-        $offset = ($page - 1) * $limit;
-        
-        $quizzes = $this->quizModel->getAllQuizzes($search, $teacherId, $status, $limit, $offset);
+        $quizzes = $this->quizModel->getAllQuizzes($search, $teacherId, $status, $this->quizzesPerPage, $pagination['offset']);
         $totalQuizzes = $this->quizModel->countAllQuizzes($search, $teacherId, $status);
-        $totalPages = ceil($totalQuizzes / $limit);
-        
+        $totalPages = ceil($totalQuizzes / $this->quizzesPerPage);
         $teachers = $this->userModel->getAllUsers('teacher');
         
         require_once __DIR__ . '/../views/admin/quizzes.php';
     }
-
-    /**
-     * View single quiz (admin)
-     */
+    
     public function viewQuiz($quizId) {
         $hideFooter = true;
         
         $quiz = $this->quizModel->getById($quizId);
         
         if (!$quiz) {
-            $_SESSION['error'] = 'Quiz not found.';
-            header('Location: ' . BASE_URL . '/admin/quizzes');
-            exit;
+            $this->redirectWithError('Quiz not found.', BASE_URL . '/admin/quizzes');
         }
         
         $questions = $this->quizModel->getQuestions($quizId);
-        
         $quiz['questions'] = $questions;
         
         require_once __DIR__ . '/../views/admin/view_quiz.php';
     }
-
-    /**
-     * Approve quiz
-     */
+    
     public function approveQuiz($quizId) {
         $result = $this->quizModel->approve($quizId);
         
         if ($result['success']) {
-            $_SESSION['success'] = 'Quiz approved successfully.';
+            $this->redirectWithSuccess('Quiz approved successfully.', BASE_URL . '/admin/quizzes');
         } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to approve quiz.';
+            $this->redirectWithError($result['error'] ?? 'Failed to approve quiz.', BASE_URL . '/admin/quizzes');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/quizzes');
-        exit;
     }
-
-    /**
-     * Reject quiz
-     */
+    
     public function rejectQuiz($quizId) {
         $result = $this->quizModel->reject($quizId);
         
         if ($result['success']) {
-            $_SESSION['success'] = 'Quiz rejected.';
+            $this->redirectWithSuccess('Quiz rejected.', BASE_URL . '/admin/quizzes');
         } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to reject quiz.';
+            $this->redirectWithError($result['error'] ?? 'Failed to reject quiz.', BASE_URL . '/admin/quizzes');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/quizzes');
-        exit;
     }
-
-    /**
-     * Delete quiz (admin)
-     */
+    
     public function deleteQuiz($quizId) {
         $result = $this->quizModel->delete($quizId);
         
         if ($result['success']) {
-            $_SESSION['success'] = 'Quiz deleted successfully.';
+            $this->redirectWithSuccess('Quiz deleted successfully.', BASE_URL . '/admin/quizzes');
         } else {
-            $_SESSION['error'] = $result['error'] ?? 'Failed to delete quiz.';
+            $this->redirectWithError($result['error'] ?? 'Failed to delete quiz.', BASE_URL . '/admin/quizzes');
         }
-        
-        header('Location: ' . BASE_URL . '/admin/quizzes');
-        exit;
     }
 }
 ?>

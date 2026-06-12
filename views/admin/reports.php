@@ -706,10 +706,10 @@ body {
     flex-shrink: 0;
 }
 
-.stat-card-purple .stat-icon { background: linear-gradient(135deg, #f06724); }
-.stat-card-orange .stat-icon { background: linear-gradient(135deg, #f06724); }
-.stat-card-green .stat-icon { background: linear-gradient(135deg, #f06724); }
-.stat-card-pink .stat-icon { background: linear-gradient(135deg, #f06724); }
+.stat-card-purple .stat-icon { background-color: #f06724; }
+.stat-card-orange .stat-icon { background-color: #f06724; }
+.stat-card-green .stat-icon { background-color: #f06724; }
+.stat-card-pink .stat-icon { background-color: #f06724; }
 
 .stat-content {
     flex: 1;
@@ -824,7 +824,7 @@ body {
 .input-wrapper input {
     width: 100%;
     padding: 10px 10px 10px 35px;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     font-size: 0.9rem;
     transition: all 0.3s ease;
@@ -834,7 +834,7 @@ body {
 .input-wrapper input:focus {
     outline: none;
     border-color: var(--primary-purple);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
 }
 
 .quick-filters {
@@ -1104,9 +1104,9 @@ body {
     flex-shrink: 0;
 }
 
-.feed-icon.login { background: linear-gradient(135deg, #f06724); }
-.feed-icon.registration { background: linear-gradient(135deg, #f06724); }
-.feed-icon.quiz_attempt { background: linear-gradient(135deg, #f06724); }
+.feed-icon.login { background-color: #f06724; }
+.feed-icon.registration { background-color: #f06724; }
+.feed-icon.quiz_attempt { background-color: #f06724; }
 
 .feed-content {
     flex: 1;

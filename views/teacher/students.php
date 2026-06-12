@@ -128,7 +128,7 @@ $search = $_GET['search'] ?? '';
                         <?php else: ?>
                             <div class="avatar-placeholder">
                                 <?php 
-                                $initial = strtoupper(substr($student['first_name'] ?? 'S', 0, 1));
+                                $initial = strtoupper(substr($student['first_name'] ?? 'S', 0, 2));
                                 echo $initial;
                                 ?>
                             </div>
@@ -157,7 +157,7 @@ $search = $_GET['search'] ?? '';
                                 </span>
                             <?php else: ?>
                                 <span class="role-badge external">
-                                    <i class="fas fa-globe"></i> External
+                                    Student
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -247,7 +247,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -270,7 +270,7 @@ $search = $_GET['search'] ?? '';
 .quick-stat-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -286,7 +286,7 @@ $search = $_GET['search'] ?? '';
 
 .quick-stat-label {
     font-size: 0.7rem;
-    color: black;
+    color: #555;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -294,7 +294,7 @@ $search = $_GET['search'] ?? '';
 .quick-stat-value {
     font-size: 1.3rem;
     font-weight: 700;
-    color: black;
+    color: #000;
 }
 
 /* Alerts */
@@ -358,13 +358,13 @@ $search = $_GET['search'] ?? '';
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94A3B8;
+    color: #555;
 }
 
 .search-box input {
     width: 100%;
     padding: 12px 15px 12px 45px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 0.95rem;
     transition: all 0.3s ease;
@@ -373,7 +373,7 @@ $search = $_GET['search'] ?? '';
 .search-box input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .filter-group select {
@@ -507,7 +507,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .student-name {
-    color: #1E293B;
+    color: #000;
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 10px;
@@ -532,12 +532,12 @@ $search = $_GET['search'] ?? '';
 
 .role-badge.external {
     background: #EFF6FF;
-    color: #1E40AF;
+    color: #000;
 }
 
 .student-class,
 .student-email {
-    color: black;
+    color: #555;
     font-size: 0.9rem;
     margin-bottom: 5px;
     display: flex;
@@ -564,7 +564,7 @@ $search = $_GET['search'] ?? '';
     justify-content: space-between;
     font-size: 0.7rem;
     margin-bottom: 5px;
-    color: black;
+    color: #555;
 }
 
 .progress-bar {
@@ -597,7 +597,7 @@ $search = $_GET['search'] ?? '';
 
 .stat-label {
     display: block;
-    color: black;
+    color: #555;
     font-size: 0.7rem;
     margin-bottom: 5px;
     text-transform: uppercase;
@@ -612,8 +612,8 @@ $search = $_GET['search'] ?? '';
 .stat-value {
     display: block;
     font-size: 1.2rem;
-    font-weight: 700;
-    color: black;
+    font-weight: 600;
+    color: #000;
 }
 
 .stat-value.high {
@@ -665,7 +665,7 @@ $search = $_GET['search'] ?? '';
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -678,19 +678,19 @@ $search = $_GET['search'] ?? '';
 }
 
 .empty-state h3 {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     margin-bottom: 10px;
 }
 
 .empty-state p {
-    color: black;
+    color: #555;
     margin-bottom: 5px;
 }
 
 .empty-hint {
     font-size: 0.85rem;
-    color: #94A3B8;
+    color: #555;
 }
 
 /* Responsive */

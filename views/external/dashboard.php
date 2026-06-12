@@ -19,28 +19,27 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
 
 <div style="padding: 40px 20px; max-width: 1200px; margin: 0 auto;">
     <h1 style="font-size: 2rem; margin-bottom: 20px;">
-        <span style="background: linear-gradient(135deg, #f06724); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        <span style="background-color: #f06724; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Welcome back, <?php 
                 $fullName = $_SESSION['user_name'] ?? 'User';
                 $firstName = explode(' ', trim($fullName))[0];
                 echo htmlspecialchars($firstName); 
             ?>!
         </span>
-        <span>👋</span>
     </h1>
     
     <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-        <h2 style="color: black; margin-bottom: 20px;">External User Dashboard</h2>
+        <h2 style="color: #000; margin-bottom: 20px;">Dashboard</h2>
         
         <!-- Access Status Banner -->
         <?php if ($hasActiveSubscription): ?>
             <!-- Active Subscription Banner -->
-            <div style="background: linear-gradient(135deg, #F0FDF4, #FFFFFF); border-left: 4px solid #10B981; padding: 20px; margin-bottom: 30px; border-radius: 12px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <div style="background: #F0FDF4; border-left: 4px solid #10B981; padding: 20px; margin-bottom: 30px; border-radius: 12px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <div style="background: #10B981; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-crown" style="color: white; font-size: 1.5rem;"></i>
                 </div>
                 <div style="flex: 1;">
-                    <p style="color: #065F46; font-weight: 700; margin-bottom: 5px;">🌟 Active Subscription</p>
+                    <p style="color: #065F46; font-weight: 700; margin-bottom: 5px;">Active Subscription</p>
                     <p style="color: #047857;">You have full access to all premium features.</p>
                     <?php if ($subscriptionEndDate): ?>
                         <p style="color: #047857; font-size: 0.85rem;">Valid until: <?php echo date('F j, Y', strtotime($subscriptionEndDate)); ?></p>
@@ -53,14 +52,14 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
             
         <?php elseif ($isInTrial): ?>
             <!-- Active Trial Banner -->
-            <div style="background: linear-gradient(135deg, #FEF3C7, #FFFAF0); border-left: 4px solid #F59E0B; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
+            <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                     <div style="background: #F59E0B; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-hourglass-half" style="color: white; font-size: 1.5rem;"></i>
                     </div>
                     <div style="flex: 1;">
                         <p style="color: #92400E; font-weight: 700; font-size: 1.1rem; margin-bottom: 5px;">
-                            ⏳ Trial Period: <strong><?php echo $remainingTrialDays; ?> days remaining</strong>
+                            Trial Period: <strong><?php echo $remainingTrialDays; ?> days remaining</strong>
                         </p>
                         <p style="color: #B45309; font-size: 0.95rem;">
                             You have <?php echo $remainingTrialDays; ?> days left to explore all features.
@@ -73,11 +72,11 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                         $usedDays = $trialDays - $remainingTrialDays;
                         ?>
                         <div style="background: #FFEDD5; height: 8px; border-radius: 10px; margin-top: 10px; max-width: 400px;">
-                            <div style="background: linear-gradient(90deg, #f06724); width: <?php echo $trialPercentage; ?>%; height: 100%; border-radius: 10px;"></div>
+                            <div style="background: #f06724; width: <?php echo $trialPercentage; ?>%; height: 100%; border-radius: 10px;"></div>
                         </div>
                         <p style="color: #B45309; font-size: 0.75rem; margin-top: 5px;">Day <?php echo $usedDays; ?> of <?php echo $trialDays; ?></p>
                     </div>
-                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: linear-gradient(135deg, #f06724); color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
+                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: #f06724; color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
                         Subscribe Now
                     </a>
                 </div>
@@ -85,16 +84,16 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
             
         <?php else: ?>
             <!-- Trial Ended Banner -->
-            <div style="background: linear-gradient(135deg, #FEF2F2, #FFFFFF); border-left: 4px solid #EF4444; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
+            <div style="background: #FEF2F2; border-left: 4px solid #EF4444; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                     <div style="background: #EF4444; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-clock" style="color: white; font-size: 1.5rem;"></i>
                     </div>
                     <div style="flex: 1;">
-                        <p style="color: #B91C1C; font-weight: 700; margin-bottom: 5px;">⚠️ Trial Expired</p>
-                        <p style="color: #B91C1C;">Your free trial has ended. Subscribe now to continue accessing lessons and quizzes!</p>
+                        <p style="color: #B91C1C; font-weight: 700; margin-bottom: 5px;">Trial or Subscription Ended!</p>
+                        <p style="color: #B91C1C;">Kindly subscribe now to continue accessing lessons, quizzes & more!</p>
                     </div>
-                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
+                    <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: #10B981; color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
                         Subscribe Now
                     </a>
                 </div>
@@ -111,7 +110,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                     <?php echo $hasAccess ? 'Access all lessons and resources' : 'Subscribe to access lessons'; ?>
                 </p>
                 <?php if (!$hasAccess): ?>
-                    <div style="margin-top: 10px; font-size: 0.8rem;">🔒 Locked</div>
+                    <div style="margin-top: 10px; font-size: 0.8rem; color: #B91C1C;">Locked</div>
                 <?php endif; ?>
             </a>
             
@@ -123,15 +122,15 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
                     <?php echo $hasAccess ? 'Test your knowledge' : 'Subscribe to access quizzes'; ?>
                 </p>
                 <?php if (!$hasAccess): ?>
-                    <div style="margin-top: 10px; font-size: 0.8rem;">🔒 Locked</div>
+                    <div style="margin-top: 10px; font-size: 0.8rem; color: #B91C1C;">Locked</div>
                 <?php endif; ?>
             </a>
             
             <!-- Subscription Card (Always accessible) -->
-            <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: white; color: #1E293B; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: transform 0.3s ease;">
+            <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: white; color: #000; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: transform 0.3s ease;">
                 <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 15px; color: #f06724;"></i>
                 <h3 style="margin-bottom: 10px;">Subscription</h3>
-                <p style="color: black; font-size: 0.9rem;">
+                <p style="color: #555; font-size: 0.9rem;">
                     <?php echo $hasActiveSubscription ? 'Manage your subscription' : ($isInTrial ? 'Upgrade to premium' : 'Subscribe to continue'); ?>
                 </p>
             </a>
@@ -141,11 +140,10 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
         <?php if (!$hasAccess && !$hasActiveSubscription): ?>
         <div style="margin-top: 30px; padding: 20px; background: #FEF2F2; border-radius: 12px; text-align: center;">
             <p style="color: #B91C1C; margin-bottom: 15px;">
-                <i class="fas fa-exclamation-triangle"></i> 
-                Your free trial has ended. To continue learning, please choose a subscription plan.
+                Your free trial or subscription has ended. To continue learning, please choose a subscription plan!
             </p>
-            <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-subscribe" style="background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block;">
-                View Subscription Plans
+            <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-subscribe" style="background: #10B981; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block;">
+                View Plans
             </a>
         </div>
         <?php endif; ?>

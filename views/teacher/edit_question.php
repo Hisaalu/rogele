@@ -94,9 +94,6 @@ $quiz = $quiz ?? [];
                 <button type="submit" class="btn-primary">
                     <i class="fas fa-save"></i> Update Question
                 </button>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
             </div>
         </form>
     </div>
@@ -113,7 +110,7 @@ $quiz = $quiz ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -121,7 +118,7 @@ $quiz = $quiz ?? [];
 }
 
 .back-link:hover {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .page-title {
@@ -137,7 +134,7 @@ $quiz = $quiz ?? [];
 }
 
 .page-subtitle {
-    color: black;
+    color: #000;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -180,7 +177,7 @@ $quiz = $quiz ?? [];
 .form-group textarea {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -191,8 +188,8 @@ $quiz = $quiz ?? [];
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .form-actions {
@@ -292,35 +289,6 @@ $quiz = $quiz ?? [];
     
     .form-actions {
         flex-direction: column;
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .form-card {
-        background: #1E293B;
-    }
-    
-    .form-group label {
-        color: #F1F5F9;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        background: #0F172A;
-        border-color: #334155;
-        color: #F1F5F9;
-    }
-    
-    .btn-secondary {
-        background: transparent;
-        color: #94A3B8;
-        border-color: #334155;
-    }
-    
-    .btn-secondary:hover {
-        background: #334155;
-        color: #F1F5F9;
     }
 }
 </style>

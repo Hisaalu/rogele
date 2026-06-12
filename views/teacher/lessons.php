@@ -209,7 +209,7 @@ function getYoutubeId($url) {
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -296,7 +296,7 @@ function getYoutubeId($url) {
 .search-box input {
     width: 100%;
     padding: 12px 15px 12px 45px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -305,7 +305,7 @@ function getYoutubeId($url) {
 .search-box input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .btn-search {
@@ -365,7 +365,7 @@ function getYoutubeId($url) {
     height: 180px;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
 }
 
 .lesson-thumbnail img {
@@ -425,7 +425,7 @@ function getYoutubeId($url) {
 }
 
 .lesson-title {
-    color: black;
+    color: #000;
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 10px;
@@ -436,7 +436,7 @@ function getYoutubeId($url) {
     gap: 15px;
     margin-bottom: 12px;
     font-size: 0.85rem;
-    color: black;
+    color: #555;
 }
 
 .lesson-meta span {
@@ -450,7 +450,7 @@ function getYoutubeId($url) {
 }
 
 .lesson-description {
-    color: black;
+    color: #000;
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 15px;
@@ -464,6 +464,10 @@ function getYoutubeId($url) {
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.85rem;
+    color: #555;
+}
+
+.lesson-stats i{
     color: #f06724;
 }
 
@@ -533,7 +537,7 @@ function getYoutubeId($url) {
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -546,13 +550,13 @@ function getYoutubeId($url) {
 }
 
 .empty-state h3 {
-    color: black;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
 .empty-state p {
-    color: black;
+    color: #555;
     margin-bottom: 25px;
 }
 
@@ -572,7 +576,7 @@ function getYoutubeId($url) {
     justify-content: center;
     border-radius: 8px;
     text-decoration: none;
-    color: black;
+    color: #000;
     transition: all 0.3s ease;
     border: 1px solid #E2E8F0;
 }

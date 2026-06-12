@@ -13,7 +13,8 @@ if (empty($classes)) {
         ['id' => 4, 'name' => 'Primary 4'],
         ['id' => 5, 'name' => 'Primary 5'],
         ['id' => 6, 'name' => 'Primary 6'],
-        ['id' => 7, 'name' => 'Primary 7']
+        ['id' => 7, 'name' => 'Primary 7'],
+        ['id' => 8, 'name' => 'Computer Class']
     ];
 }
 ?>
@@ -28,8 +29,9 @@ if (empty($classes)) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
-    
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
+    <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
+
     <style>
         * {
             margin: 0;
@@ -88,13 +90,13 @@ if (empty($classes)) {
         .logo-section h1 {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #1a1a1a;
+            color: #000;
             margin: 0;
         }
 
         .logo-section p {
             font-size: 0.85rem;
-            color: black;
+            color: #555;
             margin-top: 4px;
         }
 
@@ -127,7 +129,7 @@ if (empty($classes)) {
         .form-group select:focus {
             outline: none;
             border-color: #f06724;
-            box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.1);
+            box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
         }
 
         .phone-field {
@@ -214,7 +216,7 @@ if (empty($classes)) {
 
         .terms-group label {
             font-size: 0.8rem;
-            color: black;
+            color: #555;
             cursor: pointer;
         }
 
@@ -229,7 +231,7 @@ if (empty($classes)) {
             padding-top: 24px;
             border-top: 1px solid #eee;
             font-size: 0.85rem;
-            color: black;
+            color: #555;
         }
 
         .login-link a {
@@ -345,7 +347,7 @@ if (empty($classes)) {
                 <div class="form-group">
                     <div class="phone-field">
                         <span class="country-code">+256</span>
-                        <input type="tel" name="phone" id="phone" placeholder="Contact No. (e.g, 701234567)" required>
+                        <input type="tel" name="phone" id="phone" placeholder="e.g 701234567" required>
                     </div>
                 </div>
                 
@@ -391,7 +393,7 @@ if (empty($classes)) {
                 
                 <div class="login-link">
                     <span>Already have an account?</span>
-                    <a href="<?php echo BASE_URL; ?>/login">Sign in</a>
+                    <a href="<?php echo BASE_URL; ?>/login">Log in</a>
                 </div>
             </form>
         </div>

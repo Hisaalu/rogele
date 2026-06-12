@@ -198,7 +198,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -285,7 +285,7 @@ $search = $_GET['search'] ?? '';
 .search-box input {
     width: 100%;
     padding: 12px 15px 12px 45px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -294,7 +294,7 @@ $search = $_GET['search'] ?? '';
 .search-box input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .btn-search {
@@ -380,7 +380,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .quiz-title {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 10px;
@@ -392,7 +392,7 @@ $search = $_GET['search'] ?? '';
     gap: 15px;
     margin-bottom: 15px;
     font-size: 0.85rem;
-    color: black;
+    color: #555;
     flex-wrap: wrap;
 }
 
@@ -407,7 +407,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .quiz-description {
-    color: black;
+    color: #000;
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -422,7 +422,7 @@ $search = $_GET['search'] ?? '';
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.85rem;
-    color: black;
+    color: #555;
     flex-wrap: wrap;
 }
 
@@ -516,7 +516,7 @@ $search = $_GET['search'] ?? '';
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -529,13 +529,13 @@ $search = $_GET['search'] ?? '';
 }
 
 .empty-state h3 {
-    color: black;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
 .empty-state p {
-    color: black;
+    color: #555;
     margin-bottom: 25px;
 }
 

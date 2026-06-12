@@ -67,10 +67,10 @@ $students = $students ?? [];
                 <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Teacher'); ?></h2>
                 <p class="profile-role"><?php echo ucfirst($_SESSION['user_role'] ?? 'teacher'); ?></p>
                 
-                <div class="photo-info">
+                <!-- <div class="photo-info">
                     <i class="fas fa-info-circle"></i>
                     <span>JPG, PNG or GIF (Max 2MB)</span>
-                </div>
+                </div> -->
             </div>
 
             <div class="profile-stats">
@@ -220,10 +220,6 @@ $students = $students ?? [];
                         <i class="fas fa-save"></i>
                         Save Changes
                     </button>
-                    <button type="reset" class="btn-cancel">
-                        <i class="fas fa-undo"></i>
-                        Reset
-                    </button>
                 </div>
             </form>
         </div>
@@ -254,7 +250,7 @@ $students = $students ?? [];
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -343,7 +339,7 @@ $students = $students ?? [];
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -366,7 +362,7 @@ $students = $students ?? [];
     display: flex;
     align-items: center;
     justify-content: center;
-    color: black;
+    color: #000;
     font-size: 1.2rem;
     cursor: pointer;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -382,12 +378,12 @@ $students = $students ?? [];
 .profile-name {
     font-size: 1.5rem;
     font-weight: 700;
-    color: black;
+    color: #000;
     margin-bottom: 5px;
 }
 
 .profile-role {
-    color: #7f2677;
+    color: #555;
     font-weight: 500;
     text-transform: capitalize;
     margin-bottom: 15px;
@@ -398,7 +394,7 @@ $students = $students ?? [];
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: black;
+    color: #000;
     font-size: 0.85rem;
     background: #F8FAFC;
     padding: 8px 15px;
@@ -449,12 +445,11 @@ $students = $students ?? [];
 
 .stat-label {
     font-size: 0.85rem;
-    color: black;
+    color: #555;
 }
 
 .stat-value {
-    font-weight: 600;
-    color: #7f2677;
+    color: #000;
 }
 
 /* Right Column */
@@ -465,7 +460,7 @@ $students = $students ?? [];
 .card-title {
     font-size: 1.3rem;
     font-weight: 600;
-    color: black;
+    color: #000;
     margin-bottom: 30px;
     display: flex;
     align-items: center;
@@ -500,7 +495,7 @@ $students = $students ?? [];
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: black;
+    color: #555;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -519,7 +514,7 @@ $students = $students ?? [];
 .form-group input,
 .form-group textarea {
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -530,7 +525,7 @@ $students = $students ?? [];
 .form-group textarea:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .form-group input:hover,
@@ -572,28 +567,6 @@ $students = $students ?? [];
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
 
-.btn-cancel {
-    padding: 14px 30px;
-    background: #7f2677;
-    color: white;
-    border: 2px solid #E2E8F0;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-}
-
-.btn-cancel:hover {
-    background: #f06724;
-    border-color: #94A3B8;
-    color: white;
-}
-
 /* Responsive Design */
 @media (max-width: 992px) {
     .profile-grid {
@@ -626,10 +599,6 @@ $students = $students ?? [];
     
     .form-actions {
         flex-direction: column;
-    }
-    
-    .btn-save, .btn-cancel {
-        width: 100%;
     }
     
     .profile-photo-wrapper {

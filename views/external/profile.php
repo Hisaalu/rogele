@@ -55,16 +55,16 @@ require_once __DIR__ . '/../layouts/header.php';
                     </button> -->
                 </div>
                 <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></h2>
-                <p class="profile-role"><?php echo ucfirst($_SESSION['user_role'] ?? 'user'); ?></p>
+                <p class="profile-role"><?php echo ucfirst($_SESSION[''] ?? 'Student'); ?></p>
                 
                 <form method="POST" action="<?php echo BASE_URL; ?>/external/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
                     <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" style="display: none;" onchange="document.getElementById('photoUploadForm').submit()">
                 </form>
                 
-                <div class="photo-info">
+                <!-- <div class="photo-info">
                     <i class="fas fa-info-circle"></i>
                     <span>JPG, PNG or GIF (Max 2MB)</span>
-                </div>
+                </div> -->
             </div>
 
             <div class="profile-stats">
@@ -202,10 +202,6 @@ require_once __DIR__ . '/../layouts/header.php';
                         <i class="fas fa-save"></i>
                         Save Changes
                     </button>
-                    <button type="reset" class="btn-cancel">
-                        <i class="fas fa-times"></i>
-                        Cancel
-                    </button>
                 </div>
             </form>
         </div>
@@ -232,7 +228,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -286,7 +282,7 @@ require_once __DIR__ . '/../layouts/header.php';
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -309,7 +305,7 @@ require_once __DIR__ . '/../layouts/header.php';
     display: flex;
     align-items: center;
     justify-content: center;
-    color: black;
+    color: #000;
     font-size: 1.2rem;
     cursor: pointer;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -325,13 +321,12 @@ require_once __DIR__ . '/../layouts/header.php';
 .profile-name {
     font-size: 1.5rem;
     font-weight: 700;
-    color: black;
+    color: #000;
     margin-bottom: 5px;
 }
 
 .profile-role {
-    color: #7f2677;
-    font-weight: 500;
+    color: #555;
     text-transform: capitalize;
     margin-bottom: 15px;
 }
@@ -341,7 +336,7 @@ require_once __DIR__ . '/../layouts/header.php';
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: black;
+    color: #000;
     font-size: 0.85rem;
     background: #F8FAFC;
     padding: 8px 15px;
@@ -391,12 +386,11 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .stat-label {
     font-size: 0.85rem;
-    color: black;
+    color: #555;
 }
 
 .stat-value {
-    font-weight: 600;
-    color: #7f2677;
+    color: #000;
 }
 
 .stat-sub {
@@ -412,7 +406,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .card-title {
     font-size: 1.3rem;
     font-weight: 600;
-    color: black;
+    color: #000;
     margin-bottom: 30px;
     display: flex;
     align-items: center;
@@ -446,7 +440,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: black;
+    color: #555;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -459,7 +453,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .form-group input {
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -468,8 +462,8 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .form-group input:focus {
     outline: none;
-    border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .form-group input:hover {
@@ -485,7 +479,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .class-select {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     font-family: 'Inter', sans-serif;
@@ -501,8 +495,8 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .class-select:focus {
     outline: none;
-    border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .class-select:hover {
@@ -514,7 +508,7 @@ require_once __DIR__ . '/../layouts/header.php';
     align-items: center;
     gap: 6px;
     font-size: 0.8rem;
-    color: #64748B;
+    color: #555;
     margin-top: 5px;
 }
 
@@ -543,27 +537,6 @@ require_once __DIR__ . '/../layouts/header.php';
 .btn-save:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
-}
-
-.btn-cancel {
-    padding: 14px 30px;
-    background: #7f2677;
-    color: white;
-    border: 2px solid #E2E8F0;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-}
-
-.btn-cancel:hover {
-    background: #f06724;
-    border-color: #94A3B8;
 }
 
 /* Alert Styles */

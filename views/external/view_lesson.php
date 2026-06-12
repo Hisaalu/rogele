@@ -12,22 +12,22 @@ if (!isset($lesson)) {
 
 <div style="padding: 40px 20px; max-width: 1000px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <a href="<?php echo BASE_URL; ?>/external/materials" style="color: #7f2677; text-decoration: none;">
+        <a href="<?php echo BASE_URL; ?>/external/materials" style="color: #000; text-decoration: none;">
             <i class="fas fa-arrow-left"></i> Back to Materials
         </a>
         
         <?php if (isset($_SESSION['user_id'])): ?>
             <button class="bookmark-btn <?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'bookmarked' : ''; ?>" 
-                    onclick="toggleBookmark(<?php echo $lesson['id']; ?>)"
+                    onclick="toggleBookmark(<?php echo $lesson['id']; ?>, this)"
                     title="<?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'Remove from bookmarks' : 'Add to bookmarks'; ?>">
                 <i class="fas fa-bookmark"></i>
             </button>
         <?php endif; ?>
     </div>
 
-    <h1 style="font-size: 2.5rem; margin-bottom: 20px; color: black;"><?php echo htmlspecialchars($lesson['title']); ?></h1>
+    <h1 style="font-size: 2.5rem; margin-bottom: 20px; color: #000;"><?php echo htmlspecialchars($lesson['title']); ?></h1>
     
-    <div style="display: flex; gap: 20px; margin-bottom: 30px; color: black; flex-wrap: wrap;">
+    <div style="display: flex; gap: 20px; margin-bottom: 30px; color: #555; flex-wrap: wrap;">
         <span><i class="fas fa-book" style="color: #f06724;"></i> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?></span>
         <span><i class="fas fa-user" style="color: #f06724;"></i> Tr. <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?></span>
         <span><i class="fas fa-eye" style="color: #f06724;"></i> <?php echo $lesson['views']; ?> views</span>
@@ -43,15 +43,15 @@ if (!isset($lesson)) {
     <?php endif; ?>
     
     <div style="background: white; border-radius: 20px; padding: 40px; margin-bottom: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-        <h2 style="color: black; margin-bottom: 20px;">Lesson Content</h2>
-        <div style="color: black; line-height: 1.8;">
+        <h2 style="color: #000; margin-bottom: 20px;">Lesson Content</h2>
+        <div style="color: #000; line-height: 1.8;">
             <?php echo nl2br(htmlspecialchars($lesson['content'] ?? 'No content available.')); ?>
         </div>
     </div>
     
     <?php if (!empty($lesson['materials'])): ?>
         <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-            <h2 style="color: black; margin-bottom: 20px;">Downloadable Materials</h2>
+            <h2 style="color: #000; margin-bottom: 20px;">Downloadable Materials</h2>
             <div style="display: grid; gap: 15px;">
                 <?php foreach ($lesson['materials'] as $material): ?>
                     <a href="<?php echo BASE_URL; ?>/public/<?php echo $material['file_path']; ?>" download 
@@ -91,7 +91,7 @@ function getYoutubeId($url) {
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s ease;
-        color: #7f2677;
+        color: #666;
         font-size: 1.2rem;
     }
 
@@ -108,39 +108,58 @@ function getYoutubeId($url) {
     }
 
     .bookmark-btn.bookmarked:hover {
-        background: #f06724;
-        border-color: #f06724;
+        background: #e05a1a;
+        border-color: #e05a1a;
     }
 </style>
 
 <script>
-function toggleBookmark(lessonId) {
+function toggleBookmark(lessonId, buttonElement) {
+    // Disable button to prevent multiple clicks
+    buttonElement.disabled = true;
+    const originalIcon = buttonElement.innerHTML;
+    buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
     fetch(`<?php echo BASE_URL; ?>/external/toggle-bookmark/${lessonId}`, {
         method: 'POST',
         headers: {
+            'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            const btn = event.currentTarget;
-            btn.classList.toggle('bookmarked');
-            btn.title = btn.classList.contains('bookmarked') ? 'Remove from bookmarks' : 'Add to bookmarks';
+            // Toggle bookmark class and title
+            buttonElement.classList.toggle('bookmarked');
+            buttonElement.title = buttonElement.classList.contains('bookmarked') ? 'Remove from bookmarks' : 'Add to bookmarks';
+            buttonElement.innerHTML = '<i class="fas fa-bookmark"></i>';
             
-            // Show notification
+            // Show success notification
             showNotification(data.message, 'success');
         } else {
+            buttonElement.innerHTML = originalIcon;
             showNotification(data.error || 'Failed to update bookmark', 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification('An error occurred', 'error');
+        buttonElement.innerHTML = originalIcon;
+        showNotification('An error occurred. Please try again.', 'error');
+    })
+    .finally(() => {
+        // Re-enable button
+        buttonElement.disabled = false;
     });
 }
 
 function showNotification(message, type) {
+    // Remove existing notification
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `

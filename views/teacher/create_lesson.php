@@ -206,10 +206,6 @@ $classes = $classes ?? [];
                     <i class="fas fa-save"></i>
                     Create Lesson
                 </button>
-                <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </a>
             </div>
         </form>
     </div>
@@ -226,7 +222,7 @@ $classes = $classes ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -250,7 +246,7 @@ $classes = $classes ?? [];
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -276,7 +272,7 @@ $classes = $classes ?? [];
 }
 
 .section-title {
-    color: black;
+    color: #000;
     font-size: 1.2rem;
     margin-bottom: 25px;
     display: flex;
@@ -306,7 +302,7 @@ $classes = $classes ?? [];
     gap: 8px;
     font-weight: 600;
     font-size: 0.95rem;
-    color: black;
+    color: #000;
     margin-bottom: 8px;
 }
 
@@ -324,7 +320,7 @@ $classes = $classes ?? [];
 .form-group textarea {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -336,7 +332,7 @@ $classes = $classes ?? [];
 .form-group textarea:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .form-group input:hover,
@@ -353,7 +349,7 @@ $classes = $classes ?? [];
 .input-hint {
     display: block;
     font-size: 0.8rem;
-    color: black;
+    color: #555;
     margin-top: 5px;
 }
 
@@ -380,7 +376,7 @@ $classes = $classes ?? [];
 }
 
 .file-upload-area p {
-    color: black;
+    color: #000;
     font-weight: 500;
     margin-bottom: 10px;
 }
@@ -415,11 +411,11 @@ $classes = $classes ?? [];
 
 .file-item .file-name {
     flex: 1;
-    color: black;
+    color: #000;
 }
 
 .file-item .file-size {
-    color: black;
+    color: #000;
     font-size: 0.85rem;
 }
 
@@ -448,7 +444,7 @@ $classes = $classes ?? [];
 
 .checkbox-label span {
     font-weight: 500;
-    color: black;
+    color: #000;
 }
 
 /* Form Actions */

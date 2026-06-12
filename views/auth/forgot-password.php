@@ -76,13 +76,13 @@ $pageTitle = 'Forgot Password | ROGELE';
         .logo-section h1 {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #1a1a1a;
+            color: #000;
             margin: 0;
         }
 
         .logo-section p {
             font-size: 0.85rem;
-            color: black;
+            color: #555;
             margin-top: 4px;
         }
 
@@ -108,7 +108,7 @@ $pageTitle = 'Forgot Password | ROGELE';
         .form-group input:focus {
             outline: none;
             border-color: #f06724;
-            box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.1);
+            box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
         }
 
         .form-group input::placeholder {
@@ -181,12 +181,12 @@ $pageTitle = 'Forgot Password | ROGELE';
         .success-message h2 {
             font-size: 1.3rem;
             font-weight: 600;
-            color: black;
+            color: #000;
             margin-bottom: 12px;
         }
 
         .success-message p {
-            color: black;
+            color: #000;
             font-size: 0.9rem;
             line-height: 1.5;
             margin-bottom: 24px;

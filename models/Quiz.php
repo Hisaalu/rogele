@@ -5,12 +5,85 @@ require_once __DIR__ . '/../config/database.php';
 class Quiz {
     private $db;
     private $conn;
+    private $quizCache = [];
+    private $questionsCache = [];
+    private $attemptCache = [];
     
     public function __construct() {
         $this->db = Database::getInstance();
         $this->conn = $this->db->getConnection();
     }
     
+    // ==================== HELPER METHODS ====================
+    private function executeQuery($query, $params = [], $fetchAll = true) {
+        try {
+            $stmt = $this->conn->prepare($query);
+            foreach ($params as $key => $value) {
+                $type = is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
+                $stmt->bindValue($key, $value, $type);
+            }
+            $stmt->execute();
+            return $fetchAll ? $stmt->fetchAll() : $stmt;
+        } catch (PDOException $e) {
+            return $fetchAll ? [] : null;
+        }
+    }
+    
+    private function executeUpdate($query, $params, $successMsg, $errorMsg) {
+        try {
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute($params);
+            if ($result) {
+                return ['success' => true, 'message' => $successMsg];
+            }
+            return ['success' => false, 'error' => $errorMsg];
+        } catch (PDOException $e) {
+            return ['success' => false, 'error' => $errorMsg];
+        }
+    }
+    
+    private function invalidateQuizCache($quizId = null) {
+        if ($quizId) {
+            unset($this->quizCache[$quizId]);
+            unset($this->questionsCache[$quizId]);
+        } else {
+            $this->quizCache = [];
+            $this->questionsCache = [];
+        }
+        $this->attemptCache = [];
+    }
+    
+    private function getCachedQuiz($quizId) {
+        if (isset($this->quizCache[$quizId])) {
+            return $this->quizCache[$quizId];
+        }
+        
+        $sql = "SELECT q.*, 
+                    c.name as class_name,
+                    s.name as subject_name,
+                    CONCAT(u.first_name, ' ', u.last_name) as teacher_name,
+                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                FROM quizzes q
+                LEFT JOIN classes c ON q.class_id = c.id
+                LEFT JOIN subjects s ON q.subject_id = s.id
+                LEFT JOIN users u ON q.teacher_id = u.id
+                WHERE q.id = :id";
+        
+        $result = $this->executeQuery($sql, [':id' => $quizId], false);
+        $quiz = $result ? $result->fetch(PDO::FETCH_ASSOC) : null;
+        
+        if ($quiz) {
+            $quiz['status'] = $quiz['is_published'] ? 'published' : 'draft';
+            $quiz['time_limit'] = $quiz['time_limit'] ?? 30;
+            $quiz['passing_score'] = $quiz['passing_score'] ?? 70;
+            $quiz['max_attempts'] = $quiz['max_attempts'] ?? 3;
+            $this->quizCache[$quizId] = $quiz;
+        }
+        
+        return $quiz;
+    }
+    
+    // ==================== QUIZ CRUD ====================
     public function create($data) {
         try {
             $query = "INSERT INTO quizzes (title, description, subject_id, class_id, teacher_id, time_limit, passing_score, max_attempts, start_date, end_date, is_published, created_at) 
@@ -32,7 +105,9 @@ class Quiz {
             ]);
             
             if ($result) {
-                return ['success' => true, 'quiz_id' => $this->conn->lastInsertId()];
+                $quizId = $this->conn->lastInsertId();
+                $this->invalidateQuizCache($quizId);
+                return ['success' => true, 'quiz_id' => $quizId];
             }
             
             return ['success' => false, 'error' => 'Failed to create quiz'];
@@ -41,9 +116,6 @@ class Quiz {
         }
     }
     
-    /**
-     * Add questions to quiz
-     */
     public function addQuestions($quizId, $questions) {
         try {
             $this->conn->beginTransaction();
@@ -70,6 +142,7 @@ class Quiz {
             $updateStmt->execute([':id' => $quizId]);
             
             $this->conn->commit();
+            $this->invalidateQuizCache($quizId);
             return ['success' => true, 'message' => 'Questions added successfully'];
             
         } catch (PDOException $e) {
@@ -78,7 +151,6 @@ class Quiz {
         }
     }
     
-    // Get quizzes by class
     public function getByClass($classId) {
         try {
             $query = "SELECT q.*, s.name as subject_name, u.first_name as teacher_name,
@@ -98,46 +170,10 @@ class Quiz {
         }
     }
     
-    /**
-     * Get quiz by ID
-     */
     public function getById($quizId) {
-        try {
-            $sql = "SELECT q.*, 
-                        c.name as class_name,
-                        s.name as subject_name,
-                        CONCAT(u.first_name, ' ', u.last_name) as teacher_name,
-                        (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
-                    FROM quizzes q
-                    LEFT JOIN classes c ON q.class_id = c.id
-                    LEFT JOIN subjects s ON q.subject_id = s.id
-                    LEFT JOIN users u ON q.teacher_id = u.id
-                    WHERE q.id = :id";
-            
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':id', $quizId, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $quiz = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($quiz) {
-                $quiz['status'] = $quiz['is_published'] ? 'published' : 'draft';
-                $quiz['time_limit'] = $quiz['time_limit'] ?? 30;
-                $quiz['passing_score'] = $quiz['passing_score'] ?? 70;
-                $quiz['max_attempts'] = $quiz['max_attempts'] ?? 3;
-            }
-            
-            return $quiz;
-            
-        } catch (PDOException $e) {
-            error_log("Get quiz by ID error: " . $e->getMessage());
-            return null;
-        }
+        return $this->getCachedQuiz($quizId);
     }
     
-    /**
-     * Start a new quiz attempt
-     */
     public function startAttempt($quizId, $userId) {
         try {
             if ($this->hasReachedMaxAttempts($userId, $quizId)) {
@@ -179,12 +215,8 @@ class Quiz {
         }
     }
     
-    /**
-     * Submit quiz attempt
-     */
     public function submitAttempt($attemptId, $answers) {
         try {
-            
             $this->conn->beginTransaction();
             
             $sql = "SELECT * FROM quiz_attempts WHERE id = :attempt_id";
@@ -198,7 +230,6 @@ class Quiz {
             }
             
             if ($attempt['status'] == 'completed') {
-                error_log("Attempt already completed - returning existing result");
                 return [
                     'success' => true,
                     'score' => $attempt['score'],
@@ -283,7 +314,6 @@ class Quiz {
         }
     }
     
-    // Get quiz results for user
     public function getUserResults($userId, $quizId = null) {
         try {
             $query = "SELECT qa.*, q.title as quiz_title, q.passing_score, q.time_limit as total_time,
@@ -312,11 +342,12 @@ class Quiz {
         }
     }
     
-    /**
-     * Get attempt details with quiz information
-     */
     public function getAttemptDetails($attemptId) {
         try {
+            if (isset($this->attemptCache[$attemptId])) {
+                return $this->attemptCache[$attemptId];
+            }
+            
             $sql = "SELECT a.*, 
                         q.title as quiz_title, 
                         q.description as quiz_description,
@@ -336,16 +367,14 @@ class Quiz {
                 $result['passing_score'] = 70; 
             }
             
+            $this->attemptCache[$attemptId] = $result;
             return $result;
             
         } catch (PDOException $e) {
             return null;
         }
     }
-
-    /**
-     * Delete all attempts for a quiz
-     */
+    
     public function deleteAllAttempts($quizId) {
         try {
             $stmt = $this->conn->prepare("
@@ -358,14 +387,13 @@ class Quiz {
             $stmt = $this->conn->prepare("DELETE FROM quiz_attempts WHERE quiz_id = ?");
             $stmt->execute([$quizId]);
             
+            $this->attemptCache = [];
             return true;
         } catch (PDOException $e) {
-            error_log("Delete all attempts error: " . $e->getMessage());
             return false;
         }
     }
     
-    // Get quiz statistics
     public function getQuizStats($quizId) {
         try {
             $stats = [];
@@ -424,7 +452,6 @@ class Quiz {
         }
     }
     
-    // Get available quizzes for user
     public function getAvailableQuizzes($userId, $classId = null) {
         try {
             $query = "SELECT q.*, s.name as subject_name,
@@ -447,31 +474,22 @@ class Quiz {
             
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get available quizzes error: " . $e->getMessage());
             return [];
         }
     }
     
-    // Delete quiz
     public function delete($quizId) {
-        try {
-            $query = "DELETE FROM quizzes WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([':id' => $quizId]);
-            
-            if ($result) {
-                return ['success' => true, 'message' => 'Quiz deleted successfully'];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to delete quiz'];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Failed to delete quiz'];
+        $result = $this->executeUpdate("DELETE FROM quizzes WHERE id = :id",
+            [':id' => $quizId],
+            'Quiz deleted successfully',
+            'Failed to delete quiz');
+        
+        if ($result['success']) {
+            $this->invalidateQuizCache($quizId);
         }
+        return $result;
     }
-
-    /**
-     * Get total number of quizzes
-     */
+    
     public function getTotalQuizzes() {
         try {
             $query = "SELECT COUNT(*) as count FROM quizzes";
@@ -483,10 +501,7 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Get total quiz attempts
-     */
+    
     public function getTotalAttempts() {
         try {
             $query = "SELECT COUNT(*) as count FROM quiz_attempts WHERE status = 'completed'";
@@ -498,10 +513,7 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Get average score across all quizzes
-     */
+    
     public function getAverageScore() {
         try {
             $query = "SELECT AVG(score) as avg_score FROM quiz_attempts WHERE status = 'completed'";
@@ -513,10 +525,7 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Get quizzes by teacher
-     */
+    
     public function getByTeacher($teacherId, $limit = null, $offset = 0) {
         try {
             $query = "SELECT q.*, 
@@ -549,14 +558,10 @@ class Quiz {
             
             return $results ? $results : [];
         } catch (PDOException $e) {
-            error_log("SQL Error in getByTeacher: " . $e->getMessage());
             return [];
         }
     }
-
-    /**
-     * Search quizzes by teacher
-     */
+    
     public function searchByTeacher($teacherId, $keyword) {
         try {
             $searchPattern = '%' . $keyword . '%';
@@ -582,10 +587,7 @@ class Quiz {
             return array();
         }
     }
-
-    /**
-     * Get quiz results
-     */
+    
     public function getResults($quizId) {
         try {
             $query = "SELECT qa.*, u.first_name, u.last_name, u.email
@@ -602,10 +604,7 @@ class Quiz {
             return [];
         }
     }
-
-    /**
-     * Get average score by teacher
-     */
+    
     public function getAverageScoreByTeacher($teacherId) {
         try {
             $query = "SELECT AVG(qa.score) as avg_score
@@ -622,10 +621,7 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Get performance by teacher
-     */
+    
     public function getPerformanceByTeacher($teacherId) {
         try {
             $query = "SELECT 
@@ -651,10 +647,7 @@ class Quiz {
             return [];
         }
     }
-
-    /**
-     * Update quiz
-     */
+    
     public function update($quizId, $data) {
         try {
             $query = "UPDATE quizzes SET 
@@ -687,6 +680,7 @@ class Quiz {
             ]);
             
             if ($result) {
+                $this->invalidateQuizCache($quizId);
                 return ['success' => true, 'message' => 'Quiz updated successfully'];
             }
             
@@ -695,10 +689,7 @@ class Quiz {
             return ['success' => false, 'error' => 'Database error'];
         }
     }
-
-    /**
-     * Count students who have attempted quizzes for a specific teacher
-     */
+    
     public function countStudentsWithAttemptsByTeacher($teacherId) {
         try {
             $query = "SELECT COUNT(DISTINCT qa.user_id) as total
@@ -716,10 +707,7 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Get daily quiz performance for teacher
-     */
+    
     public function getDailyPerformance($teacherId, $days = 30) {
         try {
             $query = "SELECT 
@@ -745,10 +733,7 @@ class Quiz {
             return [];
         }
     }
-
-    /**
-     * Get all published quizzes for external users
-     */
+    
     public function getPublishedQuizzes() {
         try {
             $query = "SELECT q.*, 
@@ -772,10 +757,7 @@ class Quiz {
             return [];
         }
     }
-
-    /**
-     * Get all quizzes with filters (for admin)
-     */
+    
     public function getAllQuizzes($search = null, $teacherId = null, $status = null, $limit = 15, $offset = 0) {
         try {
             $sql = "SELECT 
@@ -849,10 +831,7 @@ class Quiz {
             return [];
         }
     }
-
-    /**
-     * Count all quizzes with filters (for admin)
-     */
+    
     public function countAllQuizzes($search = null, $teacherId = null, $status = null) {
         try {
             $sql = "SELECT COUNT(*) as total 
@@ -899,48 +878,31 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Approve quiz
-     */
+    
     public function approve($quizId) {
-        try {
-            $query = "UPDATE quizzes SET is_approved = 1 WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([':id' => $quizId]);
-            
-            if ($result) {
-                return ['success' => true, 'message' => 'Quiz approved'];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to approve quiz'];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error'];
+        $result = $this->executeUpdate("UPDATE quizzes SET is_approved = 1 WHERE id = :id",
+            [':id' => $quizId],
+            'Quiz approved',
+            'Failed to approve quiz');
+        
+        if ($result['success']) {
+            $this->invalidateQuizCache($quizId);
         }
+        return $result;
     }
-
-    /**
-     * Reject quiz
-     */
+    
     public function reject($quizId) {
-        try {
-            $query = "UPDATE quizzes SET is_approved = 0 WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([':id' => $quizId]);
-            
-            if ($result) {
-                return ['success' => true, 'message' => 'Quiz rejected'];
-            }
-            
-            return ['success' => false, 'error' => 'Failed to reject quiz'];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error'];
+        $result = $this->executeUpdate("UPDATE quizzes SET is_approved = 0 WHERE id = :id",
+            [':id' => $quizId],
+            'Quiz rejected',
+            'Failed to reject quiz');
+        
+        if ($result['success']) {
+            $this->invalidateQuizCache($quizId);
         }
+        return $result;
     }
-
-    /**
-     * Check if user has completed a quiz
-     */
+    
     public function hasCompletedQuiz($userId, $quizId) {
         try {
             $sql = "SELECT COUNT(*) as count FROM quiz_attempts 
@@ -961,11 +923,7 @@ class Quiz {
             return false;
         }
     }
-
-
-    /**
-     * Get in-progress attempt for a user
-     */
+    
     public function getInProgressAttempt($userId, $quizId) {
         try {
             $sql = "SELECT * FROM quiz_attempts 
@@ -985,10 +943,7 @@ class Quiz {
             return null;
         }
     }
-
-    /**
-     * Start a new quiz attempt
-     */
+    
     public function startQuizAttempt($userId, $quizId) {
         try {
             if ($this->hasCompletedQuiz($userId, $quizId)) {
@@ -1023,10 +978,7 @@ class Quiz {
             return ['success' => false, 'error' => 'Failed to start quiz'];
         }
     }
-
-    /**
-     * Complete a quiz attempt
-     */
+    
     public function completeQuizAttempt($attemptId, $score, $correctAnswers, $timeTaken) {
         try {
             $sql = "UPDATE quiz_attempts 
@@ -1050,10 +1002,7 @@ class Quiz {
             return ['success' => false, 'error' => 'Failed to complete quiz'];
         }
     }
-
-    /**
-     * Get total number of questions for a quiz
-     */
+    
     public function getTotalQuestions($quizId) {
         try {
             $sql = "SELECT COUNT(*) as total FROM quiz_questions WHERE quiz_id = :quiz_id";
@@ -1068,15 +1017,13 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Get all questions for a quiz
-     * 
-     * @param int $quizId Quiz ID
-     * @return array Array of questions
-     */
+    
     public function getQuestions($quizId) {
         try {
+            if (isset($this->questionsCache[$quizId])) {
+                return $this->questionsCache[$quizId];
+            }
+            
             $sql = "SELECT * FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id ASC";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
@@ -1105,19 +1052,14 @@ class Quiz {
                 $question['question_text'] = $question['question'];
             }
             
+            $this->questionsCache[$quizId] = $questions;
             return $questions;
             
         } catch (PDOException $e) {
             return [];
         }
     }
-
-    /**
-     * Get user's quiz results (all completed attempts)
-     * 
-     * @param int $userId User ID
-     * @return array Array of quiz results
-     */
+    
     public function getUserQuizResults($userId) {
         try {
             $sql = "SELECT a.*, 
@@ -1141,14 +1083,7 @@ class Quiz {
             return [];
         }
     }
-
-    /**
-     * Get best score for a specific quiz
-     * 
-     * @param int $userId User ID
-     * @param int $quizId Quiz ID
-     * @return int Best score percentage
-     */
+    
     public function getBestScore($userId, $quizId) {
         try {
             $sql = "SELECT MAX(score) as best_score 
@@ -1169,14 +1104,7 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Get attempt count for a specific quiz
-     * 
-     * @param int $userId User ID
-     * @param int $quizId Quiz ID
-     * @return int Number of attempts
-     */
+    
     public function getAttemptCount($userId, $quizId) {
         try {
             $sql = "SELECT COUNT(*) as count 
@@ -1197,19 +1125,11 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Get database connection
-     * 
-     * @return PDO Database connection
-     */
+    
     public function getConnection() {
         return $this->conn;
     }
-
-    /**
-     * Get user's completed attempts with attempt IDs
-     */
+    
     public function getUserCompletedAttempts($userId) {
         try {
             $sql = "SELECT id, quiz_id, score, correct_answers, total_questions, completed_at 
@@ -1227,13 +1147,7 @@ class Quiz {
             return [];
         }
     }
-
-    /**
-     * Get user's answers for a specific attempt
-     * 
-     * @param int $attemptId The attempt ID
-     * @return array Array of answers with question_id as key
-     */
+    
     public function getUserAnswers($attemptId) {
         try {
             $sql = "SELECT question_id, selected_answer, is_correct 
@@ -1255,10 +1169,7 @@ class Quiz {
             return [];
         }
     }
-
-    /**
-     * Create a new quiz
-     */
+    
     public function createQuiz($data) {
         try {
             $sql = "INSERT INTO quizzes (title, description, subject_id, class_id, time_limit, passing_score, max_attempts, is_published, status, teacher_id, created_at) 
@@ -1278,6 +1189,7 @@ class Quiz {
             $stmt->execute();
             
             $quizId = $this->conn->lastInsertId();
+            $this->invalidateQuizCache($quizId);
             
             return [
                 'success' => true,
@@ -1289,10 +1201,7 @@ class Quiz {
             return ['success' => false, 'error' => 'Failed to create quiz'];
         }
     }
-
-    /**
-     * Update quiz details
-     */
+    
     public function updateQuiz($quizId, $data) {
         try {
             $sql = "UPDATE quizzes SET 
@@ -1328,6 +1237,7 @@ class Quiz {
                 $statusStmt->bindValue(':id', $quizId, PDO::PARAM_INT);
                 $statusStmt->execute();
                 
+                $this->invalidateQuizCache($quizId);
                 return [
                     'success' => true,
                     'message' => 'Quiz updated successfully'
@@ -1346,10 +1256,7 @@ class Quiz {
             ];
         }
     }
-
-    /**
-     * Check if quiz is available (not expired)
-     */
+    
     public function isQuizAvailable($quizId) {
         try {
             $sql = "SELECT end_date, is_published FROM quizzes WHERE id = :quiz_id";
@@ -1380,13 +1287,7 @@ class Quiz {
             return false;
         }
     }
-
-    /**
-     * Get quiz availability status with details
-     * 
-     * @param int $quizId Quiz ID
-     * @return array Status details
-     */
+    
     public function getQuizAvailabilityStatus($quizId) {
         try {
             $sql = "SELECT end_date, is_published FROM quizzes WHERE id = :quiz_id";
@@ -1449,15 +1350,13 @@ class Quiz {
             ];
         }
     }
-
-    /**
-     * Get the number of questions for a quiz
-     * 
-     * @param int $quizId Quiz ID
-     * @return int Number of questions
-     */
+    
     public function getQuestionCount($quizId) {
         try {
+            if (isset($this->questionsCache[$quizId])) {
+                return count($this->questionsCache[$quizId]);
+            }
+            
             $sql = "SELECT COUNT(*) as count FROM quiz_questions WHERE quiz_id = :quiz_id";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':quiz_id', $quizId, PDO::PARAM_INT);
@@ -1470,10 +1369,7 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
-     * Update quiz status (publish/unpublish)
-     */
+    
     public function updateQuizStatus($quizId, $status) {
         try {
             $isPublished = ($status == 'published') ? 1 : 0;
@@ -1491,6 +1387,7 @@ class Quiz {
             $stmt->bindValue(':teacher_id', $_SESSION['user_id'], PDO::PARAM_INT);
             
             if ($stmt->execute()) {
+                $this->invalidateQuizCache($quizId);
                 return [
                     'success' => true,
                     'message' => $status == 'published' ? 'Quiz published successfully' : 'Quiz unpublished successfully'
@@ -1509,10 +1406,7 @@ class Quiz {
             ];
         }
     }
-
-    /**
-     * Test database connection and quiz data
-     */
+    
     public function testQuizData() {
         try {
             $result = [];
@@ -1543,10 +1437,7 @@ class Quiz {
             return ['error' => $e->getMessage()];
         }
     }
-
-    /**
-     * Get a single question by ID
-     */
+    
     public function getQuestionById($questionId) {
         try {
             $sql = "SELECT * FROM quiz_questions WHERE id = :id";
@@ -1560,10 +1451,7 @@ class Quiz {
             return null;
         }
     }
-
-    /**
-     * Update a quiz question
-     */
+    
     public function updateQuestion($questionId, $data) {
         try {
             $sql = "UPDATE quiz_questions SET 
@@ -1589,6 +1477,7 @@ class Quiz {
             $stmt->bindValue(':id', $questionId, PDO::PARAM_INT);
             
             if ($stmt->execute()) {
+                $this->invalidateQuizCache();
                 return ['success' => true, 'message' => 'Question updated successfully'];
             }
             
@@ -1599,10 +1488,7 @@ class Quiz {
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
-
-    /**
-     * Check if user has reached maximum attempts for a quiz
-     */
+    
     public function hasReachedMaxAttempts($userId, $quizId) {
         try {
             $quizSql = "SELECT max_attempts FROM quizzes WHERE id = :quiz_id";
@@ -1631,10 +1517,7 @@ class Quiz {
             return false;
         }
     }
-
-    /**
-     * Get remaining attempts for a user
-     */
+    
     public function getRemainingAttempts($userId, $quizId) {
         try {
             $quizSql = "SELECT max_attempts FROM quizzes WHERE id = :quiz_id";
@@ -1663,53 +1546,47 @@ class Quiz {
             return 0;
         }
     }
-
-    /**
- * Get quizzes by class ID
- */
-public function getQuizzesByClass($classId) {
-    try {
-        $sql = "SELECT q.*, 
-                    s.name as subject_name, 
-                    c.name as class_name,
-                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
-                FROM quizzes q
-                LEFT JOIN subjects s ON q.subject_id = s.id
-                LEFT JOIN classes c ON q.class_id = c.id
-                WHERE q.class_id = :class_id
-                AND q.is_published = 1
-                AND (q.end_date IS NULL OR q.end_date > NOW())
-                AND (q.start_date IS NULL OR q.start_date <= NOW())
-                ORDER BY q.created_at DESC";
-        
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([':class_id' => $classId]);
-        
-        $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        if (!empty($quizzes)) {
-            $userId = $_SESSION['user_id'] ?? null;
-            if ($userId) {
-                foreach ($quizzes as &$quiz) {
-                    $inProgress = $this->getInProgressAttempt($userId, $quiz['id']);
-                    if ($inProgress) {
-                        $quiz['in_progress'] = true;
-                        $quiz['attempt_id'] = $inProgress['id'];
+    
+    public function getQuizzesByClass($classId) {
+        try {
+            $sql = "SELECT q.*, 
+                        s.name as subject_name, 
+                        c.name as class_name,
+                        (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                    FROM quizzes q
+                    LEFT JOIN subjects s ON q.subject_id = s.id
+                    LEFT JOIN classes c ON q.class_id = c.id
+                    WHERE q.class_id = :class_id
+                    AND q.is_published = 1
+                    AND (q.end_date IS NULL OR q.end_date > NOW())
+                    AND (q.start_date IS NULL OR q.start_date <= NOW())
+                    ORDER BY q.created_at DESC";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([':class_id' => $classId]);
+            
+            $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (!empty($quizzes)) {
+                $userId = $_SESSION['user_id'] ?? null;
+                if ($userId) {
+                    foreach ($quizzes as &$quiz) {
+                        $inProgress = $this->getInProgressAttempt($userId, $quiz['id']);
+                        if ($inProgress) {
+                            $quiz['in_progress'] = true;
+                            $quiz['attempt_id'] = $inProgress['id'];
+                        }
                     }
                 }
             }
+            
+            return $quizzes;
+            
+        } catch (PDOException $e) {
+            return [];
         }
-        
-        return $quizzes;
-        
-    } catch (PDOException $e) {
-        return [];
     }
-}
-
-    /**
-     * Get all quizzes for a specific class with user progress
-     */
+    
     public function getQuizzesByClassWithProgress($classId, $userId) {
         try {
             $sql = "SELECT q.*, 

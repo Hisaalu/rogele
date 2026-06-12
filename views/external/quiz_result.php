@@ -41,7 +41,7 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
                 </div>
                 <div style="margin-top: 15px;">
                     <span style="background: #10B981; color: white; padding: 5px 20px; border-radius: 30px; font-size: 0.9rem;">PASSED</span>
-                    <span style="margin-left: 10px; color: black;">Required: <?php echo $passingScore; ?>%</span>
+                    <span style="margin-left: 10px; color: #000;">Required: <?php echo $passingScore; ?>%</span>
                 </div>
             <?php else: ?>
                 <div style="width: 100px; height: 100px; background: #FEF2F2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
@@ -49,16 +49,16 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
                 </div>
                 <div style="margin-top: 15px;">
                     <span style="background: #e21414; color: white; padding: 5px 20px; border-radius: 30px; font-size: 0.9rem;">FAILED</span>
-                    <span style="margin-left: 10px; color: black;">Required: <?php echo $passingScore; ?>%</span>
+                    <span style="margin-left: 10px; color: #555;">Required: <?php echo $passingScore; ?>%</span>
                 </div>
             <?php endif; ?>
         </div>
         
-        <h1 style="font-size: 2rem; margin-bottom: 10px; color: black;">
+        <h1 style="font-size: 2rem; margin-bottom: 10px; color: #000;">
             <?php echo $passed ? 'Congratulations!' : 'Better Luck Next Time!'; ?>
         </h1>
         
-        <p style="color: black; margin-bottom: 30px;">
+        <p style="color: #555; margin-bottom: 30px;">
             You scored <?php echo $correctAnswers; ?> out of <?php echo $totalQuestions; ?> questions correctly
         </p>
         
@@ -74,7 +74,7 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
                             style="transition: stroke-dasharray 1s ease; transform: rotate(-90deg); transform-origin: 50% 50%;"/>
                 </svg>
                 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                    <span style="font-size: 2.5rem; font-weight: 700; color: black;"><?php echo $score; ?>%</span>
+                    <span style="font-size: 2.5rem; font-weight: 700; color: #000;"><?php echo $score; ?>%</span>
                 </div>
             </div>
         </div>
@@ -82,20 +82,20 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
             <div style="background: #F8FAFC; padding: 20px; border-radius: 15px;">
                 <i class="fas fa-check-circle" style="color: #09e99e; font-size: 1.5rem; margin-bottom: 10px;"></i>
-                <div style="font-size: 1.5rem; font-weight: 700; color: black;"><?php echo $correctAnswers; ?></div>
-                <div style="color: black; font-size: 0.9rem;">Correct</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: #000;"><?php echo $correctAnswers; ?></div>
+                <div style="color: #555; font-size: 0.9rem;">Correct</div>
             </div>
             
             <div style="background: #F8FAFC; padding: 20px; border-radius: 15px;">
                 <i class="fas fa-times-circle" style="color: #e21414; font-size: 1.5rem; margin-bottom: 10px;"></i>
-                <div style="font-size: 1.5rem; font-weight: 700; color: black;"><?php echo $incorrectAnswers; ?></div>
-                <div style="color: black; font-size: 0.9rem;">Incorrect</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: #000;"><?php echo $incorrectAnswers; ?></div>
+                <div style="color: #555; font-size: 0.9rem;">Incorrect</div>
             </div>
             
             <div style="background: #F8FAFC; padding: 20px; border-radius: 15px;">
                 <i class="fas fa-clock" style="color: #f06724; font-size: 1.5rem; margin-bottom: 10px;"></i>
-                <div style="font-size: 1.5rem; font-weight: 700; color: black;"><?php echo $timeFormatted; ?></div>
-                <div style="color: black; font-size: 0.9rem;">Time Taken</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: #000;"><?php echo $timeFormatted; ?></div>
+                <div style="color: #555; font-size: 0.9rem;">Time Taken</div>
             </div>
         </div>
     </div>
@@ -104,12 +104,12 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
     <?php if (!empty($questions)): ?>
         <div style="background: white; border-radius: 30px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.1);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
-                <h2 style="color: black; margin: 0;">
+                <h2 style="color: #000; margin: 0;">
                     <i class="fas fa-list-check"></i> Detailed Review
                 </h2>
             </div>
 
-            <p style="color: black; margin-bottom: 30px;">
+            <p style="color: #555; margin-bottom: 30px;">
                 Review your answers below. Correct answers are marked in green, incorrect in red.
             </p>
 
@@ -146,15 +146,15 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
                                 <span style="background: <?php echo $isCorrect ? '#10B981' : '#e21414'; ?>; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
                                     <?php echo $index + 1; ?>
                                 </span>
-                                <span style="font-weight: 600; color: black;">Question <?php echo $index + 1; ?></span>
+                                <span style="font-weight: 600; color: #000;">Question <?php echo $index + 1; ?></span>
                                 <span style="padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: <?php echo $isCorrect ? '#F0FDF4' : '#FEF2F2'; ?>; color: <?php echo $isCorrect ? '#166534' : '#e21414'; ?>;">
                                     <?php echo $isCorrect ? 'Correct' : 'Incorrect'; ?>
                                 </span>
                             </div>
-                            <span style="color: black; font-size: 0.85rem;"><?php echo isset($question['points']) ? $question['points'] : 1; ?> point(s)</span>
+                            <span style="color: #555; font-size: 0.85rem;"><?php echo isset($question['points']) ? $question['points'] : 1; ?> point(s)</span>
                         </div>
                         
-                        <div class="question-text" style="font-size: 1rem; font-weight: 500; color: black; margin-bottom: 20px;">
+                        <div class="question-text" style="font-size: 1rem; font-weight: 500; color: #000; margin-bottom: 20px;">
                             <?php echo htmlspecialchars($question['question_text']); ?>
                         </div>
                         
@@ -175,7 +175,7 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
                                     <span class="option-letter" style="width: 30px; height: 30px; background: <?php echo $isAnswerCorrect ? '#10B981' : ($isUserSelected && !$isAnswerCorrect ? '#e21414' : '#F1F5F9'); ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
                                         <?php echo $letters[$optIndex]; ?>
                                     </span>
-                                    <span class="option-text" style="flex: 1; color: black;"><?php echo htmlspecialchars($option); ?></span>
+                                    <span class="option-text" style="flex: 1; color: #000;"><?php echo htmlspecialchars($option); ?></span>
                                     <?php if ($isAnswerCorrect): ?>
                                         <span style="font-size: 0.7rem; color: #10B981;"><i class="fas fa-check-circle"></i> Correct Answer</span>
                                     <?php elseif ($isUserSelected && !$isAnswerCorrect): ?>
@@ -188,13 +188,13 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
                         <div class="answer-summary" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E2E8F0;">
                             <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                                 <div>
-                                    <span style="color: black; font-size: 0.85rem;">Your answer:</span>
+                                    <span style="color: #000; font-size: 0.85rem;">Your answer:</span>
                                     <span style="color: <?php echo $isCorrect ? '#10B981' : '#e21414'; ?>; font-weight: 600;">
                                         <?php echo htmlspecialchars($userAnswerText); ?>
                                     </span>
                                 </div>
                                 <div>
-                                    <span style="color: black; font-size: 0.85rem;">Correct answer:</span>
+                                    <span style="color: #000; font-size: 0.85rem;">Correct answer:</span>
                                     <span style="color: #10B981; font-weight: 600;">
                                         <?php echo htmlspecialchars($correctAnswerText); ?>
                                     </span>
@@ -237,7 +237,7 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
         </div>
     <?php else: ?>
         <div style="background: white; border-radius: 30px; padding: 40px; text-align: center;">
-            <i class="fas fa-info-circle" style="font-size: 3rem; color: #8B5CF6; margin-bottom: 20px;"></i>
+            <i class="fas fa-info-circle" style="font-size: 3rem; color: #555; margin-bottom: 20px;"></i>
             <h3>No Questions Available</h3>
             <p>The questions for this quiz could not be loaded.</p>
             <a href="<?php echo BASE_URL; ?>/external/quizzes" class="btn-primary">Back to Quizzes</a>

@@ -31,7 +31,7 @@ $lessonViews = $lessonViews ?? [];
     <!-- Overview Stats -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-book-open"></i>
             </div>
             <div class="stat-content">
@@ -41,7 +41,7 @@ $lessonViews = $lessonViews ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-pencil-alt"></i>
             </div>
             <div class="stat-content">
@@ -51,7 +51,7 @@ $lessonViews = $lessonViews ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-content">
@@ -61,7 +61,7 @@ $lessonViews = $lessonViews ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f06724);">
+            <div class="stat-icon" style="background-color: #f06724;">
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-content">
@@ -72,7 +72,7 @@ $lessonViews = $lessonViews ?? [];
     </div>
 
     <!-- Charts Row -->
-    <!-- <div class="charts-row">
+    <div class="charts-row">
         <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-chart-line"></i> Quiz Performance</h3>
@@ -87,7 +87,7 @@ $lessonViews = $lessonViews ?? [];
             </div>
         </div>
 
-        <div class="chart-card">
+        <!-- <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-eye"></i> Lesson Views</h3>
                 <select class="chart-filter" onchange="filterLessonChart(this.value)">
@@ -99,8 +99,8 @@ $lessonViews = $lessonViews ?? [];
             <div class="chart-body">
                 <canvas id="lessonViewsChart"></canvas>
             </div>
-        </div>
-    </div> -->
+        </div> -->
+    </div>
 
     <!-- Quiz Performance Table -->
     <div class="performance-section">
@@ -218,6 +218,7 @@ function loadQuizChart(days) {
                         label: 'Average Score',
                         data: data.scores,
                         borderColor: '#7f2677',
+                        borderWidth: 1,
                         backgroundColor: 'rgba(139, 92, 246, 0.1)',
                         tension: 0.4,
                         fill: true,
@@ -226,6 +227,7 @@ function loadQuizChart(days) {
                         label: 'Attempts',
                         data: data.attempts,
                         borderColor: '#F97316',
+                        borderWidth: 1,
                         backgroundColor: 'rgba(249, 115, 22, 0.1)',
                         tension: 0.4,
                         fill: true,
@@ -246,11 +248,11 @@ function loadQuizChart(days) {
                             labels: {
                                 usePointStyle: true,
                                 boxWidth: 6,
-                                color: 'black'
+                                color: '#000'
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'black',
+                            backgroundColor: '#000',
                             titleColor: '#F1F5F9',
                             bodyColor: '#F1F5F9',
                             padding: 12,
@@ -275,13 +277,13 @@ function loadQuizChart(days) {
                             title: {
                                 display: true,
                                 text: 'AverageScore (%)',
-                                color: 'black'
+                                color: '#000'
                             },
                             grid: {
-                                color: '#E2E8F0'
+                                display: false // <-- Changed this from color: '#E2E8F0' to hide the lines
                             },
                             ticks: {
-                                color: 'black'
+                                color: '#000'
                             }
                         },
                         y1: {
@@ -292,13 +294,13 @@ function loadQuizChart(days) {
                             title: {
                                 display: true,
                                 text: 'Attempts',
-                                color: 'black'
+                                color: '#000'
                             },
                             grid: {
-                                drawOnChartArea: false
+                                drawOnChartArea: false // Keeps the right axis line, hides inner grids
                             },
                             ticks: {
-                                color: 'black',
+                                color: '#000',
                                 stepSize: 1,
                                 callback: function(value) {
                                     return value;
@@ -307,12 +309,12 @@ function loadQuizChart(days) {
                         },
                         x: {
                             ticks: {
-                                color: 'black',
+                                color: '#000',
                                 maxRotation: 45,
                                 minRotation: 45
                             },
                             grid: {
-                                display: false
+                                display: false // Already correctly hiding vertical grid lines
                             }
                         }
                     }
@@ -362,7 +364,7 @@ function loadLessonChart(days) {
                             display: false
                         },
                         tooltip: {
-                            backgroundColor: 'black',
+                            backgroundColor: '#000',
                             titleColor: '#F1F5F9',
                             bodyColor: '#F1F5F9',
                             padding: 12,
@@ -381,7 +383,7 @@ function loadLessonChart(days) {
                                 color: '#E2E8F0'
                             },
                             ticks: {
-                                color: 'black',
+                                color: '#000',
                                 stepSize: 1,
                                 callback: function(value) {
                                     return value;
@@ -390,7 +392,7 @@ function loadLessonChart(days) {
                         },
                         x: {
                             ticks: {
-                                color: 'black',
+                                color: '#000',
                                 maxRotation: 45,
                                 minRotation: 45
                             },
@@ -462,7 +464,7 @@ window.addEventListener('resize', function() {
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -510,7 +512,7 @@ window.addEventListener('resize', function() {
 
 .stat-label {
     display: block;
-    color: black;
+    color: #555;
     font-size: 0.9rem;
     margin-bottom: 5px;
 }
@@ -519,7 +521,7 @@ window.addEventListener('resize', function() {
     display: block;
     font-size: 2rem;
     font-weight: 700;
-    color: black;
+    color: #000;
     line-height: 1.2;
 }
 
@@ -548,7 +550,7 @@ window.addEventListener('resize', function() {
 }
 
 .chart-header h3 {
-    color: black;
+    color: #000;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -573,6 +575,10 @@ window.addEventListener('resize', function() {
     position: relative;
 }
 
+.chart-header {
+    overflow-x: auto;
+}
+
 /* Performance Section */
 .performance-section {
     background: white;
@@ -583,7 +589,7 @@ window.addEventListener('resize', function() {
 }
 
 .section-title {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     margin-bottom: 20px;
 }
@@ -599,7 +605,7 @@ window.addEventListener('resize', function() {
 
 .performance-table th {
     background: #F8FAFC;
-    color: black;
+    color: #000;
     font-weight: 600;
     font-size: 0.9rem;
     padding: 15px;
@@ -610,7 +616,8 @@ window.addEventListener('resize', function() {
 .performance-table td {
     padding: 12px 15px;
     border-bottom: 1px solid #F1F5F9;
-    color: black;
+    color: #000;
+    font-weight: 300;
 }
 
 .performance-table tr:hover td {
@@ -619,7 +626,7 @@ window.addEventListener('resize', function() {
 
 .quiz-title {
     font-weight: 600;
-    color: black;
+    color: #000;
 }
 
 .number-cell {
@@ -689,7 +696,7 @@ window.addEventListener('resize', function() {
 }
 
 .lesson-stat-card h4 {
-    color: black;
+    color: #000;
     font-size: 1rem;
     margin-bottom: 10px;
 }
@@ -697,7 +704,7 @@ window.addEventListener('resize', function() {
 .lesson-stat-meta {
     display: flex;
     justify-content: space-between;
-    color: black;
+    color: #555;
     font-size: 0.85rem;
     margin-bottom: 15px;
 }
@@ -725,7 +732,7 @@ window.addEventListener('resize', function() {
 .empty-message {
     text-align: center;
     padding: 40px;
-    color: black;
+    color: #000;
 }
 
 .empty-state {
@@ -741,7 +748,7 @@ window.addEventListener('resize', function() {
 }
 
 .empty-state p {
-    color: black;
+    color: #000;
 }
 
 /* Responsive */

@@ -21,7 +21,7 @@
     <meta property="og:url" content="<?php echo BASE_URL; ?>">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
     <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
     <!-- Font Awesome 6 -->
@@ -47,7 +47,6 @@
             background: #F8FAFC;
         }
 
-        /* Header Styles */
         .site-header {
             background: white;
             box-shadow: 0 2px 20px rgba(240, 103, 36, 0.1);
@@ -71,7 +70,6 @@
             height: 80px;
         }
 
-        /* Logo */
         .logo {
             display: flex;
             align-items: center;
@@ -120,7 +118,6 @@
             color: #7f2677;
         }
 
-        /* Desktop Navigation */
         .nav-menu {
             display: flex;
             align-items: center;
@@ -142,7 +139,7 @@
             align-items: center;
             gap: 8px;
             padding: 10px 20px;
-            color: #1E293B;
+            color: #000;
             text-decoration: none;
             font-weight: 500;
             border-radius: 50px;
@@ -157,7 +154,8 @@
             transition: transform 0.3s ease;
         }
 
-        .nav-links a:hover {
+        .nav-links a:hover,
+        .nav-links a.active {
             background: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
             color: #f06724;
         }
@@ -167,7 +165,26 @@
             color: #7f2677;
         }
 
-        /* Auth Buttons */
+        .badge-new {
+            background-color: #0000FF;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-left: 8px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0, 0, 255, 0.25);
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
         .nav-auth {
             display: flex;
             align-items: center;
@@ -226,7 +243,6 @@
             box-shadow: 0 8px 20px rgba(127, 38, 119, 0.3);
         }
 
-        /* User Dropdown Menu */
         .user-menu {
             position: relative;
             display: inline-block;
@@ -241,7 +257,7 @@
         .user-initials {
             width: 45px;
             height: 45px;
-            background: linear-gradient(135deg, #f06724);
+            background-color: #f06724;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -311,12 +327,12 @@
 
         .dropdown-header p {
             font-weight: 600;
-            color: black;
+            color: #000;
             margin-bottom: 3px;
         }
 
         .dropdown-header small {
-            color: black;
+            color: #555;
             font-size: 0.8rem;
         }
 
@@ -331,7 +347,7 @@
             align-items: center;
             gap: 12px;
             padding: 14px 20px;
-            color: black;
+            color: #000;
             text-decoration: none;
             transition: all 0.3s ease;
             font-size: 0.95rem;
@@ -343,7 +359,8 @@
             font-size: 1.1rem;
         }
 
-        .dropdown-content a:hover {
+        .dropdown-content a:hover,
+        .dropdown-content a.active {
             background: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
             padding-left: 25px;
         }
@@ -357,7 +374,6 @@
             color: #e21414;
         }
 
-        /* Mobile Menu Button */
         .mobile-toggle {
             display: none;
             flex-direction: column;
@@ -446,7 +462,6 @@
             }
         }
 
-        /* Mobile Menu Styles */
         .mobile-menu {
             position: fixed;
             top: 0;
@@ -547,7 +562,7 @@
             align-items: center;
             gap: 15px;
             padding: 15px 20px;
-            color: #1E293B;
+            color: #000;
             text-decoration: none;
             font-weight: 500;
             border-radius: 12px;
@@ -561,7 +576,8 @@
             font-size: 1.2rem;
         }
 
-        .mobile-nav-links a:hover {
+        .mobile-nav-links a:hover,
+        .mobile-nav-links a.active {
             background: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
             transform: translateX(5px);
         }
@@ -615,11 +631,6 @@
             text-align: center;
         }
 
-        .mobile-copyright {
-            font-size: 0.8rem;
-            color: #94A3B8;
-        }
-
         .mobile-overlay {
             display: none;
             position: fixed;
@@ -639,7 +650,6 @@
             opacity: 1;
         }
 
-        /* Alert Messages */
         .alert {
             max-width: 1200px;
             margin: 20px auto;
@@ -686,7 +696,6 @@
     <header class="site-header">
         <div class="container">
             <nav class="navbar">
-                <!-- Logo with Image - Completely replaced the icon with your logo -->
                 <a href="<?php echo BASE_URL; ?>/" class="logo">
                     <div class="logo-icon">
                         <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="ROGELE" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'font-size: 1.8rem; color: white;\'></i>'; this.parentElement.style.background='linear-gradient(135deg, #f06724, #7f2677)'">
@@ -701,9 +710,6 @@
                     <!-- Desktop Navigation for Logged-in Users -->
                     <div class="nav-menu">
                         <ul class="nav-links">
-                            <li><a href="<?php echo BASE_URL; ?>/" class="<?php echo basename($_SERVER['REQUEST_URI']) == '' ? 'active' : ''; ?>">
-                                <i class="fas fa-home"></i> Home
-                            </a></li>
                             <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a></li>
@@ -712,6 +718,9 @@
                             </a></li>
                             <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>">
                                 <i class="fas fa-pencil-alt"></i> Quizzes  
+                            </a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/homework" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'homework') !== false) ? 'active' : ''; ?>">
+                                <i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span>
                             </a></li>
                         </ul>
                         
@@ -735,10 +744,10 @@
                                         <p><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></p>
                                         <small><?php echo htmlspecialchars($_SESSION['user_email'] ?? ''); ?></small>
                                     </div>
-                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile">
-                                        <i class="fas fa-user"></i> My Profile
+                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'profile') !== false ? 'active' : ''; ?>">
+                                        <i class="fas fa-user"></i> Profile
                                     </a>
-                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings">
+                                    <a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'settings') !== false ? 'active' : ''; ?>">
                                         <i class="fas fa-cog"></i> Settings
                                     </a>
                                     <div class="dropdown-divider"></div>
@@ -809,12 +818,12 @@
             </div>
             <div class="mobile-menu-content">
                 <ul class="mobile-nav-links">
-                    <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons"><i class="fas fa-book-open"></i> Lessons</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile"><i class="fas fa-user"></i> Profile</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>"><i class="fas fa-book-open"></i> Lessons</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/homework" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'homework') !== false ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span> </a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'profile') !== false ? 'active' : ''; ?>"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'settings') !== false ? 'active' : ''; ?>"><i class="fas fa-cog"></i> Settings</a></li>
                     <li><a href="<?php echo BASE_URL; ?>/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </div>
@@ -847,10 +856,6 @@
                 </div>
             </div>
         <?php endif; ?>
-        
-        <div class="mobile-menu-footer">
-            <p class="mobile-copyright">© <?php echo date('Y'); ?> ROGELE (Rays of Grace E-Learning Environment)</p>
-        </div>
     </div>
 
     <!-- Mobile Overlay -->

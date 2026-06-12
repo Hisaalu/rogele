@@ -92,15 +92,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="password-strength" id="passwordStrength">
-                            <div class="strength-bar">
-                                <div class="strength-segment"></div>
-                                <div class="strength-segment"></div>
-                                <div class="strength-segment"></div>
-                                <div class="strength-segment"></div>
-                            </div>
-                            <span class="strength-text">Enter a strong password</span>
-                        </div>
                     </div>
 
                     <div class="form-group">
@@ -114,7 +105,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="password-match" id="passwordMatch"></div>
                     </div>
 
                     <button type="submit" class="btn-save" id="submitBtn">
@@ -355,7 +345,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -375,14 +365,14 @@ $activeTab = $_GET['tab'] ?? 'password';
     background: white;
     border-radius: 12px;
     text-decoration: none;
-    color: gray;
+    color: #555;
     font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     transition: all 0.3s ease;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
@@ -395,7 +385,7 @@ $activeTab = $_GET['tab'] ?? 'password';
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
     border-color: #f06724;
-    color: #1E293B;
+    color: #555;
 }
 
 .tab.active {
@@ -424,7 +414,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .card-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: black;
+    color: #000;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -436,7 +426,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .card-description {
-    color: black;
+    color: #555;
     margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 2px solid #F1F5F9;
@@ -458,7 +448,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: #000;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -475,7 +465,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .password-input-wrapper input {
     width: 100%;
     padding: 14px 45px 14px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -484,8 +474,8 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .password-input-wrapper input:focus {
     outline: none;
-    border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .password-input-wrapper input:hover {
@@ -499,14 +489,14 @@ $activeTab = $_GET['tab'] ?? 'password';
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: #94A3B8;
+    color: #555;
     cursor: pointer;
     padding: 5px;
     transition: color 0.3s ease;
 }
 
 .toggle-password:hover {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 /* Password Strength */
@@ -520,17 +510,9 @@ $activeTab = $_GET['tab'] ?? 'password';
     margin-bottom: 5px;
 }
 
-.strength-segment {
-    flex: 1;
-    height: 4px;
-    background: #E2E8F0;
-    border-radius: 2px;
-    transition: all 0.3s ease;
-}
-
 .strength-text {
     font-size: 0.85rem;
-    color: black;
+    color: #555;
 }
 
 .password-match {
@@ -547,7 +529,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .password-requirements p {
     font-weight: 600;
-    color: #1E293B;
+    color: #555;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -619,7 +601,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .toggle-info strong {
     display: block;
-    color: #1E293B;
+    color: #555;
     margin-bottom: 3px;
 }
 
@@ -888,10 +870,6 @@ function checkPasswordStrength() {
             bar.style.background = '#E2E8F0';
         }
     });
-    
-    const texts = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
-    strengthText.textContent = strength > 0 ? texts[strength - 1] : 'Enter a password';
-    strengthText.style.color = strength <= 2 ? '#EF4444' : strength <= 3 ? '#F97316' : strength <= 4 ? '#EAB308' : '#10B981';
 }
 
 // Password match checker
@@ -936,7 +914,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Final confirmation
-            if (!confirm('⚠️ FINAL WARNING: Are you absolutely sure you want to permanently delete your account?\n\nThis action CANNOT be undone and all your data will be lost forever.')) {
+            if (!confirm('FINAL WARNING: Are you absolutely sure you want to permanently delete your account?\n\nThis action CANNOT be undone and all your data will be lost forever.')) {
                 e.preventDefault();
                 return false;
             }

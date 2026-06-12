@@ -8,6 +8,9 @@ if (!isset($user) || empty($user)) {
     header('Location: ' . BASE_URL . '/admin/users');
     exit;
 }
+
+// Get classes for dropdown
+$classes = $classes ?? [];
 ?>
 
 <div class="edit-user-container">
@@ -147,6 +150,32 @@ if (!isset($user) || empty($user)) {
                 </div>
             </div>
 
+            <!-- Class Assignment Section (for learners and external users) -->
+            <?php if (($user['role'] ?? '') == 'learner' || ($user['role'] ?? '') == 'external'): ?>
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    Class Assignment
+                </h3>
+
+                <div class="form-group">
+                    <label for="class_id">
+                        <i class="fas fa-graduation-cap"></i>
+                        Assigned Class
+                    </label>
+                    <select id="class_id" name="class_id">
+                        <option value="">No Class Assigned</option>
+                        <?php foreach ($classes as $class): ?>
+                            <option value="<?php echo $class['id']; ?>" <?php echo (($user['class_id'] ?? '') == $class['id']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($class['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="form-hint">Select the class this student belongs to</small>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-save">
@@ -223,7 +252,7 @@ if (!isset($user) || empty($user)) {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -247,12 +276,12 @@ if (!isset($user) || empty($user)) {
 }
 
 .page-subtitle {
-    color: black;
+    color: #000;
     font-size: 1rem;
 }
 
 .page-subtitle strong {
-    color: black;
+    color: #1E293B;
 }
 
 /* Alert Messages */
@@ -311,7 +340,7 @@ if (!isset($user) || empty($user)) {
 }
 
 .section-title {
-    color: black;
+    color: #1E293B;
     font-size: 1.3rem;
     margin-bottom: 25px;
     display: flex;
@@ -339,7 +368,7 @@ if (!isset($user) || empty($user)) {
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: black;
+    color: #1E293B;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -357,7 +386,7 @@ if (!isset($user) || empty($user)) {
 .form-group input,
 .form-group select {
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -368,13 +397,19 @@ if (!isset($user) || empty($user)) {
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    border-color: #7f2677;
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
 }
 
 .form-group input:hover,
 .form-group select:hover {
     border-color: #f06724;
+}
+
+.form-hint {
+    font-size: 0.75rem;
+    color: #000;
+    margin-top: 5px;
 }
 
 /* Form Actions */
@@ -409,8 +444,8 @@ if (!isset($user) || empty($user)) {
 
 .btn-cancel {
     padding: 14px 30px;
-    background: #7f2677;
-    color: white;
+    background: #F1F5F9;
+    color: #475569;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -425,9 +460,9 @@ if (!isset($user) || empty($user)) {
 }
 
 .btn-cancel:hover {
-    background: #f06724;
-    border-color: #7f2677;
-    color: white;
+    background: #E2E8F0;
+    border-color: #000;
+    color: #1E293B;
 }
 
 /* Danger Zone */
@@ -596,8 +631,6 @@ if (!isset($user) || empty($user)) {
         justify-content: center;
     }
 }
-
-
 </style>
 
 <script>

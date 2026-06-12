@@ -1,28 +1,21 @@
 <?php
-// File: /models/Lesson.php
+// File: /models/Lesson.php 
 require_once __DIR__ . '/../config/database.php';
-
 class Lesson {
     private $db;
     private $conn;
+    private $lessonCache = [];
+    private $materialCache = [];
     
     public function __construct() {
         $this->db = Database::getInstance();
         $this->conn = $this->db->getConnection();
     }
 
-    /**
-     * Get database connection
-     * 
-     * @return PDO Database connection
-     */
     public function getConnection() {
         return $this->conn;
     }
     
-    /**
-     * Create lesson with files
-     */
     public function create($data, $files = null) {
         try {
             $this->conn->beginTransaction();
@@ -61,10 +54,11 @@ class Lesson {
         }
     }
     
-    /**
-     * Get lesson by ID with materials
-     */
     public function getById($lessonId) {
+        if (isset($this->lessonCache[$lessonId])) {
+            return $this->lessonCache[$lessonId];
+        }
+        
         try {
             $this->incrementViews($lessonId);
             
@@ -86,6 +80,7 @@ class Lesson {
                 $materialStmt = $this->conn->prepare($materialQuery);
                 $materialStmt->execute([':lesson_id' => $lessonId]);
                 $lesson['materials'] = $materialStmt->fetchAll();
+                $this->lessonCache[$lessonId] = $lesson;
             }
             
             return $lesson;
@@ -94,9 +89,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Get lessons by class
-     */
     public function getByClass($classId, $limit = null) {
         try {
             $query = "SELECT l.*, s.name as subject_name, u.first_name as teacher_name,
@@ -120,9 +112,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Get lessons by teacher
-     */
     public function getByTeacher($teacherId, $limit = null, $offset = 0) {
         try {
             $query = "SELECT l.*, s.name as subject_name, c.name as class_name,
@@ -148,16 +137,12 @@ class Lesson {
             $stmt->execute();
             $results = $stmt->fetchAll();
             
-            
             return $results;
         } catch (PDOException $e) {
             return [];
         }
     }
     
-    /**
-     * Get all lessons (with pagination)
-     */
     public function getAll($page = 1, $limit = 20) {
         try {
             $offset = ($page - 1) * $limit;
@@ -184,9 +169,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Update lesson
-     */
     public function update($lessonId, $data) {
         try {
             $query = "UPDATE lessons SET 
@@ -213,6 +195,7 @@ class Lesson {
             ]);
             
             if ($result) {
+                unset($this->lessonCache[$lessonId]);
                 return ['success' => true, 'message' => 'Lesson updated successfully'];
             }
             
@@ -222,9 +205,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Delete lesson
-     */
     public function delete($lessonId) {
         try {
             $materialQuery = "DELETE FROM lesson_materials WHERE lesson_id = :lesson_id";
@@ -236,19 +216,16 @@ class Lesson {
             $result = $stmt->execute([':id' => $lessonId]);
             
             if ($result) {
+                unset($this->lessonCache[$lessonId]);
                 return ['success' => true, 'message' => 'Lesson deleted successfully'];
             }
             
             return ['success' => false, 'error' => 'Failed to delete lesson'];
         } catch (PDOException $e) {
-            error_log("Lesson deletion error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to delete lesson'];
         }
     }
     
-    /**
-     * Search lessons
-     */
     public function search($keyword, $classId = null) {
         try {
             $query = "SELECT l.*, s.name as subject_name, u.first_name as teacher_name, u.last_name as teacher_last_name
@@ -276,9 +253,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Search lessons by teacher
-     */
     public function searchByTeacher($teacherId, $keyword) {
         try {
             $searchPattern = '%' . $keyword . '%';
@@ -305,9 +279,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Increment view count
-     */
     private function incrementViews($lessonId) {
         try {
             $query = "UPDATE lessons SET views = views + 1 WHERE id = :id";
@@ -317,48 +288,53 @@ class Lesson {
         }
     }
     
-    /**
-     * Upload lesson materials
-     */
     public function uploadMaterials($lessonId, $files) {
         try {
             $targetDir = __DIR__ . '/../public/uploads/lessons/';
-            
+
             if (!file_exists($targetDir)) {
                 mkdir($targetDir, 0777, true);
             }
-            
+
             for ($i = 0; $i < count($files['name']); $i++) {
-                if ($files['error'][$i] === UPLOAD_ERR_OK) {
-                    $fileName = time() . '_' . basename($files['name'][$i]);
-                    $targetFile = $targetDir . $fileName;
-                    
-                    if (move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
-                        $dbPath = 'uploads/lessons/' . $fileName;
-                        
-                        $query = "INSERT INTO lesson_materials (lesson_id, file_name, file_path, file_type, file_size) 
-                                VALUES (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
-                        
-                        $stmt = $this->conn->prepare($query);
-                        $stmt->execute([
-                            ':lesson_id' => $lessonId,
-                            ':file_name' => $files['name'][$i],
-                            ':file_path' => $dbPath,
-                            ':file_type' => $files['type'][$i],
-                            ':file_size' => $files['size'][$i]
-                        ]);
-                    }
+
+                if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                    throw new Exception("Upload error code: " . $files['error'][$i]);
                 }
+
+                $fileName = time() . '_' . basename($files['name'][$i]);
+
+                $targetFile = $targetDir . $fileName;
+
+                if (!move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
+                    throw new Exception("Failed to move uploaded file.");
+                }
+
+                $dbPath = 'uploads/lessons/' . $fileName;
+
+                $query = "INSERT INTO lesson_materials 
+                (lesson_id, file_name, file_path, file_type, file_size)
+                VALUES 
+                (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
+
+                $stmt = $this->conn->prepare($query);
+
+                $stmt->execute([
+                    ':lesson_id' => $lessonId,
+                    ':file_name' => $files['name'][$i],
+                    ':file_path' => $dbPath,
+                    ':file_type' => $files['type'][$i],
+                    ':file_size' => $files['size'][$i]
+                ]);
             }
+
             return true;
-        } catch (PDOException $e) {
-            return false;
+
+        } catch (Exception $e) {
+            die($e->getMessage());
         }
     }
     
-    /**
-     * Bookmark lesson
-     */
     public function bookmark($userId, $lessonId) {
         try {
             $checkQuery = "SELECT id FROM bookmarks WHERE user_id = :user_id AND lesson_id = :lesson_id";
@@ -380,7 +356,7 @@ class Lesson {
             ]);
             
             if ($result) {
-                return ['success' => true, 'message' => 'Lesson bookmarked successfully'];
+                return ['success' => true, 'message' => 'Added to your Bookmarks'];
             }
             
             return ['success' => false, 'error' => 'Failed to bookmark lesson'];
@@ -389,9 +365,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Check if lesson is bookmarked by user
-     */
     public function isBookmarked($userId, $lessonId) {
         try {
             $query = "SELECT id FROM bookmarks WHERE user_id = :user_id AND lesson_id = :lesson_id";
@@ -407,9 +380,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Add bookmark
-     */
     public function addBookmark($userId, $lessonId) {
         try {
             if ($this->isBookmarked($userId, $lessonId)) {
@@ -433,9 +403,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Remove bookmark
-     */
     public function removeBookmark($userId, $lessonId) {
         try {
             $query = "DELETE FROM bookmarks WHERE user_id = :user_id AND lesson_id = :lesson_id";
@@ -455,9 +422,17 @@ class Lesson {
         }
     }
 
-    /**
-     * Get user's bookmarked lessons
-     */
+    public function getUserBookmarkedIds($userId) {
+        try {
+            $stmt = $this->conn->prepare("SELECT DISTINCT lesson_id FROM bookmarks WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            $results = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            return array_unique($results);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
     public function getBookmarks($userId) {
         try {
             $query = "SELECT l.*, 
@@ -483,10 +458,18 @@ class Lesson {
             return [];
         }
     }
+
+    public function getBookmarkCount($userId) {
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM bookmarks WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] ?? 0;
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
     
-    /**
-     * Get popular lessons
-     */
     public function getPopular($limit = 10) {
         try {
             $query = "SELECT l.*, s.name as subject_name,
@@ -507,9 +490,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Approve lesson (admin function)
-     */
     public function approve($lessonId) {
         try {
             $query = "UPDATE lessons SET is_approved = 1 WHERE id = :id";
@@ -526,9 +506,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Get user progress for lessons (placeholder)
-     */
     public function getUserProgress($userId) {
         try {
             return [];
@@ -537,9 +514,6 @@ class Lesson {
         }
     }
     
-    /**
-     * Get views by teacher for analytics
-     */
     public function getViewsByTeacher($teacherId, $limit = 10) {
         try {
             $query = "SELECT l.id, l.title, l.views, l.created_at
@@ -559,9 +533,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Get material by ID
-     */
     public function getMaterialById($materialId) {
         try {
             $query = "SELECT * FROM lesson_materials WHERE id = :id";
@@ -573,9 +544,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Delete lesson material
-     */
     public function deleteMaterial($materialId) {
         try {
             $material = $this->getMaterialById($materialId);
@@ -604,9 +572,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Get daily lesson views for teacher
-     */
     public function getDailyViews($teacherId, $days = 30) {
         try {
             $query = "SELECT 
@@ -631,9 +596,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Get all published lessons
-     */
     public function getPublishedLessons($subjectId = null) {
         try {
             $sql = "SELECT l.*, 
@@ -667,9 +629,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Get published lesson by ID (regardless of approval status)
-     */
     public function getPublishedLessonById($lessonId, $userId = null) {
         try {
             $query = "SELECT l.*, 
@@ -707,9 +666,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Search published lessons
-     */
     public function searchPublished($searchTerm, $subjectId = null) {
         try {
             $searchPattern = '%' . $searchTerm . '%';
@@ -750,9 +706,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Get all lessons with filters (for admin)
-     */
     public function getAllLessons($search = null, $teacherId = null, $status = null, $limit = 15, $offset = 0) {
         try {
             $query = "SELECT l.*, 
@@ -802,9 +755,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Count all lessons with filters (for admin)
-     */
     public function countAllLessons($search = null, $teacherId = null, $status = null) {
         try {
             $query = "SELECT COUNT(*) as total FROM lessons l WHERE 1=1";
@@ -832,7 +782,6 @@ class Lesson {
                 $query .= " AND l.is_approved = 0";
             }
             
-            
             $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
             
@@ -844,9 +793,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Reject lesson
-     */
     public function reject($lessonId) {
         try {
             $query = "UPDATE lessons SET is_approved = 0 WHERE id = :id";
@@ -863,9 +809,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Get total lessons count by teacher
-     */
     public function getTotalLessonsByTeacher($teacherId) {
         try {
             $stmt = $this->conn->prepare("SELECT COUNT(*) as total FROM lessons WHERE teacher_id = ?");
@@ -877,9 +820,6 @@ class Lesson {
         }
     }
 
-    /**
-     * Get published lessons by class
-     */
     public function getPublishedLessonsByClass($classId, $subjectId = null) {
         try {
             $sql = "SELECT l.*, 
@@ -910,14 +850,10 @@ class Lesson {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error getting published lessons by class: " . $e->getMessage());
             return array();
         }
     }
 
-    /**
-     * Search published lessons by class
-     */
     public function searchPublishedByClass($searchTerm, $classId, $subjectId = null) {
         try {
             $searchPattern = '%' . $searchTerm . '%';
@@ -956,7 +892,6 @@ class Lesson {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            error_log("Error searching published lessons by class: " . $e->getMessage());
             return array();
         }
     }

@@ -90,7 +90,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                                 <div class="strength-segment"></div>
                                 <div class="strength-segment"></div>
                             </div>
-                            <span class="strength-text">Enter a strong password</span>
                         </div>
                     </div>
 
@@ -105,7 +104,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="password-match" id="passwordMatch"></div>
                     </div>
 
                     <button type="submit" class="btn-save">
@@ -294,7 +292,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
 }
 
@@ -347,14 +345,14 @@ $activeTab = $_GET['tab'] ?? 'password';
     background: white;
     border-radius: 12px;
     text-decoration: none;
-    color: black;
+    color: #555;
     font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     transition: all 0.3s ease;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
@@ -367,7 +365,7 @@ $activeTab = $_GET['tab'] ?? 'password';
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
     border-color: #f06724;
-    color: black;
+    color: #000;
 }
 
 .tab.active {
@@ -398,7 +396,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 .card-description {
-    color: black;
+    color: #555;
     margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 2px solid #F1F5F9;
@@ -420,7 +418,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: black;
+    color: #000;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -437,7 +435,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .password-input-wrapper input {
     width: 100%;
     padding: 14px 45px 14px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -446,7 +444,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 .password-input-wrapper input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .toggle-password {
@@ -464,35 +462,6 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .toggle-password:hover {
     color: #f06724;
-}
-
-/* Password Strength */
-.password-strength {
-    margin-top: 8px;
-}
-
-.strength-bar {
-    display: flex;
-    gap: 5px;
-    margin-bottom: 5px;
-}
-
-.strength-segment {
-    flex: 1;
-    height: 4px;
-    background: #E2E8F0;
-    border-radius: 2px;
-    transition: all 0.3s ease;
-}
-
-.strength-text {
-    font-size: 0.85rem;
-    color: black;
-}
-
-.password-match {
-    font-size: 0.85rem;
-    margin-top: 5px;
 }
 
 /* Toggle Switches */
@@ -533,13 +502,13 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .toggle-info strong {
     display: block;
-    color: black;
+    color: #000;
     margin-bottom: 3px;
 }
 
 .toggle-info p {
     font-size: 0.85rem;
-    color: black;
+    color: #000;
 }
 
 .toggle-switch {

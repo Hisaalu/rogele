@@ -132,6 +132,7 @@ require_once __DIR__ . '/../layouts/header.php';
                             <option value="p5">Primary 5</option>
                             <option value="p6">Primary 6</option>
                             <option value="p7">Primary 7</option>
+                            <option value="comp">Computer Class</option>
                         </select>
                     </div>
                 </div>
@@ -305,7 +306,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group input,
 .form-group select {
     padding: 12px 16px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -316,7 +317,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group select:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.1);
+    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
 }
 
 .form-group input:hover,

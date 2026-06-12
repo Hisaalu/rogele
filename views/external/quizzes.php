@@ -246,7 +246,7 @@ if (!empty($quizzes)) {
 
 .attempts-badge {
     background: #F1F5F9;
-    color: #1E293B;
+    color: #555;
     padding: 6px 12px;
     border-radius: 30px;
     font-size: 0.75rem;
@@ -258,7 +258,7 @@ if (!empty($quizzes)) {
 }
 
 .quiz-card.no-attempts-left {
-    border: 2px solid #f06724;
+    border: 1px solid #f06724;
     background: linear-gradient(135deg, white, #FEF2F2);
     opacity: 0.9;
 }
@@ -341,7 +341,7 @@ if (!empty($quizzes)) {
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1.1rem;
 }
 
@@ -392,7 +392,7 @@ if (!empty($quizzes)) {
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f06724);
+    background-color: #f06724;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -405,13 +405,13 @@ if (!empty($quizzes)) {
 }
 
 .empty-state h3 {
-    color: #1E293B;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
 .empty-state p {
-    color: black;
+    color: #555;
     margin-bottom: 30px;
     max-width: 500px;
     margin-left: auto;
@@ -444,7 +444,7 @@ if (!empty($quizzes)) {
 }
 
 .feature-card h4 {
-    color: #1E293B;
+    color: #000;
     margin-bottom: 10px;
 }
 
@@ -512,14 +512,14 @@ if (!empty($quizzes)) {
 }
 
 .quiz-title {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 10px;
 }
 
 .quiz-description {
-    color: black;
+    color: #000;
     font-size: 0.95rem;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -539,7 +539,7 @@ if (!empty($quizzes)) {
     display: flex;
     align-items: center;
     gap: 5px;
-    color: black;
+    color: #555;
 }
 
 .quiz-meta i {
@@ -559,13 +559,13 @@ if (!empty($quizzes)) {
     justify-content: space-between;
     margin-bottom: 8px;
     font-size: 0.85rem;
-    color: black;
+    color: #000;
     flex-wrap: wrap;
     gap: 5px;
 }
 
 .progress-header strong {
-    color: #1E293B;
+    color: #555;
 }
 
 .progress-bar {

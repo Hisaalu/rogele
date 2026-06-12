@@ -149,10 +149,6 @@ $quizId = $quiz['id'] ?? 0;
                     <i class="fas fa-save"></i>
                     Save Questions
                 </button>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </a>
             </div>
         </form>
     </div>
@@ -169,7 +165,7 @@ $quizId = $quiz['id'] ?? 0;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -177,7 +173,7 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .back-link:hover {
-    color: #7f2677;
+    color: #f06724;
 }
 
 .page-title {
@@ -193,7 +189,7 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 1rem;
     margin-bottom: 30px;
 }
@@ -228,7 +224,7 @@ $quizId = $quiz['id'] ?? 0;
 }
 
 .question-title {
-    color: black;
+    color: #000;
     font-size: 1.1rem;
     font-weight: 600;
     display: flex;
@@ -284,7 +280,7 @@ $quizId = $quiz['id'] ?? 0;
     gap: 8px;
     font-weight: 600;
     font-size: 0.9rem;
-    color: black;
+    color: #000;
     margin-bottom: 5px;
 }
 
@@ -302,7 +298,7 @@ $quizId = $quiz['id'] ?? 0;
 .form-group textarea {
     width: 100%;
     padding: 10px 12px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 10px;
     font-size: 0.95rem;
     transition: all 0.3s ease;
@@ -314,7 +310,7 @@ $quizId = $quiz['id'] ?? 0;
 .form-group textarea:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 /* Add Question Button */
@@ -395,7 +391,7 @@ $quizId = $quiz['id'] ?? 0;
 
 .btn-secondary:hover {
     background: #f06724;
-    border-color: #94A3B8;
+    border-color: #f06724;
     color: whiteB;
 }
 
