@@ -812,7 +812,7 @@
                     </div>
                     <div class="mobile-user-details">
                         <h3><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></h3>
-                        <p><?php echo ucfirst($_SESSION['user_role'] ?? 'user'); ?></p>
+                        <p><?php echo ucfirst($_SESSION[''] ?? 'Student'); ?></p>
                     </div>
                 </div>
             </div>
