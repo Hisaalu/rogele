@@ -123,7 +123,6 @@ $subjects = $subjects ?? [];
                             min="1" 
                             max="180"
                         >
-                        <small class="input-hint">Time allowed for students to complete the quiz</small>
                     </div>
 
                     <div class="form-group">
@@ -139,7 +138,6 @@ $subjects = $subjects ?? [];
                             min="0" 
                             max="100"
                         >
-                        <small class="input-hint">Minimum percentage required to pass</small>
                     </div>
                 </div>
 
@@ -157,7 +155,6 @@ $subjects = $subjects ?? [];
                             min="1" 
                             max="10"
                         >
-                        <small class="input-hint">Number of times a student can attempt this quiz</small>
                     </div>
 
                     <div class="form-group">
@@ -170,7 +167,6 @@ $subjects = $subjects ?? [];
                             id="end_date" 
                             name="end_date"
                         >
-                        <small class="input-hint">Quiz will expire on this date (leave blank for no expiry)</small>
                     </div>
                 </div>
             </div>
@@ -187,14 +183,6 @@ $subjects = $subjects ?? [];
                         <input type="checkbox" name="is_published" id="is_published" value="1" checked>
                         <span><i class="fas fa-globe"></i> Publish immediately</span>
                     </label>
-                    <small class="input-hint">
-                        <span id="publishHint" class="text-success">
-                            <i class="fas fa-check-circle"></i> Students will see this quiz immediately
-                        </span>
-                        <span id="draftHint" style="display: none;" class="text-warning">
-                            <i class="fas fa-eye-slash"></i> Quiz will be saved as draft. Students won't see it until you publish it.
-                        </span>
-                    </small>
                 </div>
                 
                 <!-- Warning for publishing without questions -->
@@ -336,13 +324,6 @@ $subjects = $subjects ?? [];
     outline: none;
     border-color: #f06724;
     box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
-}
-
-.input-hint {
-    display: block;
-    font-size: 0.8rem;
-    color: #555;
-    margin-top: 5px;
 }
 
 .text-success {

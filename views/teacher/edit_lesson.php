@@ -98,7 +98,6 @@ $classes = $classes ?? [];
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <small class="input-hint">Select a class to filter subjects</small>
                     </div>
                 </div>
             </div>
@@ -214,7 +213,6 @@ $classes = $classes ?? [];
                             <?php echo ($lesson['is_published'] ?? 0) ? 'checked' : ''; ?>>
                         <span>Publish immediately</span>
                     </label>
-                    <small class="input-hint">Uncheck to save as draft</small>
                 </div>
             </div>
 
