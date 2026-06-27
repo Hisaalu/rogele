@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'My Homework | ROGELE';
+$pageTitle = 'Homework | ROGELE';
 require_once __DIR__ . '/../../layouts/header.php';
 
 $homeworks = $homeworks ?? [];
@@ -11,7 +11,7 @@ $currentStatus = $_GET['status'] ?? '';
     <div class="page-header">
         <h1 class="page-title">
             <i class="fas fa-tasks"></i>
-            My Homework
+            Homework
         </h1>
         <p class="page-subtitle">View and submit your assignments</p>
     </div>
@@ -123,7 +123,7 @@ $currentStatus = $_GET['status'] ?? '';
                     <?php endif; ?>
                     
                     <a href="<?php echo BASE_URL; ?>/external/homework/view/<?php echo $homework['id']; ?>" class="btn-view">
-                        <?php echo $submissionStatus === 'graded' ? 'View Feedback' : ($submissionStatus === 'submitted' ? 'View Submission' : 'Submit Homework'); ?>
+                        <?php echo $submissionStatus === 'graded' ? 'View Feedback' : ($submissionStatus === 'submitted' ? 'View Submission' : 'View or Submit'); ?>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>

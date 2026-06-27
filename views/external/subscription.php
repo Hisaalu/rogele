@@ -85,6 +85,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
             <ul class="features-list">
                 <li><i class="fas fa-check-circle"></i> Full access to all lessons</li>
                 <li><i class="fas fa-check-circle"></i> Practice quizzes & assessments</li>
+                <li><i class="fas fa-check-circle"></i> Homework support</li>
                 <li><i class="fas fa-check-circle"></i> Progress tracking dashboard</li>
                 <li><i class="fas fa-check-circle"></i> 24/7 email support</li>
             </ul>
