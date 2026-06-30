@@ -163,7 +163,6 @@ $currentStatus = $quiz['status'] ?? 'draft';
                             min="1" 
                             max="180"
                         >
-                        <small class="input-hint">Time allowed for students to complete the quiz</small>
                     </div>
 
                     <div class="form-group">
@@ -179,7 +178,6 @@ $currentStatus = $quiz['status'] ?? 'draft';
                             min="0" 
                             max="100"
                         >
-                        <small class="input-hint">Minimum percentage required to pass</small>
                     </div>
                 </div>
 
@@ -197,7 +195,6 @@ $currentStatus = $quiz['status'] ?? 'draft';
                             min="1" 
                             max="10"
                         >
-                        <small class="input-hint">Number of times a student can attempt this quiz</small>
                     </div>
 
                     <div class="form-group">
@@ -238,13 +235,6 @@ $currentStatus = $quiz['status'] ?? 'draft';
                             <?php echo (isset($quiz['is_published']) && $quiz['is_published'] == 1) ? 'checked' : ''; ?>>
                         <span><i class="fas fa-globe"></i> Publish Quiz</span>
                     </label>
-                    <small class="input-hint">
-                        <?php if (isset($quiz['is_published']) && $quiz['is_published'] == 1): ?>
-                            <span class="text-success"><i class="fas fa-check-circle"></i> Quiz is published - students can see it</span>
-                        <?php else: ?>
-                            <span class="text-warning"><i class="fas fa-eye-slash"></i> Quiz is draft - students cannot see it</span>
-                        <?php endif; ?>
-                    </small>
                 </div>
             </div>
 

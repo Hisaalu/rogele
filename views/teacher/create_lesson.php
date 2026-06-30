@@ -99,7 +99,6 @@ $classes = $classes ?? [];
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
-                        <small class="input-hint">Select a class first to see available subjects</small>
                     </div>
                 </div>
             </div>
@@ -144,7 +143,6 @@ $classes = $classes ?? [];
                             name="video_url" 
                             placeholder="https://www.youtube.com/watch?v=..."
                         >
-                        <small class="input-hint">Optional: Add a YouTube video to your lesson</small>
                     </div>
 
                     <div class="form-group">
@@ -178,7 +176,6 @@ $classes = $classes ?? [];
                             multiple 
                             accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png"
                         >
-                        <small class="input-hint">Allowed: PDF, DOC, PPT, XLS, Images (Max 5MB each)</small>
                     </div>
                     <div id="fileList" class="file-list"></div>
                 </div>
@@ -196,7 +193,6 @@ $classes = $classes ?? [];
                         <input type="checkbox" name="is_published" value="1" checked>
                         <span>Publish immediately</span>
                     </label>
-                    <small class="input-hint">Uncheck to save as draft</small>
                 </div>
             </div>
 

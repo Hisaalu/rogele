@@ -9,12 +9,10 @@
     <title><?php echo isset($pageTitle) ? $pageTitle : SITE_NAME; ?></title>
     <base href="<?php echo BASE_URL; ?>/">
     
-    <!-- SEO Meta Tags -->
     <meta name="description" content="Rays of Grace E-Learning Environment - Quality education for Primary 1 to Primary 7 students. Interactive lessons, quizzes, and progress tracking.">
     <meta name="keywords" content="e-learning, primary education, online learning, uganda education, rays of grace, Hisaalu Nelson">
     <meta name="author" content="Hisaalu Nelson | Rays of Grace Junior School">
     
-    <!-- Open Graph Tags -->
     <meta property="og:title" content="<?php echo SITE_NAME; ?>">
     <meta property="og:description" content="Quality education for every child, anywhere, anytime.">
     <meta property="og:type" content="website">
@@ -24,10 +22,8 @@
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
     <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://use.typekit.net/YOUR-KIT-ID.css">
     
@@ -707,7 +703,6 @@
                 </a>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <!-- Desktop Navigation for Logged-in Users -->
                     <div class="nav-menu">
                         <ul class="nav-links">
                             <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>">
@@ -724,7 +719,6 @@
                             </a></li>
                         </ul>
                         
-                        <!-- User Menu with Dropdown -->
                         <div class="user-menu">
                             <div class="user-dropdown">
                                 <div class="user-initials" id="userMenuButton">
@@ -759,7 +753,6 @@
                         </div>
                     </div>
                 <?php else: ?>
-                    <!-- Desktop Navigation for Guests -->
                     <div class="nav-menu">
                         <ul class="nav-links">
                             <li><a href="<?php echo BASE_URL; ?>/"><i class="fas fa-home"></i> Home</a></li>
@@ -779,7 +772,6 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- Mobile Menu Toggle Button -->
                 <div class="mobile-toggle" id="mobileToggle">
                     <span></span>
                     <span></span>
@@ -792,7 +784,6 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <?php if (isset($_SESSION['user_id'])): ?>
-            <!-- Mobile Menu for Logged-in Users -->
             <div class="mobile-menu-header">
                 <div class="mobile-close-btn" id="mobileClose">
                     <i class="fas fa-times"></i>
@@ -812,7 +803,7 @@
                     </div>
                     <div class="mobile-user-details">
                         <h3><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></h3>
-                        <p><?php echo ucfirst($_SESSION['user_role'] ?? 'user'); ?></p>
+                        <p><?php echo ucfirst($_SESSION[''] ?? 'Student'); ?></p>
                     </div>
                 </div>
             </div>
@@ -862,7 +853,6 @@
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
     <main class="main-content">
-        <!-- Alert Messages -->
         <?php if (isset($_SESSION['success'])): ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
@@ -876,6 +866,45 @@
                 <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
             </div>
         <?php endif; ?>
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentUrl = window.location.pathname;
+            const currentHash = window.location.hash;
+            
+            const navLinks = document.querySelectorAll('.nav-links a, .mobile-nav-links a');
+
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+
+                if (href.startsWith('#')) {
+                    if (currentHash === href) {
+                        link.classList.add('active');
+                    }
+                    
+                    link.addEventListener('click', function() {
+                        navLinks.forEach(l => {
+                            if(l.getAttribute('href').startsWith('#')) l.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    });
+                    return;
+                }
+
+                try {
+                    const linkPath = new URL(link.href).pathname;
+
+                    if (currentUrl === linkPath && !currentHash) {
+                        link.classList.add('active');
+                    }
+                } catch (e) {
+                    if (href === currentUrl && !currentHash) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        });
+        </script>
         
         <!-- Page content will be included here -->
     

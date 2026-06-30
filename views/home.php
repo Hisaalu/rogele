@@ -958,28 +958,27 @@ body {
             </div>
             
             <div class="features-grid">
-                <div class="feature-card animate-fade-in">
-                    <div class="feature-icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                    </div>
-                    <h3>Expert Teachers</h3>
-                    <p>Learn from qualified teachers who provide personalized guidance and support</p>
-                </div>
-                
                 <div class="feature-card animate-fade-in delay-1">
                     <div class="feature-icon">
                         <i class="fas fa-book-open"></i>
                     </div>
                     <h3>Interactive Lessons</h3>
-                    <p>Engaging video lessons and downloadable materials for better understanding</p>
+                    <p>Engaging video lessons and downloadable materials</p>
                 </div>
                 
                 <div class="feature-card animate-fade-in delay-2">
                     <div class="feature-icon">
-                        <i class="fas fa-puzzle-piece"></i>
+                        <i class="fas fa-pencil-alt"></i>
                     </div>
                     <h3>Smart Quizzes</h3>
                     <p>Automatically graded quizzes with instant feedback and analytics</p>
+                </div>
+                <div class="feature-card animate-fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3>Homework Support</h3>
+                    <p>Do and submit your Homework through the system itself</p>
                 </div>
             </div>
         </div>
@@ -1011,6 +1010,7 @@ body {
                     <ul class="features-list">
                         <li><i class="fas fa-check-circle"></i> Full access to all lessons</li>
                         <li><i class="fas fa-check-circle"></i> Practice quizzes & assessments</li>
+                        <li><i class="fas fa-check-circle"></i> Homework support</li>
                         <li><i class="fas fa-check-circle"></i> Progress tracking dashboard</li>
                         <li><i class="fas fa-check-circle"></i> 24/7 email support</li>
                     </ul>
