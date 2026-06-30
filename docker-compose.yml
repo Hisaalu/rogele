@@ -1,0 +1,84 @@
+version: '3.8'
+
+networks:
+  rogele-vpc:
+    driver: bridge
+    name: rogele-vpc 
+
+services:
+  # Your Application
+  app:
+    build: .
+    container_name: rogele-app
+    networks:
+      - rogele-vpc
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./.env:/var/www/html/.env:ro
+    environment:
+      - DOCKER_ENV=true
+      - DB_HOST=mariadb
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # MariaDB Database
+  mariadb:
+    image: mariadb:10.11
+    container_name: rogele-mariadb
+    networks:
+      - rogele-vpc
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mariadb-data:/var/lib/mysql 
+      - ./db/docker:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: rogele-phpmyadmin
+    networks:
+      - rogele-vpc
+    ports:
+      - "127.0.0.1:8081:80"
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_PORT=3306
+      - PMA_USER=${DB_USER}
+      - PMA_PASSWORD=${DB_PASSWORD}
+      - PMA_ARBITRARY=0
+      - UPLOAD_LIMIT=100M
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    networks:
+      - rogele-vpc
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    restart: unless-stopped
+
+volumes:
+  mariadb-data:
+    name: rogele-mariadb-data

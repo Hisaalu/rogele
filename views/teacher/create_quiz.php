@@ -326,6 +326,13 @@ $subjects = $subjects ?? [];
     box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
+.input-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 5px;
+}
+
 .text-success {
     color: #10B981;
 }

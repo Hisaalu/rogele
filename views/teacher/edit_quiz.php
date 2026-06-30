@@ -208,6 +208,16 @@ $currentStatus = $quiz['status'] ?? 'draft';
                             name="end_date"
                             value="<?php echo !empty($quiz['end_date']) ? date('Y-m-d\TH:i', strtotime($quiz['end_date'])) : ''; ?>"
                         >
+                        <small class="input-hint">
+                            <?php if (!empty($quiz['end_date'])): ?>
+                                Current deadline: <?php echo date('F j, Y \a\t g:i A', strtotime($quiz['end_date'])); ?>
+                                <?php if (strtotime($quiz['end_date']) < time()): ?>
+                                    <span class="text-warning">This quiz has expired!</span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                Leave blank for no deadline
+                            <?php endif; ?>
+                        </small>
                     </div>
                 </div>
             </div>
@@ -464,6 +474,13 @@ $currentStatus = $quiz['status'] ?? 'draft';
     outline: none;
     border-color: #f06724;
     box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+}
+
+.input-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 5px;
 }
 
 .text-success {

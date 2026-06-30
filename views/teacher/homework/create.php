@@ -80,6 +80,7 @@ $allSubjects = $allSubjects ?? [];
             <div class="form-group">
                 <label for="attachments">Attachments (Optional)</label>
                 <input type="file" id="attachments" name="attachments[]" multiple class="file-input">
+                <small class="form-hint">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
             </div>
 
             <div class="form-actions">
@@ -170,6 +171,13 @@ $allSubjects = $allSubjects ?? [];
     border: 1px dashed #E2E8F0;
     background: #F8FAFC;
     cursor: pointer;
+}
+
+.form-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: #555;
+    margin-top: 5px;
 }
 
 .form-actions {
