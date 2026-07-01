@@ -161,6 +161,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
                     <div class="form-group">
                         <label for="submission_files">Attach Files</label>
                         <input type="file" id="submission_files" name="submission_files[]" multiple class="file-input">
+                        <small class="form-hint">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
                     </div>
                     
                     <?php if ($isLate): ?>
@@ -573,6 +574,13 @@ $canDelete = $submission && $submission['status'] !== 'graded';
 
 .file-input:hover {
     border-color: #f06724;
+}
+
+.form-hint {
+    display: block;
+    font-size: 0.7rem;
+    color: #000;
+    margin-top: 5px;
 }
 
 .warning-message {
