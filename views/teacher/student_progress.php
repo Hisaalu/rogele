@@ -24,7 +24,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
                 Student Performance
             </h1>
             <p class="page-subtitle">
-                Quiz performance for <?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?>
+                Quiz performance for <?php echo htmlspecialchars(mb_convert_case($student['first_name'] . ' ' . $student['last_name'], MB_CASE_TITLE, "UTF-8")); ?>
             </p>
         </div>
     </div>
@@ -41,7 +41,13 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
             <?php endif; ?>
         </div>
         <div class="student-details">
-            <h2><?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?></h2>
+            <h3 class="student-name">
+                <?php 
+                    $full_name = $student['first_name'] . ' ' . $student['last_name'];
+                    $formatted_name = mb_convert_case($full_name, MB_CASE_TITLE, "UTF-8"); 
+                    echo htmlspecialchars($formatted_name); 
+                ?>
+            </h3>
             <p><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($student['email']); ?></p>
             <p><i class="fas fa-graduation-cap"></i> <?php echo $student['class_name'] ?? 'No Class'; ?></p>
         </div>
@@ -314,7 +320,6 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 .quick-label {
     color: #555;
     font-size: 0.75rem;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
@@ -510,7 +515,6 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     display: block;
     font-size: 0.7rem;
     color: #000;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 3px;
 }
