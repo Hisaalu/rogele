@@ -342,6 +342,13 @@ $classes = $classes ?? [];
     min-height: 150px;
 }
 
+.input-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 5px;
+}
+
 /* File Upload */
 .file-upload-area {
     border: 2px dashed #E2E8F0;

@@ -64,24 +64,47 @@ class Database {
         return $this->connection;
     }
     
-    public function prepare($sql) {
-        if (!$this->connection) {
-            error_log("No active database connection during prepare().");
-            return false;
-        }
-        return $this->connection->prepare($sql);
+    public function query($sql, $params = []) {
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
+        return $stmt;
     }
     
-    public function query($sql) {
-        return $this->connection->query($sql);
+    public function fetch($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
+        return $stmt->fetch();
     }
     
-    public function lastInsertId() {
+    public function fetchAll($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
+        return $stmt->fetchAll();
+    }
+    
+    public function insert($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
         return $this->connection->lastInsertId();
     }
     
-    private function __clone() {}
+    public function update($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
+        return $stmt->rowCount();
+    }
     
-    public function __wakeup() {}
+    public function delete($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
+        return $stmt->rowCount();
+    }
+    
+    public function beginTransaction() {
+        return $this->connection->beginTransaction();
+    }
+    
+    public function commit() {
+        return $this->connection->commit();
+    }
+    
+    public function rollback() {
+        return $this->connection->rollback();
+    }
 }
 ?>
