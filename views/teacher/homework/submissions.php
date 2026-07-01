@@ -483,7 +483,6 @@ input:checked + .toggle-slider:before {
     display: block;
     font-size: 0.7rem;
     color: #555;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
