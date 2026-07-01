@@ -1,7 +1,5 @@
 <?php
 // File: /config/config.php
-
-// 1. Initialize Environment Variables
 $envPath = __DIR__ . '/../.env';
 if (file_exists($envPath)) {
     $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -31,10 +29,10 @@ ini_set('error_log', ROOT_PATH . '/logs/error.log');
 
 date_default_timezone_set('Africa/Kampala');
 
-define('DB_HOST', getenv('DB_HOST') ?: 'gateway01.eu-central-1.prod.aws.tidbcloud.com');
+define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
 define('DB_PORT', getenv('DB_PORT') ?: '4000');
-define('DB_NAME', getenv('DB_NAME') ?: 'ROGELEDB');
-define('DB_USER', getenv('DB_USER') ?: '2VcYykLWVZacLnw.root');
+define('DB_NAME', getenv('DB_NAME') ?: '');
+define('DB_USER', getenv('DB_USER') ?: '');
 define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : ''); 
 
 $appUrl = getenv('APP_URL') ?: (getenv('RENDER') ? 'https://rogele.raysofgrace.ac.ug' : 'http://localhost/rogele-prod');
