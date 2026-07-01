@@ -1,5 +1,5 @@
-<!-- File: /views/auth/login.php -->
 <?php
+//File: /views/auth/login.php
 $hideHeader = true; 
 $pageTitle = 'Login | ROGELE';
 ?>
@@ -10,15 +10,12 @@ $pageTitle = 'Login | ROGELE';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
     
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
     <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
 
-    <!-- Font Awesome 6 (required for icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
-    /* Login Page Styles */
     * {
         margin: 0;
         padding: 0;
@@ -45,7 +42,6 @@ $pageTitle = 'Login | ROGELE';
         margin: 0 auto;
     }
 
-    /* Login Card */
     .login-card {
         background: white;
         border-radius: 16px;
@@ -54,7 +50,6 @@ $pageTitle = 'Login | ROGELE';
         width: 100%;
     }
 
-    /* Logo Section */
     .logo-section {
         text-align: center;
         margin-bottom: 32px;
@@ -90,7 +85,6 @@ $pageTitle = 'Login | ROGELE';
         margin-top: 4px;
     }
 
-    /* Form */
     .login-form {
         width: 100%;
     }
@@ -120,7 +114,6 @@ $pageTitle = 'Login | ROGELE';
         color: #999;
     }
 
-    /* Password Field with Toggle Button */
     .password-field {
         position: relative;
         width: 100%;
@@ -156,7 +149,6 @@ $pageTitle = 'Login | ROGELE';
         outline: none;
     }
 
-    /* Login Button */
     .btn-login {
         width: 100%;
         padding: 12px;
@@ -175,7 +167,6 @@ $pageTitle = 'Login | ROGELE';
         background: #e05a1a;
     }
 
-    /* Form Options */
     .form-options {
         display: flex;
         justify-content: space-between;
@@ -194,7 +185,6 @@ $pageTitle = 'Login | ROGELE';
         text-decoration: underline;
     }
 
-    /* Register Link */
     .register-link {
         text-align: center;
         font-size: 0.85rem;
@@ -211,7 +201,6 @@ $pageTitle = 'Login | ROGELE';
         text-decoration: underline;
     }
 
-    /* Alert Messages */
     .alert {
         margin-bottom: 20px;
         padding: 10px 14px;
@@ -234,35 +223,39 @@ $pageTitle = 'Login | ROGELE';
         border: 1px solid #c8e6c9;
     }
 
+    .alert-warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+
     .alert i {
         font-size: 1rem;
     }
 
-    /* Loading State */
-    .btn-login.loading {
-        position: relative;
-        color: transparent;
-        pointer-events: none;
-        min-height: 40px;
-        padding: 12px 24px;
-    }
-
-    .btn-login.loading::after {
+    .btn-login.loading::before {
         content: '';
-        position: absolute;
-        width: 18px;
-        height: 18px;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border: 2px solid white;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #ffffff;
         border-radius: 50%;
-        border-top-color: transparent;
-        animation: spin 0.6s linear infinite;
+        animation: modern-spin 0.55s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
     }
 
-    @keyframes spin {
-        to { transform: translate(-50%, -50%) rotate(360deg); }
+    .btn-login.loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: #d45216;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    @keyframes modern-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
 
     /* Responsive */
@@ -294,7 +287,6 @@ $pageTitle = 'Login | ROGELE';
 <div class="login-page">
     <div class="login-container">
         <div class="login-card">
-            <!-- Logo Section -->
             <div class="logo-section">
                 <div class="logo" style="background: none; box-shadow: none;">
                     <?php 
@@ -311,7 +303,16 @@ $pageTitle = 'Login | ROGELE';
                 <p>Rays of Grace E-Learning</p>
             </div>
             
-            <!-- Alert Messages -->
+            <div id="timeoutAlertContainer"></div>
+
+            <?php if (isset($_SESSION['warning'])): ?>
+                <div class="alert alert-warning">
+                    <i class="fas fa-clock"></i>
+                    <span><?php echo $_SESSION['warning']; ?></span>
+                </div>
+                <?php unset($_SESSION['warning']); ?>
+            <?php endif; ?>
+
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-circle"></i>
@@ -326,7 +327,6 @@ $pageTitle = 'Login | ROGELE';
                 </div>
             <?php endif; ?>
             
-            <!-- Login Form -->
             <form action="<?php echo BASE_URL; ?>/login" method="POST" class="login-form" id="loginForm">
                 <div class="form-group">
                     <input 
@@ -373,6 +373,19 @@ $pageTitle = 'Login | ROGELE';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('showTimeoutAlert') === '1') {
+        const timeoutContainer = document.getElementById('timeoutAlertContainer');
+        if (timeoutContainer) {
+            timeoutContainer.innerHTML = `
+                <div class="alert alert-warning" style="display: flex !important; visibility: visible !important; opacity: 1 !important;">
+                    <i class="fas fa-clock"></i>
+                    <span>Session Expired. Please log in again.</span>
+                </div>
+            `;
+        }
+        localStorage.removeItem('showTimeoutAlert');
+    }
+
     const loginForm = document.getElementById('loginForm');
     const loginButton = document.getElementById('loginButton');
     const usernameInput = document.getElementById('username');
@@ -396,7 +409,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Form submission
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
             const username = usernameInput.value.trim();
@@ -408,12 +420,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            loginButton.textContent = 'Logging in...';
             loginButton.classList.add('loading');
-            loginButton.textContent = '';
         });
     }
     
-    // Show alert function
     function showAlert(message, type) {
         const existingAlert = document.querySelector('.alert');
         if (existingAlert) {
@@ -443,5 +454,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
