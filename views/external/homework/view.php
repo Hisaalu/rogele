@@ -281,7 +281,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     font-weight: 600;
     color: #555;
     font-size: 0.8rem;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 

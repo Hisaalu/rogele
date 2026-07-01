@@ -170,7 +170,6 @@
             border-radius: 999px;
             margin-left: 8px;
             letter-spacing: 0.8px;
-            text-transform: uppercase;
             box-shadow: 0 4px 10px rgba(0, 0, 255, 0.25);
             animation: badgePulse 2s ease-in-out infinite;
         }

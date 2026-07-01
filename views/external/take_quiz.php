@@ -272,7 +272,6 @@ $endTime = time() + $timeLimitSeconds;
     color: #000;
     font-weight: 600;
     margin-bottom: 10px;
-    text-transform: uppercase;
     letter-spacing: 1px;
 }
 

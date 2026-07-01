@@ -487,7 +487,6 @@ $dateTo = $_GET['date_to'] ?? '';
     color: black;
     font-weight: 600;
     font-size: 0.9rem;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 16px 20px;
     text-align: left;
