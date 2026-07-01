@@ -903,6 +903,25 @@
                 }
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const maxIdleTime = 600000; 
+            let idleTimer;
+
+            function resetTimer() {
+                clearTimeout(idleTimer);
+                idleTimer = setTimeout(function() {
+                    localStorage.setItem('showTimeoutAlert', '1');
+                    window.location.reload(); 
+                }, 600000);
+            }
+
+            window.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+            document.onclick = resetTimer;
+            document.onscroll = resetTimer;
+        });
         </script>
         
         <!-- Page content will be included here -->
