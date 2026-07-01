@@ -365,7 +365,6 @@ $search = $_GET['search'] ?? '';
     border-radius: 30px;
     font-size: 0.7rem;
     font-weight: 600;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 

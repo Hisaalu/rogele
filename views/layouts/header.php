@@ -18,6 +18,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?php echo BASE_URL; ?>">
     
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.jpg">
     <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
@@ -169,7 +170,6 @@
             border-radius: 999px;
             margin-left: 8px;
             letter-spacing: 0.8px;
-            text-transform: uppercase;
             box-shadow: 0 4px 10px rgba(0, 0, 255, 0.25);
             animation: badgePulse 2s ease-in-out infinite;
         }

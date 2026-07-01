@@ -147,7 +147,11 @@ $search = $_GET['search'] ?? '';
                     
                     <div class="student-info">
                         <h3 class="student-name">
-                            <?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?>
+                            <?php 
+                                $full_name = $student['first_name'] . ' ' . $student['last_name'];
+                                $formatted_name = mb_convert_case($full_name, MB_CASE_TITLE, "UTF-8"); 
+                                echo htmlspecialchars($formatted_name); 
+                            ?>
                         </h3>
                         
                         <div class="student-role">
@@ -287,7 +291,6 @@ $search = $_GET['search'] ?? '';
 .quick-stat-label {
     font-size: 0.7rem;
     color: #555;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
@@ -600,7 +603,6 @@ $search = $_GET['search'] ?? '';
     color: #555;
     font-size: 0.7rem;
     margin-bottom: 5px;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
