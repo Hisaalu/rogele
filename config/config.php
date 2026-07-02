@@ -63,7 +63,6 @@ $isProd = (strpos($host, 'raysofgrace.ac.ug') !== false);
 $cookieDomain = $isProd ? '.raysofgrace.ac.ug' : ''; 
 
 session_set_cookie_params([
-    'lifetime' => 600, 
     'path' => '/',
     'domain' => $cookieDomain,
     'secure' => $isProd,
@@ -75,28 +74,8 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_secure', $isProd ? 1 : 0); 
 ini_set('session.cookie_samesite', 'Lax');
-ini_set('session.gc_maxlifetime', 600);
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
-$timeout = 600; 
-
-if (
-    isset($_SESSION['LAST_ACTIVITY']) &&
-    (time() - $_SESSION['LAST_ACTIVITY']) > $timeout
-) {
-    $_SESSION = [];
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
-    }
-    session_destroy();
-
-    header("Location: " . BASE_URL . "/login");
-    exit;
-}
-
-$_SESSION['LAST_ACTIVITY'] = time();
 ?>

@@ -448,7 +448,12 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             alertDiv.style.opacity = '0';
             setTimeout(() => alertDiv.remove(), 300);
-        }, 5000);
+        }, 1800000); //30 minutes
+
+        // setTimeout(() => {
+        //     alertDiv.style.opacity = '0';
+        //     setTimeout(() => alertDiv.remove(), 10000);
+        // }, 60000); //1 minute
     }
 });
 </script>
