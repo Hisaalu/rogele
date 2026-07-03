@@ -27,6 +27,21 @@ $pageTitle = 'Login | ROGELE';
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     }
 
+    .alert-container {
+        position: fixed;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        width: 100%;
+        max-width: 360px;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+    }
+
     .login-page {
         min-height: 100vh;
         display: flex;
@@ -201,36 +216,40 @@ $pageTitle = 'Login | ROGELE';
         text-decoration: underline;
     }
 
+    /* Updated Toast Alert Styling */
     .alert {
-        margin-bottom: 20px;
-        padding: 10px 14px;
+        pointer-events: auto;
+        padding: 12px 16px;
         border-radius: 8px;
         font-size: 0.85rem;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+        transition: opacity 0.3s ease;
+        width: 100%;
     }
 
     .alert-error {
         background: #fee2e2;
         color: #dc2626;
-        border: 1px solid #fecaca;
+        border-left: 4px solid #dc2626;
     }
 
     .alert-success {
         background: #e6f4ea;
         color: #2e7d32;
-        border: 1px solid #c8e6c9;
+        border-left: 4px solid #2e7d32;
     }
 
     .alert-warning {
         background: #fff3cd;
         color: #856404;
-        border: 1px solid #ffeeba;
+        border-left: 4px solid #856404;
     }
 
     .alert i {
-        font-size: 1rem;
+        font-size: 1.05rem;
     }
 
     .btn-login.loading::before {
@@ -284,6 +303,34 @@ $pageTitle = 'Login | ROGELE';
     </style>
 </head>
 <body>
+
+<!-- Consolidated Notification Area at the top of the viewport -->
+<div class="alert-container" id="globalAlertContainer">
+    <div id="timeoutAlertContainer"></div>
+
+    <?php if (isset($_SESSION['warning'])): ?>
+        <div class="alert alert-warning">
+            <i class="fas fa-clock"></i>
+            <span><?php echo $_SESSION['warning']; ?></span>
+        </div>
+        <?php unset($_SESSION['warning']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+</div>
+
 <div class="login-page">
     <div class="login-container">
         <div class="login-card">
@@ -302,30 +349,6 @@ $pageTitle = 'Login | ROGELE';
                 <h1>Login to ROGELE</h1>
                 <p>Rays of Grace E-Learning</p>
             </div>
-            
-            <div id="timeoutAlertContainer"></div>
-
-            <?php if (isset($_SESSION['warning'])): ?>
-                <div class="alert alert-warning">
-                    <i class="fas fa-clock"></i>
-                    <span><?php echo $_SESSION['warning']; ?></span>
-                </div>
-                <?php unset($_SESSION['warning']); ?>
-            <?php endif; ?>
-
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (isset($_SESSION['success'])): ?>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-                </div>
-            <?php endif; ?>
             
             <form action="<?php echo BASE_URL; ?>/login" method="POST" class="login-form" id="loginForm">
                 <div class="form-group">
@@ -426,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showAlert(message, type) {
-        const existingAlert = document.querySelector('.alert');
+        const existingAlert = document.querySelector('.alert-container .alert:not(#timeoutAlertContainer .alert)');
         if (existingAlert) {
             existingAlert.remove();
         }
@@ -438,22 +461,15 @@ document.addEventListener('DOMContentLoaded', function() {
             <span>${message}</span>
         `;
         
-        const loginCard = document.querySelector('.login-card');
-        const logoSection = document.querySelector('.logo-section');
-        
-        if (loginCard && logoSection) {
-            loginCard.insertBefore(alertDiv, logoSection.nextSibling);
+        const globalAlertContainer = document.getElementById('globalAlertContainer');
+        if (globalAlertContainer) {
+            globalAlertContainer.appendChild(alertDiv);
         }
         
         setTimeout(() => {
             alertDiv.style.opacity = '0';
             setTimeout(() => alertDiv.remove(), 300);
-        }, 1800000); //30 minutes
-
-        // setTimeout(() => {
-        //     alertDiv.style.opacity = '0';
-        //     setTimeout(() => alertDiv.remove(), 10000);
-        // }, 60000); //1 minute
+        }, 5000); 
     }
 });
 </script>

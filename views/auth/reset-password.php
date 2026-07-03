@@ -29,6 +29,21 @@ $token = $token ?? '';
             background: #f5f5f5;
         }
 
+        .alert-container {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 100%;
+            max-width: 360px;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
         .reset-page {
             min-height: 100vh;
             display: flex;
@@ -44,7 +59,6 @@ $token = $token ?? '';
             margin: 0 auto;
         }
 
-        /* Card */
         .reset-card {
             background: white;
             border-radius: 16px;
@@ -53,7 +67,6 @@ $token = $token ?? '';
             width: 100%;
         }
 
-        /* Logo Section */
         .logo-section {
             text-align: center;
             margin-bottom: 32px;
@@ -87,7 +100,6 @@ $token = $token ?? '';
             margin-top: 4px;
         }
 
-        /* Form */
         .reset-form {
             width: 100%;
         }
@@ -116,7 +128,6 @@ $token = $token ?? '';
             color: #999;
         }
 
-        /* Password Field */
         .password-field {
             position: relative;
             width: 100%;
@@ -144,7 +155,6 @@ $token = $token ?? '';
             color: #f06724;
         }
 
-        /* Button */
         .btn-reset {
             width: 100%;
             padding: 12px;
@@ -168,7 +178,6 @@ $token = $token ?? '';
             cursor: not-allowed;
         }
 
-        /* Login Link */
         .login-link {
             text-align: center;
             margin-top: 24px;
@@ -188,34 +197,35 @@ $token = $token ?? '';
             text-decoration: underline;
         }
 
-        /* Alert Messages */
         .alert {
-            margin-bottom: 20px;
-            padding: 10px 14px;
+            pointer-events: auto;
+            padding: 12px 16px;
             border-radius: 8px;
             font-size: 0.85rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: opacity 0.3s ease;
+            width: 100%;
         }
 
         .alert-error {
             background: #fee2e2;
             color: #dc2626;
-            border: 1px solid #fecaca;
+            border-left: 4px solid #dc2626;
         }
 
         .alert-success {
             background: #e6f4ea;
             color: #2e7d32;
-            border: 1px solid #c8e6c9;
+            border-left: 4px solid #2e7d32;
         }
 
         .alert i {
-            font-size: 1rem;
+            font-size: 1.05rem;
         }
 
-        /* Loading State */
         .btn-reset.loading {
             position: relative;
             color: transparent;
@@ -266,10 +276,26 @@ $token = $token ?? '';
     </style>
 </head>
 <body>
+
+<div class="alert-container" id="globalAlertContainer">
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+</div>
+
 <div class="reset-page">
     <div class="reset-container">
         <div class="reset-card">
-            <!-- Logo Section -->
             <div class="logo-section">
                 <div class="logo">
                     <?php 
@@ -286,22 +312,6 @@ $token = $token ?? '';
                 <p>To complete this process, provide your new password and its confirmation below.</p>
             </div>
             
-            <!-- Alert Messages -->
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (isset($_SESSION['success'])): ?>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-                </div>
-            <?php endif; ?>
-            
-            <!-- Reset Password Form -->
             <form action="<?php echo BASE_URL; ?>/auth/process-reset-password" method="POST" class="reset-form" id="resetForm">
                 <input type="hidden" name="token" value="<?php echo htmlspecialchars($token ?? ''); ?>">
                 
@@ -344,12 +354,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmInput = document.getElementById('confirm_password');
     const token = document.querySelector('input[name="token"]').value;
     
-    // Check if token exists
     if (!token) {
         window.location.href = '<?php echo BASE_URL; ?>/login';
     }
     
-    // Password visibility toggle
     document.querySelectorAll('.toggle-password').forEach(btn => {
         btn.addEventListener('click', function() {
             const targetId = this.getAttribute('data-target');
@@ -368,12 +376,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Auto-focus on password field
     if (passwordInput) {
         passwordInput.focus();
     }
     
-    // Form validation
     if (resetForm) {
         resetForm.addEventListener('submit', function(e) {
             const password = passwordInput.value;
@@ -397,15 +403,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Show loading state
             resetButton.classList.add('loading');
             resetButton.disabled = true;
         });
     }
     
-    // Show alert function
     function showAlert(message, type) {
-        const existingAlert = document.querySelector('.alert');
+        const existingAlert = document.querySelector('.alert-container .alert');
         if (existingAlert) {
             existingAlert.remove();
         }
@@ -417,11 +421,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <span>${message}</span>
         `;
         
-        const resetCard = document.querySelector('.reset-card');
-        const logoSection = document.querySelector('.logo-section');
-        
-        if (resetCard && logoSection) {
-            resetCard.insertBefore(alertDiv, logoSection.nextSibling);
+        const globalAlertContainer = document.getElementById('globalAlertContainer');
+        if (globalAlertContainer) {
+            globalAlertContainer.appendChild(alertDiv);
         }
         
         setTimeout(() => {
@@ -433,5 +435,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -50,7 +50,7 @@ class AuthController {
             return 'Passwords do not match';
         }
         if (strlen($password) < 8) {
-            return 'Password must be at least 8 characters';
+            return 'Password must be at least 8 characters!';
         }
         return null;
     }
@@ -235,7 +235,7 @@ class AuthController {
             $password = $_POST['password'] ?? '';
             
             if (empty($username) || empty($password)) {
-                $this->redirectWithError('Please enter both username and password', BASE_URL . '/login');
+                $this->redirectWithError('Please enter both your email and password!', BASE_URL . '/login');
             }
             
             $result = $this->userModel->login($username, $password);
@@ -248,7 +248,7 @@ class AuthController {
                 $this->setUserSession($result['user']);
                 $this->redirectToDashboard();
             } else {
-                $this->redirectWithError($result['error'] ?? 'Login failed. Please try again.', BASE_URL . '/login');
+                $this->redirectWithError($result['error'] ?? 'Login failed. Please try again!', BASE_URL . '/login');
             }
         }
         
@@ -304,7 +304,7 @@ class AuthController {
             error_log("User auto-logged in after registration: " . $data['email']);
             $this->redirectToDashboard();
         } else {
-            $this->redirectWithError($result['error'] ?? 'Registration failed. Please try again.', BASE_URL . '/register');
+            $this->redirectWithError($result['error'] ?? 'Registration failed. Please try again!', BASE_URL . '/register');
         }
     }
     
@@ -324,13 +324,13 @@ class AuthController {
             $confirmPassword = $_POST['confirm_password'] ?? '';
             
             if ($newPassword !== $confirmPassword) {
-                $_SESSION['error'] = 'New passwords do not match';
+                $_SESSION['error'] = 'New passwords do not match!';
             } else {
                 $result = $this->userModel->changePassword($_SESSION['user_id'], $oldPassword, $newPassword);
                 
                 if ($result['success']) {
                     unset($_SESSION['force_password_change']);
-                    $this->redirectWithSuccess('Password changed successfully', BASE_URL . '/dashboard');
+                    $this->redirectWithSuccess('Password changed successfully!', BASE_URL . '/dashboard');
                 } else {
                     $_SESSION['error'] = $result['error'];
                 }
@@ -355,11 +355,11 @@ class AuthController {
         $email = $_POST['email'] ?? '';
         
         if (empty($email)) {
-            $this->redirectWithError('Please enter your email address', BASE_URL . '/forgot-password');
+            $this->redirectWithError('Please enter your email address!', BASE_URL . '/forgot-password');
         }
         
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->redirectWithError('Please enter a valid email address', BASE_URL . '/forgot-password');
+            $this->redirectWithError('Please enter a valid email address!', BASE_URL . '/forgot-password');
         }
         
         $user = $this->userModel->getByEmail($email);
@@ -375,7 +375,7 @@ class AuthController {
                 $sent = $this->mailHelper->sendResetEmail($email, $user['first_name'], $resetLink);
                 
                 if ($sent) {
-                    $_SESSION['success'] = 'Password reset link sent to email.';
+                    $_SESSION['success'] = 'Password reset link sent to your email!';
                 } else {
                     $_SESSION['debug_reset_link'] = $resetLink;
                     $_SESSION['info'] = 'Email could not be sent. Please use the debug link below to reset your password.';
@@ -413,7 +413,7 @@ class AuthController {
         $user = $this->userModel->getUserByResetToken($resetToken);
         
         if (!$user) {
-            $this->redirectWithError('Invalid or expired reset link. Please request a new one.', BASE_URL . '/forgot-password');
+            $this->redirectWithError('Invalid/expired reset link!', BASE_URL . '/forgot-password');
         }
         
         $token = $resetToken;
@@ -444,7 +444,7 @@ class AuthController {
         $user = $this->userModel->getUserByResetToken($token);
         
         if (!$user) {
-            $this->redirectWithError('Invalid or expired reset link. Please request a new one.', BASE_URL . '/forgot-password');
+            $this->redirectWithError('Invalid/expired reset link!', BASE_URL . '/forgot-password');
         }
         
         $result = $this->userModel->updatePassword($user['id'], $password);
