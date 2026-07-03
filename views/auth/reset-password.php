@@ -226,30 +226,6 @@ $token = $token ?? '';
             font-size: 1.05rem;
         }
 
-        .btn-reset.loading {
-            position: relative;
-            color: transparent;
-            pointer-events: none;
-        }
-
-        .btn-reset.loading::after {
-            content: '';
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid white;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
         /* Responsive */
         @media (max-width: 480px) {
             .reset-card {
@@ -403,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            resetButton.classList.add('loading');
+            resetButton.textContent = 'Resetting...';
             resetButton.disabled = true;
         });
     }
