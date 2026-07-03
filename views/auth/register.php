@@ -44,6 +44,21 @@ if (empty($classes)) {
             background: #f5f5f5;
         }
 
+        .alert-container {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 100%;
+            max-width: 360px;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
         .register-page {
             min-height: 100vh;
             display: flex;
@@ -200,6 +215,11 @@ if (empty($classes)) {
             background: #e05a1a;
         }
 
+        .btn-register:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .terms-group {
             display: flex;
             align-items: flex-start;
@@ -240,20 +260,37 @@ if (empty($classes)) {
             font-weight: 500;
         }
 
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
         .alert {
-            margin-bottom: 20px;
-            padding: 10px 14px;
+            pointer-events: auto;
+            padding: 12px 16px;
             border-radius: 8px;
             font-size: 0.85rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: opacity 0.3s ease;
+            width: 100%;
         }
 
         .alert-error {
             background: #fee2e2;
             color: #dc2626;
-            border: 1px solid #fecaca;
+            border-left: 4px solid #dc2626;
+        }
+
+        .alert-success {
+            background: #e6f4ea;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .alert i {
+            font-size: 1.05rem;
         }
 
         .btn-register.loading {
@@ -304,6 +341,23 @@ if (empty($classes)) {
     </style>
 </head>
 <body>
+
+<div class="alert-container" id="globalAlertContainer">
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+</div>
+
 <div class="register-page">
     <div class="register-container">
         <div class="register-card">
@@ -322,13 +376,6 @@ if (empty($classes)) {
                 <h1>Welcome to ROGELE</h1>
                 <p>Let's create your account</p>
             </div>
-            
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-                </div>
-            <?php endif; ?>
             
             <form action="<?php echo BASE_URL; ?>/register" method="POST" class="register-form" id="registerForm">
                 <div class="form-row">
@@ -409,7 +456,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const phoneInput = document.getElementById('phone');
     const classSelect = document.getElementById('class_id');
     
-    // Password visibility toggle
     document.querySelectorAll('.toggle-password').forEach(btn => {
         btn.addEventListener('click', function() {
             const targetId = this.getAttribute('data-target');
@@ -421,6 +467,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon.classList.remove('fa-eye');
                 icon.classList.add('fa-eye-slash');
             } else {
+                input.type === 'password';
                 input.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
@@ -428,7 +475,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Format phone number
     if (phoneInput) {
         phoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -447,7 +493,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Form validation
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
             const firstName = document.getElementById('first_name').value.trim();
@@ -461,20 +506,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!firstName || !lastName || !email || !phone || !password || !confirm) {
                 e.preventDefault();
-                alert('Please fill in all fields');
+                showAlert('Please fill in all fields', 'error');
                 return;
             }
             
             if (!classId) {
                 e.preventDefault();
-                alert('Please select your class');
+                showAlert('Please select your class', 'error');
                 return;
             }
             
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 e.preventDefault();
-                alert('Please enter a valid email address');
+                showAlert('Please enter a valid email address', 'error');
                 return;
             }
             
@@ -482,25 +527,25 @@ document.addEventListener('DOMContentLoaded', function() {
             const phoneRegex = /^[0-9]{9}$/;
             if (!phoneRegex.test(cleanPhone)) {
                 e.preventDefault();
-                alert('Please enter a valid 9-digit phone number');
+                showAlert('Please enter a valid 9-digit phone number', 'error');
                 return;
             }
             
             if (password !== confirm) {
                 e.preventDefault();
-                alert('Passwords do not match');
+                showAlert('Passwords do not match', 'error');
                 return;
             }
             
             if (password.length < 8) {
                 e.preventDefault();
-                alert('Password must be at least 8 characters');
+                showAlert('Password must be at least 8 characters', 'error');
                 return;
             }
             
             if (!terms) {
                 e.preventDefault();
-                alert('Please accept the Terms of Service');
+                showAlert('Please accept the Terms of Service', 'error');
                 return;
             }
             
@@ -508,9 +553,32 @@ document.addEventListener('DOMContentLoaded', function() {
             registerButton.disabled = true;
         });
     }
+
+    function showAlert(message, type) {
+        const existingAlert = document.querySelector('.alert-container .alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        const globalAlertContainer = document.getElementById('globalAlertContainer');
+        if (globalAlertContainer) {
+            globalAlertContainer.appendChild(alertDiv);
+        }
+        
+        setTimeout(() => {
+            alertDiv.style.opacity = '0';
+            setTimeout(() => alertDiv.remove(), 300);
+        }, 5000);
+    }
 });
 </script>
 </body>
 </html>
-
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

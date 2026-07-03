@@ -44,16 +44,11 @@ $activeTab = $_GET['tab'] ?? 'password';
             <i class="fas fa-shield-alt"></i>
             <span>Privacy</span>
         </a>
-        <!-- uncomment to enable -->
-        <!-- <a href="<?php echo BASE_URL; ?>/external/delete-account?test=1" class="tab <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
-            <i class="fas fa-trash"></i>
-            <span>Delete Account</span>
-        </a> -->
-
-        <!-- temporarily disabled -->
-        <a href="javascript:void(0);" class="tab disabled" onclick="return false;">
-            <i class="fas fa-trash"></i>
-            <span>Delete Account</span>
+        <!-- disabled -->
+        <a href="javascript:void(0);"
+            class="tab disabled <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
+                <i class="fas fa-trash"></i>
+                <span>Delete Account</span>
         </a>
     </div>
 
@@ -658,6 +653,12 @@ input:checked + .slider:before {
 /* Delete Account */
 .delete-card {
     border: 2px solid #FEE2E2;
+}
+
+.tab.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .warning-box {
