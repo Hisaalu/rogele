@@ -293,30 +293,6 @@ if (empty($classes)) {
             font-size: 1.05rem;
         }
 
-        .btn-register.loading {
-            position: relative;
-            color: transparent;
-            pointer-events: none;
-        }
-
-        .btn-register.loading::after {
-            content: '';
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid white;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
         @media (max-width: 480px) {
             .register-card {
                 padding: 32px 24px;
@@ -467,7 +443,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon.classList.remove('fa-eye');
                 icon.classList.add('fa-eye-slash');
             } else {
-                input.type === 'password';
                 input.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
@@ -549,7 +524,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            registerButton.classList.add('loading');
+            registerButton.textContent = 'Creating...';
             registerButton.disabled = true;
         });
     }
