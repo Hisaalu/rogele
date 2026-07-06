@@ -46,7 +46,6 @@ date_default_timezone_set('Africa/Kampala');
 $cookieDomain = '.raysofgrace.ac.ug';
 
 session_set_cookie_params([
-    'lifetime' => 300,
     'path' => '/',
     'domain' => $cookieDomain,
     'secure' => true,
@@ -58,37 +57,8 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_secure', 1);
 ini_set('session.cookie_samesite', 'Lax');
-ini_set('session.gc_maxlifetime', 300);
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
-$timeout = 300;
-
-if (isset($_SESSION['LAST_ACTIVITY']) &&
-    (time() - $_SESSION['LAST_ACTIVITY']) > $timeout) {
-
-    $_SESSION = [];
-
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(
-            session_name(),
-            '',
-            time() - 42000,
-            $params["path"],
-            $params["domain"],
-            $params["secure"],
-            $params["httponly"]
-        );
-    }
-
-    session_destroy();
-
-    header("Location: " . BASE_URL . "/login.php?timeout=1");
-    exit;
-}
-
-$_SESSION['LAST_ACTIVITY'] = time();
 ?>
