@@ -1,5 +1,6 @@
 <?php
 // File: /config/config.php
+
 $env = [];
 $envPath = __DIR__ . '/../.env';
 
@@ -15,7 +16,7 @@ if (file_exists($envPath)) {
 }
 
 define('DB_HOST', getenv('DB_HOST') ?: '');
-define('DB_PORT', getenv('DB_PORT') ?: ''); 
+define('DB_PORT', getenv('DB_PORT') ?: '');
 define('DB_NAME', getenv('DB_NAME') ?: '');
 define('DB_USER', getenv('DB_USER') ?: '');
 define('DB_PASS', getenv('DB_PASSWORD') ?: '');
@@ -24,7 +25,7 @@ define('BASE_URL', getenv('APP_URL') ?: 'https://elearn.raysofgrace.ac.ug');
 define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
 
 define('ROOT_PATH', dirname(__DIR__));
-define('MAX_FILE_SIZE', 10485760);
+define('MAX_FILE_SIZE', 104857300);
 define('ALLOWED_EXTENSIONS', ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'mp4', 'jpg', 'jpeg', 'png']);
 define('UPLOAD_PATH', ROOT_PATH . '/public/uploads/');
 
@@ -56,7 +57,6 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_secure', 1);
 ini_set('session.cookie_samesite', 'Lax');
-ini_set('session.gc_maxlifetime', 7200);
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

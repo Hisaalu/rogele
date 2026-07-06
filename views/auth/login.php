@@ -244,8 +244,8 @@ $pageTitle = 'Login | ROGELE';
 
     .alert-warning {
         background: #fff3cd;
-        color: #856404;
-        border-left: 4px solid #856404;
+        color: #dc2626;
+        border-left: 4px solid #dc2626;
     }
 
     .alert i {
