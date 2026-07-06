@@ -28,6 +28,21 @@ $pageTitle = 'Forgot Password | ROGELE';
             background: #f5f5f5;
         }
 
+        .alert-container {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 100%;
+            max-width: 360px;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none; 
+        }
+
         .forgot-page {
             min-height: 100vh;
             display: flex;
@@ -43,7 +58,6 @@ $pageTitle = 'Forgot Password | ROGELE';
             margin: 0 auto;
         }
 
-        /* Card */
         .forgot-card {
             background: white;
             border-radius: 16px;
@@ -52,7 +66,6 @@ $pageTitle = 'Forgot Password | ROGELE';
             width: 100%;
         }
 
-        /* Logo Section */
         .logo-section {
             text-align: center;
             margin-bottom: 32px;
@@ -86,7 +99,6 @@ $pageTitle = 'Forgot Password | ROGELE';
             margin-top: 4px;
         }
 
-        /* Form */
         .forgot-form {
             width: 100%;
         }
@@ -115,7 +127,6 @@ $pageTitle = 'Forgot Password | ROGELE';
             color: #999;
         }
 
-        /* Button */
         .btn-submit {
             width: 100%;
             padding: 12px;
@@ -138,7 +149,6 @@ $pageTitle = 'Forgot Password | ROGELE';
             cursor: not-allowed;
         }
 
-        /* Back to Login Link */
         .back-link {
             text-align: center;
             margin-top: 24px;
@@ -157,7 +167,6 @@ $pageTitle = 'Forgot Password | ROGELE';
             text-decoration: underline;
         }
 
-        /* Success Message */
         .success-message {
             text-align: center;
         }
@@ -192,56 +201,33 @@ $pageTitle = 'Forgot Password | ROGELE';
             margin-bottom: 24px;
         }
 
-        /* Alert Messages */
         .alert {
-            margin-bottom: 20px;
-            padding: 10px 14px;
+            pointer-events: auto; 
+            padding: 12px 16px;
             border-radius: 8px;
             font-size: 0.85rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: opacity 0.3s ease;
+            width: 100%;
         }
 
         .alert-error {
             background: #fee2e2;
             color: #dc2626;
-            border: 1px solid #fecaca;
+            border-left: 4px solid #dc2626;
         }
 
         .alert-success {
             background: #e6f4ea;
             color: #2e7d32;
-            border: 1px solid #c8e6c9;
+            border-left: 4px solid #2e7d32;
         }
 
         .alert i {
-            font-size: 1rem;
-        }
-
-        /* Loading State */
-        .btn-submit.loading {
-            position: relative;
-            color: transparent;
-            pointer-events: none;
-        }
-
-        .btn-submit.loading::after {
-            content: '';
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid white;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+            font-size: 1.05rem;
         }
 
         /* Responsive */
@@ -270,10 +256,26 @@ $pageTitle = 'Forgot Password | ROGELE';
     </style>
 </head>
 <body>
+
+<div class="alert-container" id="globalAlertContainer">
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+</div>
+
 <div class="forgot-page">
     <div class="forgot-container">
         <div class="forgot-card">
-            <!-- Logo Section -->
             <div class="logo-section">
                 <div class="logo">
                     <?php 
@@ -290,22 +292,6 @@ $pageTitle = 'Forgot Password | ROGELE';
                 <p>Enter your ROGELE account email address and we will send you a password reset link.</p>
             </div>
             
-            <!-- Alert Messages -->
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (isset($_SESSION['success'])): ?>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-                </div>
-            <?php endif; ?>
-            
-            <!-- Success Message (Full Page) -->
             <?php if (isset($_SESSION['reset_sent'])): ?>
                 <div class="success-message">
                     <div class="success-icon">
@@ -318,7 +304,6 @@ $pageTitle = 'Forgot Password | ROGELE';
                     </div>
                 </div>
             <?php else: ?>
-                <!-- Forgot Password Form -->
                 <form action="<?php echo BASE_URL; ?>/auth/process-forgot-password" method="POST" class="forgot-form" id="forgotForm">
                     <div class="form-group">
                         <input 
@@ -350,12 +335,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     const emailInput = document.getElementById('email');
     
-    // Auto-focus on email field
     if (emailInput) {
         emailInput.focus();
     }
     
-    // Form submission
     if (forgotForm) {
         forgotForm.addEventListener('submit', function(e) {
             const email = emailInput.value.trim();
@@ -366,7 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Simple email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 e.preventDefault();
@@ -374,15 +356,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Show loading state
-            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
         });
     }
     
-    // Show alert function
     function showAlert(message, type) {
-        const existingAlert = document.querySelector('.alert');
+        const existingAlert = document.querySelector('.alert-container .alert');
         if (existingAlert) {
             existingAlert.remove();
         }
@@ -394,11 +374,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <span>${message}</span>
         `;
         
-        const forgotCard = document.querySelector('.forgot-card');
-        const logoSection = document.querySelector('.logo-section');
-        
-        if (forgotCard && logoSection) {
-            forgotCard.insertBefore(alertDiv, logoSection.nextSibling);
+        const globalAlertContainer = document.getElementById('globalAlertContainer');
+        if (globalAlertContainer) {
+            globalAlertContainer.appendChild(alertDiv);
         }
         
         setTimeout(() => {
@@ -410,5 +388,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

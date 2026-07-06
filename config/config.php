@@ -45,7 +45,6 @@ date_default_timezone_set('Africa/Kampala');
 $cookieDomain = '.raysofgrace.ac.ug';
 
 session_set_cookie_params([
-    'lifetime' => 7200,
     'path' => '/',
     'domain' => $cookieDomain,
     'secure' => true,

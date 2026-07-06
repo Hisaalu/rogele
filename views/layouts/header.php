@@ -162,16 +162,14 @@
         }
 
         .badge-new {
-            background-color: #0000FF;
+            background-color: #10B981;
             color: white;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 700;
             padding: 4px 10px;
             border-radius: 999px;
             margin-left: 8px;
             letter-spacing: 0.8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 255, 0.25);
-            animation: badgePulse 2s ease-in-out infinite;
         }
 
         @keyframes badgePulse {
@@ -686,6 +684,9 @@
             overflow-x: hidden;
         }
     </style>
+    <script>
+        const BASE_URL = "<?php echo BASE_URL; ?>";
+    </script>
 </head>
 <body>
     <header class="site-header">
@@ -802,7 +803,7 @@
                     </div>
                     <div class="mobile-user-details">
                         <h3><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></h3>
-                        <p><?php echo ucfirst($_SESSION[''] ?? 'Student'); ?></p>
+                        <p><?php echo ucfirst($_SESSION['user_role'] ?? 'User'); ?></p>
                     </div>
                 </div>
             </div>
@@ -902,6 +903,32 @@
                     }
                 }
             });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const maxIdleTime = 1800000; // 30 minutes
+            // const maxIdleTime = 60000; // 1 minute
+            let lastActivity = Date.now();
+
+            function updateActivity() {
+                lastActivity = Date.now();
+            }
+
+            function checkIdle() {
+                const now = Date.now();
+                const idle = now - lastActivity;
+
+                if (idle >= maxIdleTime) {
+                    localStorage.setItem('showTimeoutAlert', '1');
+                    window.location.href = BASE_URL + "/logout"; 
+                }
+            }
+
+            ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(event => {
+                document.addEventListener(event, updateActivity, { passive: true });
+            });
+
+            setInterval(checkIdle, 30000);
         });
         </script>
         
