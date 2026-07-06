@@ -279,7 +279,7 @@ class User {
     public function register($data) {
         try {
             if ($this->isEmailTaken($data['email'])) {
-                return ['success' => false, 'error' => 'Email already registered'];
+                return ['success' => false, 'error' => 'Email already registered!'];
             }
             
             $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
@@ -311,7 +311,7 @@ class User {
             
             $userId = $this->conn->lastInsertId();
             
-            $this->logActivity($userId, 'REGISTRATION', 'User registered successfully');
+            $this->logActivity($userId, 'REGISTRATION', 'User registered successfully!');
             
             $userData = $this->getById($userId);
             unset($userData['password']);
@@ -324,7 +324,7 @@ class User {
             ];
             
         } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Registration failed. Please try again.'];
+            return ['success' => false, 'error' => 'Registration failed. Please try again!'];
         }
     }
     
@@ -343,22 +343,22 @@ class User {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$user || !password_verify($password, $user['password'])) {
-                return ['success' => false, 'error' => 'Invalid email or password'];
+                return ['success' => false, 'error' => 'Invalid email/password!'];
             }
             
             if (!$user['is_active']) {
-                return ['success' => false, 'error' => 'Your account is not active. Please contact support.'];
+                return ['success' => false, 'error' => 'Your account is not active. Please contact support!'];
             }
             
             if ($user['is_suspended']) {
-                return ['success' => false, 'error' => 'Invalid input. Please contact support.'];
+                return ['success' => false, 'error' => 'Account suspended. Please contact support!'];
             }
             
             $updateQuery = "UPDATE users SET last_login = NOW() WHERE id = :id";
             $updateStmt = $this->conn->prepare($updateQuery);
             $updateStmt->execute([':id' => $user['id']]);
             
-            $this->logActivity($user['id'], 'LOGIN', 'User logged in successfully');
+            $this->logActivity($user['id'], 'LOGIN', 'User logged in successfully!');
             
             unset($user['password']);
             
@@ -417,7 +417,7 @@ class User {
             
             if ($currentUser && $currentUser['email'] !== $data['email']) {
                 if ($this->isEmailTaken($data['email'], $userId)) {
-                    return ['success' => false, 'error' => 'Email already taken by another user'];
+                    return ['success' => false, 'error' => 'Email already taken by another user!'];
                 }
             }
             
@@ -456,13 +456,13 @@ class User {
                 }
                 
                 $this->logActivity($userId, 'PROFILE_UPDATE', 'User updated profile');
-                return ['success' => true, 'message' => 'Profile updated successfully'];
+                return ['success' => true, 'message' => 'Profile updated successfully!'];
             }
             
-            return ['success' => false, 'error' => 'Failed to update profile'];
+            return ['success' => false, 'error' => 'Failed to update profile!'];
             
         } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error occurred'];
+            return ['success' => false, 'error' => 'Database error occurred!'];
         }
     }
     
@@ -491,7 +491,7 @@ class User {
             
             if ($currentUser && $currentUser['email'] !== $data['email']) {
                 if ($this->isEmailTaken($data['email'], $userId)) {
-                    return ['success' => false, 'error' => 'Email already taken by another user'];
+                    return ['success' => false, 'error' => 'Email already taken by another user!'];
                 }
             }
             
@@ -518,11 +518,11 @@ class User {
             
             if ($result) {
                 unset($this->userCache[$userId]);
-                $this->logActivity($userId, 'ADMIN_UPDATE', 'User updated by admin');
-                return ['success' => true, 'message' => 'User updated successfully'];
+                $this->logActivity($userId, 'ADMIN_UPDATE', 'User updated by admin!');
+                return ['success' => true, 'message' => 'User updated successfully!'];
             }
             
-            return ['success' => false, 'error' => 'Failed to update user'];
+            return ['success' => false, 'error' => 'Failed to update user!'];
             
         } catch (PDOException $e) {
             return ['success' => false, 'error' => 'Database error occurred: ' . $e->getMessage()];
@@ -537,11 +537,11 @@ class User {
             $user = $stmt->fetch();
             
             if (!$user) {
-                return ['success' => false, 'error' => 'User not found'];
+                return ['success' => false, 'error' => 'User not found!'];
             }
             
             if (!password_verify($currentPassword, $user['password'])) {
-                return ['success' => false, 'error' => 'Current password is incorrect'];
+                return ['success' => false, 'error' => 'Current password is incorrect!'];
             }
             
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
@@ -553,14 +553,14 @@ class User {
             ]);
             
             if ($result) {
-                $this->logActivity($userId, 'PASSWORD_CHANGE', 'User changed password');
-                return ['success' => true, 'message' => 'Password changed successfully'];
+                $this->logActivity($userId, 'PASSWORD_CHANGE', 'User changed password!');
+                return ['success' => true, 'message' => 'Password changed successfully!'];
             }
             
-            return ['success' => false, 'error' => 'Failed to change password'];
+            return ['success' => false, 'error' => 'Failed to change password!'];
             
         } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error occurred'];
+            return ['success' => false, 'error' => 'Database error occurred!'];
         }
     }
     
@@ -577,7 +577,7 @@ class User {
             }
             
             if (!password_verify($password, $user['password'])) {
-                return ['success' => false, 'error' => 'Incorrect password. Please try again.'];
+                return ['success' => false, 'error' => 'Incorrect password. Please try again!'];
             }
             
             $this->conn->beginTransaction();
@@ -612,7 +612,7 @@ class User {
             
             $this->conn->commit();
             
-            return ['success' => true, 'message' => 'Account deleted successfully'];
+            return ['success' => true, 'message' => 'Account deleted successfully!'];
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
@@ -683,7 +683,7 @@ class User {
             $user = $this->getByEmail($email);
             
             if (!$user) {
-                return ['success' => false, 'error' => 'Email not found'];
+                return ['success' => false, 'error' => 'Email not found!'];
             }
             
             $resetToken = bin2hex(random_bytes(32));
@@ -699,7 +699,7 @@ class User {
             
             $this->sendResetEmail($email, $resetToken, $user['first_name']);
             
-            return ['success' => true, 'message' => 'Password reset instructions sent to your email'];
+            return ['success' => true, 'message' => 'Password reset instructions sent to your email!'];
             
         } catch (PDOException $e) {
             return ['success' => false, 'error' => 'Failed to process request'];
@@ -714,7 +714,7 @@ class User {
             $user = $stmt->fetch();
             
             if (!$user) {
-                return ['success' => false, 'error' => 'Invalid or expired reset token'];
+                return ['success' => false, 'error' => 'Invalid/expired reset token!'];
             }
             
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
@@ -727,10 +727,10 @@ class User {
             
             unset($this->userCache[$user['id']]);
             
-            return ['success' => true, 'message' => 'Password reset successful'];
+            return ['success' => true, 'message' => 'Password reset successful!'];
             
         } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Failed to reset password'];
+            return ['success' => false, 'error' => 'Failed to reset password!'];
         }
     }
     
@@ -805,12 +805,12 @@ class User {
             
             return [
                 'success' => $success,
-                'error' => $success ? null : 'Failed to update password'
+                'error' => $success ? null : 'Failed to update password!'
             ];
         } catch (PDOException $e) {
             return [
                 'success' => false,
-                'error' => 'Database error occurred'
+                'error' => 'Database error occurred!'
             ];
         }
     }
@@ -907,7 +907,7 @@ class User {
             return ['success' => false, 'error' => 'User not found'];
             
         } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Failed to suspend user'];
+            return ['success' => false, 'error' => 'Failed to suspend user!'];
         }
     }
     
@@ -919,14 +919,14 @@ class User {
             
             if ($stmt->rowCount() > 0) {
                 unset($this->userCache[$userId]);
-                $this->logActivity($userId, 'ACTIVATE', 'User account activated');
-                return ['success' => true, 'message' => 'User activated successfully'];
+                $this->logActivity($userId, 'ACTIVATE', 'User account activated!');
+                return ['success' => true, 'message' => 'User activated successfully!'];
             }
             
-            return ['success' => false, 'error' => 'User not found'];
+            return ['success' => false, 'error' => 'User not found!'];
             
         } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Failed to activate user'];
+            return ['success' => false, 'error' => 'Failed to activate user!'];
         }
     }
     
@@ -934,7 +934,7 @@ class User {
         try {
             $user = $this->getById($userId);
             if (!$user) {
-                return ['success' => false, 'error' => 'User not found'];
+                return ['success' => false, 'error' => 'User not found!'];
             }
             
             $this->conn->beginTransaction();
@@ -952,13 +952,13 @@ class User {
             $this->conn->commit();
             
             unset($this->userCache[$userId]);
-            $this->logActivity($userId, 'DELETE', 'User account deleted by admin');
+            $this->logActivity($userId, 'DELETE', 'User account deleted by admin!');
             
-            return ['success' => true, 'message' => 'User deleted successfully'];
+            return ['success' => true, 'message' => 'User deleted successfully!'];
             
         } catch (PDOException $e) {
             $this->conn->rollBack();
-            return ['success' => false, 'error' => 'Failed to delete user'];
+            return ['success' => false, 'error' => 'Failed to delete user!'];
         }
     }
     
@@ -1171,7 +1171,7 @@ class User {
                 'trial_ended' => $remainingDays <= 0,
                 'trial_start_date' => $user['created_at'],
                 'trial_end_date' => $endDate->format('Y-m-d H:i:s'),
-                'message' => $remainingDays > 0 ? "Trial ends in {$remainingDays} days" : "Trial has ended"
+                'message' => $remainingDays > 0 ? "Trial ends in {$remainingDays} days" : "Trial has ended!"
             ];
             
         } catch (Exception $e) {
