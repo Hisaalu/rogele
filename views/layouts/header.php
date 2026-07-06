@@ -907,20 +907,25 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             const maxIdleTime = 1800000; // 30 minutes
-            // const maxIdleTime = 60000; // 1 minute
+            // const maxIdleTime = 60000; // 1 minutes
             let lastActivity = Date.now();
+            let sessionExpired = false;
 
             function updateActivity() {
+                if (sessionExpired) {
+                    localStorage.setItem('showTimeoutAlert', '1');
+                    window.location.href = BASE_URL + "/logout";
+                    return;
+                }
+
                 lastActivity = Date.now();
             }
 
             function checkIdle() {
-                const now = Date.now();
-                const idle = now - lastActivity;
+                const idle = Date.now() - lastActivity;
 
                 if (idle >= maxIdleTime) {
-                    localStorage.setItem('showTimeoutAlert', '1');
-                    window.location.href = BASE_URL + "/logout"; 
+                    sessionExpired = true;
                 }
             }
 
