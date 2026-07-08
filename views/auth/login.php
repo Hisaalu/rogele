@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
             timeoutContainer.innerHTML = `
                 <div class="alert alert-warning" style="display: flex !important; visibility: visible !important; opacity: 1 !important;">
                     <i class="fas fa-clock"></i>
-                    <span>Session Expired. Please log in again.</span>
+                    <span>Session Expired. Please log in again!</span>
                 </div>
             `;
         }
