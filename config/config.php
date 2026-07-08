@@ -19,7 +19,7 @@ define('DB_HOST', getenv('DB_HOST') ?: '');
 define('DB_PORT', getenv('DB_PORT') ?: '');
 define('DB_NAME', getenv('DB_NAME') ?: '');
 define('DB_USER', getenv('DB_USER') ?: '');
-define('DB_PASS', getenv('DB_PASSWORD') ?: '');
+define('DB_PASS', getenv('DB_PASS') ?: '');
 
 define('BASE_URL', getenv('APP_URL') ?: 'https://elearn.raysofgrace.ac.ug');
 define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
