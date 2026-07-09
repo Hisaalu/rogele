@@ -15,11 +15,11 @@ if (file_exists($envPath)) {
     }
 }
 
-define('DB_HOST', getenv('DB_HOST') ?: '');
-define('DB_PORT', getenv('DB_PORT') ?: '');
-define('DB_NAME', getenv('DB_NAME') ?: '');
-define('DB_USER', getenv('DB_USER') ?: '');
-define('DB_PASS', getenv('DB_PASSWORD') ?: '');
+define('DB_HOST', getenv('DB_HOST') ?: ($env['DB_HOST'] ?? ''));
+define('DB_PORT', getenv('DB_PORT') ?: ($env['DB_PORT'] ?? ''));
+define('DB_NAME', getenv('DB_NAME') ?: ($env['DB_NAME'] ?? ''));
+define('DB_USER', getenv('DB_USER') ?: ($env['DB_USER'] ?? ''));
+define('DB_PASS', getenv('DB_PASSWORD') ?: ($env['DB_PASSWORD'] ?? ''));
 
 define('BASE_URL', getenv('APP_URL') ?: 'https://elearn.raysofgrace.ac.ug');
 define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');

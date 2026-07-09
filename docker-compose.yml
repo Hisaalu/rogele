@@ -1,0 +1,41 @@
+version: "3.8"
+
+networks:
+  rogele-vpc:
+    driver: bridge
+
+services:
+  app:
+    build: .
+    container_name: rogele-app
+
+    ports:
+      - "8080:80"
+
+    networks:
+      - rogele-vpc
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      DOCKER_ENV: "true"
+
+    volumes:
+      - .:/var/www/html
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+
+    env_file:
+      - .env
+
+    restart: unless-stopped
+
+    networks:
+      - rogele-vpc
