@@ -46,7 +46,7 @@ require_once __DIR__ . '/../layouts/header.php';
     align-items: center;
     justify-content: center;
     padding: 40px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: #7f2677;
 }
 
 .success-card {
@@ -137,7 +137,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background-color: #f06724;
     color: white;
 }
 

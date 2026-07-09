@@ -192,7 +192,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .btn-send {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #7f2677, #9b3a8f);
+    background-color: #7f2677;
     color: white;
     border: none;
     border-radius: 50px;

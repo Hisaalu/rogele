@@ -621,7 +621,7 @@ $classPerformance = $classPerformance ?? [
 .btn-create {
     display: inline-block;
     padding: 10px 25px;
-    background: linear-gradient(135deg, #f06724, #F97316);
+    background-color: #f06724; 
     color: white;
     text-decoration: none;
     border-radius: 30px;
