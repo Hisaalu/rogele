@@ -387,7 +387,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .btn-add-questions {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+    background-color: #f06724; 
     color: white;
     padding: 12px 25px;
     border-radius: 10px;

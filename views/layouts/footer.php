@@ -368,7 +368,7 @@
             left: 0;
             width: 40px;
             height: 2px;
-            background: linear-gradient(90deg, #7f2677);
+            background-color: #7f2677;
         }
 
         .footer-col ul {

@@ -171,7 +171,7 @@ class User {
                 }
                 .reset-button a {
                     display: inline-block;
-                    background: linear-gradient(135deg, #7f2677, #f06724);
+                    background-color: #f06724;
                     color: white;
                     text-decoration: none;
                     padding: 16px 40px;

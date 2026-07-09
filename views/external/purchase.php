@@ -148,7 +148,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #555, #F97316);
+    background-color: #f06724;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
@@ -294,7 +294,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 }
 
 .btn-pay {
-    background: linear-gradient(135deg, #555, #F97316);
+    background-color: #f06724;
     color: white;
     border: none;
     padding: 16px;

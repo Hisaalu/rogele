@@ -29,7 +29,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     --secondary-purple: #7f2677;
     --secondary-purple-dark: #6b1f64;
     --secondary-purple-light: #943a8b;
-    --gradient-primary: linear-gradient(135deg, #7f2677);
+    --gradient-primary: linear-gradient(135deg, #7f2677, #7f2677);
     --gradient-soft: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
 }
 
@@ -597,11 +597,11 @@ body {
 }
 
 .class-image.lower-section {
-    background: linear-gradient(135deg, #7f2677, #943a8b);
+    background-color: #7f2677;
 }
 
 .class-image.upper-section {
-    background: linear-gradient(135deg, #f06724, #f27d43);
+    background-color: #f06724;
 }
 
 .class-level {

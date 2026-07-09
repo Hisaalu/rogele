@@ -656,7 +656,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .btn-primary-small {
-    background: linear-gradient(135deg, #f06724, #F97316);
+    background-color: #f06724; 
     color: white;
     text-decoration: none;
     padding: 10px 20px;
