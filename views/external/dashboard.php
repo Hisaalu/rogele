@@ -188,7 +188,6 @@ $events = $events ?? [];
 </div>
 
 <script>
-    // Injected structural clean array from PHP backend variables
     const scheduledEvents = <?php echo json_encode($events); ?>;
     
     let currentDate = new Date();
@@ -200,7 +199,6 @@ $events = $events ?? [];
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         
-        // Dynamic Month Label setting
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         monthYearLabel.innerText = `${monthNames[month]} ${year}`;
         
@@ -209,33 +207,49 @@ $events = $events ?? [];
         const firstDayIndex = new Date(year, month, 1).getDay();
         const lastDay = new Date(year, month + 1, 0).getDate();
         
-        // Blank pad elements before first month day
         for (let i = 0; i < firstDayIndex; i++) {
             const emptyDiv = document.createElement('div');
             daysContainer.appendChild(emptyDiv);
         }
         
-        // Map days and mark matching structural keys
         for (let day = 1; day <= lastDay; day++) {
             const dayDiv = document.createElement('div');
             dayDiv.innerText = day;
             dayDiv.style.padding = '8px 0';
             dayDiv.style.borderRadius = '6px';
-            dayDiv.style.color = '#374151';
+            dayDiv.style.color = '#555';
+            dayDiv.style.position = 'relative';
             
-            // Format check comparison string template
             const currentStringDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             
-            // Cross check event arrays
-            const hasEvent = scheduledEvents.some(e => e.date === currentStringDate);
-            if (hasEvent) {
+            const dayEvents = scheduledEvents.filter(e => e.date === currentStringDate);
+            
+            if (dayEvents.length > 0) {
                 dayDiv.style.background = '#FFEDD5';
                 dayDiv.style.color = '#f06724';
                 dayDiv.style.fontWeight = '700';
                 dayDiv.style.border = '1px solid #f06724';
+                dayDiv.style.cursor = 'pointer';
+                dayDiv.title = `Click to view ${dayEvents.length} event(s)`;
+                dayDiv.addEventListener('click', (e) => {
+                    if (dayEvents.length === 1) {
+                        window.location.href = dayEvents[0].url;
+                    } else {
+                        let message = "Multiple deadlines on this day:\n\n";
+                        dayEvents.forEach((ev, idx) => {
+                            message += `${idx + 1}. ${ev.title}\n`;
+                        });
+                        message += "\nType the number (1, 2, etc.) of the task you want to open:";
+                        
+                        const choice = prompt(message);
+                        const selectedIdx = parseInt(choice) - 1;
+                        if (!isNaN(selectedIdx) && dayEvents[selectedIdx]) {
+                            window.location.href = dayEvents[selectedIdx].url;
+                        }
+                    }
+                });
             }
             
-            // Today indicator highlighting rule
             const today = new Date();
             if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                 dayDiv.style.background = '#7f2677';
