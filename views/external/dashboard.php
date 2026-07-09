@@ -18,7 +18,108 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
 $events = $events ?? [];
 ?>
 
-<div style="padding: 40px 20px; max-width: 1200px; margin: 0 auto;">
+<style>
+    /* Base Reset Adjustments & Global Utilities */
+    .dashboard-container {
+        padding: 40px 20px; 
+        max-width: 1200px; 
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+    .dashboard-card {
+        background: white; 
+        border-radius: 20px; 
+        padding: 30px; 
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+    }
+    
+    /* Navigation Grid Elements */
+    .nav-grid {
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+        gap: 20px; 
+        margin-bottom: 40px;
+    }
+    .nav-card {
+        padding: 30px; 
+        border-radius: 15px; 
+        text-decoration: none; 
+        text-align: center; 
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-sizing: border-box;
+    }
+    .nav-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(127, 38, 119, 0.2);
+    }
+    
+    /* Calendar Layout Container Fixes */
+    .calendar-widget-grid {
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+        gap: 25px; 
+        background: #FAFAFA; 
+        padding: 20px; 
+        border-radius: 16px; 
+        border: 1px solid #E5E7EB;
+        box-sizing: border-box;
+    }
+    
+    /* Feed Element Actionable Links */
+    .event-feed-item {
+        display: flex; 
+        gap: 15px; 
+        align-items: flex-start; 
+        padding: 12px; 
+        background: white; 
+        border-radius: 10px; 
+        border-left: 4px solid #f06724; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        text-decoration: none;
+        transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .event-feed-item:hover {
+        transform: translateX(4px);
+        background: #FFF7ED;
+    }
+
+    .btn-subscribe {
+        background: #10B981; 
+        color: white; 
+        padding: 12px 30px; 
+        border-radius: 50px; 
+        text-decoration: none; 
+        font-weight: 600; 
+        display: inline-block;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .btn-subscribe:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Mobile Fluid Layout Breakpoints */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 20px 12px;
+        }
+        .dashboard-card {
+            padding: 20px 15px;
+        }
+        .calendar-widget-grid {
+            grid-template-columns: 1fr;
+            gap: 30px;
+            padding: 15px;
+        }
+        .nav-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
     <h1 style="font-size: 2rem; margin-bottom: 20px;">
         <span style="background-color: #f06724; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Welcome back, <?php 
@@ -29,16 +130,16 @@ $events = $events ?? [];
         </span>
     </h1>
     
-    <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+    <div class="dashboard-card">
         <h2 style="color: #000; margin-bottom: 20px;">Dashboard</h2>
         
         <!-- Access Status Banner -->
         <?php if ($hasActiveSubscription): ?>
             <div style="background: #F0FDF4; border-left: 4px solid #10B981; padding: 20px; margin-bottom: 30px; border-radius: 12px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                <div style="background: #10B981; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <div style="background: #10B981; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     <i class="fas fa-crown" style="color: white; font-size: 1.5rem;"></i>
                 </div>
-                <div style="flex: 1;">
+                <div style="flex: 1; min-width: 200px;">
                     <p style="color: #065F46; font-weight: 700; margin-bottom: 5px;">Active Subscription</p>
                     <p style="color: #047857;">You have full access to all premium features.</p>
                     <?php if ($subscriptionEndDate): ?>
@@ -53,10 +154,10 @@ $events = $events ?? [];
         <?php elseif ($isInTrial): ?>
             <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                    <div style="background: #F59E0B; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: #F59E0B; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-hourglass-half" style="color: white; font-size: 1.5rem;"></i>
                     </div>
-                    <div style="flex: 1;">
+                    <div style="flex: 1; min-width: 200px;">
                         <p style="color: #92400E; font-weight: 700; font-size: 1.1rem; margin-bottom: 5px;">
                             Trial Period: <strong><?php echo $remainingTrialDays; ?> days remaining</strong>
                         </p>
@@ -81,10 +182,10 @@ $events = $events ?? [];
         <?php else: ?>
             <div style="background: #FEF2F2; border-left: 4px solid #EF4444; padding: 20px; margin-bottom: 30px; border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                    <div style="background: #EF4444; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: #EF4444; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-clock" style="color: white; font-size: 1.5rem;"></i>
                     </div>
-                    <div style="flex: 1;">
+                    <div style="flex: 1; min-width: 200px;">
                         <p style="color: #B91C1C; font-weight: 700; margin-bottom: 5px;">Trial or Subscription Ended!</p>
                         <p style="color: #B91C1C;">Kindly subscribe now to continue accessing lessons, quizzes & more!</p>
                     </div>
@@ -96,8 +197,8 @@ $events = $events ?? [];
         <?php endif; ?>
         
         <!-- Navigation Grid Elements -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px;">
-            <a href="<?php echo BASE_URL; ?>/external/materials" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#000'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; <?php echo !$hasAccess ? 'cursor: not-allowed;' : ''; ?>">
+        <div class="nav-grid">
+            <a href="<?php echo $hasAccess ? BASE_URL . '/external/materials' : '#'; ?>" class="nav-card" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#000'; ?>; <?php echo !$hasAccess ? 'cursor: not-allowed;' : ''; ?>">
                 <i class="fas fa-book-open" style="font-size: 2rem; margin-bottom: 15px; color: <?php echo $hasAccess ? '#f06724' : '#94A3B8'; ?>;"></i>
                 <h3 style="margin-bottom: 10px;">Learning Materials</h3>
                 <p style="opacity: 0.9; font-size: 0.9rem;">
@@ -108,7 +209,7 @@ $events = $events ?? [];
                 <?php endif; ?>
             </a>
             
-            <a href="<?php echo BASE_URL; ?>/external/quizzes" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#000'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; <?php echo !$hasAccess ? 'cursor: not-allowed;' : ''; ?>">
+            <a href="<?php echo $hasAccess ? BASE_URL . '/external/quizzes' : '#'; ?>" class="nav-card" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#000'; ?>; <?php echo !$hasAccess ? 'cursor: not-allowed;' : ''; ?>">
                 <i class="fas fa-pencil-alt" style="font-size: 2rem; margin-bottom: 15px; color: <?php echo $hasAccess ? '#f06724' : '#94A3B8'; ?>;"></i>
                 <h3 style="margin-bottom: 10px;">Practice Quizzes</h3>
                 <p style="opacity: 0.9; font-size: 0.9rem;">
@@ -119,7 +220,7 @@ $events = $events ?? [];
                 <?php endif; ?>
             </a>
             
-            <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: white; color: #000; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; border: 2px solid #E2E8F0; transition: transform 0.3s ease;">
+            <a href="<?php echo BASE_URL; ?>/external/subscription" class="nav-card" style="background: white; color: #000; border: 2px solid #E2E8F0;">
                 <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 15px; color: #f06724;"></i>
                 <h3 style="margin-bottom: 10px;">Subscription</h3>
                 <p style="color: #555; font-size: 0.9rem;">
@@ -132,8 +233,9 @@ $events = $events ?? [];
             <i class="far fa-calendar-alt" style="color: #f06724; margin-right: 8px;"></i> Institutional Calendar & Events
         </h3>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; background: #FAFAFA; padding: 25px; border-radius: 16px; border: 1px solid #E5E7EB;">
+        <div class="calendar-widget-grid">
             
+            <!-- Interactive Calendar Wrapper Component -->
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h4 id="calendar-month-year" style="margin: 0; font-size: 1.1rem; color: #7f2677; font-weight: 700;"></h4>
@@ -149,22 +251,27 @@ $events = $events ?? [];
                 <div id="calendar-days" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-size: 0.9rem;"></div>
             </div>
 
-            <!-- Events Feed -->
+            <!-- Actionable Sidebar Events Feed -->
             <div style="display: flex; flex-direction: column; justify-content: flex-start;">
                 <h4 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #000;">Upcoming Deadlines & Events</h4>
                 <div style="display: flex; flex-direction: column; gap: 12px; max-height: 280px; overflow-y: auto; padding-right: 5px;">
                     <?php if (!empty($events)): ?>
                         <?php foreach ($events as $event): ?>
-                            <div style="display: flex; gap: 15px; align-items: flex-start; padding: 12px; background: white; border-radius: 10px; border-left: 4px solid #f06724; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-                                <div style="background: #FFF7ED; padding: 8px 12px; border-radius: 8px; text-align: center; min-width: 50px;">
+                            <a href="<?php echo htmlspecialchars($event['url'] ?? '#'); ?>" class="event-feed-item">
+                                <div style="background: #FFF7ED; padding: 8px 12px; border-radius: 8px; text-align: center; min-width: 50px; box-sizing: border-box;">
                                     <span style="display: block; font-size: 0.75rem; text-transform: uppercase; color: #f06724; font-weight: 700;"><?php echo date('M', strtotime($event['date'])); ?></span>
                                     <span style="display: block; font-size: 1.1rem; font-weight: 700; color: #7f2677; line-height: 1.1;"><?php echo date('d', strtotime($event['date'])); ?></span>
                                 </div>
                                 <div style="flex: 1;">
                                     <h5 style="margin: 0 0 4px 0; font-size: 0.95rem; color: #555; font-weight: 600;"><?php echo htmlspecialchars($event['title']); ?></h5>
-                                    <span style="font-size: 0.8rem; color: #555;"><i class="far fa-clock" style="margin-right: 4px;"></i> <?php echo htmlspecialchars($event['time']); ?></span>
+                                    <span style="font-size: 0.8rem; color: #555; display: block; margin-bottom: 2px;">
+                                        <i class="far fa-clock" style="margin-right: 4px;"></i> <?php echo htmlspecialchars($event['time']); ?>
+                                    </span>
+                                    <span style="font-size: 0.75rem; background: #F3F4F6; color: #555; padding: 2px 6px; border-radius: 4px; display: inline-block;">
+                                        Subject: <?php echo htmlspecialchars($event['subject'] ?? 'General'); ?>
+                                    </span>
                                 </div>
-                            </div>
+                            </a>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <p style="color: #555; font-size: 0.9rem; font-style: italic;">No scheduled events or deadlines at the moment.</p>
@@ -179,7 +286,7 @@ $events = $events ?? [];
             <p style="color: #B91C1C; margin-bottom: 15px;">
                 Your free trial or subscription has ended. To continue learning, please choose a subscription plan!
             </p>
-            <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-subscribe" style="background: #10B981; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block;">
+            <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-subscribe">
                 View Plans
             </a>
         </div>
@@ -189,7 +296,6 @@ $events = $events ?? [];
 
 <script>
     const scheduledEvents = <?php echo json_encode($events); ?>;
-    
     let currentDate = new Date();
 
     function renderCalendar() {
@@ -221,7 +327,6 @@ $events = $events ?? [];
             dayDiv.style.position = 'relative';
             
             const currentStringDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            
             const dayEvents = scheduledEvents.filter(e => e.date === currentStringDate);
             
             if (dayEvents.length > 0) {
@@ -231,6 +336,7 @@ $events = $events ?? [];
                 dayDiv.style.border = '1px solid #f06724';
                 dayDiv.style.cursor = 'pointer';
                 dayDiv.title = `Click to view ${dayEvents.length} event(s)`;
+                
                 dayDiv.addEventListener('click', (e) => {
                     if (dayEvents.length === 1) {
                         window.location.href = dayEvents[0].url;
@@ -266,20 +372,7 @@ $events = $events ?? [];
         renderCalendar();
     }
 
-    // Run structural assembly setup initialization
     document.addEventListener('DOMContentLoaded', renderCalendar);
 </script>
-
-<style>
-    a:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
-    }
-    
-    .btn-subscribe:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
-    }
-</style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
