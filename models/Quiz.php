@@ -1627,9 +1627,6 @@ class Quiz {
         }
     }
 
-    /**
-     * Get upcoming quiz deadlines for a student
-     */
     public function getUpcomingQuizDeadlines($studentId, $classId, $limit = 5) {
         try {
             $query = "
@@ -1649,7 +1646,12 @@ class Quiz {
             ";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([$studentId, $classId, $limit]);
+            
+            $stmt->bindValue(1, $studentId, PDO::PARAM_INT);
+            $stmt->bindValue(2, $classId, PDO::PARAM_INT);
+            $stmt->bindValue(3, (int)$limit, PDO::PARAM_INT);
+            
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
