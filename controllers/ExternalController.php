@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/Lesson.php';
 require_once __DIR__ . '/../models/Quiz.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Classes.php';
+require_once __DIR__ . '/../models/Homework.php';
 require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../models/Subject.php';
 require_once __DIR__ . '/../helpers/MailHelper.php';
@@ -19,6 +20,7 @@ class ExternalController {
     private $settingsModel;
     private $subjectModel;
     private $classesModel;
+    private $homeworkModel;
     private $userId;
     
     private $publicMethods = ['pesapalIpn', 'pesapalCallback', 'pesapalTest', 'paymentCallback'];
@@ -34,7 +36,8 @@ class ExternalController {
         $this->settingsModel = new Settings();
         $this->subjectModel = new Subject();
         $this->classesModel = new Classes();
-        
+        $this->homeworkModel = new Homework();
+        $this->quizModel = new Quiz();
         if (in_array($calledMethod, $this->publicMethods)) {
             return;
         }
@@ -197,6 +200,49 @@ class ExternalController {
         $currentPlan = $currentSubscription['plan_type'] ?? null;
         $subscriptionEndDate = $currentSubscription['end_date'] ?? null;
         
+        $events = [];
+        
+        $user = $this->userModel->getById($userId);
+        $userClassId = $user['class_id'] ?? null;
+        
+        if ($userClassId) {
+            $homeworkDeadlines = $this->homeworkModel->getUpcomingHomeworkDeadlines($userId, $userClassId, 5);
+            $quizDeadlines = $this->quizModel->getUpcomingQuizDeadlines($userId, $userClassId, 5);
+            
+            foreach ($homeworkDeadlines as $hw) {
+                $events[] = [
+                    'title' => $hw['title'] . ' (Homework)',
+                    'date' => $hw['due_date'],
+                    'time' => date('h:i A', strtotime($hw['due_date'])),
+                    'type' => 'homework',
+                    'class' => $hw['class_name'] ?? 'N/A',
+                    'subject' => $hw['subject_name'] ?? 'N/A',
+                    'id' => $hw['id'],
+                    'has_submitted' => $hw['has_submitted'] ?? 0,
+                    'url' => BASE_URL . '/external/homework/' . $hw['id']
+                ];
+            }
+            
+            foreach ($quizDeadlines as $quiz) {
+                $events[] = [
+                    'title' => $quiz['title'] . ' (Quiz)',
+                    'date' => $quiz['end_date'],
+                    'time' => date('h:i A', strtotime($quiz['end_date'])),
+                    'type' => 'quiz',
+                    'class' => $quiz['class_name'] ?? 'N/A',
+                    'subject' => $quiz['subject_name'] ?? 'N/A',
+                    'id' => $quiz['id'],
+                    'has_attempted' => $quiz['has_attempted'] ?? 0,
+                    'url' => BASE_URL . '/external/quizzes/take/' . $quiz['id']
+                ];
+            }
+            
+            usort($events, function($a, $b) {
+                return strtotime($a['date']) - strtotime($b['date']);
+            });
+            
+        }
+        
         require_once __DIR__ . '/../views/external/dashboard.php';
     }
     
@@ -356,7 +402,6 @@ class ExternalController {
         }
         
         if (count($uniqueLessons) != count($lessons)) {
-            error_log("Duplicates found! Original: " . count($lessons) . ", Unique: " . count($uniqueLessons));
             $lessons = $uniqueLessons;
         }
         
@@ -856,7 +901,6 @@ class ExternalController {
             
             for ($i = 0; $i < 5; $i++) {
                 $status = $pesapal->queryPaymentStatus($orderTrackingId);
-                error_log('PesaPal Status Response: ' . print_r($status, true));
                 
                 if (!empty($status['status'])) {
                     $paymentStatus = strtoupper(trim($status['status']));
@@ -903,7 +947,6 @@ class ExternalController {
                 $_SESSION['error'] = 'Payment was not completed. Status: ' . $paymentStatus;
             }
         } catch (Exception $e) {
-            error_log('PesaPal Callback Error: ' . $e->getMessage());
             $_SESSION['error'] = 'An error occurred while verifying your payment.';
         }
         

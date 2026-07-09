@@ -30,7 +30,6 @@ class Homework {
             $stmt->execute();
             return $fetchAll ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt;
         } catch (PDOException $e) {
-            error_log("Query error: " . $e->getMessage());
             return $fetchAll ? [] : null;
         }
     }
@@ -45,7 +44,6 @@ class Homework {
             }
             return ['success' => false, 'error' => 'Operation failed'];
         } catch (PDOException $e) {
-            error_log("Update error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
@@ -142,7 +140,6 @@ class Homework {
             
         } catch (Exception $e) {
             $this->conn->rollBack();
-            error_log("Create homework error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to create homework: ' . $e->getMessage()];
         }
     }
@@ -180,7 +177,6 @@ class Homework {
             return ['success' => false, 'error' => 'Failed to update homework'];
             
         } catch (PDOException $e) {
-            error_log("Update homework error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
         }
     }
@@ -256,7 +252,6 @@ class Homework {
             
             return $homeworks;
         } catch (PDOException $e) {
-            error_log("Get homework by teacher error: " . $e->getMessage());
             return [];
         }
     }
@@ -311,7 +306,6 @@ class Homework {
             
             return $homeworks;
         } catch (PDOException $e) {
-            error_log("Get homework by student error: " . $e->getMessage());
             return [];
         }
     }
@@ -395,7 +389,6 @@ class Homework {
             
         } catch (Exception $e) {
             $this->conn->rollBack();
-            error_log("Submit homework error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to submit homework: ' . $e->getMessage()];
         }
     }
@@ -432,7 +425,6 @@ class Homework {
             
             return $submissions;
         } catch (PDOException $e) {
-            error_log("Get submissions error: " . $e->getMessage());
             return [];
         }
     }
@@ -459,7 +451,6 @@ class Homework {
             $this->invalidateCache();
             return ['success' => true];
         } catch (PDOException $e) {
-            error_log("Grade submission error: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to grade submission'];
         }
     }
@@ -480,7 +471,6 @@ class Homework {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Count homework by teacher error: " . $e->getMessage());
             return 0;
         }
     }
@@ -502,7 +492,6 @@ class Homework {
             
             return $submission;
         } catch (PDOException $e) {
-            error_log("Get student submission error: " . $e->getMessage());
             return null;
         }
     }
@@ -512,7 +501,6 @@ class Homework {
             $stmt = $this->conn->prepare("UPDATE homework SET is_active = ?, updated_at = NOW() WHERE id = ?");
             return $stmt->execute([$isActive, $homeworkId]);
         } catch (PDOException $e) {
-            error_log("Update submission status error: " . $e->getMessage());
             return false;
         }
     }
@@ -528,7 +516,6 @@ class Homework {
             $result = $stmt->fetch();
             return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get submission count error: " . $e->getMessage());
             return 0;
         }
     }
@@ -544,7 +531,6 @@ class Homework {
             $result = $stmt->fetch();
             return $result['count'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Get class students count error: " . $e->getMessage());
             return 0;
         }
     }
@@ -571,7 +557,6 @@ class Homework {
             $stmt->execute([$homeworkId]);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get homework submissions error: " . $e->getMessage());
             return [];
         }
     }
@@ -600,7 +585,6 @@ class Homework {
             $stmt->execute([$homeworkId]);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Get homework class students error: " . $e->getMessage());
             return [];
         }
     }
@@ -641,7 +625,82 @@ class Homework {
             
             return $homeworks;
         } catch (PDOException $e) {
-            error_log("Get teacher homeworks error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getUpcomingHomeworkDeadlines($studentId, $classId, $limit = 5) {
+        try {
+            
+            $limit = (int)$limit;
+            
+            $query = "
+                SELECT 
+                    h.*,
+                    c.name as class_name,
+                    s.name as subject_name,
+                    (SELECT COUNT(*) FROM homework_submissions WHERE homework_id = h.id AND student_id = ?) as has_submitted
+                FROM homework h
+                LEFT JOIN classes c ON h.class_id = c.id
+                LEFT JOIN subjects s ON h.subject_id = s.id
+                WHERE h.class_id = ?
+                AND h.due_date >= NOW()
+                AND h.is_active = 1
+                ORDER BY h.due_date ASC
+                LIMIT ?
+            ";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(1, $studentId, PDO::PARAM_INT);
+            $stmt->bindValue(2, $classId, PDO::PARAM_INT);
+            $stmt->bindValue(3, $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $results;
+            
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    public function getUpcomingQuizDeadlines($studentId, $limit = 10) {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT class_id FROM class_students WHERE student_id = ?
+            ");
+            $stmt->execute([$studentId]);
+            $classes = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            if (empty($classes)) {
+                return [];
+            }
+            
+            $placeholders = implode(',', array_fill(0, count($classes), '?'));
+            
+            $query = "
+                SELECT 
+                    q.*,
+                    c.name as class_name,
+                    s.name as subject_name,
+                    (SELECT COUNT(*) FROM quiz_attempts WHERE quiz_id = q.id AND user_id = ?) as has_attempted
+                FROM quizzes q
+                LEFT JOIN classes c ON q.class_id = c.id
+                LEFT JOIN subjects s ON q.subject_id = s.id
+                WHERE q.class_id IN ($placeholders)
+                AND q.due_date >= NOW()
+                AND q.is_published = 1
+                ORDER BY q.due_date ASC
+                LIMIT ?
+            ";
+            
+            $params = array_merge([$studentId], $classes, [$limit]);
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
             return [];
         }
     }
