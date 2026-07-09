@@ -723,7 +723,7 @@ window.addEventListener('resize', function() {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #f06724, #F97316);
+    background-color: #f06724; 
     border-radius: 3px;
     transition: width 0.3s ease;
 }

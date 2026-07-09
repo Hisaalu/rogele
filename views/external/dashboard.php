@@ -103,7 +103,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
         <!-- Feature Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
             <!-- Learning Materials Card -->
-            <a href="<?php echo BASE_URL; ?>/external/materials" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#64748B'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; <?php echo !$hasAccess ? 'cursor: not-allowed;' : ''; ?>">
+            <a href="<?php echo BASE_URL; ?>/external/materials" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#64748B'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; <?php echo !$hasAccess ? 'cursor: not-allowed;' : ''; ?>">
                 <i class="fas fa-book-open" style="font-size: 2rem; margin-bottom: 15px; color: <?php echo $hasAccess ? '#f06724' : '#94A3B8'; ?>;"></i>
                 <h3 style="margin-bottom: 10px;">Learning Materials</h3>
                 <p style="opacity: 0.9; font-size: 0.9rem;">
@@ -115,7 +115,7 @@ $hasAccess = $hasActiveSubscription || $isInTrial;
             </a>
             
             <!-- Practice Quizzes Card -->
-            <a href="<?php echo BASE_URL; ?>/external/quizzes" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#64748B'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; <?php echo !$hasAccess ? 'cursor: not-allowed;' : ''; ?>">
+            <a href="<?php echo BASE_URL; ?>/external/quizzes" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#64748B'; ?>; padding: 30px; border-radius: 15px; text-decoration: none; text-align: center; transition: transform 0.3s ease; <?php echo !$hasAccess ? 'cursor: not-allowed;' : ''; ?>">
                 <i class="fas fa-pencil-alt" style="font-size: 2rem; margin-bottom: 15px; color: <?php echo $hasAccess ? '#f06724' : '#94A3B8'; ?>;"></i>
                 <h3 style="margin-bottom: 10px;">Practice Quizzes</h3>
                 <p style="opacity: 0.9; font-size: 0.9rem;">

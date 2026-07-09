@@ -448,7 +448,7 @@ $search = $_GET['search'] ?? '';
 
 .student-avatar {
     height: 120px;
-    background: linear-gradient(135deg,#f06724);
+    background-color: #f06724;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -497,7 +497,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .student-badge.top-performer {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
+    background-color: #f06724;
 }
 
 .student-badge.good-performer {

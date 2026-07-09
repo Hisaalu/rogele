@@ -549,7 +549,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 }
 
 input:checked + .slider {
-    background: linear-gradient(135deg, #f06724, #F97316);
+    background-color: #f06724;
 }
 
 input:checked + .slider:before {

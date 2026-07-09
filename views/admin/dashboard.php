@@ -292,7 +292,7 @@ $recentActivity = $recentActivity ?? [];
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, #7f2677);
+    background-color: #7f2677; 
 }
 
 .stat-icon {

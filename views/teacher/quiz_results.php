@@ -60,7 +60,7 @@ $stats = $stats ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #F97316, #EA580C);">
+            <div class="stat-icon" style="background-color: #f06724; ">
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-content">
@@ -70,7 +70,7 @@ $stats = $stats ?? [];
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
+            <div class="stat-icon" style="background-color: #7f2677;">
                 <i class="fas fa-trophy"></i>
             </div>
             <div class="stat-content">

@@ -67,7 +67,7 @@ class HomeController {
             <style>
                 body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                .header { background-color: #f06724; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
                 .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
                 .info { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
                 .label { font-weight: bold; color: #8B5CF6; }
@@ -109,7 +109,7 @@ class HomeController {
                 <style>
                     body { font-family: Arial, sans-serif; line-height: 1.6; }
                     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 30px; text-align: center; border-radius: 10px; }
+                    .header { background-color: #f06724; color: white; padding: 30px; text-align: center; border-radius: 10px; }
                     .content { padding: 30px; background: #f9f9f9; border-radius: 10px; }
                 </style>
             </head>

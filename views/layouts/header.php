@@ -216,7 +216,7 @@
             border-radius: 50px;
             font-weight: 600;
             text-decoration: none;
-            background: linear-gradient(135deg, #7f2677 );
+            background-color: #7f2677;
             color: white;
             border: none;
             transition: all 0.3s ease;
@@ -382,7 +382,7 @@
             display: block;
             width: 100%;
             height: 3px;
-            background: linear-gradient(135deg, #7f2677 );
+            background-color: #7f2677;
             border-radius: 3px;
             transition: all 0.3s ease;
         }
@@ -613,7 +613,7 @@
         }
 
         .mobile-register {
-            background: linear-gradient(135deg, #7f2677 );
+            background-color: #7f2677;
             color: white;
             border: none;
         }

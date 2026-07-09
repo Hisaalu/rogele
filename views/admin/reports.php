@@ -1227,8 +1227,8 @@ body {
     text-align: center;
 }
 
-.stat-mini.highlight {
-    background: linear-gradient(135deg, #8B5CF6, #F97316);
+.stat-mini.highlight {  
+    background-color: #f06724;
 }
 
 .stat-mini.highlight .stat-mini-label,
