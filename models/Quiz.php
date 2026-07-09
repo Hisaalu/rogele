@@ -1626,5 +1626,35 @@ class Quiz {
             return [];
         }
     }
+
+    /**
+     * Get upcoming quiz deadlines for a student
+     */
+    public function getUpcomingQuizDeadlines($studentId, $classId, $limit = 5) {
+        try {
+            $query = "
+                SELECT 
+                    q.*,
+                    c.name as class_name,
+                    s.name as subject_name,
+                    (SELECT COUNT(*) FROM quiz_attempts WHERE quiz_id = q.id AND user_id = ?) as has_attempted
+                FROM quizzes q
+                LEFT JOIN classes c ON q.class_id = c.id
+                LEFT JOIN subjects s ON q.subject_id = s.id
+                WHERE q.class_id = ?
+                AND q.end_date >= NOW()
+                AND q.is_published = 1
+                ORDER BY q.end_date ASC
+                LIMIT ?
+            ";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([$studentId, $classId, $limit]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
 }
 ?>
