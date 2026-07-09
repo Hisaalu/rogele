@@ -212,28 +212,28 @@ class ExternalController {
             foreach ($homeworkDeadlines as $hw) {
                 $events[] = [
                     'title' => $hw['title'] . ' (Homework)',
-                    'date' => $hw['due_date'],
+                    'date' => date('Y-m-d', strtotime($hw['due_date'])),
                     'time' => date('h:i A', strtotime($hw['due_date'])),
                     'type' => 'homework',
                     'class' => $hw['class_name'] ?? 'N/A',
                     'subject' => $hw['subject_name'] ?? 'N/A',
                     'id' => $hw['id'],
                     'has_submitted' => $hw['has_submitted'] ?? 0,
-                    'url' => BASE_URL . '/external/homework/' . $hw['id']
+                    'url' => BASE_URL . '/external/homework/view/' . $hw['id']
                 ];
             }
             
             foreach ($quizDeadlines as $quiz) {
                 $events[] = [
                     'title' => $quiz['title'] . ' (Quiz)',
-                    'date' => $quiz['end_date'],
+                    'date' => date('Y-m-d', strtotime($quiz['end_date'])),
                     'time' => date('h:i A', strtotime($quiz['end_date'])),
                     'type' => 'quiz',
                     'class' => $quiz['class_name'] ?? 'N/A',
                     'subject' => $quiz['subject_name'] ?? 'N/A',
                     'id' => $quiz['id'],
                     'has_attempted' => $quiz['has_attempted'] ?? 0,
-                    'url' => BASE_URL . '/external/quizzes/take/' . $quiz['id']
+                    'url' => BASE_URL . '/external/take-quiz/' . $quiz['id']
                 ];
             }
             
