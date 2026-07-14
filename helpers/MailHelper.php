@@ -16,19 +16,30 @@ class MailHelper {
     private $mail;
     
     public function __construct() {
+        $mailHost     = $_ENV['MAIL_HOST'] ?? getenv('MAIL_HOST') ?? $_SERVER['MAIL_HOST'] ?? 'mail.privateemail.com';
+        $mailUsername = $_ENV['MAIL_USERNAME'] ?? getenv('MAIL_USERNAME') ?? $_SERVER['MAIL_USERNAME'] ?? 'info@raysofgrace.ac.ug';
+        $mailPassword = $_ENV['MAIL_PASSWORD'] ?? getenv('MAIL_PASSWORD') ?? $_SERVER['MAIL_PASSWORD'] ?? '';
+        $mailPort     = $_ENV['MAIL_PORT'] ?? getenv('MAIL_PORT') ?? $_SERVER['MAIL_PORT'] ?? 587;
+        
+        $mailEncryption = PHPMailer::ENCRYPTION_STARTTLS;
+        if ((int)$mailPort === 465) {
+            $mailEncryption = PHPMailer::ENCRYPTION_SMTPS;
+        }
+
         $this->mail = new PHPMailer(true);
         $this->mail->isSMTP();
-        $this->mail->Host       = 'mail.privateemail.com';
+        $this->mail->Host       = $mailHost;
         $this->mail->SMTPAuth   = true;
-        $this->mail->Username   = 'info@raysofgrace.ac.ug';
-        $password = $_ENV['MAIL_PASSWORD'] ?? getenv('MAIL_PASSWORD') ?? $_SERVER['MAIL_PASSWORD'];
-        $this->mail->Password   = $password;
-        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mail->Port = 587;
-        $this->mail->setFrom('info@raysofgrace.ac.ug', 'ROGELE');
-        $this->mail->addReplyTo('info@raysofgrace.ac.ug', 'ROGELE');
+        $this->mail->Username   = $mailUsername;
+        $this->mail->Password   = $mailPassword;
+        $this->mail->SMTPSecure = $mailEncryption;
+        $this->mail->Port       = (int)$mailPort;
+        
+        $this->mail->setFrom($mailUsername, 'ROGELE');
+        $this->mail->addReplyTo($mailUsername, 'ROGELE');
+        
         $this->mail->CharSet = 'UTF-8';
-        $this->mail->Timeout = 5;
+        $this->mail->Timeout = 10;
     }
     
     public function sendResetEmail($to, $name, $resetLink) {
@@ -46,6 +57,7 @@ class MailHelper {
             return true;
             
         } catch (Exception $e) {
+            error_log("Mail sending error: " . $e->getMessage());
             return false;
         }
     }
@@ -169,6 +181,8 @@ class MailHelper {
                     </div>
                     <div class="message">
                         Note that this link is valid for 20 minutes. 
+                    </div>
+                    <div class="message">
                         After the time limit has expired, you will 
                         have to resubmit the request for a password reset
                     </div>
