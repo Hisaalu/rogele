@@ -1,5 +1,0 @@
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/raysqqpm/public_html
-    - /bin/rsync -av --exclude='.git' --exclude='.cpanel.yml' --exclude='node_modules' --exclude='.env' $cpaneluser@localhost:$deploypath $DEPLOYPATH
