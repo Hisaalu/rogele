@@ -17,13 +17,6 @@ class MailHelper {
     
     public function __construct() {
         $this->mail = new PHPMailer(true);
-        
-        $this->mail->SMTPDebug = SMTP::DEBUG_SERVER;
-        
-        $this->mail->Debugoutput = function($str, $level) {
-            error_log("SMTP DEBUG: $str");
-        };
-
         $this->mail->isSMTP();
         $this->mail->Host       = 'mail.privateemail.com';
         $this->mail->SMTPAuth   = true;
@@ -36,8 +29,6 @@ class MailHelper {
         $this->mail->addReplyTo('info@raysofgrace.ac.ug', 'ROGELE');
         $this->mail->CharSet = 'UTF-8';
         $this->mail->Timeout = 5;
-        error_log("SMTP DNS: " . gethostbyname('mail.privateemail.com'));
-        error_log("MAIL PASSWORD SET: " . (!empty($password) ? "YES" : "NO"));
     }
     
     public function sendResetEmail($to, $name, $resetLink) {
