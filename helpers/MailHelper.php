@@ -6,10 +6,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-//load environment variables from .env file
 $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 
-// Only try to load if the .env file actually exists
 if (file_exists(__DIR__ . '/../.env')) {
     $dotenv->load();
 }
@@ -20,7 +18,6 @@ class MailHelper {
     public function __construct() {
         $this->mail = new PHPMailer(true);
         
-        // Server settings - Using the exact configuration
         $this->mail->SMTPDebug = SMTP::DEBUG_SERVER;
         
         $this->mail->Debugoutput = function($str, $level) {
@@ -38,14 +35,9 @@ class MailHelper {
         $this->mail->setFrom('info@raysofgrace.ac.ug', 'ROGELE');
         $this->mail->addReplyTo('info@raysofgrace.ac.ug', 'ROGELE');
         $this->mail->CharSet = 'UTF-8';
-        $this->mail->Timeout = 30;
-        
-        error_log("MailHelper initialized with Port 465");
+        $this->mail->Timeout = 5;
     }
     
-    /**
-     * Send password reset email
-     */
     public function sendResetEmail($to, $name, $resetLink) {
         try {
             $this->mail->clearAddresses();
@@ -58,32 +50,22 @@ class MailHelper {
             $this->mail->AltBody = "Hello $name,\n\nClick this link to reset your password: $resetLink\n\nThis link expires in 20 minutes.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nRays of Grace Team";
             
             $this->mail->send();
-            error_log("Password reset email sent successfully to: $to");
             return true;
             
         } catch (Exception $e) {
-            error_log("Password reset email failed. Error: {$this->mail->ErrorInfo}");
             return false;
         }
     }
     
-    /**
-     * Test email connection
-     */
     public function testConnection() {
         try {
             $this->mail->smtpConnect();
-            error_log("SMTP Connection successful!");
             return true;
         } catch (Exception $e) {
-            error_log("SMTP Connection failed: " . $e->getMessage());
             return false;
         }
     }
     
-    /**
-     * Get password reset email template
-     */
     private function getResetEmailTemplate($name, $resetLink) {
         return '
         <!DOCTYPE html>
