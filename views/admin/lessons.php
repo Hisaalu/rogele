@@ -79,8 +79,8 @@ $statusFilter = $_GET['status'] ?? '';
                             <td><?php echo $lesson['id']; ?></td>
                             <td><?php echo htmlspecialchars($lesson['title']); ?></td>
                             <td><?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Unknown'); ?></td>
-                            <td><?php echo htmlspecialchars($lesson['class_name'] ?? 'N/A'); ?></td>
-                            <td><?php echo htmlspecialchars($lesson['subject_name'] ?? 'N/A'); ?></td>
+                            <td><?php echo htmlspecialchars($lesson['class_name'] ?? 'NA'); ?></td>
+                            <td><?php echo htmlspecialchars($lesson['subject_name'] ?? 'NA'); ?></td>
                             <td>
                                 <span class="status-badge <?php echo $lesson['is_published'] ? 'published' : 'draft'; ?>">
                                     <?php echo $lesson['is_published'] ? 'Published' : 'Draft'; ?>

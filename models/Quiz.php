@@ -821,8 +821,8 @@ class Quiz {
                 $row['question_count'] = (int)($row['question_count'] ?? 0);
                 $row['attempt_count'] = (int)($row['attempt_count'] ?? 0);
                 $row['teacher_name'] = $row['teacher_name'] ?? 'Unknown';
-                $row['subject_name'] = $row['subject_name'] ?? 'N/A';
-                $row['class_name'] = $row['class_name'] ?? 'N/A';
+                $row['subject_name'] = $row['subject_name'] ?? 'NA';
+                $row['class_name'] = $row['class_name'] ?? 'NA';
             }
             
             return $results;

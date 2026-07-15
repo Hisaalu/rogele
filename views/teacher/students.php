@@ -205,7 +205,7 @@ $search = $_GET['search'] ?? '';
                                 <span class="stat-label">
                                     <i class="fas fa-book-open"></i> Lessons
                                 </span>
-                                <span class="stat-value">N/A</span>
+                                <span class="stat-value">NA</span>
                             </div>
                         </div>
                         

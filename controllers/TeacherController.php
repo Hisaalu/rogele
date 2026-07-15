@@ -369,7 +369,7 @@ class TeacherController {
             'total_quizzes' => count($quizResults),
             'average_score' => 0,
             'highest_score' => 0,
-            'lowest_score' => 'N/A',
+            'lowest_score' => 'NA',
             'best_quiz' => null,
             'trend' => 'Stable',
             'trend_direction' => ''

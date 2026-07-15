@@ -48,15 +48,15 @@ require_once __DIR__ . '/../layouts/header.php';
                 </div>
                 <div class="stat">
                     <i class="fas fa-clock"></i>
-                    <span><?php echo $quiz['time_limit'] ?? 'N/A'; ?> minutes</span>
+                    <span><?php echo $quiz['time_limit'] ?? 'NA'; ?> minutes</span>
                 </div>
                 <div class="stat">
                     <i class="fas fa-trophy"></i>
-                    <span><?php echo $quiz['passing_score'] ?? 'N/A'; ?>% to pass</span>
+                    <span><?php echo $quiz['passing_score'] ?? 'NA'; ?>% to pass</span>
                 </div>
                 <div class="stat">
                     <i class="fas fa-redo-alt"></i>
-                    <span><?php echo $quiz['max_attempts'] ?? 'N/A'; ?> attempts allowed</span>
+                    <span><?php echo $quiz['max_attempts'] ?? 'NA'; ?> attempts allowed</span>
                 </div>
             </div>
             <?php if (!empty($quiz['description'])): ?>

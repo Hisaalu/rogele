@@ -78,8 +78,8 @@ $statusFilter = $_GET['status'] ?? '';
                             <td><?php echo $quiz['id']; ?></td>
                             <td><?php echo htmlspecialchars($quiz['title']); ?></td>
                             <td><?php echo htmlspecialchars($quiz['teacher_name'] ?? 'Unknown'); ?></td>
-                            <td><?php echo htmlspecialchars($quiz['class_name'] ?? 'N/A'); ?></td>
-                            <td><?php echo htmlspecialchars($quiz['subject_name'] ?? 'N/A'); ?></td>
+                            <td><?php echo htmlspecialchars($quiz['class_name'] ?? 'NA'); ?></td>
+                            <td><?php echo htmlspecialchars($quiz['subject_name'] ?? 'NA'); ?></td>
                             <td class="number-cell"><?php echo $quiz['question_count'] ?? 0; ?></td>
                             <td class="number-cell"><?php echo $quiz['attempt_count'] ?? 0; ?></td>
                             <td>
