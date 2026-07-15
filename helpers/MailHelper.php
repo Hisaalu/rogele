@@ -3,70 +3,89 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-
 if (file_exists(__DIR__ . '/../.env')) {
     $dotenv->load();
 }
 
 class MailHelper {
+    private $isRender;
     private $mail;
-    
-    public function __construct() {
-        $mailHost     = $_ENV['MAIL_HOST'] ?? getenv('MAIL_HOST') ?? $_SERVER['MAIL_HOST'] ?? 'mail.privateemail.com';
-        $mailUsername = $_ENV['MAIL_USERNAME'] ?? getenv('MAIL_USERNAME') ?? $_SERVER['MAIL_USERNAME'] ?? 'info@raysofgrace.ac.ug';
-        $mailPassword = $_ENV['MAIL_PASSWORD'] ?? getenv('MAIL_PASSWORD') ?? $_SERVER['MAIL_PASSWORD'] ?? '';
-        $mailPort     = $_ENV['MAIL_PORT'] ?? getenv('MAIL_PORT') ?? $_SERVER['MAIL_PORT'] ?? 587;
-        
-        $mailEncryption = PHPMailer::ENCRYPTION_STARTTLS;
-        if ((int)$mailPort === 465) {
-            $mailEncryption = PHPMailer::ENCRYPTION_SMTPS;
-        }
+    private $resendApiKey;
 
-        $this->mail = new PHPMailer(true);
-        $this->mail->isSMTP();
-        $this->mail->Host       = $mailHost;
-        $this->mail->SMTPAuth   = true;
-        $this->mail->Username   = $mailUsername;
-        $this->mail->Password   = $mailPassword;
-        $this->mail->SMTPSecure = $mailEncryption;
-        $this->mail->Port       = (int)$mailPort;
-        
-        $this->mail->setFrom($mailUsername, 'ROGELE');
-        $this->mail->addReplyTo($mailUsername, 'ROGELE');
-        
-        $this->mail->CharSet = 'UTF-8';
-        $this->mail->Timeout = 10;
-    }
-    
-    public function sendResetEmail($to, $name, $resetLink) {
-        try {
-            $this->mail->clearAddresses();
-            $this->mail->addAddress($to, $name);
-            
-            $this->mail->isHTML(true);
-            $this->mail->Subject = 'Password Reset Request - ROGELE';
-            
-            $this->mail->Body = $this->getResetEmailTemplate($name, $resetLink);
-            $this->mail->AltBody = "Hello $name,\n\nClick this link to reset your password: $resetLink\n\nThis link expires in 20 minutes.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nRays of Grace Team";
-            
-            $this->mail->send();
-            return true;
-            
-        } catch (Exception $e) {
-            error_log("Mail sending error: " . $e->getMessage());
-            return false;
+    public function __construct() {
+        $this->isRender = isset($_ENV['RENDER']) || getenv('RENDER') !== false;
+        $this->resendApiKey = $_ENV['RESEND_API_KEY'] ?? getenv('RESEND_API_KEY') ?? '';
+
+        if (!$this->isRender) {
+            $this->mail = new PHPMailer(true);
+            $this->mail->isSMTP();
+            $this->mail->Host       = $_ENV['MAIL_HOST'] ?? 'smtp.gmail.com';
+            $this->mail->SMTPAuth   = true;
+            $this->mail->Username   = $_ENV['MAIL_USERNAME'] ?? '';
+            $this->mail->Password   = $_ENV['MAIL_PASSWORD'] ?? '';
+            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $this->mail->Port       = (int)($_ENV['MAIL_PORT'] ?? 587);
+            $this->mail->setFrom($this->mail->Username, 'ROGELE');
+            $this->mail->CharSet    = 'UTF-8';
+            $this->mail->Timeout    = 5;
         }
     }
-    
-    public function testConnection() {
-        try {
-            $this->mail->smtpConnect();
+
+    public function sendResetEmail($to, $name, $resetLink) {
+        $subject = 'Password Reset Request | ROGELE';
+        $htmlBody = $this->getResetEmailTemplate($name, $resetLink);
+        $textBody = "Hello $name,\n\nClick this link to reset your password: $resetLink\n\nBest regards,\nRays of Grace Team";
+
+        if ($this->isRender) {
+            return $this->sendViaResendApi($to, $name, $subject, $htmlBody);
+        } else {
+            try {
+                $this->mail->clearAddresses();
+                $this->mail->addAddress($to, $name);
+                $this->mail->isHTML(true);
+                $this->mail->Subject = $subject;
+                $this->mail->Body = $htmlBody;
+                $this->mail->AltBody = $textBody;
+                
+                $this->mail->send();
+                return true;
+            } catch (Exception $e) {
+                error_log("Local SMTP sending error: " . $e->getMessage());
+                return false;
+            }
+        }
+    }
+
+    private function sendViaResendApi($to, $name, $subject, $htmlBody) {
+        $senderEmail = $_ENV['MAIL_USERNAME'] ?? '';
+        
+        $payload = json_encode([
+            'from' => "ROGELE <$senderEmail>",
+            'to' => ["$to"],
+            'subject' => $subject,
+            'html' => $htmlBody
+        ]);
+
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $this->resendApiKey,
+            'Content-Type: application/json'
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
             return true;
-        } catch (Exception $e) {
+        } else {
+            error_log("Resend API failed with status $httpCode: " . $response);
             return false;
         }
     }
@@ -116,11 +135,11 @@ class MailHelper {
                 .greeting {
                     font-size: 20px;
                     font-weight: 600;
-                    color: black;
+                    color: #000;
                     margin-bottom: 20px;
                 }
                 .message {
-                    color: black;
+                    color: #000;
                     font-size: 15px;
                     margin-bottom: 20px;
                 }
@@ -149,7 +168,7 @@ class MailHelper {
                     background: #f8fafc;
                     text-align: center;
                     font-size: 12px;
-                    color: black;
+                    color: #555;
                     border-top: 1px solid #e2e8f0;
                 }
                 .footer a {
@@ -181,13 +200,8 @@ class MailHelper {
                     </div>
                     <div class="message">
                         Note that this link is valid for 20 minutes. 
-                    </div>
-                    <div class="message">
                         After the time limit has expired, you will 
-                        have to resubmit the request for a password reset
-                    </div>
-                    <div class="message">
-                        Click the link below to reset your password:
+                        have to resubmit the request for a password reset. 
                     </div>
                     <div class="button-container">
                         <a href="' . $resetLink . '" class="button" style="color: white;">Reset Your Password</a>
@@ -197,9 +211,7 @@ class MailHelper {
                     </div>
                 </div>
                 <div class="footer">
-                    <p>&copy; ' . date('Y') . ' ROGELE (Rays of Grace E-Learning Environment) | All rights reserved.</p>
-                    <p>This is an automated message, please do not reply to this email.</p>
-                    <p>Need help? Contact us at <a href="mailto:info@raysofgrace.ac.ug">info@raysofgrace.ac.ug</a></p>
+                    <p>&copy; ' . date('Y') . ' ROGELE | All rights reserved.</p>
                 </div>
             </div>
         </body>
