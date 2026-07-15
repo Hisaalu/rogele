@@ -766,7 +766,7 @@
                                 <i class="fas fa-sign-in-alt"></i> Login
                             </a>
                             <a href="<?php echo BASE_URL; ?>/register" class="btn-register">
-                                <i class="fas fa-user-plus"></i> Register
+                                <i class="fas fa-user-plus"></i> Sign Up
                             </a>
                         </div>
                     </div>
@@ -842,7 +842,7 @@
                         <i class="fas fa-sign-in-alt"></i> Login
                     </a>
                     <a href="<?php echo BASE_URL; ?>/register" class="mobile-register">
-                        <i class="fas fa-user-plus"></i> Register
+                        <i class="fas fa-user-plus"></i> Sign Up
                     </a>
                 </div>
             </div>
