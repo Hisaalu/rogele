@@ -733,7 +733,6 @@ $search = $_GET['search'] ?? '';
 </style>
 
 <script>
-// Live search functionality
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('input[name="search"]');
     const classSelect = document.querySelector('select[name="class_id"]');
@@ -741,17 +740,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let searchTimeout;
     
-    // Live search with debounce
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
+            
             searchTimeout = setTimeout(() => {
                 filterForm.submit();
-            }, 500);
+            }, 5000); 
         });
     }
     
-    // Auto-submit on class change
     if (classSelect) {
         classSelect.addEventListener('change', function() {
             filterForm.submit();
