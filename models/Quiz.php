@@ -1172,8 +1172,8 @@ class Quiz {
     
     public function createQuiz($data) {
         try {
-            $sql = "INSERT INTO quizzes (title, description, subject_id, class_id, time_limit, passing_score, max_attempts, is_published, status, teacher_id, created_at) 
-                    VALUES (:title, :description, :subject_id, :class_id, :time_limit, :passing_score, :max_attempts, :is_published, :status, :teacher_id, NOW())";
+            $sql = "INSERT INTO quizzes (title, description, subject_id, class_id, time_limit, passing_score, max_attempts, is_published, end_date, status, teacher_id, created_at) 
+                    VALUES (:title, :description, :subject_id, :class_id, :time_limit, :passing_score, :max_attempts, :is_published, :end_date, :status, :teacher_id, NOW())";
             
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':title', $data['title']);
@@ -1184,6 +1184,7 @@ class Quiz {
             $stmt->bindValue(':passing_score', $data['passing_score'], PDO::PARAM_INT);
             $stmt->bindValue(':max_attempts', $data['max_attempts'], PDO::PARAM_INT);
             $stmt->bindValue(':is_published', $data['is_published'], PDO::PARAM_INT);
+            $stmt->bindValue(':end_date', $data['end_date'], PDO::PARAM_STR);
             $stmt->bindValue(':status', $data['is_published'] ? 'published' : 'draft');
             $stmt->bindValue(':teacher_id', $data['teacher_id'], PDO::PARAM_INT);
             $stmt->execute();

@@ -200,22 +200,23 @@ $currentStatus = $quiz['status'] ?? 'draft';
                     <div class="form-group">
                         <label for="end_date">
                             <i class="fas fa-calendar-times"></i>
-                            Quiz Deadline (Optional)
+                            Quiz Deadline <span style="color: red;">*</span>
                         </label>
                         <input 
                             type="datetime-local" 
                             id="end_date" 
                             name="end_date"
                             value="<?php echo !empty($quiz['end_date']) ? date('Y-m-d\TH:i', strtotime($quiz['end_date'])) : ''; ?>"
+                            required
                         >
                         <small class="input-hint">
                             <?php if (!empty($quiz['end_date'])): ?>
                                 Current deadline: <?php echo date('F j, Y \a\t g:i A', strtotime($quiz['end_date'])); ?>
-                                <?php if (strtotime($quiz['end_date']) < time()): ?>
+                                <?php if (strtotime($quiz['end_date']) < time()): ?>:
                                     <span class="text-warning">This quiz has expired!</span>
                                 <?php endif; ?>
                             <?php else: ?>
-                                Leave blank for no deadline
+                                Please select a deadline for this quiz.
                             <?php endif; ?>
                         </small>
                     </div>
@@ -269,9 +270,6 @@ $currentStatus = $quiz['status'] ?? 'draft';
                 <i class="fas fa-question-circle"></i>
                 <h3>No Questions Added Yet</h3>
                 <p>Start adding questions to your quiz. Students will only see the quiz after you add questions and publish it.</p>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="btn-primary-small">
-                    <i class="fas fa-plus"></i> Add Your First Question
-                </a>
             </div>
         <?php else: ?>
             <div class="questions-list">
@@ -488,7 +486,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .text-warning {
-    color: #F59E0B;
+    color: red;
 }
 
 /* Checkbox */
@@ -655,20 +653,6 @@ $currentStatus = $quiz['status'] ?? 'draft';
     transform: translateY(-2px);
 }
 
-.btn-primary-small {
-    background-color: #f06724; 
-    color: white;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-}
-
 .btn-primary-small:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
@@ -691,7 +675,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 }
 
 .empty-questions p {
-    color: #000;
+    color: #555;
     margin-bottom: 25px;
 }
 
