@@ -173,7 +173,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                         <?php foreach ($paymentHistory as $payment): ?>
                         <tr>
                             <td><?php echo date('M d, Y', strtotime($payment['created_at'])); ?></td>
-                            <td><strong><?php echo ucfirst($payment['plan_type'] ?? 'N/A'); ?></strong></td>
+                            <td><strong><?php echo ucfirst($payment['plan_type'] ?? 'NA'); ?></strong></td>
                             <td>UGX <?php echo number_format($payment['amount']); ?></td>
                             <td>
                                 <i class="fas fa-<?php echo ($payment['payment_method'] ?? 'mobile_money') === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>"></i>

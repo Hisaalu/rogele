@@ -98,7 +98,7 @@ require_once __DIR__ . '/../layouts/header.php';
                             <span class="stat-sub">No trial needed</span>
                         <?php elseif ($remainingDays > 0): ?>
                             <span class="stat-value"><?php echo $remainingDays; ?> days left</span>
-                            <span class="stat-sub">Ends <?php echo $trialEndDate ? date('M d, Y', strtotime($trialEndDate)) : 'N/A'; ?></span>
+                            <span class="stat-sub">Ends <?php echo $trialEndDate ? date('M d, Y', strtotime($trialEndDate)) : 'NA'; ?></span>
                         <?php else: ?>
                             <span class="stat-value" style="color: #EF4444;">Trial Ended</span>
                         <?php endif; ?>
