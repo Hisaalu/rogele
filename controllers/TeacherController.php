@@ -613,6 +613,7 @@ class TeacherController {
             $passing_score = (int)($_POST['passing_score'] ?? 70);
             $max_attempts = (int)($_POST['max_attempts'] ?? 3);
             $is_published = isset($_POST['is_published']) ? 1 : 0;
+            $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
             
             $errors = [];
             if (empty($title)) $errors[] = 'Quiz title is required';
@@ -629,7 +630,8 @@ class TeacherController {
                     'passing_score' => $passing_score,
                     'max_attempts' => $max_attempts,
                     'is_published' => $is_published,
-                    'teacher_id' => $this->teacherId
+                    'teacher_id' => $this->teacherId,
+                    'end_date' => $end_date
                 ];
                 
                 $result = $this->quizModel->createQuiz($data);

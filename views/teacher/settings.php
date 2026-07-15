@@ -37,10 +37,6 @@ $activeTab = $_GET['tab'] ?? 'password';
             <i class="fas fa-lock"></i>
             <span>Change Password</span>
         </a>
-        <a href="?tab=notifications" class="tab <?php echo $activeTab === 'notifications' ? 'active' : ''; ?>">
-            <i class="fas fa-bell"></i>
-            <span>Notifications</span>
-        </a>
         <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
             <i class="fas fa-shield-alt"></i>
             <span>Privacy</span>
@@ -109,83 +105,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                     <button type="submit" class="btn-save">
                         <i class="fas fa-save"></i>
                         Update Password
-                    </button>
-                </form>
-            </div>
-
-        <?php elseif ($activeTab === 'notifications'): ?>
-            <!-- Notifications Tab -->
-            <div class="settings-card">
-                <h3 class="card-title">
-                    <i class="fas fa-bell"></i>
-                    Notification Preferences
-                </h3>
-                <p class="card-description">Choose what updates you want to receive</p>
-                
-                <form method="POST" action="<?php echo BASE_URL; ?>/teacher/update-notifications" class="settings-form">
-                    <div class="notification-group">
-                        <h4>Email Notifications</h4>
-                        
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-envelope"></i>
-                                <div>
-                                    <strong>New Student Registration</strong>
-                                    <p>Get notified when new students join your class</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="notify_new_students" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-pencil-alt"></i>
-                                <div>
-                                    <strong>Quiz Submissions</strong>
-                                    <p>Get notified when students submit quizzes</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="notify_quiz_submissions" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-star"></i>
-                                <div>
-                                    <strong>Low Performance Alerts</strong>
-                                    <p>Get alerts when students score below 50%</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="notify_low_performance" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-gift"></i>
-                                <div>
-                                    <strong>Weekly Reports</strong>
-                                    <p>Receive weekly performance summaries</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="notify_weekly_reports">
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i>
-                        Save Preferences
                     </button>
                 </form>
             </div>

@@ -159,14 +159,25 @@ $subjects = $subjects ?? [];
 
                     <div class="form-group">
                         <label for="end_date">
-                            <i class="fas fa-calendar"></i>
-                            End Date (Optional)
+                            <i class="fas fa-calendar-times"></i>
+                            Quiz Deadline <span style="color: red;">*</span>
                         </label>
                         <input 
                             type="datetime-local" 
                             id="end_date" 
                             name="end_date"
+                            value="<?php echo !empty($quiz['end_date']) ? date('Y-m-d\TH:i', strtotime($quiz['end_date'])) : ''; ?>"
+                            required
                         >
+                        <small class="input-hint">
+                            <?php if (!empty($quiz['end_date'])): ?>
+                                Current deadline: <?php echo date('F j, Y \a\t g:i A', strtotime($quiz['end_date'])); ?>
+                                <?php if (strtotime($quiz['end_date']) < time()): ?>
+                                    <span class="text-warning">This quiz has expired!</span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                            <?php endif; ?>
+                        </small>
                     </div>
                 </div>
             </div>
@@ -504,13 +515,13 @@ const publishWarning = document.getElementById('publishWarning');
 if (publishCheckbox) {
     publishCheckbox.addEventListener('change', function() {
         if (this.checked) {
-            publishHint.style.display = 'inline';
-            draftHint.style.display = 'none';
-            publishWarning.style.display = 'none';
+            if (publishHint) publishHint.style.display = 'inline';
+            if (draftHint) draftHint.style.display = 'none';
+            if (publishWarning) publishWarning.style.display = 'none';
         } else {
-            publishHint.style.display = 'none';
-            draftHint.style.display = 'inline';
-            publishWarning.style.display = 'block';
+            if (publishHint) publishHint.style.display = 'none';
+            if (draftHint) draftHint.style.display = 'inline';
+            if (publishWarning) publishWarning.style.display = 'block';
         }
     });
 }
