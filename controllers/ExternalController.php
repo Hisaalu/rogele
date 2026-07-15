@@ -215,8 +215,8 @@ class ExternalController {
                     'date' => date('Y-m-d', strtotime($hw['due_date'])),
                     'time' => date('h:i A', strtotime($hw['due_date'])),
                     'type' => 'homework',
-                    'class' => $hw['class_name'] ?? 'N/A',
-                    'subject' => $hw['subject_name'] ?? 'N/A',
+                    'class' => $hw['class_name'] ?? 'NA',
+                    'subject' => $hw['subject_name'] ?? 'NA',
                     'id' => $hw['id'],
                     'has_submitted' => $hw['has_submitted'] ?? 0,
                     'url' => BASE_URL . '/external/homework/view/' . $hw['id']
@@ -229,8 +229,8 @@ class ExternalController {
                     'date' => date('Y-m-d', strtotime($quiz['end_date'])),
                     'time' => date('h:i A', strtotime($quiz['end_date'])),
                     'type' => 'quiz',
-                    'class' => $quiz['class_name'] ?? 'N/A',
-                    'subject' => $quiz['subject_name'] ?? 'N/A',
+                    'class' => $quiz['class_name'] ?? 'NA',
+                    'subject' => $quiz['subject_name'] ?? 'NA',
                     'id' => $quiz['id'],
                     'has_attempted' => $quiz['has_attempted'] ?? 0,
                     'url' => BASE_URL . '/external/take-quiz/' . $quiz['id']

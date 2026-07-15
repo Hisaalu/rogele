@@ -160,7 +160,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
                 <div class="summary-info">
                     <span class="summary-label">Best Performance</span>
                     <span class="summary-value"><?php echo $quizStats['highest_score']; ?>%</span>
-                    <span class="summary-sub"><?php echo $quizStats['best_quiz'] ?? 'N/A'; ?></span>
+                    <span class="summary-sub"><?php echo $quizStats['best_quiz'] ?? 'NA'; ?></span>
                 </div>
             </div>
             <div class="summary-stat">

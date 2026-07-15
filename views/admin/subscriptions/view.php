@@ -68,13 +68,13 @@ $paymentHistory = $paymentHistory ?? [];
             <div class="info-content">
                 <div class="info-row">
                     <span class="info-label">Subscription ID:</span>
-                    <span class="info-value">#<?php echo $subscription['id'] ?? 'N/A'; ?></span>
+                    <span class="info-value">#<?php echo $subscription['id'] ?? 'NA'; ?></span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">Plan Type:</span>
                     <span class="info-value plan-badge <?php echo $subscription['plan_type'] ?? ''; ?>">
-                        <?php echo ucfirst($subscription['plan_type'] ?? 'N/A'); ?>
+                        <?php echo ucfirst($subscription['plan_type'] ?? 'NA'); ?>
                         <?php if (!empty($subscription['is_upgrade'])): ?>
                             <i class="fas fa-arrow-up" title="Upgraded"></i>
                         <?php endif; ?>
@@ -122,7 +122,7 @@ $paymentHistory = $paymentHistory ?? [];
                 
                 <div class="info-row">
                     <span class="info-label">Transaction ID:</span>
-                    <span class="info-value transaction-id"><?php echo $subscription['transaction_id'] ?? 'N/A'; ?></span>
+                    <span class="info-value transaction-id"><?php echo $subscription['transaction_id'] ?? 'NA'; ?></span>
                 </div>
                 
                 <div class="info-row">
@@ -160,14 +160,14 @@ $paymentHistory = $paymentHistory ?? [];
                     <span class="info-label">Email:</span>
                     <span class="info-value">
                         <a href="mailto:<?php echo htmlspecialchars($subscription['email'] ?? ''); ?>">
-                            <?php echo htmlspecialchars($subscription['email'] ?? 'N/A'); ?>
+                            <?php echo htmlspecialchars($subscription['email'] ?? 'NA'); ?>
                         </a>
                     </span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">Phone:</span>
-                    <span class="info-value"><?php echo htmlspecialchars($subscription['phone'] ?? 'N/A'); ?></span>
+                    <span class="info-value"><?php echo htmlspecialchars($subscription['phone'] ?? 'NA'); ?></span>
                 </div>
                 
                 <div class="info-row">
@@ -181,7 +181,7 @@ $paymentHistory = $paymentHistory ?? [];
                 
                 <div class="info-row">
                     <span class="info-label">User ID:</span>
-                    <span class="info-value">#<?php echo $subscription['user_id'] ?? 'N/A'; ?></span>
+                    <span class="info-value">#<?php echo $subscription['user_id'] ?? 'NA'; ?></span>
                 </div>
                 
                 <div class="user-actions">
@@ -203,7 +203,7 @@ $paymentHistory = $paymentHistory ?? [];
         <div class="upgrade-details">
             <div class="upgrade-item">
                 <span class="upgrade-label">Upgraded From:</span>
-                <span class="upgrade-value"><?php echo ucfirst($subscription['upgraded_from'] ?? 'N/A'); ?></span>
+                <span class="upgrade-value"><?php echo ucfirst($subscription['upgraded_from'] ?? 'NA'); ?></span>
             </div>
             
             <div class="upgrade-item">
@@ -215,7 +215,7 @@ $paymentHistory = $paymentHistory ?? [];
                 <span class="upgrade-label">Original Subscription ID:</span>
                 <span class="upgrade-value">
                     <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo $subscription['original_subscription_id'] ?? 0; ?>">
-                        #<?php echo $subscription['original_subscription_id'] ?? 'N/A'; ?>
+                        #<?php echo $subscription['original_subscription_id'] ?? 'NA'; ?>
                     </a>
                 </span>
             </div>
@@ -246,7 +246,7 @@ $paymentHistory = $paymentHistory ?? [];
                         <?php foreach ($paymentHistory as $payment): ?>
                         <?php if (is_array($payment)): ?>
                         <tr>
-                            <td><?php echo isset($payment['created_at']) ? date('M d, Y h:i A', strtotime($payment['created_at'])) : 'N/A'; ?></td>
+                            <td><?php echo isset($payment['created_at']) ? date('M d, Y h:i A', strtotime($payment['created_at'])) : 'NA'; ?></td>
                             <td class="amount-cell">UGX <?php echo isset($payment['amount']) ? number_format($payment['amount']) : '0'; ?></td>
                             <td>
                                 <?php 
@@ -256,7 +256,7 @@ $paymentHistory = $paymentHistory ?? [];
                                 <i class="fas fa-<?php echo $icon; ?>"></i>
                                 <?php echo ucfirst(str_replace('_', ' ', $method)); ?>
                             </td>
-                            <td class="transaction-id"><?php echo $payment['transaction_id'] ?? 'N/A'; ?></td>
+                            <td class="transaction-id"><?php echo $payment['transaction_id'] ?? 'NA'; ?></td>
                             <td>
                                 <span class="status-badge <?php echo $payment['status'] ?? 'unknown'; ?>">
                                     <?php echo isset($payment['status']) ? ucfirst($payment['status']) : 'Unknown'; ?>

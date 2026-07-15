@@ -23,8 +23,8 @@ $lesson = $lesson ?? [];
         <h2 class="lesson-title"><?php echo htmlspecialchars($lesson['title'] ?? ''); ?></h2>
         
         <div class="lesson-meta">
-            <span><i class="fas fa-graduation-cap"></i> <?php echo $lesson['class_name'] ?? 'N/A'; ?></span>
-            <span><i class="fas fa-book"></i> <?php echo $lesson['subject_name'] ?? 'N/A'; ?></span>
+            <span><i class="fas fa-graduation-cap"></i> <?php echo $lesson['class_name'] ?? 'NA'; ?></span>
+            <span><i class="fas fa-book"></i> <?php echo $lesson['subject_name'] ?? 'NA'; ?></span>
             <span><i class="fas fa-clock"></i> <?php echo $lesson['duration'] ?? '30'; ?> min</span>
             <span class="status-badge <?php echo ($lesson['is_published'] ?? 0) ? 'published' : 'draft'; ?>">
                 <?php echo ($lesson['is_published'] ?? 0) ? 'Published' : 'Draft'; ?>
