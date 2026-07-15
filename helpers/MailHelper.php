@@ -60,11 +60,19 @@ class MailHelper {
     }
 
     private function sendViaResendApi($to, $name, $subject, $htmlBody) {
-        $senderEmail = $_ENV['MAIL_USERNAME'] ?? '';
+        $configuredEmail = $_ENV['MAIL_USERNAME'] ?? getenv('MAIL_USERNAME') ?? '';
+
+        if (empty($configuredEmail) || strpos($configuredEmail, '@gmail.com') !== false) {
+            $senderEmail = 'onboarding@resend.dev';
+        } else {
+            $senderEmail = $configuredEmail;
+        }
+
+        $fromHeader = "ROGELE <" . $senderEmail . ">";
         
         $payload = json_encode([
-            'from' => "ROGELE <$senderEmail>",
-            'to' => ["$to"],
+            'from' => $fromHeader,
+            'to' => [$to],
             'subject' => $subject,
             'html' => $htmlBody
         ]);
