@@ -148,24 +148,26 @@ $search = $_GET['search'] ?? '';
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
             <div class="pagination">
+
                 <?php if ($currentPage > 1): ?>
-                    <a href="?page=<?php echo $currentPage - 1; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="page-link">
+                    <a href="<?php echo BASE_URL; ?>/teacher/lessons?page=<?php echo $currentPage - 1; ?>" class="page-link">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="?page=<?php echo $i; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" 
-                       class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
+                    <a href="<?php echo BASE_URL; ?>/teacher/lessons?page=<?php echo $i; ?>"
+                    class="page-link <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
                         <?php echo $i; ?>
                     </a>
                 <?php endfor; ?>
 
                 <?php if ($currentPage < $totalPages): ?>
-                    <a href="?page=<?php echo $currentPage + 1; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="page-link">
+                    <a href="<?php echo BASE_URL; ?>/teacher/lessons?page=<?php echo $currentPage + 1; ?>" class="page-link">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 <?php endif; ?>
+
             </div>
         <?php endif; ?>
     <?php endif; ?>
