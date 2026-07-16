@@ -112,9 +112,9 @@ $currentPage = $_GET['page'] ?? 1;
         <?php if ($totalPages > 1): ?>
             <div class="pagination">
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="?page=<?php echo $i; ?>&status=<?php echo $currentStatus; ?>" 
-                       class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
+                    <a href="?page=<?php echo $i; ?>&status=<?php echo urlencode($currentStatus); ?>"
+                        class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
+                            <?php echo $i; ?>
                     </a>
                 <?php endfor; ?>
             </div>
