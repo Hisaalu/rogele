@@ -50,21 +50,25 @@ if (!isset($lesson)) {
     </div>
     
     <?php if (!empty($lesson['materials'])): ?>
-        <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-            <h2 style="color: #000; margin-bottom: 20px;">Downloadable Materials</h2>
-            <div style="display: grid; gap: 15px;">
-                <?php foreach ($lesson['materials'] as $material): ?>
-                    <a href="<?php echo BASE_URL; ?>/public/<?php echo $material['file_path']; ?>" download 
-                       style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #F8FAFC; border-radius: 10px; text-decoration: none; color: #1E293B; transition: background 0.3s ease;">
-                        <i class="fas fa-file-pdf" style="color: #F97316; font-size: 1.5rem;"></i>
-                        <span style="flex: 1;"><?php echo htmlspecialchars($material['file_name']); ?></span>
-                        <span style="color: #64748B; font-size: 0.9rem;"><?php echo round($material['file_size'] / 1024, 2); ?> KB</span>
-                        <i class="fas fa-download" style="color: #7f2677;"></i>
-                    </a>
-                <?php endforeach; ?>
-            </div>
+    <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+        <h2 style="color: #000; margin-bottom: 20px;">Downloadable Materials</h2>
+        <div style="display: grid; gap: 15px;">
+            <?php foreach ($lesson['materials'] as $material): ?>
+                <?php 
+                    $cleanMaterialName = basename($material['file_path']);
+                    $officialMaterialUrl = "https://raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . $cleanMaterialName;
+                ?>
+                <a href="<?php echo htmlspecialchars($officialMaterialUrl); ?>" target="_blank" download 
+                   style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #F8FAFC; border-radius: 10px; text-decoration: none; color: #1E293B; transition: background 0.3s ease;">
+                    <i class="fas fa-file-pdf" style="color: #F97316; font-size: 1.5rem;"></i>
+                    <span style="flex: 1;"><?php echo htmlspecialchars($material['file_name']); ?></span>
+                    <span style="color: #64748B; font-size: 0.9rem;"><?php echo round($material['file_size'] / 1024, 2); ?> KB</span>
+                    <i class="fas fa-download" style="color: #7f2677;"></i>
+                </a>
+            <?php endforeach; ?>
         </div>
-    <?php endif; ?>
+    </div>
+<?php endif; ?>
 </div>
 
 <?php
