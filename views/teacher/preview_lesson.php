@@ -53,9 +53,17 @@ $lesson = $lesson ?? [];
             <h3>Materials</h3>
             <div class="materials-list">
                 <?php foreach ($lesson['materials'] as $material): ?>
-                <a href="<?php echo BASE_URL; ?>/public/uploads/lessons/<?php echo basename($material['file_path']); ?>" 
-                    download="<?php echo htmlspecialchars($material['file_name']); ?>" 
-                    class="material-item">
+                
+                <?php
+                    $filename = basename($material['file_path']); 
+                    
+                    $r2_url = "https://raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . $filename;
+                ?>
+
+                <a href="<?php echo htmlspecialchars($r2_url); ?>" 
+                download="<?php echo htmlspecialchars($material['file_name']); ?>" 
+                target="_blank"
+                class="material-item">
                     <i class="fas fa-file-pdf"></i>
                     <span><?php echo htmlspecialchars($material['file_name']); ?></span>
                     <i class="fas fa-download"></i>
