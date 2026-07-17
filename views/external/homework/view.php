@@ -33,7 +33,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     <?php endif; ?>
 
     <div class="homework-detail-card">
-        <!-- Assignment Details Section -->
         <div class="info-section">
             <h3><i class="fas fa-info-circle"></i> Assignment Details</h3>
             <div class="info-grid">
@@ -61,7 +60,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
             </div>
         </div>
 
-        <!-- Description Section -->
         <div class="info-section">
             <h3><i class="fas fa-align-left"></i> Description</h3>
             <div class="description-text">
@@ -69,13 +67,16 @@ $canDelete = $submission && $submission['status'] !== 'graded';
             </div>
         </div>
 
-        <!-- Attachments Section -->
         <?php if (!empty($homework['attachments'])): ?>
             <div class="info-section">
                 <h3><i class="fas fa-paperclip"></i> Attachments</h3>
                 <div class="attachments-list">
                     <?php foreach ($homework['attachments'] as $attachment): ?>
-                        <a href="<?php echo BASE_URL; ?>/external/homework/download-attachment/<?php echo $attachment['id']; ?>" class="attachment-link">
+                        <?php
+                            $cleanFileName = basename($attachment['file_path']); 
+                            $officialDownloadUrl = "https://raysofgrace.ac.ug/rogele-platform/uploads/homework/" . $cleanFileName;
+                        ?>
+                        <a href="<?php echo htmlspecialchars($officialDownloadUrl); ?>" target="_blank" class="attachment-link">
                             <i class="fas fa-download"></i>
                             <?php echo htmlspecialchars($attachment['file_name']); ?>
                             <span class="file-size"><?php echo round($attachment['file_size'] / 1024, 2); ?> KB</span>
@@ -85,7 +86,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
             </div>
         <?php endif; ?>
 
-        <!-- Graded Submission Section -->
         <?php if ($submission && $submission['status'] === 'graded'): ?>
             <div class="feedback-section">
                 <h3><i class="fas fa-star"></i> Your Grade & Feedback</h3>
@@ -104,7 +104,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
             </div>
         <?php endif; ?>
 
-        <!-- Ungraded Submission Section with Delete Option -->
         <?php if ($submission && $submission['status'] !== 'graded'): ?>
             <div class="submission-info">
                 <div class="submission-header">
@@ -135,11 +134,17 @@ $canDelete = $submission && $submission['status'] !== 'graded';
                             <strong>Your Attachments</strong>
                             <div class="file-list">
                                 <?php foreach ($submission['files'] as $file): ?>
-                                    <div class="file-item">
-                                        <i class="fas fa-file-alt"></i>
-                                        <span class="file-name"><?php echo htmlspecialchars($file['file_name']); ?></span>
-                                        <span class="file-size">(<?php echo round($file['file_size'] / 1024, 2); ?> KB)</span>
-                                    </div>
+                                    <?php 
+                                        $cleanSubmissionFile = basename($file['file_path']); 
+                                        $officialSubmissionUrl = "https://raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubmissionFile;
+                                    ?>
+                                    <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" class="file-item-link">
+                                        <div class="file-item">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span class="file-name"><?php echo htmlspecialchars($file['file_name']); ?></span>
+                                            <span class="file-size">(<?php echo round($file['file_size'] / 1024, 2); ?> KB)</span>
+                                        </div>
+                                    </a>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -148,7 +153,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
             </div>
         <?php endif; ?>
 
-        <!-- Submit/Resubmit Form -->
         <?php if ($canResubmit): ?>
             <div class="submission-form">
                 <h3><i class="fas fa-upload"></i> <?php echo $submission ? 'Resubmit Your Work' : 'Submit Your Work'; ?></h3>
@@ -180,7 +184,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -491,6 +494,11 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     gap: 10px;
 }
 
+.file-item-link {
+    text-decoration: none;
+    display: block;
+}
+
 .file-item {
     display: flex;
     align-items: center;
@@ -499,6 +507,12 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     background: white;
     border-radius: 10px;
     border: 1px solid #E2E8F0;
+    transition: all 0.2s ease;
+}
+
+.file-item:hover {
+    border-color: #f06724;
+    background: #fafafa;
 }
 
 .file-item i {
@@ -609,7 +623,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
 
 .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(240, 103, 36, 0.3);
+    box-shadow: 0 5px 15px rgba(127, 38, 119, 0.3);
 }
 
 /* Modal Styles */
@@ -812,7 +826,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
 </style>
 
 <script>
-// Delete submission modal
 let submissionToDelete = null;
 let homeworkIdToRedirect = null;
 
@@ -832,7 +845,6 @@ function closeModal() {
     homeworkIdToRedirect = null;
 }
 
-// Modal close handlers
 document.querySelector('.modal-close')?.addEventListener('click', closeModal);
 document.querySelector('.btn-cancel-modal')?.addEventListener('click', closeModal);
 window.addEventListener('click', function(e) {
@@ -841,7 +853,6 @@ window.addEventListener('click', function(e) {
     }
 });
 
-// Confirm delete
 document.getElementById('confirmDeleteBtn')?.addEventListener('click', function() {
     if (!submissionToDelete) return;
     
