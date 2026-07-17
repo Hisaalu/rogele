@@ -3,6 +3,7 @@
     "description": "Interactive Learning",
     "type": "project",
     "require": {
+        "aws/aws-sdk-php": "^3.388",
         "phpmailer/phpmailer": "^7.0",
         "vlucas/phpdotenv": "^5.6"
     },

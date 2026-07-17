@@ -1,6 +1,9 @@
 <?php
 // File: /models/Lesson.php 
 require_once __DIR__ . '/../config/database.php';
+
+use Aws\S3\S3Client;
+
 class Lesson {
     private $db;
     private $conn;
@@ -207,9 +210,15 @@ class Lesson {
     
     public function delete($lessonId) {
         try {
-            $materialQuery = "DELETE FROM lesson_materials WHERE lesson_id = :lesson_id";
+            // First select all materials to delete them from R2
+            $materialQuery = "SELECT id FROM lesson_materials WHERE lesson_id = :lesson_id";
             $materialStmt = $this->conn->prepare($materialQuery);
             $materialStmt->execute([':lesson_id' => $lessonId]);
+            $materials = $materialStmt->fetchAll();
+
+            foreach ($materials as $material) {
+                $this->deleteMaterial($material['id']);
+            }
             
             $query = "DELETE FROM lessons WHERE id = :id";
             $stmt = $this->conn->prepare($query);
@@ -287,14 +296,21 @@ class Lesson {
         } catch (PDOException $e) {
         }
     }
-    
+
     public function uploadMaterials($lessonId, $files) {
         try {
-            $targetDir = __DIR__ . '/../public/uploads/lessons/';
+            $s3Client = new S3Client([
+                'version'     => 'latest',
+                'region'      => 'auto',
+                'endpoint'    => getenv('R2_ENDPOINT_URL'),
+                'credentials' => [
+                    'key'    => getenv('R2_ACCESS_KEY_ID'),
+                    'secret' => getenv('R2_SECRET_ACCESS_KEY'),
+                ],
+            ]);
 
-            if (!file_exists($targetDir)) {
-                mkdir($targetDir, 0777, true);
-            }
+            $bucket = getenv('R2_BUCKET_NAME');
+            $publicBaseUrl = rtrim(getenv('R2_PUBLIC_URL'), '/');
 
             for ($i = 0; $i < count($files['name']); $i++) {
 
@@ -303,26 +319,33 @@ class Lesson {
                 }
 
                 $fileName = time() . '_' . basename($files['name'][$i]);
+                
+                $r2Key = 'uploads/lessons/' . $fileName;
 
-                $targetFile = $targetDir . $fileName;
+                $result = $s3Client->putObject([
+                    'Bucket'      => $bucket,
+                    'Key'         => $r2Key,
+                    'SourceFile'  => $files['tmp_name'][$i], 
+                    'ContentType' => $files['type'][$i],
+                ]);
 
-                if (!move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
-                    throw new Exception("Failed to move uploaded file.");
+                if ($publicBaseUrl) {
+                    $dbPath = $publicBaseUrl . '/' . $r2Key;
+                } else {
+                    $dbPath = $r2Key; 
                 }
 
-                $dbPath = 'uploads/lessons/' . $fileName;
-
                 $query = "INSERT INTO lesson_materials 
-                (lesson_id, file_name, file_path, file_type, file_size)
-                VALUES 
-                (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
+                        (lesson_id, file_name, file_path, file_type, file_size)
+                        VALUES 
+                        (:lesson_id, :file_name, :file_path, :file_type, :file_size)";
 
                 $stmt = $this->conn->prepare($query);
 
                 $stmt->execute([
                     ':lesson_id' => $lessonId,
                     ':file_name' => $files['name'][$i],
-                    ':file_path' => $dbPath,
+                    ':file_path' => $dbPath, 
                     ':file_type' => $files['type'][$i],
                     ':file_size' => $files['size'][$i]
                 ]);
@@ -331,7 +354,7 @@ class Lesson {
             return true;
 
         } catch (Exception $e) {
-            die($e->getMessage());
+            die("Upload failed: " . $e->getMessage());
         }
     }
     
@@ -544,6 +567,7 @@ class Lesson {
         }
     }
 
+    // --- FIXED: Decoupled deleteMaterial from local file path to R2 Client ---
     public function deleteMaterial($materialId) {
         try {
             $material = $this->getMaterialById($materialId);
@@ -552,11 +576,33 @@ class Lesson {
                 return ['success' => false, 'error' => 'Material not found'];
             }
             
-            $filePath = __DIR__ . '/../public/' . $material['file_path'];
-            if (file_exists($filePath)) {
-                unlink($filePath);
+            // Extract the R2 Key out of the database path
+            // e.g., if path is 'https://pub-xxx.r2.dev/uploads/lessons/file.pdf'
+            // or if it's just 'uploads/lessons/file.pdf'
+            $publicBaseUrl = rtrim(getenv('R2_PUBLIC_URL'), '/');
+            $r2Key = $material['file_path'];
+
+            if ($publicBaseUrl && strpos($r2Key, $publicBaseUrl) === 0) {
+                $r2Key = ltrim(substr($r2Key, strlen($publicBaseUrl)), '/');
             }
             
+            // Delete the file from Cloudflare R2
+            $s3Client = new S3Client([
+                'version'     => 'latest',
+                'region'      => 'auto',
+                'endpoint'    => getenv('R2_ENDPOINT_URL'),
+                'credentials' => [
+                    'key'    => getenv('R2_ACCESS_KEY_ID'),
+                    'secret' => getenv('R2_SECRET_ACCESS_KEY'),
+                ],
+            ]);
+
+            $s3Client->deleteObject([
+                'Bucket' => getenv('R2_BUCKET_NAME'),
+                'Key'    => $r2Key,
+            ]);
+            
+            // Remove the DB entry
             $query = "DELETE FROM lesson_materials WHERE id = :id";
             $stmt = $this->conn->prepare($query);
             $result = $stmt->execute([':id' => $materialId]);
@@ -565,10 +611,10 @@ class Lesson {
                 return ['success' => true, 'message' => 'Material deleted successfully'];
             }
             
-            return ['success' => false, 'error' => 'Failed to delete material'];
+            return ['success' => false, 'error' => 'Failed to delete material from database'];
             
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => 'Error: ' . $e->getMessage()];
         }
     }
 
