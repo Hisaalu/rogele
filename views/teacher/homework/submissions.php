@@ -142,15 +142,6 @@ if ($gradedCount > 0) {
                 <div class="submission-card" data-submission-id="<?php echo $submission['id']; ?>">
                     <div class="submission-header">
                         <div class="student-info">
-                            <div class="student-avatar">
-                                <?php if (!empty($submission['profile_photo'])): ?>
-                                    <img src="<?php echo BASE_URL; ?>/<?php echo $submission['profile_photo']; ?>" alt="">
-                                <?php else: ?>
-                                    <div class="avatar-placeholder">
-                                        <?php echo strtoupper(substr($submission['first_name'] ?? '', 0, 1) . substr($submission['last_name'] ?? '', 0, 1)); ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
                             <div>
                                 <h3><?php echo htmlspecialchars($submission['first_name'] . ' ' . $submission['last_name']); ?></h3>
                                 <p><?php echo htmlspecialchars($submission['email']); ?></p>
@@ -185,7 +176,11 @@ if ($gradedCount > 0) {
                                 <span class="detail-label">Attachments:</span>
                                 <div class="file-list">
                                     <?php foreach ($submission['files'] as $file): ?>
-                                        <a href="<?php echo BASE_URL; ?>/teacher/homework/download-file/<?php echo $file['id']; ?>" class="file-link">
+                                        <?php
+                                            $cleanSubName = basename($file['file_path']); 
+                                            $officialSubmissionUrl = "https://raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubName;
+                                        ?>
+                                        <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" class="file-link">
                                             <i class="fas fa-download"></i>
                                             <?php echo htmlspecialchars($file['file_name']); ?>
                                             <span class="file-size">(<?php echo round($file['file_size'] / 1024, 2); ?> KB)</span>
@@ -195,7 +190,6 @@ if ($gradedCount > 0) {
                             </div>
                         <?php endif; ?>
                         
-                        <!-- Grade & Feedback Section -->
                         <div class="grade-feedback-section">
                             <h4><i class="fas fa-star"></i> Grade & Feedback</h4>
                             
@@ -222,7 +216,7 @@ if ($gradedCount > 0) {
                                     <div class="form-group">
                                         <label>Grade (%)</label>
                                         <input type="number" id="grade_<?php echo $submission['id']; ?>" class="grade-input" 
-                                               value="<?php echo $submission['grade']; ?>" min="0" max="100" step="0.01">
+                                            value="<?php echo $submission['grade']; ?>" min="0" max="100" step="0.01">
                                     </div>
                                     <div class="form-group">
                                         <label>Feedback</label>
@@ -240,12 +234,12 @@ if ($gradedCount > 0) {
                                     <div class="form-group">
                                         <label>Grade (%)</label>
                                         <input type="number" id="grade_<?php echo $submission['id']; ?>" class="grade-input" 
-                                               placeholder="Enter grade" min="0" max="100" step="0.01">
+                                            placeholder="Enter grade" min="0" max="100" step="0.01">
                                     </div>
                                     <div class="form-group">
                                         <label>Feedback</label>
                                         <textarea id="feedback_<?php echo $submission['id']; ?>" class="feedback-input" rows="3" 
-                                                  placeholder="Provide feedback to the student..."></textarea>
+                                                placeholder="Provide feedback to the student..."></textarea>
                                     </div>
                                     <button onclick="gradeSubmission(<?php echo $submission['id']; ?>)" class="btn-grade">
                                         <i class="fas fa-check-circle"></i> Submit Grade

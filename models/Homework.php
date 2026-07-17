@@ -1,6 +1,8 @@
 <?php
 // File: /models/Homework.php 
 require_once __DIR__ . '/../config/database.php';
+use Aws\S3\S3Client;
+use Aws\Exception\AwsException;
 
 class Homework {
     private $db;
@@ -9,8 +11,8 @@ class Homework {
     private $submissionFilesCache = [];
     private $homeworkCache = [];
     
-    private $homeworkUploadDir = '/../public/uploads/homework/';
-    private $submissionUploadDir = '/../public/uploads/submissions/';
+    private $r2BucketName = 'rogele-platform';
+    private $r2BaseUrl = 'https://raysofgrace.ac.ug/rogele-platform'; 
     
     public function __construct() {
         $this->db = Database::getInstance();
@@ -82,20 +84,33 @@ class Homework {
     }
     
     private function uploadFiles($homeworkId, $files, $isSubmission = false, $submissionId = null) {
-        $targetDir = __DIR__ . ($isSubmission ? $this->submissionUploadDir : $this->homeworkUploadDir);
-        
-        if (!file_exists($targetDir)) {
-            mkdir($targetDir, 0777, true);
-        }
-        
-        for ($i = 0; $i < count($files['name']); $i++) {
-            if ($files['error'][$i] !== UPLOAD_ERR_OK) continue;
-            
-            $fileName = time() . '_' . ($submissionId ? $submissionId . '_' : '') . preg_replace('/[^a-zA-Z0-9._-]/', '_', basename($files['name'][$i]));
-            $targetFile = $targetDir . $fileName;
-            
-            if (move_uploaded_file($files['tmp_name'][$i], $targetFile)) {
-                $dbPath = ($isSubmission ? 'uploads/submissions/' : 'uploads/homework/') . $fileName;
+        try {
+            $s3 = new S3Client([
+                'version'     => 'latest',
+                'region'      => 'auto',
+                'endpoint'    => getenv('R2_ENDPOINT_URL'),
+                'credentials' => [
+                    'key'    => getenv('R2_ACCESS_KEY_ID'),
+                    'secret' => getenv('R2_SECRET_ACCESS_KEY'),
+                ],
+            ]);
+
+            for ($i = 0; $i < count($files['name']); $i++) {
+                if ($files['error'][$i] !== UPLOAD_ERR_OK) continue;
+                
+                $fileName = time() . '_' . ($submissionId ? $submissionId . '_' : '') . preg_replace('/[^a-zA-Z0-9._-]/', '_', basename($files['name'][$i]));
+                
+                $r2Folder = $isSubmission ? 'uploads/submissions/' : 'uploads/homework/';
+                $objectKey = $r2Folder . $fileName;
+
+                $result = $s3->putObject([
+                    'Bucket'     => $this->r2BucketName,
+                    'Key'        => $objectKey,
+                    'SourceFile' => $files['tmp_name'][$i],
+                    'ContentType'=> $files['type'][$i]
+                ]);
+                
+                $dbPath = $this->r2BaseUrl . '/' . $objectKey;
                 
                 if ($isSubmission && $submissionId) {
                     $stmt = $this->conn->prepare("INSERT INTO homework_submission_files (submission_id, file_name, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)");
@@ -107,6 +122,8 @@ class Homework {
                     $this->attachmentsCache[$homeworkId] = null;
                 }
             }
+        } catch (AwsException $e) {
+            error_log("R2 Upload Error: " . $e->getMessage());
         }
     }
     
@@ -120,26 +137,29 @@ class Homework {
             
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
-                ':teacher_id' => $data['teacher_id'],
-                ':class_id' => $data['class_id'],
-                ':subject_id' => $data['subject_id'],
-                ':title' => $data['title'],
+                ':teacher_id'  => $data['teacher_id'],
+                ':class_id'    => $data['class_id'],
+                ':subject_id'  => $data['subject_id'],
+                ':title'       => $data['title'],
                 ':description' => $data['description'] ?? null,
-                ':due_date' => $data['due_date']
+                ':due_date'    => $data['due_date']
             ]);
             
             $homeworkId = $this->conn->lastInsertId();
             
-            if ($files && !empty($files['name'][0])) {
+            $this->conn->commit();
+            $this->invalidateCache($homeworkId);
+            
+            if ($files && isset($files['name'][0]) && $files['name'][0] !== '' && $files['error'][0] === UPLOAD_ERR_OK) {
                 $this->uploadFiles($homeworkId, $files, false);
             }
             
-            $this->conn->commit();
-            $this->invalidateCache($homeworkId);
             return ['success' => true, 'homework_id' => $homeworkId];
             
         } catch (Exception $e) {
-            $this->conn->rollBack();
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
             return ['success' => false, 'error' => 'Failed to create homework: ' . $e->getMessage()];
         }
     }
@@ -182,11 +202,74 @@ class Homework {
     }
     
     public function delete($homeworkId, $teacherId) {
-        $result = $this->executeUpdate("DELETE FROM homework WHERE id = ? AND teacher_id = ?", [$homeworkId, $teacherId]);
-        if ($result['success']) {
-            $this->invalidateCache($homeworkId);
+        try {
+            $stmtFiles = $this->conn->prepare("SELECT file_path FROM homework_attachments WHERE homework_id = ?");
+            $stmtFiles->execute([$homeworkId]);
+            $homeworkFiles = $stmtFiles->fetchAll(PDO::FETCH_ASSOC);
+
+            $stmtSubs = $this->conn->prepare("
+                SELECT hsf.file_path 
+                FROM homework_submission_files hsf
+                INNER JOIN homework_submissions hs ON hsf.submission_id = hs.id
+                WHERE hs.homework_id = ?
+            ");
+            $stmtSubs->execute([$homeworkId]);
+            $submissionFiles = $stmtSubs->fetchAll(PDO::FETCH_ASSOC);
+
+            $result = $this->executeUpdate("DELETE FROM homework WHERE id = ? AND teacher_id = ?", [$homeworkId, $teacherId]);
+            
+            if ($result['success']) {
+                $this->invalidateCache($homeworkId);
+
+                $s3 = new S3Client([
+                    'version'     => 'latest',
+                    'region'      => 'auto',
+                    'endpoint'    => getenv('R2_ENDPOINT_URL'),
+                    'credentials' => [
+                        'key'    => getenv('R2_ACCESS_KEY_ID'),
+                        'secret' => getenv('R2_SECRET_ACCESS_KEY'),
+                    ],
+                ]);
+
+                if (!empty($homeworkFiles)) {
+                    foreach ($homeworkFiles as $file) {
+                        if (empty($file['file_path'])) continue;
+                        $cleanName = basename($file['file_path']);
+                        
+                        try {
+                            $s3->deleteObject([
+                                'Bucket' => $this->r2BucketName,
+                                'Key'    => 'uploads/homework/' . $cleanName
+                            ]);
+                        } catch (AwsException $e) {
+                            error_log("R2 Delete Homework File Error: " . $e->getMessage());
+                        }
+                    }
+                }
+
+                if (!empty($submissionFiles)) {
+                    foreach ($submissionFiles as $file) {
+                        if (empty($file['file_path'])) continue;
+                        $cleanSubName = basename($file['file_path']);
+                        
+                        try {
+                            $s3->deleteObject([
+                                'Bucket' => $this->r2BucketName,
+                                'Key'    => 'uploads/submissions/' . $cleanSubName
+                            ]);
+                        } catch (AwsException $e) {
+                            error_log("R2 Delete Submission File Error: " . $e->getMessage());
+                        }
+                    }
+                }
+            }
+
+            return $result;
+
+        } catch (Exception $e) {
+            error_log("Failed during homework cleanup execution: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
         }
-        return $result;
     }
     
     public function getById($homeworkId) {
@@ -320,15 +403,49 @@ class Homework {
     
     public function deleteAttachment($attachmentId, $teacherId) {
         try {
-            $stmt = $this->conn->prepare("
+            $stmtFile = $this->conn->prepare("
+                SELECT ha.file_path 
+                FROM homework_attachments ha
+                INNER JOIN homework h ON ha.homework_id = h.id
+                WHERE ha.id = ? AND h.teacher_id = ?
+            ");
+            $stmtFile->execute([$attachmentId, $teacherId]);
+            $attachment = $stmtFile->fetch(PDO::FETCH_ASSOC);
+
+            if (!$attachment) {
+                return ['success' => false, 'error' => 'Attachment not found or unauthorized'];
+            }
+
+            $stmtDel = $this->conn->prepare("
                 DELETE ha FROM homework_attachments ha
                 INNER JOIN homework h ON ha.homework_id = h.id
                 WHERE ha.id = ? AND h.teacher_id = ?
             ");
-            $stmt->execute([$attachmentId, $teacherId]);
-            $this->invalidateCache();
+            $stmtDel->execute([$attachmentId, $teacherId]);
+
+            if ($stmtDel->rowCount() > 0) {
+                $this->invalidateCache();
+
+                $s3 = new S3Client([
+                    'version'     => 'latest',
+                    'region'      => 'auto',
+                    'endpoint'    => getenv('R2_ENDPOINT_URL'),
+                    'credentials' => [
+                        'key'    => getenv('R2_ACCESS_KEY_ID'),
+                        'secret' => getenv('R2_SECRET_ACCESS_KEY'),
+                    ],
+                ]);
+
+                $cleanName = basename($attachment['file_path']);
+                $s3->deleteObject([
+                    'Bucket' => $this->r2BucketName,
+                    'Key'    => 'uploads/homework/' . $cleanName
+                ]);
+            }
+
             return ['success' => true];
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
+            error_log("Failed to delete individual attachment from R2: " . $e->getMessage());
             return ['success' => false, 'error' => 'Failed to delete attachment'];
         }
     }
@@ -352,7 +469,20 @@ class Homework {
             $checkStmt->execute([$homeworkId, $studentId]);
             $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
             
+            $oldFilesToDelete = [];
+
             if ($existing) {
+                $submissionId = $existing['id'];
+
+                if ($files && !empty($files['name'][0])) {
+                    $stmtOldFiles = $this->conn->prepare("SELECT file_path FROM homework_submission_files WHERE submission_id = ?");
+                    $stmtOldFiles->execute([$submissionId]);
+                    $oldFilesToDelete = $stmtOldFiles->fetchAll(PDO::FETCH_ASSOC);
+
+                    $stmtDelOld = $this->conn->prepare("DELETE FROM homework_submission_files WHERE submission_id = ?");
+                    $stmtDelOld->execute([$submissionId]);
+                }
+
                 $sql = "UPDATE homework_submissions SET 
                         text_answer = :text_answer,
                         status = :status,
@@ -363,9 +493,8 @@ class Homework {
                 $stmt->execute([
                     ':text_answer' => $textAnswer,
                     ':status' => $status,
-                    ':id' => $existing['id']
+                    ':id' => $submissionId
                 ]);
-                $submissionId = $existing['id'];
             } else {
                 $sql = "INSERT INTO homework_submissions (homework_id, student_id, text_answer, status, submitted_at, created_at) 
                         VALUES (:homework_id, :student_id, :text_answer, :status, NOW(), NOW())";
@@ -385,10 +514,38 @@ class Homework {
             
             $this->conn->commit();
             $this->invalidateCache();
+
+            if (!empty($oldFilesToDelete)) {
+                $s3 = new S3Client([
+                    'version'     => 'latest',
+                    'region'      => 'auto',
+                    'endpoint'    => getenv('R2_ENDPOINT_URL'),
+                    'credentials' => [
+                        'key'    => getenv('R2_ACCESS_KEY_ID'),
+                        'secret' => getenv('R2_SECRET_ACCESS_KEY'),
+                    ],
+                ]);
+
+                foreach ($oldFilesToDelete as $oldFile) {
+                    if (empty($oldFile['file_path'])) continue;
+                    $cleanName = basename($oldFile['file_path']);
+                    try {
+                        $s3->deleteObject([
+                            'Bucket' => $this->r2BucketName,
+                            'Key'    => 'uploads/submissions/' . $cleanName
+                        ]);
+                    } catch (AwsException $e) {
+                        error_log("Failed to clear old resubmitted file from R2: " . $e->getMessage());
+                    }
+                }
+            }
+
             return ['success' => true, 'submission_id' => $submissionId];
             
         } catch (Exception $e) {
-            $this->conn->rollBack();
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
             return ['success' => false, 'error' => 'Failed to submit homework: ' . $e->getMessage()];
         }
     }

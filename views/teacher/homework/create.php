@@ -78,7 +78,7 @@ $allSubjects = $allSubjects ?? [];
             </div>
 
             <div class="form-group">
-                <label for="attachments">Attachments (Optional)</label>
+                <label for="attachments">Attachments</label>
                 <input type="file" id="attachments" name="attachments[]" multiple class="file-input">
                 <small class="form-hint">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
             </div>
@@ -216,18 +216,15 @@ function filterSubjects() {
     const subjectSelect = document.getElementById('subject_id');
     const options = subjectSelect.querySelectorAll('option');
     
-    // Reset subject select
     subjectSelect.value = '';
     
     if (!classId) {
-        // Show all subjects if no class selected
         for (let i = 0; i < options.length; i++) {
             options[i].style.display = 'block';
         }
         return;
     }
     
-    // Show only subjects for selected class
     for (let i = 0; i < options.length; i++) {
         const option = options[i];
         const optionClassId = option.getAttribute('data-class');
@@ -242,7 +239,6 @@ function filterSubjects() {
     }
 }
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     filterSubjects();
 });
