@@ -11,16 +11,14 @@ $allSubjects = $allSubjects ?? [];
 
 <div class="edit-homework-container">
     <div class="page-header">
-        <div>
-            <a href="<?php echo BASE_URL; ?>/teacher/homework" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Homework
-            </a>
-            <h1 class="page-title">
-                <i class="fas fa-edit"></i>
-                Edit Homework
-            </h1>
-            <p class="page-subtitle">Update homework details</p>
-        </div>
+        <a href="<?php echo BASE_URL; ?>/teacher/homework" class="back-link">
+            <i class="fas fa-arrow-left"></i> <span>Back to Homework</span>
+        </a>
+        <h1 class="page-title">
+            <i class="fas fa-edit"></i>
+            Edit Homework
+        </h1>
+        <p class="page-subtitle">Update homework details for your students</p>
     </div>
 
     <?php if (isset($_SESSION['error'])): ?>
@@ -37,37 +35,41 @@ $allSubjects = $allSubjects ?? [];
                 <input type="text" id="title" name="title" required value="<?php echo htmlspecialchars($homework['title'] ?? ''); ?>" placeholder="e.g., Mathematics Assignment 1">
             </div>
 
-            <div class="form-row">
+            <div class="form-grid-2x">
                 <div class="form-group">
                     <label for="class_id">Class <span class="required">*</span></label>
-                    <select id="class_id" name="class_id" required onchange="filterSubjects()">
-                        <option value="">Select Class</option>
-                        <?php foreach ($classes as $class): ?>
-                            <option value="<?php echo $class['id']; ?>" <?php echo (($homework['class_id'] ?? '') == $class['id']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($class['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <div class="select-wrapper">
+                        <select id="class_id" name="class_id" required onchange="filterSubjects()">
+                            <option value="">Select Class</option>
+                            <?php foreach ($classes as $class): ?>
+                                <option value="<?php echo $class['id']; ?>" <?php echo (($homework['class_id'] ?? '') == $class['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($class['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="subject_id">Subject <span class="required">*</span></label>
-                    <select id="subject_id" name="subject_id" required>
-                        <option value="">Select Subject</option>
-                        <?php foreach ($allSubjects as $subject): ?>
-                            <option value="<?php echo $subject['id']; ?>" 
-                                    data-class="<?php echo $subject['class_id']; ?>"
-                                    <?php echo (($homework['subject_id'] ?? '') == $subject['id']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($subject['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <div class="select-wrapper">
+                        <select id="subject_id" name="subject_id" required>
+                            <option value="">Select Subject</option>
+                            <?php foreach ($allSubjects as $subject): ?>
+                                <option value="<?php echo $subject['id']; ?>" 
+                                        data-class="<?php echo $subject['class_id']; ?>"
+                                        <?php echo (($homework['subject_id'] ?? '') == $subject['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($subject['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea id="description" name="description" rows="4" placeholder="Provide instructions or additional information..."><?php echo htmlspecialchars($homework['description'] ?? ''); ?></textarea>
+                <textarea id="description" name="description" rows="5" placeholder="Provide clear instructions or additional information..."><?php echo htmlspecialchars($homework['description'] ?? ''); ?></textarea>
             </div>
 
             <div class="form-group">
@@ -80,12 +82,14 @@ $allSubjects = $allSubjects ?? [];
                     <label>Current Attachments</label>
                     <div class="current-attachments">
                         <?php foreach ($homework['attachments'] as $attachment): ?>
-                            <div class="attachment-item">
-                                <i class="fas fa-paperclip"></i>
-                                <span><?php echo htmlspecialchars($attachment['file_name']); ?></span>
-                                <span class="file-size">(<?php echo round($attachment['file_size'] / 1024, 2); ?> KB)</span>
-                                <button type="button" onclick="deleteAttachment(<?php echo $attachment['id']; ?>)" class="delete-attachment">
-                                    <i class="fas fa-trash"></i>
+                            <div class="attachment-item" id="attachment-row-<?php echo $attachment['id']; ?>">
+                                <div class="attachment-meta">
+                                    <i class="fas fa-paperclip"></i>
+                                    <span class="file-name"><?php echo htmlspecialchars($attachment['file_name']); ?></span>
+                                    <span class="file-size">(<?php echo round($attachment['file_size'] / 1024, 2); ?> KB)</span>
+                                </div>
+                                <button type="button" onclick="deleteAttachment(<?php echo $attachment['id']; ?>)" class="delete-attachment" aria-label="Delete attachment">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
                         <?php endforeach; ?>
@@ -94,12 +98,19 @@ $allSubjects = $allSubjects ?? [];
             <?php endif; ?>
 
             <div class="form-group">
-                <label for="new_attachments">Add New Attachments (Optional)</label>
-                <input type="file" id="new_attachments" name="new_attachments[]" multiple class="file-input">
-                <small class="form-hint">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
+                <label>Add New Attachments (Optional)</label>
+                <div class="file-dropzone">
+                    <input type="file" id="new_attachments" name="new_attachments[]" multiple class="file-input" onchange="updateFileLabel()">
+                    <div class="dropzone-text">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span id="file-input-label">Tap to browse or upload documents</span>
+                        <small class="form-hint">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
+                    </div>
+                </div>
             </div>
 
             <div class="form-actions">
+                <a href="<?php echo BASE_URL; ?>/teacher/homework" class="btn-secondary">Cancel</a>
                 <button type="submit" class="btn-primary">Save Changes</button>
             </div>
         </div>
@@ -107,169 +118,341 @@ $allSubjects = $allSubjects ?? [];
 </div>
 
 <style>
+:root {
+    --primary-color: #7f2677;
+    --secondary-color: #f06724;
+    --text-main: #000;
+    --text-muted: #555;
+    --border-color: #cbd5e1;
+    --bg-light: #f8fafc;
+    --danger-color: #ef4444;
+}
+
 .edit-homework-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 30px 20px;
+    padding: 16px;
+}
+
+@media (min-width: 768px) {
+    .edit-homework-container {
+        padding: 30px 20px;
+    }
+}
+
+.page-header {
+    margin-bottom: 24px;
 }
 
 .back-link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #000;
+    color: var(--text-muted);
     text-decoration: none;
-    margin-bottom: 20px;
-    transition: color 0.3s;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 6px 0;
 }
 
 .back-link:hover {
-    color: #f06724;
+    color: var(--secondary-color);
 }
 
 .page-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
+    color: var(--primary-color);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (min-width: 768px) {
+    .page-title {
+        font-size: 2.25rem;
+    }
 }
 
 .page-subtitle {
-    color: #555;
+    color: var(--text-muted);
+    font-size: 0.95rem;
 }
 
 .form-card {
     background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+@media (min-width: 768px) {
+    .form-card {
+        padding: 35px;
+        border-radius: 24px;
+    }
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .form-group label {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #000;
+    color: var(--text-main);
+    font-size: 0.95rem;
 }
 
 .required {
-    color: #EF4444;
+    color: var(--danger-color);
 }
 
-.form-group input, 
+.form-group input[type="text"], 
 .form-group select, 
-.form-group textarea {
+.form-group textarea,
+.form-group input[type="datetime-local"] {
     width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #E2E8F0;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     font-size: 1rem;
-    transition: all 0.3s ease;
-    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    background-color: #fff;
+    color: var(--text-main);
+    -webkit-appearance: none;
 }
 
 .form-group input:focus, 
 .form-group select:focus, 
 .form-group textarea:focus {
     outline: none;
-    border-color: #f06724;
-    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(240, 103, 36, 0.15);
 }
 
-.file-input {
-    padding: 10px;
-    border: 2px dashed #E2E8F0;
-    background: #F8FAFC;
+.form-grid-2x {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+@media (min-width: 600px) {
+    .form-grid-2x {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+}
+
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper::after {
+    content: '\f078';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    font-size: 0.85rem;
+}
+
+.file-dropzone {
+    position: relative;
+    border: 2px dashed var(--border-color);
+    background: var(--bg-light);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.2s ease;
     cursor: pointer;
 }
 
+.file-dropzone:hover, .file-dropzone:focus-within {
+    border-color: var(--secondary-color);
+    background: #fffbf9;
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.dropzone-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+}
+
+.dropzone-text i {
+    font-size: 2rem;
+    color: var(--secondary-color);
+    margin-bottom: 4px;
+}
+
 .form-hint {
-    display: block;
-    font-size: 0.75rem;
-    color: #64748B;
-    margin-top: 5px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
 }
 
 .current-attachments {
-    background: #F8FAFC;
-    border-radius: 12px;
-    padding: 15px;
+    background: var(--bg-light);
+    border-radius: 14px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .attachment-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
     background: white;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
 }
 
-.attachment-item:last-child {
-    margin-bottom: 0;
+.attachment-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 1;
 }
 
-.attachment-item i {
-    color: #f06724;
+.attachment-meta i {
+    color: var(--secondary-color);
+    flex-shrink: 0;
+}
+
+.file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .file-size {
-    color: #64748B;
-    font-size: 0.75rem;
-    margin-left: auto;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    flex-shrink: 0;
 }
 
 .delete-attachment {
-    background: #FEF2F2;
-    color: #EF4444;
+    background: #fef2f2;
+    color: var(--danger-color);
     border: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .delete-attachment:hover {
-    background: #EF4444;
+    background: var(--danger-color);
     color: white;
 }
 
+/* Form Action Buttons Container */
 .form-actions {
     display: flex;
-    gap: 15px;
-    margin-top: 30px;
+    flex-direction: column-reverse;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+@media (min-width: 480px) {
+    .form-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}
+
+.btn-primary, .btn-secondary {
+    width: 100%;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 480px) {
+    .btn-primary, .btn-secondary {
+        width: auto;
+    }
 }
 
 .btn-primary {
-    flex: 1;
-    background-color: #7f2677;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 14px;
-    border-radius: 50px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(240, 103, 36, 0.3);
+    background-color: #641e5e;
+    transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
-    .form-actions {
-        flex-direction: column;
-    }
+.btn-secondary {
+    background-color: white;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+}
+
+.alert {
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+}
+
+.alert-error {
+    background-color: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
 }
 </style>
 
@@ -278,30 +461,45 @@ function filterSubjects() {
     const classId = document.getElementById('class_id').value;
     const subjectSelect = document.getElementById('subject_id');
     const options = subjectSelect.querySelectorAll('option');
+    let hasSelectedValidOption = false;
     
-    if (!classId) {
-        for (let i = 0; i < options.length; i++) {
-            options[i].style.display = 'block';
-        }
-        return;
-    }
-    
-    for (let i = 0; i < options.length; i++) {
-        const option = options[i];
+    options.forEach(option => {
         const optionClassId = option.getAttribute('data-class');
         
-        if (option.value === '') {
+        if (!classId || option.value === '' || optionClassId == classId) {
             option.style.display = 'block';
-        } else if (optionClassId == classId) {
-            option.style.display = 'block';
+            option.disabled = false;
+            if (option.selected && option.value !== '') {
+                hasSelectedValidOption = true;
+            }
         } else {
             option.style.display = 'none';
+            option.disabled = true;
+            if (option.selected) {
+                option.selected = false;
+            }
         }
+    });
+
+    if (!hasSelectedValidOption && classId !== "") {
+        subjectSelect.value = "";
+    }
+}
+
+function updateFileLabel() {
+    const input = document.getElementById('new_attachments');
+    const label = document.getElementById('file-input-label');
+    if (input.files.length > 0) {
+        label.textContent = input.files.length === 1 
+            ? `Selected: ${input.files[0].name}` 
+            : `${input.files.length} files selected to be added`;
+    } else {
+        label.textContent = 'Tap to browse or upload documents';
     }
 }
 
 function deleteAttachment(attachmentId) {
-    if (confirm('Are you sure you want to delete this attachment?')) {
+    if (confirm('Are you sure you want to permanently delete this attachment?')) {
         fetch('<?php echo BASE_URL; ?>/teacher/homework/delete-attachment/' + attachmentId, {
             method: 'DELETE',
             headers: {
@@ -311,19 +509,23 @@ function deleteAttachment(attachmentId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                const element = document.getElementById('attachment-row-' + attachmentId);
+                if (element) {
+                    element.remove();
+                } else {
+                    location.reload();
+                }
             } else {
-                alert('Failed to delete attachment');
+                alert(data.error || 'Failed to delete attachment');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred');
+            alert('An error occurred while deleting the asset.');
         });
     }
 }
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     filterSubjects();
 });

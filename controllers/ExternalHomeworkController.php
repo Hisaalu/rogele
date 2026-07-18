@@ -166,16 +166,15 @@ class ExternalHomeworkController {
         
         try {
             $stmt = $this->conn->prepare("
-                SELECT hs.id, hs.status, h.id as homework_id
-                FROM homework_submissions hs
-                INNER JOIN homework h ON hs.homework_id = h.id
-                WHERE hs.id = ? AND hs.student_id = ?
+                SELECT status 
+                FROM homework_submissions 
+                WHERE id = ? AND student_id = ?
             ");
             $stmt->execute([$submissionId, $studentId]);
             $submission = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$submission) {
-                echo json_encode(['success' => false, 'error' => 'Submission not found']);
+                echo json_encode(['success' => false, 'error' => 'Submission not found or unauthorized']);
                 exit;
             }
             
@@ -184,17 +183,17 @@ class ExternalHomeworkController {
                 exit;
             }
             
-            $stmt = $this->conn->prepare("DELETE FROM homework_submission_files WHERE submission_id = ?");
-            $stmt->execute([$submissionId]);
+            $result = $this->homeworkModel->deleteSubmission($submissionId, $studentId);
             
-            $stmt = $this->conn->prepare("DELETE FROM homework_submissions WHERE id = ?");
-            $stmt->execute([$submissionId]);
-            
-            echo json_encode(['success' => true, 'message' => 'Submission deleted successfully']);
+            if ($result['success']) {
+                echo json_encode(['success' => true, 'message' => 'Submission deleted successfully']);
+            } else {
+                echo json_encode(['success' => false, 'error' => $result['error'] ?? 'Failed to delete submission files']);
+            }
             
         } catch (Exception $e) {
-            error_log("Delete submission error: " . $e->getMessage());
-            echo json_encode(['success' => false, 'error' => 'Failed to delete submission']);
+            error_log("Delete submission controller error: " . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'An error occurred during submission removal']);
         }
         exit;
     }
