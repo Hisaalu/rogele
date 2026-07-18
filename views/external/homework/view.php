@@ -878,6 +878,21 @@ document.getElementById('confirmDeleteBtn')?.addEventListener('click', function(
         closeModal();
     });
 });
+
+document.querySelector('.homework-form').addEventListener('submit', function(e) {
+    const fileInput = document.getElementById('new_attachments');
+    const maxSizeBytes = 5 * 1024 * 1024;
+
+    if (fileInput && fileInput.files.length > 0) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+            if (fileInput.files[i].size > maxSizeBytes) {
+                e.preventDefault();
+                alert("Submission failed, your file exceeds 5Mb");
+                return false;
+            }
+        }
+    }
+});
 </script>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
