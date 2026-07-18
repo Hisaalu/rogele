@@ -553,6 +553,71 @@ class Homework {
     private function uploadSubmissionFiles($submissionId, $files) {
         $this->uploadFiles(null, $files, true, $submissionId);
     }
+
+    public function deleteSubmission($submissionId, $studentId) {
+        try {
+            $stmtFiles = $this->conn->prepare("
+                SELECT hsf.file_path 
+                FROM homework_submission_files hsf
+                INNER JOIN homework_submissions hs ON hsf.submission_id = hs.id
+                WHERE hsf.submission_id = ? AND hs.student_id = ?
+            ");
+            $stmtFiles->execute([$submissionId, $studentId]);
+            $submissionFiles = $stmtFiles->fetchAll(PDO::FETCH_ASSOC);
+
+            $this->conn->beginTransaction();
+
+            $stmtDelFiles = $this->conn->prepare("DELETE FROM homework_submission_files WHERE submission_id = ?");
+            $stmtDelFiles->execute([$submissionId]);
+
+            $stmtDelSub = $this->conn->prepare("DELETE FROM homework_submissions WHERE id = ? AND student_id = ?");
+            $stmtDelSub->execute([$submissionId, $studentId]);
+            $rowsAffected = $stmtDelSub->rowCount();
+
+            if ($rowsAffected === 0) {
+                $this->conn->rollBack();
+                return ['success' => false, 'error' => 'Submission not found or unauthorized'];
+            }
+
+            $this->conn->commit();
+            $this->invalidateCache();
+
+            if (!empty($submissionFiles)) {
+                $s3 = new S3Client([
+                    'version'     => 'latest',
+                    'region'      => 'auto',
+                    'endpoint'    => getenv('R2_ENDPOINT_URL'),
+                    'credentials' => [
+                        'key'    => getenv('R2_ACCESS_KEY_ID'),
+                        'secret' => getenv('R2_SECRET_ACCESS_KEY'),
+                    ],
+                ]);
+
+                foreach ($submissionFiles as $file) {
+                    if (empty($file['file_path'])) continue;
+                    $cleanSubName = basename($file['file_path']);
+                    
+                    try {
+                        $s3->deleteObject([
+                            'Bucket' => $this->r2BucketName,
+                            'Key'    => 'uploads/submissions/' . $cleanSubName
+                        ]);
+                    } catch (AwsException $e) {
+                        error_log("R2 Delete Student Submission File Error: " . $e->getMessage());
+                    }
+                }
+            }
+
+            return ['success' => true];
+
+        } catch (Exception $e) {
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
+            error_log("Failed during submission cleanup execution: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
     
     public function getSubmissionFiles($submissionId) {
         return $this->getCachedSubmissionFiles($submissionId);
