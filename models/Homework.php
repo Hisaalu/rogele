@@ -130,6 +130,20 @@ class Homework {
     // ==================== HOMEWORK CRUD ====================
     public function create($data, $files = null) {
         try {
+
+            if ($files && !empty($files['name'][0])) {
+                $maxSizeBytes = 5 * 1024 * 1024;
+                for ($i = 0; $i < count($files['name']); $i++) {
+                    if ($files['error'][$i] === UPLOAD_ERR_OK && $files['size'][$i] > $maxSizeBytes) {
+                        return [
+                            'success' => false, 
+                            'error' => 'Failed to Create Homework, your file exceeds 5Mb'
+                        ];
+                    }
+                }
+            }
+
+
             $this->conn->beginTransaction();
             
             $sql = "INSERT INTO homework (teacher_id, class_id, subject_id, title, description, due_date, is_active, created_at) 
@@ -166,6 +180,19 @@ class Homework {
     
     public function update($homeworkId, $data) {
         try {
+
+            if ($files && !empty($files['name'][0])) {
+                $maxSizeBytes = 5 * 1024 * 1024;
+                for ($i = 0; $i < count($files['name']); $i++) {
+                    if ($files['error'][$i] === UPLOAD_ERR_OK && $files['size'][$i] > $maxSizeBytes) {
+                        return [
+                            'success' => false, 
+                            'error' => 'Failed to Create Homework, your file exceeds 5Mb'
+                        ];
+                    }
+                }
+            }
+            
             $sql = "UPDATE homework SET 
                     title = :title,
                     description = :description,
@@ -452,6 +479,19 @@ class Homework {
     
     public function submitHomework($homeworkId, $studentId, $textAnswer, $files = null) {
         try {
+
+            if ($files && !empty($files['name'][0])) {
+                $maxSizeBytes = 5 * 1024 * 1024;
+                for ($i = 0; $i < count($files['name']); $i++) {
+                    if ($files['error'][$i] === UPLOAD_ERR_OK && $files['size'][$i] > $maxSizeBytes) {
+                        return [
+                            'success' => false, 
+                            'error' => 'Submission failed, your file exceeds 5Mb'
+                        ];
+                    }
+                }
+            }
+
             $this->conn->beginTransaction();
             
             $stmt = $this->conn->prepare("SELECT due_date FROM homework WHERE id = ? AND is_active = 1");
