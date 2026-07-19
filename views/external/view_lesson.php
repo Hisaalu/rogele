@@ -31,6 +31,18 @@ if (!isset($lesson)) {
         <span><i class="fas fa-user" style="color: #f06724;"></i> Tr. <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?></span>
         <span><i class="fas fa-eye" style="color: #f06724;"></i> <?php echo $lesson['views']; ?> views</span>
         <span><i class="fas fa-calendar" style="color: #f06724;"></i> <?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></span>
+        <?php 
+        $createdAt = strtotime($lesson['created_at']);
+        $updatedAt = strtotime($lesson['updated_at']);
+        $isRealEdit = ($updatedAt && $createdAt && ($updatedAt - $createdAt > 5)); 
+        ?>
+
+        <?php if ($isRealEdit): ?>
+            <span>
+                <i class="fas fa-edit" style="color: #f06724;"></i> 
+                <strong style="color: #2563EB;">Last Edited:</strong> <?php echo date('M d, Y', $updatedAt); ?>
+            </span>
+        <?php endif; ?>
     </div>
     
     <?php if (!empty($lesson['video_url'])): ?>
