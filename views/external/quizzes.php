@@ -141,7 +141,6 @@ if (!empty($quizzes)) {
                         <?php endif; ?>
                     </div>
                     
-                    <!-- User Progress -->
                     <?php if ($attemptCount > 0): ?>
                         <div class="quiz-progress">
                             <div class="progress-header">
@@ -161,7 +160,6 @@ if (!empty($quizzes)) {
                         </div>
                     <?php endif; ?>
                     
-                    <!-- Action Buttons -->
                     <div class="quiz-actions">
                         <?php if ($isExpired): ?>
                             <div class="quiz-expired">
@@ -214,7 +212,6 @@ if (!empty($quizzes)) {
                         <?php endif; ?>
                     </div>
                     
-                    <!-- Warning for single attempt quizzes -->
                     <?php if ($maxAttempts == 1 && $remainingAttempts > 0 && !$hasInProgress): ?>
                         <div class="one-time-warning">
                             <i class="fas fa-exclamation-triangle"></i>
@@ -228,7 +225,6 @@ if (!empty($quizzes)) {
 </div>
 
 <style>
-/* Add these new styles */
 .quiz-no-attempts {
     background: #FEF2F2;
     color: #B91C1C;
@@ -274,7 +270,6 @@ if (!empty($quizzes)) {
     gap: 5px;
 }
 
-/* Deadline Badge Styles */
 .deadline-badge {
     background: #FEF3C7;
     color: #92400E;
@@ -345,7 +340,6 @@ if (!empty($quizzes)) {
     font-size: 1.1rem;
 }
 
-/* Alerts */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -379,7 +373,6 @@ if (!empty($quizzes)) {
     }
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
     padding: 40px;
@@ -453,7 +446,6 @@ if (!empty($quizzes)) {
     font-size: 0.9rem;
 }
 
-/* Quizzes Grid */
 .quizzes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -546,7 +538,6 @@ if (!empty($quizzes)) {
     color: #f06724;
 }
 
-/* Progress */
 .quiz-progress {
     margin-bottom: 20px;
     padding: 15px 0;
@@ -590,7 +581,6 @@ if (!empty($quizzes)) {
     gap: 5px;
 }
 
-/* Actions */
 .quiz-actions {
     display: flex;
     gap: 10px;
@@ -683,7 +673,6 @@ if (!empty($quizzes)) {
     gap: 6px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .quizzes-grid {
         grid-template-columns: 1fr;

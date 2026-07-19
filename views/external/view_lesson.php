@@ -3,7 +3,6 @@
 $pageTitle = 'Lessons | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// This assumes $lesson is passed from the controller
 if (!isset($lesson)) {
     header('Location: <?php echo BASE_URL; ?>/external/materials');
     exit;
@@ -83,7 +82,6 @@ function getYoutubeId($url) {
         background: #F1F5F9;
     }
 
-    /* Bookmark Button */
     .bookmark-btn {
         background: white;
         border: 2px solid #E2E8F0;
@@ -119,7 +117,6 @@ function getYoutubeId($url) {
 
 <script>
 function toggleBookmark(lessonId, buttonElement) {
-    // Disable button to prevent multiple clicks
     buttonElement.disabled = true;
     const originalIcon = buttonElement.innerHTML;
     buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -134,12 +131,10 @@ function toggleBookmark(lessonId, buttonElement) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Toggle bookmark class and title
             buttonElement.classList.toggle('bookmarked');
             buttonElement.title = buttonElement.classList.contains('bookmarked') ? 'Remove from bookmarks' : 'Add to bookmarks';
             buttonElement.innerHTML = '<i class="fas fa-bookmark"></i>';
             
-            // Show success notification
             showNotification(data.message, 'success');
         } else {
             buttonElement.innerHTML = originalIcon;
@@ -152,13 +147,11 @@ function toggleBookmark(lessonId, buttonElement) {
         showNotification('An error occurred. Please try again.', 'error');
     })
     .finally(() => {
-        // Re-enable button
         buttonElement.disabled = false;
     });
 }
 
 function showNotification(message, type) {
-    // Remove existing notification
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
         existingNotification.remove();
@@ -195,7 +188,6 @@ function showNotification(message, type) {
     }, 3000);
 }
 
-// Add animation styles
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
