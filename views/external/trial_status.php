@@ -3,7 +3,6 @@
 $pageTitle = 'Trial Status | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Get trial information from database
 try {
     $conn = new PDO("mysql:host=localhost;dbname=rays_of_grace_elearning", "root", "");
     $stmt = $conn->prepare("SELECT * FROM free_trials WHERE user_id = :user_id");
@@ -38,7 +37,6 @@ try {
                 <p style="color: #000;">Enjoying full access to all features</p>
             </div>
             
-            <!-- Progress Bar -->
             <div style="margin-bottom: 30px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #000;">
                     <span>Trial started: <?php echo $startDate->format('M d, Y'); ?></span>
@@ -65,7 +63,6 @@ try {
                 </div>
             <?php endif; ?>
             
-            <!-- Call to Action -->
             <div style="text-align: center;">
                 <a href="<?php echo BASE_URL; ?>/external/subscription" style="display: inline-block; background-color: #f06724; color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: 600; font-size: 1.1rem;">
                     Choose a Subscription Plan

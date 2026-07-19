@@ -155,7 +155,6 @@ $search = $_GET['search'] ?? '';
 </div>
 
 <?php
-// Helper function to extract YouTube video ID
 function getYoutubeId($url) {
     preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $url, $matches);
     return $matches[1] ?? '';
@@ -169,7 +168,6 @@ function getYoutubeId($url) {
     padding: 40px 20px;
 }
 
-/* Header with Bookmark Link */
 .materials-header {
     display: flex;
     justify-content: space-between;
@@ -241,7 +239,6 @@ function getYoutubeId($url) {
     color: #7f2677;
 }
 
-/* Alert Messages */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -287,7 +284,6 @@ function getYoutubeId($url) {
     }
 }
 
-/* Search Section */
 .search-section {
     background: white;
     border-radius: 16px;
@@ -363,23 +359,6 @@ function getYoutubeId($url) {
     background: #f06724;
 }
 
-.btn-clear {
-    padding: 14px 30px;
-    background: #F1F5F9;
-    color: #475569;
-    border: 2px solid #E2E8F0;
-    border-radius: 12px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
-
-.btn-clear:hover {
-    background: #E2E8F0;
-}
-
-/* Lessons Grid */
 .lessons-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -402,7 +381,6 @@ function getYoutubeId($url) {
     box-shadow: 0 20px 60px rgba(139, 92, 246, 0.2);
 }
 
-/* Lesson Thumbnail */
 .lesson-thumbnail {
     height: 180px;
     position: relative;
@@ -449,7 +427,6 @@ function getYoutubeId($url) {
     gap: 5px;
 }
 
-/* Card Bookmark Button */
 .card-bookmark-btn {
     position: absolute;
     top: 10px;
@@ -464,7 +441,7 @@ function getYoutubeId($url) {
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: #777;
+    color: #555;
     font-size: 1rem;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -485,7 +462,6 @@ function getYoutubeId($url) {
     background: #e05a1a;
 }
 
-/* Lesson Content */
 .lesson-content {
     padding: 25px;
     flex: 1;
@@ -597,7 +573,6 @@ function getYoutubeId($url) {
     box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -635,7 +610,6 @@ function getYoutubeId($url) {
     margin: 0 auto;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .materials-header {
         flex-direction: column;
@@ -680,7 +654,6 @@ function getYoutubeId($url) {
 </style>
 
 <script>
-// Function to toggle bookmark from card
 function toggleCardBookmark(lessonId, buttonElement) {
     if (typeof event !== 'undefined') {
         event.preventDefault();
@@ -736,7 +709,6 @@ function toggleCardBookmark(lessonId, buttonElement) {
     });
 }
 
-// Function to update bookmark count in header
 function updateBookmarkCount() {
     fetch('<?php echo BASE_URL; ?>/external/get-bookmark-count', {
         method: 'GET',
@@ -758,7 +730,6 @@ function updateBookmarkCount() {
     });
 }
 
-// Show notification function (No icons and no close buttons)
 function showNotification(message, type = 'info') {
     const existingNotification = document.querySelector('.notification-toast');
     if (existingNotification) {
@@ -772,7 +743,6 @@ function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification-toast notification-${type}`;
     
-    // Completely stripped of all icon tags and closing buttons
     notification.innerHTML = `<span>${message}</span>`;
     
     Object.assign(notification.style, {
@@ -791,8 +761,6 @@ function showNotification(message, type = 'info') {
     });
     
     document.body.appendChild(notification);
-    
-    // Auto dismiss stays active since there is no click-to-close option
     setTimeout(() => {
         if (notification.parentElement) {
             notification.style.animation = 'slideOut 0.3s ease';
@@ -801,7 +769,6 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Add animation styles (Stripped out close button styles)
 if (!document.querySelector('#notification-styles')) {
     const style = document.createElement('style');
     style.id = 'notification-styles';

@@ -3,7 +3,6 @@
 $pageTitle = 'Dashboard | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Use variables passed from controller instead of calling model directly
 $trialDays = $trialDays ?? 60;
 $remainingTrialDays = $remainingTrialDays ?? 0;
 $isInTrial = $isInTrial ?? false;
@@ -19,7 +18,6 @@ $events = $events ?? [];
 ?>
 
 <style>
-    /* Base Reset Adjustments & Global Utilities */
     .dashboard-container {
         padding: 40px 20px; 
         max-width: 1200px; 
@@ -34,7 +32,6 @@ $events = $events ?? [];
         box-sizing: border-box;
     }
     
-    /* Navigation Grid Elements */
     .nav-grid {
         display: grid; 
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
@@ -54,7 +51,6 @@ $events = $events ?? [];
         box-shadow: 0 10px 30px rgba(127, 38, 119, 0.2);
     }
     
-    /* Calendar Layout Container Fixes */
     .calendar-widget-grid {
         display: grid; 
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
@@ -66,7 +62,6 @@ $events = $events ?? [];
         box-sizing: border-box;
     }
     
-    /* Feed Element Actionable Links */
     .event-feed-item {
         display: flex; 
         gap: 15px; 
@@ -99,7 +94,6 @@ $events = $events ?? [];
         box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
     }
 
-    /* Mobile Fluid Layout Breakpoints */
     @media (max-width: 768px) {
         .dashboard-container {
             padding: 20px 12px;
@@ -133,7 +127,6 @@ $events = $events ?? [];
     <div class="dashboard-card">
         <h2 style="color: #000; margin-bottom: 20px;">Dashboard</h2>
         
-        <!-- Access Status Banner -->
         <?php if ($hasActiveSubscription): ?>
             <div style="background: #F0FDF4; border-left: 4px solid #10B981; padding: 20px; margin-bottom: 30px; border-radius: 12px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <div style="background: #10B981; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -196,7 +189,6 @@ $events = $events ?? [];
             </div>
         <?php endif; ?>
         
-        <!-- Navigation Grid Elements -->
         <div class="nav-grid">
             <a href="<?php echo $hasAccess ? BASE_URL . '/external/materials' : '#'; ?>" class="nav-card" style="background: <?php echo $hasAccess ? 'linear-gradient(135deg, #7f2677, #7f2677)' : '#E2E8F0'; ?>; color: <?php echo $hasAccess ? 'white' : '#000'; ?>; <?php echo !$hasAccess ? 'cursor: not-allowed;' : ''; ?>">
                 <i class="fas fa-book-open" style="font-size: 2rem; margin-bottom: 15px; color: <?php echo $hasAccess ? '#f06724' : '#94A3B8'; ?>;"></i>
@@ -235,7 +227,6 @@ $events = $events ?? [];
 
         <div class="calendar-widget-grid">
             
-            <!-- Interactive Calendar Wrapper Component -->
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h4 id="calendar-month-year" style="margin: 0; font-size: 1.1rem; color: #7f2677; font-weight: 700;"></h4>
@@ -251,7 +242,6 @@ $events = $events ?? [];
                 <div id="calendar-days" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-size: 0.9rem;"></div>
             </div>
 
-            <!-- Actionable Sidebar Events Feed -->
             <div style="display: flex; flex-direction: column; justify-content: flex-start;">
                 <h4 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #000;">Upcoming Deadlines & Events</h4>
                 <div style="display: flex; flex-direction: column; gap: 12px; max-height: 280px; overflow-y: auto; padding-right: 5px;">

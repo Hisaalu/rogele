@@ -7,7 +7,6 @@ $activeTab = $_GET['tab'] ?? 'password';
 ?>
 
 <div class="settings-container">
-    <!-- Header Section -->
     <div class="settings-header">
         <h1 class="page-title">
             <i class="fas fa-cog"></i>
@@ -30,21 +29,15 @@ $activeTab = $_GET['tab'] ?? 'password';
         </div>
     <?php endif; ?>
 
-    <!-- Settings Tabs -->
     <div class="settings-tabs">
         <a href="<?php echo BASE_URL; ?>/external/settings" class="tab <?php echo $activeTab === 'password' ? 'active' : ''; ?>">
             <i class="fas fa-lock"></i>
             <span>Change Password</span>
         </a>
-        <!-- <a href="?tab=notifications" class="tab <?php echo $activeTab === 'notifications' ? 'active' : ''; ?>">
-            <i class="fas fa-bell"></i>
-            <span>Notifications</span>
-        </a> -->
         <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
             <i class="fas fa-shield-alt"></i>
             <span>Privacy</span>
         </a>
-        <!-- disabled -->
         <a href="javascript:void(0);"
             class="tab disabled <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
                 <i class="fas fa-trash"></i>
@@ -52,7 +45,6 @@ $activeTab = $_GET['tab'] ?? 'password';
         </a>
     </div>
 
-    <!-- Tab Content -->
     <div class="tab-content">
         <?php if ($activeTab === 'password'): ?>
             <div class="settings-card">
@@ -110,7 +102,6 @@ $activeTab = $_GET['tab'] ?? 'password';
             </div>
 
         <?php elseif ($activeTab === 'notifications'): ?>
-            <!-- Notifications Tab -->
             <div class="settings-card">
                 <h3 class="card-title">
                     <i class="fas fa-bell"></i>
@@ -187,7 +178,6 @@ $activeTab = $_GET['tab'] ?? 'password';
             </div>
 
         <?php elseif ($activeTab === 'privacy'): ?>
-            <!-- Privacy Tab -->
             <div class="settings-card">
                 <h3 class="card-title">
                     <i class="fas fa-shield-alt"></i>
@@ -262,7 +252,6 @@ $activeTab = $_GET['tab'] ?? 'password';
             </div>
 
         <?php elseif ($activeTab === 'delete'): ?>
-            <!-- Delete Account Tab - FIXED VERSION -->
             <div class="settings-card delete-card">
                 <div class="delete-header">
                     <div class="delete-icon">
@@ -272,7 +261,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                     <p class="card-description">This action is permanent and cannot be undone</p>
                 </div>
                 
-                <!-- Warning Box -->
                 <div class="warning-box">
                     <i class="fas fa-exclamation-circle"></i>
                     <div>
@@ -286,7 +274,6 @@ $activeTab = $_GET['tab'] ?? 'password';
                     </div>
                 </div>
 
-                <!-- DELETE FORM - FIXED with proper action -->
                 <form method="POST" action="<?php echo BASE_URL; ?>/external/delete-account" class="delete-form" id="deleteForm">
                     <div class="form-group">
                         <label for="delete_password">
@@ -345,7 +332,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     margin-bottom: 30px;
 }
 
-/* Settings Tabs */
 .settings-tabs {
     display: flex;
     gap: 10px;
@@ -392,7 +378,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     color: white;
 }
 
-/* Settings Card */
 .settings-card {
     background: white;
     border-radius: 24px;
@@ -515,7 +500,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     margin-top: 5px;
 }
 
-/* Password Requirements */
 .password-requirements {
     background: #F8FAFC;
     padding: 20px;
@@ -558,7 +542,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     color: #10B981;
 }
 
-/* Toggle Switches */
 .toggle-item {
     display: flex;
     align-items: center;
@@ -602,7 +585,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .toggle-info p {
     font-size: 0.85rem;
-    color: #64748B;
+    color: #555;
 }
 
 .toggle-switch {
@@ -650,7 +633,6 @@ input:checked + .slider:before {
     transform: translateX(24px);
 }
 
-/* Delete Account */
 .delete-card {
     border: 2px solid #FEE2E2;
 }
@@ -755,7 +737,6 @@ input:checked + .slider:before {
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .settings-container {
         padding: 20px 15px;
@@ -829,7 +810,6 @@ input:checked + .slider:before {
 </style>
 
 <script>
-// Password visibility toggle
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
     const button = event.currentTarget;
@@ -846,7 +826,6 @@ function togglePassword(inputId) {
     }
 }
 
-// Password strength checker
 function checkPasswordStrength() {
     const password = document.getElementById('new_password').value;
     const strengthBars = document.querySelectorAll('.strength-segment');
@@ -873,7 +852,6 @@ function checkPasswordStrength() {
     });
 }
 
-// Password match checker
 function checkPasswordMatch() {
     const password = document.getElementById('new_password').value;
     const confirm = document.getElementById('confirm_password').value;
@@ -890,9 +868,7 @@ function checkPasswordMatch() {
     }
 }
 
-// Initialize all event listeners when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // ===== DELETE ACCOUNT FORM HANDLING =====
     const deleteForm = document.getElementById('deleteForm');
     
     if (deleteForm) {
@@ -900,27 +876,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const password = document.getElementById('delete_password').value;
             const checkbox = document.querySelector('input[name="confirm_delete"]');
             
-            // Validate password
             if (!password || password.trim() === '') {
                 e.preventDefault();
                 alert('Please enter your password to confirm account deletion.');
                 return false;
             }
             
-            // Validate checkbox
             if (!checkbox || !checkbox.checked) {
                 e.preventDefault();
                 alert('Please confirm that you understand this action is permanent.');
                 return false;
             }
             
-            // Final confirmation
             if (!confirm('FINAL WARNING: Are you absolutely sure you want to permanently delete your account?\n\nThis action CANNOT be undone and all your data will be lost forever.')) {
                 e.preventDefault();
                 return false;
             }
             
-            // Double-check with "DELETE" prompt
             const typeConfirmation = prompt('To confirm, please type "DELETE" in all caps:');
             if (typeConfirmation !== 'DELETE') {
                 e.preventDefault();
@@ -928,12 +900,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // Allow form to submit
             return true;
         });
     }
     
-    // ===== PASSWORD CHANGE FORM HANDLING =====
     const passwordForm = document.getElementById('passwordForm');
     
     if (passwordForm) {
@@ -957,51 +927,41 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // ===== NOTIFICATION FORM HANDLING =====
     const notificationForm = document.querySelector('form[action="<?php echo BASE_URL; ?>/external/update-notifications"]');
     if (notificationForm) {
         notificationForm.addEventListener('submit', function(e) {
-            // Optional: Add any notification-specific validation
             return true;
         });
     }
     
-    // ===== PRIVACY FORM HANDLING =====
     const privacyForm = document.querySelector('form[action="<?php echo BASE_URL; ?>/external/update-privacy"]');
     if (privacyForm) {
         privacyForm.addEventListener('submit', function(e) {
-            // Optional: Add any privacy-specific validation
             return true;
         });
     }
     
-    // ===== TOGGLE SWITCHES - Update hidden inputs if needed =====
     document.querySelectorAll('.toggle-switch input[type="checkbox"]').forEach(toggle => {
         toggle.addEventListener('change', function() {
-            // If you need to handle toggle changes, add code here
             console.log(this.name + ' changed to: ' + this.checked);
         });
     });
     
-    // ===== PASSWORD STRENGTH CHECK ON INPUT =====
     const newPasswordField = document.getElementById('new_password');
     if (newPasswordField) {
         newPasswordField.addEventListener('input', checkPasswordStrength);
     }
     
-    // ===== PASSWORD MATCH CHECK ON INPUT =====
     const confirmPasswordField = document.getElementById('confirm_password');
     if (confirmPasswordField) {
         confirmPasswordField.addEventListener('input', checkPasswordMatch);
     }
     
-    // ===== ENABLE/DISABLE DELETE BUTTON BASED ON CHECKBOX =====
     const deleteCheckbox = document.querySelector('input[name="confirm_delete"]');
     const deleteBtn = document.getElementById('deleteAccountBtn');
     
     if (deleteCheckbox && deleteBtn) {
         deleteCheckbox.addEventListener('change', function() {
-            // Visual feedback only - actual validation happens on submit
             if (this.checked) {
                 deleteBtn.style.opacity = '1';
             } else {
@@ -1011,7 +971,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// For backwards compatibility, keep simple functions
 window.togglePassword = togglePassword;
 window.checkPasswordStrength = checkPasswordStrength;
 window.checkPasswordMatch = checkPasswordMatch;

@@ -3,14 +3,12 @@
 $pageTitle = 'Subscription | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Get settings from controller
 $subscriptionSettings = $subscriptionSettings ?? [];
 $monthlyPrice = $subscriptionSettings['monthly_price'] ?? 15000;
 $termlyPrice = $subscriptionSettings['termly_price'] ?? 40000;
 $yearlyPrice = $subscriptionSettings['yearly_price'] ?? 120000;
 $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 
-// Calculate savings
 $monthlyTotal3 = $monthlyPrice * 3;
 $monthlyTotal12 = $monthlyPrice * 12;
 $termlySavings = $monthlyTotal3 - $termlyPrice;
@@ -20,7 +18,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 ?>
 
 <div class="subscription-container">
-    <!-- Header Section -->
     <div class="subscription-header">
         <div class="badge">ROGELE </div>
         <h1 class="page-title">Choose Your Learning Path</h1>
@@ -48,7 +45,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     <?php endif; ?>
 
     <?php if ($currentSubscription): ?>
-        <!-- Active Subscription Info -->
         <div class="active-subscription">
             <div class="active-icon">
                 <i class="fas fa-check-circle"></i>
@@ -69,9 +65,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         </div>
     <?php endif; ?>
 
-    <!-- Pricing Cards -->
     <div class="pricing-grid">
-        <!-- Monthly Plan -->
         <div class="pricing-card" data-plan="monthly" data-price="<?php echo $monthlyPrice; ?>">
             <div class="plan-icon">
                 <i class="fas fa-calendar-alt"></i>
@@ -96,7 +90,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
             <?php endif; ?>
         </div>
 
-        <!-- Termly Plan (Most Popular) -->
         <div class="pricing-card popular" data-plan="termly" data-price="<?php echo $termlyPrice; ?>">
             <div class="popular-badge">RECOMMENDED</div>
             <div class="plan-icon">
@@ -123,7 +116,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
             <?php endif; ?>
         </div>
 
-        <!-- Yearly Plan -->
         <div class="pricing-card" data-plan="yearly" data-price="<?php echo $yearlyPrice; ?>">
             <div class="plan-icon">
                 <i class="fas fa-crown"></i>
@@ -151,7 +143,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         </div>
     </div>
 
-    <!-- Payment History -->
     <?php if (!empty($paymentHistory)): ?>
         <div class="history-section">
             <h2 class="section-title">
@@ -193,7 +184,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     <?php endif; ?>
 </div>
 
-<!-- Pesapal Payment Modal -->
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -265,7 +255,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 </div>
 
 <style>
-/* Main Container */
 .subscription-container {
     max-width: 1280px;
     margin: 0 auto;
@@ -273,7 +262,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Header */
 .subscription-header {
     text-align: center;
     margin-bottom: 60px;
@@ -321,7 +309,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     animation: pulse 2s infinite;
 }
 
-/* Active Subscription */
 .active-subscription {
     background: linear-gradient(135deg, #F0FDF4, #FFFFFF);
     border: 2px solid #10B981;
@@ -378,7 +365,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
 }
 
-/* Pricing Grid */
 .pricing-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -538,7 +524,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
 }
 
-/* Payment History */
 .history-section {
     background: white;
     border-radius: 28px;
@@ -616,7 +601,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     color: red;
 }
 
-/* Alert Messages */
 .alert {
     padding: 16px 20px;
     border-radius: 16px;
@@ -638,7 +622,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     color: #B91C1C;
 }
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -852,7 +835,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
 }
 
-/* Animations */
 @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.02); }
@@ -869,7 +851,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .subscription-container {
         padding: 24px 16px;
@@ -923,13 +904,11 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 </style>
 
 <script>
-// Modal elements
 const modal = document.getElementById('paymentModal');
 const modalClose = document.querySelector('.close');
 const cancelBtn = document.querySelector('.btn-cancel');
 const paymentForm = document.getElementById('paymentForm');
 
-// Open modal function
 function openModal(plan, price) {
     document.getElementById('selectedPlan').value = plan;
     document.getElementById('planNameDisplay').innerHTML = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
@@ -937,31 +916,26 @@ function openModal(plan, price) {
     modal.style.display = 'flex';
 }
 
-// Close modal function
 function closeModal() {
     modal.style.display = 'none';
     paymentForm.reset();
 }
 
-// Add click handlers to all "Select Plan" buttons
 document.querySelectorAll('.open-payment-modal').forEach(button => {
     button.addEventListener('click', function() {
         openModal(this.dataset.plan, this.dataset.price);
     });
 });
 
-// Close modal handlers
 if (modalClose) modalClose.addEventListener('click', closeModal);
 if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 
-// Close when clicking outside
 window.addEventListener('click', (e) => {
     if (e.target === modal) {
         closeModal();
     }
 });
 
-// Toggle payment method sections
 document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
     radio.addEventListener('change', function() {
         const mobileFields = document.getElementById('mobileMoneyFields');
@@ -977,7 +951,6 @@ document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
     });
 });
 
-// Format phone number
 const phoneInput = document.querySelector('input[name="phone_number"]');
 if (phoneInput) {
     phoneInput.addEventListener('input', function(e) {
