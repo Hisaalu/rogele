@@ -120,11 +120,14 @@ $search = $_GET['search'] ?? '';
                             <span title="Views">
                                 <i class="fas fa-eye"></i> <?php echo $lesson['views'] ?? 0; ?>
                             </span>
-                            <span title="Materials">
+                            <span title="Files">
                                 <i class="fas fa-paperclip"></i> <?php echo $lesson['materials_count'] ?? 0; ?>
                             </span>
                             <span title="Created">
                                 <i class="fas fa-calendar"></i> <?php echo date('M d, Y', strtotime($lesson['created_at'])); ?>
+                            </span>
+                            <span title="Edited">
+                                <i class="fas fa-edit"></i> <?php echo date('M d, Y', strtotime($lesson['updated_at'])); ?>
                             </span>
                         </div>
 
