@@ -3,7 +3,6 @@
 $pageTitle = 'Confirm Upgrade | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Get data from controller
 $fromPlan = $fromPlan ?? '';
 $toPlan = $toPlan ?? '';
 $fromPlanDetails = $fromPlanDetails ?? [];
@@ -21,7 +20,6 @@ $priceCalculation = $priceCalculation ?? [];
             <p>Review your upgrade details below</p>
         </div>
 
-        <!-- Plan Comparison -->
         <div class="plan-comparison">
             <div class="plan-card current-plan">
                 <div class="plan-badge">Current Plan</div>
@@ -63,7 +61,6 @@ $priceCalculation = $priceCalculation ?? [];
             </div>
         </div>
 
-        <!-- Price Breakdown -->
         <div class="price-breakdown">
             <h3>Payment Summary</h3>
             
@@ -90,7 +87,6 @@ $priceCalculation = $priceCalculation ?? [];
             </div>
         </div>
 
-        <!-- Payment Form -->
         <form action="<?php echo BASE_URL; ?>/external/process-upgrade" method="POST" class="payment-form">
             <input type="hidden" name="from_plan" value="<?php echo htmlspecialchars($fromPlan); ?>">
             <input type="hidden" name="to_plan" value="<?php echo htmlspecialchars($toPlan); ?>">

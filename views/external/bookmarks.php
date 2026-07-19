@@ -7,7 +7,6 @@ $bookmarks = $bookmarks ?? [];
 ?>
 
 <div class="bookmarks-container">
-    <!-- Header Section -->
     <div class="page-header">
         <div>
             <h1 class="page-title">
@@ -24,7 +23,6 @@ $bookmarks = $bookmarks ?? [];
         </div>
     </div>
 
-    <!-- Empty State -->
     <?php if (empty($bookmarks)): ?>
         <div class="empty-state">
             <div class="empty-icon">
@@ -37,14 +35,10 @@ $bookmarks = $bookmarks ?? [];
             </a>
         </div>
     <?php else: ?>
-        <!-- Bookmarks Grid -->
         <div class="bookmarks-grid">
             <?php foreach ($bookmarks as $bookmark): ?>
                 <div class="bookmark-card" data-lesson-id="<?php echo $bookmark['id']; ?>">
                     <div class="bookmark-header">
-                        <div class="bookmark-icon">
-                            <i class="fas fa-bookmark"></i>
-                        </div>
                         <div class="lesson-type">
                             <i class="fas fa-file-alt"></i>
                             Lesson
@@ -62,7 +56,7 @@ $bookmarks = $bookmarks ?? [];
                         <p class="lesson-description">
                             <?php 
                             $description = strip_tags($bookmark['content'] ?? '');
-                            echo htmlspecialchars(substr($description, 0, 120)) . (strlen($description) > 120 ? '...' : ''); 
+                            echo htmlspecialchars(substr($description, 0, 110)) . (strlen($description) > 110 ? '...' : ''); 
                             ?>
                         </p>
                         
@@ -92,7 +86,7 @@ $bookmarks = $bookmarks ?? [];
                         <a href="<?php echo BASE_URL; ?>/external/view-lesson/<?php echo $bookmark['id']; ?>" class="btn-view-lesson">
                             <i class="fas fa-eye"></i> View Lesson
                         </a>
-                        <button class="btn-share" onclick="shareLesson('<?php echo htmlspecialchars($bookmark['title']); ?>', <?php echo $bookmark['id']; ?>)">
+                        <button class="btn-share" onclick="shareLesson('<?php echo htmlspecialchars($bookmark['title'], ENT_QUOTES); ?>', <?php echo $bookmark['id']; ?>)" title="Share Lesson">
                             <i class="fas fa-share-alt"></i>
                         </button>
                     </div>
@@ -102,16 +96,15 @@ $bookmarks = $bookmarks ?? [];
     <?php endif; ?>
 </div>
 
-<!-- Remove Bookmark Confirmation Modal -->
 <div id="removeModal" class="modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Remove Bookmark</h3>
+            <h3><i class="fas fa-exclamation-triangle"></i> Remove Bookmark</h3>
             <span class="modal-close">&times;</span>
         </div>
         <div class="modal-body">
             <p>Are you sure you want to remove this lesson from your bookmarks?</p>
-            <p class="warning-text">You can always bookmark it again later.</p>
+            <div class="warning-text">You can always bookmark it again later if needed.</div>
         </div>
         <div class="modal-footer">
             <button class="btn-cancel">Cancel</button>
@@ -121,262 +114,268 @@ $bookmarks = $bookmarks ?? [];
 </div>
 
 <style>
-/* Main Container */
-.bookmarks-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 40px 20px;
-    min-height: calc(100vh - 200px);
+:root {
+    --color-purple: #7f2677;
+    --color-purple-hover: #661e5f;
+    --color-orange: #f06724;
+    --color-orange-hover: #d65319;
+    --color-text-dark: #000;
+    --color-text-muted: #555;
+    --color-bg-light: #f8fafc;
+    --border-radius-lg: 16px;
+    --border-radius-md: 12px;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 10px 25px rgba(127, 38, 119, 0.05);
+    --shadow-hover: 0 20px 35px rgba(127, 38, 119, 0.12);
+    --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Page Header */
+.bookmarks-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    min-height: calc(100vh - 250px);
+    font-family: 'Inter', sans-serif;
+}
+
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 40px;
+    margin-bottom: 36px;
     flex-wrap: wrap;
     gap: 20px;
 }
 
 .page-title {
-    font-size: 2rem;
-    font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--color-purple);
+    margin: 0 0 8px 0;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
+    letter-spacing: -0.02em;
 }
 
 .page-title i {
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--color-purple);
 }
 
 .page-subtitle {
-    color: #555;
-    font-size: 1rem;
+    color: var(--color-text-muted);
+    font-size: 1.05rem;
+    margin: 0;
 }
 
 .header-stats .stat-badge {
-    background: linear-gradient(135deg, #F8FAFC, #FFFFFF);
-    padding: 10px 20px;
+    background: #white;
+    padding: 12px 24px;
     border-radius: 50px;
     display: flex;
     align-items: center;
     gap: 10px;
     font-weight: 600;
-    color: #7f2677;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border: 1px solid #E2E8F0;
+    color: var(--color-purple);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #e2e8f0;
 }
 
 .header-stats .stat-badge i {
-    color: #f06724;
+    color: var(--color-orange);
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
-    padding: 80px 20px;
+    padding: 80px 40px;
     background: white;
-    border-radius: 24px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid #e2e8f0;
+    max-width: 600px;
+    margin: 40px auto;
 }
 
 .empty-icon {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto 20px;
-    background: linear-gradient(135deg, #FEF3C7, #FFFAF0);
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 24px;
+    background: #fffaf0;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 2px dashed #fcd34d;
 }
 
 .empty-icon i {
-    font-size: 3rem;
-    color: #f06724;
+    font-size: 2.5rem;
+    color: var(--color-orange);
 }
 
 .empty-state h3 {
-    color: #000;
-    font-size: 1.5rem;
-    margin-bottom: 10px;
+    color: var(--color-text-dark);
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 12px 0;
 }
 
 .empty-state p {
-    color: #555;
-    margin-bottom: 25px;
+    color: var(--color-text-muted);
+    margin: 0 0 30px 0;
     font-size: 1rem;
+    line-height: 1.5;
 }
 
 .btn-explore {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 28px;
-    background-color: #7f2677;
+    padding: 14px 32px;
+    background-color: var(--color-purple);
     color: white;
     text-decoration: none;
     border-radius: 50px;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: var(--transition-smooth);
 }
 
 .btn-explore:hover {
+    background-color: var(--color-purple-hover);
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(240, 103, 36, 0.3);
+    box-shadow: 0 8px 20px rgba(127, 38, 119, 0.25);
 }
 
-/* Bookmarks Grid */
 .bookmarks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 25px;
-    margin-bottom: 50px;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 28px;
 }
 
 .bookmark-card {
     background: white;
-    border-radius: 20px;
+    border-radius: var(--border-radius-lg);
     overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    position: relative;
-    border: 1px solid #E2E8F0;
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e2e8f0;
 }
 
 .bookmark-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 35px rgba(127, 38, 119, 0.15);
-    border-color: #f06724;
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--color-purple);
 }
 
 .bookmark-header {
-    background-color: #7f2677;
-    padding: 15px 20px;
+    padding: 16px 20px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    position: relative;
-}
-
-.bookmark-icon {
-    width: 35px;
-    height: 35px;
-    background-color: #f06724;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.bookmark-icon i {
-    color: white;
-    font-size: 1rem;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, #f8fafc, white);
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .lesson-type {
-    background: rgba(255,255,255,0.15);
-    padding: 5px 12px;
+    background: #f1f5f9;
+    padding: 6px 14px;
     border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-purple);
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .btn-remove-bookmark {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255,255,255,0.2);
+    background: #f1f5f9;
     border: none;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    color: white;
+    transition: var(--transition-smooth);
+    color: var(--color-text-muted);
 }
 
 .btn-remove-bookmark:hover {
-    background: #EF4444;
-    transform: translateY(-50%) scale(1.1);
+    background: #fee2e2;
+    color: #ef4444;
+    transform: rotate(90deg);
 }
 
 .bookmark-content {
-    padding: 20px;
+    padding: 24px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .lesson-title {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: #000;
-    margin-bottom: 12px;
+    color: var(--color-text-dark);
+    margin: 0 0 12px 0;
     line-height: 1.4;
 }
 
 .lesson-description {
-    color: #000;
-    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
     line-height: 1.6;
-    margin-bottom: 15px;
+    margin: 0 0 20px 0;
 }
 
 .lesson-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-top: auto;
 }
 
 .meta-tag {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 4px 12px;
-    background: #F8FAFC;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    color: #555;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--color-bg-light);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text-dark);
+    border: 1px solid #f1f5f9;
 }
 
 .meta-tag i {
-    color: #f06724;
-    font-size: 0.7rem;
+    color: var(--color-orange);
 }
 
 .bookmark-footer {
     display: flex;
-    gap: 10px;
-    padding: 15px 20px 20px;
-    border-top: 1px solid #F1F5F9;
+    gap: 12px;
+    padding: 16px 20px 24px;
+    background-color: white;
 }
 
 .btn-view-lesson {
     flex: 1;
-    background-color: #7f2677;
+    background-color: var(--color-purple);
     color: white;
     text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 40px;
+    padding: 12px 20px;
+    border-radius: var(--border-radius-md);
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: var(--transition-smooth);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -384,54 +383,57 @@ $bookmarks = $bookmarks ?? [];
 }
 
 .btn-view-lesson:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(240, 103, 36, 0.3);
+    background-color: var(--color-purple-hover);
+    box-shadow: 0 4px 12px rgba(127, 38, 119, 0.2);
 }
 
 .btn-share {
-    background: #F1F5F9;
+    background: #f1f5f9;
     border: none;
-    padding: 10px 20px;
-    border-radius: 40px;
+    width: 45px;
+    border-radius: var(--border-radius-md);
     cursor: pointer;
-    transition: all 0.3s ease;
-    color: #7f2677;
-    font-weight: 600;
+    transition: var(--transition-smooth);
+    color: var(--color-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
 }
 
 .btn-share:hover {
-    background: #E2E8F0;
-    transform: translateY(-2px);
+    background: var(--color-orange);
+    color: white;
 }
 
-/* Modal Styles */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(6px);
     z-index: 1000;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .modal-content {
     background: white;
-    border-radius: 20px;
-    max-width: 450px;
+    border-radius: var(--border-radius-lg);
+    max-width: 480px;
     width: 90%;
     overflow: hidden;
-    animation: modalSlideUp 0.3s ease;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-header {
     padding: 20px 24px;
-    background: #FEF2F2;
-    border-bottom: 2px solid #FECACA;
+    background: #fdf2f2;
+    border-bottom: 1px solid #fee2e2;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -439,21 +441,24 @@ $bookmarks = $bookmarks ?? [];
 
 .modal-header h3 {
     margin: 0;
-    color: #B91C1C;
+    color: #991b1b;
+    font-size: 1.2rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .modal-close {
     font-size: 1.5rem;
     cursor: pointer;
-    color: #000;
-    transition: color 0.2s;
+    color: #991b1b;
+    opacity: 0.6;
+    transition: var(--transition-smooth);
 }
 
 .modal-close:hover {
-    color: #000;
+    opacity: 1;
 }
 
 .modal-body {
@@ -461,117 +466,85 @@ $bookmarks = $bookmarks ?? [];
 }
 
 .modal-body p {
-    color: #000;
-    margin-bottom: 16px;
+    color: var(--color-text-dark);
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 .warning-text {
-    background: #FEF3C7;
-    padding: 12px;
-    border-radius: 8px;
-    color: #92400E;
-    font-size: 0.85rem;
+    background: #fffbeb;
+    padding: 14px;
+    border-radius: var(--border-radius-md);
+    color: #92400e;
+    font-size: 0.88rem;
+    border: 1px solid #fef3c7;
+    font-weight: 500;
 }
 
 .modal-footer {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    padding: 20px 24px;
-    border-top: 1px solid #E2E8F0;
+    padding: 16px 24px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
 }
 
 .btn-cancel {
-    padding: 10px 20px;
-    background: #F1F5F9;
-    color: #000;
-    border: none;
-    border-radius: 8px;
+    padding: 12px 24px;
+    background: white;
+    color: var(--color-text-muted);
+    border: 1px solid #e2e8f0;
+    border-radius: var(--border-radius-md);
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: var(--transition-smooth);
 }
 
 .btn-cancel:hover {
-    background: #E2E8F0;
+    background: #f1f5f9;
+    color: var(--color-text-dark);
 }
 
 .btn-confirm-remove {
-    padding: 10px 20px;
-    background: #EF4444;
+    padding: 12px 24px;
+    background: #ef4444;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--border-radius-md);
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: var(--transition-smooth);
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .btn-confirm-remove:hover {
-    background: #DC2626;
-    transform: translateY(-1px);
+    background: #dc2626;
 }
 
 /* Animations */
 @keyframes modalSlideUp {
-    from {
-        transform: translateY(30px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
-/* Responsive */
+/* Responsive Styles */
 @media (max-width: 768px) {
-    .bookmarks-container {
-        padding: 20px 15px;
-    }
-    
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .bookmarks-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .bookmark-footer {
-        flex-direction: column;
-    }
-    
-    .btn-share {
-        justify-content: center;
-    }
-    
-    .recent-list {
-        gap: 10px;
-    }
-    
-    .recent-item {
-        padding: 10px;
-    }
-    
-    .recent-info a {
-        font-size: 0.85rem;
-    }
+    .bookmarks-container { padding: 24px 16px; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .page-title { font-size: 1.85rem; }
+    .bookmarks-grid { grid-template-columns: 1fr; gap: 20px; }
+    .bookmark-footer { padding: 12px 16px 20px; }
 }
-
 </style>
 
 <script>
 let lessonToRemove = null;
 let removeButtonElement = null;
 
-/**
- * Remove bookmark function
- */
 function removeBookmark(lessonId, buttonElement) {
     lessonToRemove = lessonId;
     removeButtonElement = buttonElement;
@@ -582,16 +555,13 @@ function removeBookmark(lessonId, buttonElement) {
     }
 }
 
-/**
- * Share lesson function
- */
 function shareLesson(lessonTitle, lessonId) {
     const url = '<?php echo BASE_URL; ?>/external/view-lesson/' + lessonId;
     
     if (navigator.share) {
         navigator.share({
             title: lessonTitle,
-            text: 'Check out this lesson on ROGELE!',
+            text: `Check out this lesson on ROGELE: ${lessonTitle}`,
             url: url
         }).catch(() => {
             copyToClipboard(url, lessonTitle);
@@ -601,9 +571,6 @@ function shareLesson(lessonTitle, lessonId) {
     }
 }
 
-/**
- * Copy to clipboard
- */
 function copyToClipboard(text, lessonTitle) {
     navigator.clipboard.writeText(text).then(() => {
         showToast(`Link to "${lessonTitle}" copied to clipboard!`, 'success');
@@ -612,9 +579,6 @@ function copyToClipboard(text, lessonTitle) {
     });
 }
 
-/**
- * Show toast notification
- */
 function showToast(message, type = 'success') {
     let toast = document.getElementById('customToast');
     if (!toast) {
@@ -626,20 +590,27 @@ function showToast(message, type = 'success') {
         style.textContent = `
             #customToast {
                 position: fixed;
-                bottom: 20px;
-                right: 20px;
-                padding: 12px 24px;
-                border-radius: 8px;
-                background: #10B981;
+                bottom: 24px;
+                right: 24px;
+                padding: 14px 24px;
+                border-radius: 12px;
+                background: #10b981;
                 color: white;
-                font-weight: 500;
+                font-weight: 600;
+                box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
                 z-index: 9999;
                 opacity: 0;
-                transition: opacity 0.3s ease;
+                transform: translateY(10px);
+                transition: opacity 0.25s, transform 0.25s;
                 pointer-events: none;
+                font-family: system-ui, sans-serif;
+                font-size: 0.95rem;
             }
-            #customToast.error { background: #EF4444; }
-            #customToast.show { opacity: 1; }
+            #customToast.error { 
+                background: #ef4444; 
+                box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.3);
+            }
+            #customToast.show { opacity: 1; transform: translateY(0); }
         `;
         document.head.appendChild(style);
     }
@@ -649,10 +620,9 @@ function showToast(message, type = 'success') {
     
     setTimeout(() => {
         toast.classList.remove('show');
-    }, 3000);
+    }, 3500);
 }
 
-// Modal functionality
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('removeModal');
     const closeModal = document.querySelector('.modal-close');
@@ -677,62 +647,57 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (confirmBtn) {
         confirmBtn.addEventListener('click', function() {
-            if (lessonToRemove) {
-                confirmBtn.disabled = true;
-                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
-                
-                fetch('<?php echo BASE_URL; ?>/external/toggle-bookmark/' + lessonToRemove, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Removed from your Bookmarks!', 'success');
-                        
-                        if (removeButtonElement) {
-                            const bookmarkCard = removeButtonElement.closest('.bookmark-card');
-                            if (bookmarkCard) {
+            if (!lessonToRemove) return;
+
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+            
+            fetch('<?php echo BASE_URL; ?>/external/toggle-bookmark/' + lessonToRemove, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Removed from your Bookmarks!', 'success');
+                    
+                    if (removeButtonElement) {
+                        const bookmarkCard = removeButtonElement.closest('.bookmark-card');
+                        if (bookmarkCard) {
+                            bookmarkCard.style.opacity = '0';
+                            bookmarkCard.style.transform = 'scale(0.95)';
+                            setTimeout(() => {
                                 bookmarkCard.remove();
-                            }
-                            
-                            const recentItems = document.querySelectorAll('.recent-item');
-                            recentItems.forEach(item => {
-                                const removeBtn = item.querySelector('.recent-remove');
-                                if (removeBtn && removeBtn.onclick && removeBtn.onclick.toString().includes(lessonToRemove)) {
-                                    item.remove();
+                                
+                                const remainingCards = document.querySelectorAll('.bookmark-card').length;
+                                if (remainingCards === 0) {
+                                    location.reload();
                                 }
-                            });
+                            }, 250);
                         }
-                        
-                        // Update bookmark count
-                        const statBadge = document.querySelector('.stat-badge span');
-                        if (statBadge) {
-                            const currentCount = parseInt(statBadge.textContent);
-                            statBadge.textContent = (currentCount - 1) + ' Bookmarked Lessons';
-                        }
-                        
-                        const remainingCards = document.querySelectorAll('.bookmark-card').length;
-                        if (remainingCards === 0) {
-                            location.reload();
-                        }
-                    } else {
-                        showToast(data.message || 'Failed to remove bookmark', 'error');
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('An error occurred. Please try again.', 'error');
-                })
-                .finally(() => {
-                    confirmBtn.disabled = false;
-                    confirmBtn.innerHTML = 'Remove Bookmark';
-                    closeModalFunction();
-                });
-            }
+                    
+                    const statBadge = document.querySelector('.stat-badge span');
+                    if (statBadge) {
+                        const currentCount = parseInt(statBadge.textContent);
+                        statBadge.textContent = (currentCount - 1) + ' Bookmarked Lessons';
+                    }
+                } else {
+                    showToast(data.message || 'Failed to remove bookmark', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            })
+            .finally(() => {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Remove Bookmark';
+                closeModalFunction();
+            });
         });
     }
 });

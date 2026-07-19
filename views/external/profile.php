@@ -5,7 +5,6 @@ require_once __DIR__ . '/../layouts/header.php';
 ?>
 
 <div class="profile-container">
-    <!-- Header Section -->
     <div class="profile-header">
         <h1 class="page-title">
             <i class="fas fa-user-circle"></i>
@@ -29,7 +28,6 @@ require_once __DIR__ . '/../layouts/header.php';
     <?php endif; ?>
 
     <div class="profile-grid">
-        <!-- Profile Card Left -->
         <div class="profile-card profile-card-left">
             <div class="profile-photo-section">
                 <div class="profile-photo-wrapper">
@@ -49,10 +47,6 @@ require_once __DIR__ . '/../layouts/header.php';
                             ?>
                         </div>
                     <?php endif; ?>
-                    
-                    <!-- <button class="photo-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
-                        <i class="fas fa-camera"></i>
-                    </button> -->
                 </div>
                 <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></h2>
                 <p class="profile-role"><?php echo ucfirst($_SESSION[''] ?? 'Student'); ?></p>
@@ -60,11 +54,6 @@ require_once __DIR__ . '/../layouts/header.php';
                 <form method="POST" action="<?php echo BASE_URL; ?>/external/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
                     <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" style="display: none;" onchange="document.getElementById('photoUploadForm').submit()">
                 </form>
-                
-                <!-- <div class="photo-info">
-                    <i class="fas fa-info-circle"></i>
-                    <span>JPG, PNG or GIF (Max 2MB)</span>
-                </div> -->
             </div>
 
             <div class="profile-stats">
@@ -107,7 +96,6 @@ require_once __DIR__ . '/../layouts/header.php';
             </div>
         </div>
 
-        <!-- Profile Card Right - Edit Form -->
         <div class="profile-card profile-card-right">
             <h3 class="card-title">
                 <i class="fas fa-edit"></i>
@@ -176,7 +164,6 @@ require_once __DIR__ . '/../layouts/header.php';
                     >
                 </div>
 
-                <!-- Class Selection Dropdown -->
                 <div class="form-group">
                     <label for="class_id">
                         <i class="fas fa-graduation-cap"></i>
@@ -539,7 +526,6 @@ require_once __DIR__ . '/../layouts/header.php';
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
 
-/* Alert Styles */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -573,7 +559,6 @@ require_once __DIR__ . '/../layouts/header.php';
     }
 }
 
-/* Responsive Design */
 @media (max-width: 992px) {
     .profile-grid {
         grid-template-columns: 1fr;

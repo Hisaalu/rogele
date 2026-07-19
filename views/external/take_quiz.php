@@ -110,7 +110,6 @@ $endTime = time() + $timeLimitSeconds;
 </div>
 
 <style>
-/* Your existing styles remain the same */
 .quiz-take-container {
     max-width: 900px;
     margin: 40px auto;
@@ -404,14 +403,12 @@ $endTime = time() + $timeLimitSeconds;
 </style>
 
 <script>
-// Quiz configuration
 const QUIZ_STORAGE_KEY = 'quiz_state_' + <?php echo $quizId; ?> + '_' + <?php echo $attemptId; ?>;
 const ATTEMPT_ID = <?php echo $attemptId; ?>;
 const TOTAL_QUESTIONS = <?php echo count($questions); ?>;
 const TIME_LIMIT_SECONDS = <?php echo $timeLimitSeconds; ?>;
 const QUIZ_ID = <?php echo $quizId; ?>;
 
-// Use server-side end time for reliable timer across logouts
 let endTime = localStorage.getItem('quiz_end_time_' + QUIZ_ID + '_' + ATTEMPT_ID);
 if (!endTime) {
     endTime = Date.now() + (TIME_LIMIT_SECONDS * 1000);
@@ -423,7 +420,6 @@ let formSubmitted = false;
 let timerInterval = null;
 let warningShown = false;
 
-// DOM elements
 const stickyTimerBar = document.getElementById('stickyTimerBar');
 const stickyTimerDisplay = document.getElementById('stickyTimerDisplay');
 const stickyAnsweredCount = document.getElementById('stickyAnsweredCount');
@@ -453,18 +449,15 @@ function updateTimerDisplay() {
         stickyTimerDisplay.textContent = formatTime(timeLeft);
     }
     
-    // Show warning when less than 1 minute
     if (timeLeft <= 60 && timeLeft > 0 && !warningShown) {
         if (timerWarning) timerWarning.style.display = 'flex';
         warningShown = true;
     }
     
-    // Auto-submit when time is up
     if (timeLeft <= 0 && !formSubmitted) {
         autoSubmit();
     }
     
-    // Store remaining time in localStorage
     localStorage.setItem('quiz_time_remaining_' + QUIZ_ID + '_' + ATTEMPT_ID, timeLeft);
 }
 
@@ -474,18 +467,14 @@ function autoSubmit() {
     console.log("Auto-submitting quiz...");
     formSubmitted = true;
     
-    // Clear timer
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
     }
     
-    // Show alert
-    alert('⏰ Time is up! Your quiz will be submitted automatically.');
+    alert('Time is up! Your quiz will be submitted automatically.');
     
-    // Submit the form
     if (quizForm) {
-        // Add a flag to indicate auto-submit
         const autoSubmitFlag = document.createElement('input');
         autoSubmitFlag.type = 'hidden';
         autoSubmitFlag.name = 'auto_submit';
@@ -567,13 +556,11 @@ function checkScrollPosition() {
     }
 }
 
-// Initialize timer
 function initTimer() {
     updateTimerDisplay();
     timerInterval = setInterval(updateTimerDisplay, 1000);
 }
 
-// Block back navigation
 history.pushState(null, null, location.href);
 window.addEventListener('popstate', function(event) {
     if (confirm('WARNING: If you go back, you may lose your progress and cannot retake this quiz!\n\nDo you want to continue?')) {
@@ -585,7 +572,6 @@ window.addEventListener('popstate', function(event) {
     }
 });
 
-// Warn before refresh
 window.addEventListener('beforeunload', function (e) {
     if (!formSubmitted) {
         e.preventDefault();
@@ -594,34 +580,28 @@ window.addEventListener('beforeunload', function (e) {
     }
 });
 
-// Clean up on form submission
 if (quizForm) {
     quizForm.addEventListener('submit', function() {
         formSubmitted = true;
         if (timerInterval) {
             clearInterval(timerInterval);
         }
-        // Clear localStorage
         localStorage.removeItem(QUIZ_STORAGE_KEY);
         localStorage.removeItem('quiz_end_time_' + QUIZ_ID + '_' + ATTEMPT_ID);
         localStorage.removeItem('quiz_time_remaining_' + QUIZ_ID + '_' + ATTEMPT_ID);
     });
 }
 
-// Load saved answers
 loadSavedAnswers();
 
-// Setup radio button listeners
 if (radioButtons.length > 0) {
     radioButtons.forEach(radio => {
         radio.addEventListener('change', updateProgress);
     });
 }
 
-// Initial progress update
 updateProgress();
 
-// Start timer
 if (TIME_LIMIT_SECONDS > 0) {
     initTimer();
 } else if (timerDisplay) {
@@ -629,18 +609,15 @@ if (TIME_LIMIT_SECONDS > 0) {
     if (stickyTimerDisplay) stickyTimerDisplay.textContent = 'No time limit';
 }
 
-// Scroll listeners
 window.addEventListener('scroll', checkScrollPosition);
 window.addEventListener('resize', checkScrollPosition);
 checkScrollPosition();
 
-// Anti-cheat: Disable right-click
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     return false;
 });
 
-// Anti-cheat: Disable copy-paste
 document.addEventListener('copy', function(e) {
     e.preventDefault();
     return false;
@@ -651,14 +628,12 @@ document.addEventListener('paste', function(e) {
     return false;
 });
 
-// Anti-cheat: Warn about tab switching
 document.addEventListener('visibilitychange', function() {
     if (document.hidden && !formSubmitted) {
         alert('Please do not switch tabs during the quiz. Your attempt may be invalidated.');
     }
 });
 
-// Anti-cheat: Block refresh shortcuts
 document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey && (e.key === 'r' || e.key === 'R')) || 
         (e.ctrlKey && e.shiftKey && (e.key === 'r' || e.key === 'R')) ||

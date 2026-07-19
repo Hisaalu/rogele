@@ -3,7 +3,6 @@
 $pageTitle = 'Quiz Result | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Check if data exists
 if (!isset($attemptDetails) || empty($attemptDetails)) {
     echo '<div style="text-align: center; padding: 50px;">
             <h2>Result not found</h2>
@@ -14,7 +13,6 @@ if (!isset($attemptDetails) || empty($attemptDetails)) {
     exit;
 }
 
-// Set default values if missing
 $score = isset($attemptDetails['score']) ? (int)$attemptDetails['score'] : 0;
 $passingScore = isset($attemptDetails['passing_score']) ? (int)$attemptDetails['passing_score'] : 70;
 $totalQuestions = isset($attemptDetails['total_questions']) ? (int)$attemptDetails['total_questions'] : 0;
@@ -27,7 +25,6 @@ $minutes = floor($timeTaken / 60);
 $seconds = $timeTaken % 60;
 $timeFormatted = $minutes . ':' . ($seconds < 10 ? '0' : '') . $seconds;
 
-// Get questions with user's answers
 $questions = isset($attemptDetails['questions']) ? $attemptDetails['questions'] : [];
 $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_answers'] : [];
 ?>
