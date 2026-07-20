@@ -1,16 +1,14 @@
 <?php
 // File: /views/admin/users.php
 $pageTitle = 'Users | ROGELE';
-require_once __DIR__ . '/../layouts/header.php';
+require_once __DIR__ . '/../layouts/admin_header.php';
 
-// Get parameters
 $page = $_GET['page'] ?? 1;
 $role = $_GET['role'] ?? '';
 $search = $_GET['search'] ?? '';
 ?>
 
 <div class="users-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <h1 class="page-title">
@@ -25,7 +23,6 @@ $search = $_GET['search'] ?? '';
         </a>
     </div>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -48,7 +45,6 @@ $search = $_GET['search'] ?? '';
         </div>
     <?php endif; ?>
 
-    <!-- Filters and Search -->
     <div class="filters-card">
         <form method="GET" class="filters-form" id="filterForm">
             <div class="search-box">
@@ -76,7 +72,6 @@ $search = $_GET['search'] ?? '';
         </form>
     </div>
 
-    <!-- Users Table -->
     <div class="table-card">
         <div class="table-responsive">
             <table class="data-table">
@@ -137,12 +132,10 @@ $search = $_GET['search'] ?? '';
                             </td>
                             <td><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
                             <td class="actions-cell">
-                                <!-- Edit Button -->
                                 <a href="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo $user['id']; ?>" class="action-btn edit" title="Edit User">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 
-                                <!-- Suspend/Activate Button -->
                                 <?php if ($user['is_suspended']): ?>
                                     <a href="<?php echo BASE_URL; ?>/admin/users/activate/<?php echo $user['id']; ?>" class="action-btn activate" title="Activate User" onclick="return confirm('Activate this user?')">
                                         <i class="fas fa-check-circle"></i>
@@ -152,8 +145,7 @@ $search = $_GET['search'] ?? '';
                                         <i class="fas fa-ban"></i>
                                     </a>
                                 <?php endif; ?>
-                                
-                                <!-- Delete Button (cannot delete yourself) -->
+
                                 <?php if ($_SESSION['user_id'] != $user['id']): ?>
                                     <a href="<?php echo BASE_URL; ?>/admin/users/delete/<?php echo $user['id']; ?>" class="action-btn delete" title="Delete User" onclick="return confirmDelete(<?php echo $user['id']; ?>, '<?php echo addslashes($user['first_name'] . ' ' . $user['last_name']); ?>')">
                                         <i class="fas fa-trash"></i>
@@ -167,7 +159,6 @@ $search = $_GET['search'] ?? '';
             </table>
         </div>
 
-        <!-- Pagination -->
         <?php if (!empty($users) && $totalPages > 1): ?>
             <div class="pagination">
                 <?php if ($page > 1): ?>
@@ -194,14 +185,12 @@ $search = $_GET['search'] ?? '';
 </div>
 
 <style>
-/* Main Container */
 .users-container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 30px 20px;
 }
 
-/* Page Header */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -250,7 +239,6 @@ $search = $_GET['search'] ?? '';
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
 
-/* Alert Messages */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -314,7 +302,6 @@ $search = $_GET['search'] ?? '';
     }
 }
 
-/* Filters Card */
 .filters-card {
     background: white;
     border-radius: 16px;
@@ -341,32 +328,38 @@ $search = $_GET['search'] ?? '';
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94A3B8;
+    color: #555;
 }
 
 .search-box input {
     width: 100%;
     padding: 12px 15px 12px 45px;
     border: 1px solid #E2E8F0;
-    border-radius: 50px;
-    font-size: 0.95rem;
+    border-radius: 12px;
+    font-size: 1rem;
     transition: all 0.3s ease;
 }
 
 .search-box input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .filter-group select {
     padding: 12px 20px;
-    border: 2px solid #f06724;
-    border-radius: 50px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
     font-size: 0.95rem;
     background: white;
     min-width: 150px;
     cursor: pointer;
+}
+
+.filter-group select:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .btn-filter {
@@ -399,7 +392,6 @@ $search = $_GET['search'] ?? '';
     color: white;
 }
 
-/* Table Card */
 .table-card {
     background: white;
     border-radius: 20px;
@@ -418,7 +410,7 @@ $search = $_GET['search'] ?? '';
 
 .data-table th {
     background: #F8FAFC;
-    color: #1E293B;
+    color: #000;
     font-weight: 600;
     font-size: 0.9rem;
     letter-spacing: 0.5px;
@@ -430,14 +422,13 @@ $search = $_GET['search'] ?? '';
 .data-table td {
     padding: 16px 20px;
     border-bottom: 1px solid #F1F5F9;
-    color: #1E293B;
+    color: #000;
 }
 
 .data-table tr:hover td {
     background: #F8FAFC;
 }
 
-/* User Cell */
 .user-cell {
     display: flex;
     align-items: center;
@@ -483,7 +474,6 @@ $search = $_GET['search'] ?? '';
     color: black;
 }
 
-/* Role Badges */
 .role-badge {
     display: inline-block;
     padding: 5px 12px;
@@ -512,7 +502,6 @@ $search = $_GET['search'] ?? '';
     color: #92400E;
 }
 
-/* Status Badges */
 .status-badge {
     display: inline-block;
     padding: 5px 12px;
@@ -536,7 +525,6 @@ $search = $_GET['search'] ?? '';
     color: #B91C1C;
 }
 
-/* Action Buttons */
 .actions-cell {
     display: flex;
     gap: 8px;
@@ -599,11 +587,10 @@ $search = $_GET['search'] ?? '';
     transform: translateY(-2px);
 }
 
-/* Empty Message */
 .empty-message {
     text-align: center;
     padding: 60px !important;
-    color: #94A3B8;
+    color: #555;
 }
 
 .empty-message i {
@@ -616,7 +603,6 @@ $search = $_GET['search'] ?? '';
     font-size: 1.1rem;
 }
 
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -646,7 +632,6 @@ $search = $_GET['search'] ?? '';
     color: white;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .page-header {
         flex-direction: column;

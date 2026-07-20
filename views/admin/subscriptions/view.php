@@ -1,16 +1,14 @@
 <?php
 // File: /views/admin/subscriptions/view.php
 $pageTitle = 'Subscription Details | ROGELE';
-require_once __DIR__ . '/../../layouts/header.php';
+require_once __DIR__ . '/../../layouts/admin_header.php';
 
-// Get data from controller
 $subscription = $subscription ?? [];
 $userHistory = $userHistory ?? [];
 $paymentHistory = $paymentHistory ?? [];
 ?>
 
 <div class="subscription-view-container">
-    <!-- Header with actions -->
     <div class="page-header">
         <div>
             <h1 class="page-title">
@@ -27,7 +25,6 @@ $paymentHistory = $paymentHistory ?? [];
         </div>
     </div>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -44,9 +41,7 @@ $paymentHistory = $paymentHistory ?? [];
         </div>
     <?php endif; ?>
 
-    <!-- Main Content Grid -->
     <div class="details-grid">
-        <!-- Left Column - Subscription Info (REPLACED WITH DROPDOWN) -->
         <div class="info-card subscription-info">
             <div class="card-header">
                 <h2><i class="fas fa-info-circle"></i> Subscription Information</h2>
@@ -132,7 +127,6 @@ $paymentHistory = $paymentHistory ?? [];
             </div>
         </div>
 
-        <!-- Right Column - User Info -->
         <div class="info-card user-info-card">
             <div class="card-header">
                 <h2><i class="fas fa-user"></i> User Information</h2>
@@ -193,7 +187,6 @@ $paymentHistory = $paymentHistory ?? [];
         </div>
     </div>
 
-    <!-- Upgrade Information (if applicable) -->
     <?php if (!empty($subscription['is_upgrade'])): ?>
     <div class="upgrade-info-card">
         <div class="card-header">
@@ -223,7 +216,6 @@ $paymentHistory = $paymentHistory ?? [];
     </div>
     <?php endif; ?>
 
-    <!-- Payment History -->
     <?php if (!empty($paymentHistory) && is_array($paymentHistory)): ?>
         <div class="payment-history-card">
             <div class="card-header">
@@ -276,7 +268,6 @@ $paymentHistory = $paymentHistory ?? [];
     </div>
     <?php endif; ?>
 
-    <!-- User Subscription History -->
     <?php if (!empty($userHistory)): ?>
     <div class="user-history-card">
         <div class="card-header">
@@ -384,7 +375,6 @@ $paymentHistory = $paymentHistory ?? [];
     background: #f06724;
 }
 
-/* Alert Messages */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -419,7 +409,6 @@ $paymentHistory = $paymentHistory ?? [];
     padding: 0 5px;
 }
 
-/* Details Grid */
 .details-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -446,7 +435,7 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .card-header h2 {
-    color: #1E293B;
+    color: #000;
     font-size: 1.2rem;
     display: flex;
     align-items: center;
@@ -458,7 +447,6 @@ $paymentHistory = $paymentHistory ?? [];
     color: #f06724;
 }
 
-/* Status Dropdown Styling */
 .status-select {
     padding: 6px 16px;
     border-radius: 50px;
@@ -476,11 +464,10 @@ $paymentHistory = $paymentHistory ?? [];
     transform: translateY(-1px);
 }
 
-/* Match the badge colors */
 .status-select.active { background: #F0FDF4; color: #166534; border-color: #BBF7D0; }
 .status-select.expired { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
 .status-select.pending { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
-.status-select.cancelled { background: #F1F5F9; color: #64748B; border-color: #E2E8F0; }
+.status-select.cancelled { background: #F1F5F9; color: #555; border-color: #E2E8F0; }
 
 .status-update-form {
     display: inline-flex;
@@ -506,13 +493,13 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .info-label {
-    color: #64748B;
+    color: #555;
     font-weight: 500;
     font-size: 0.95rem;
 }
 
 .info-value {
-    color: #1E293B;
+    color: #000;
     font-weight: 600;
 }
 
@@ -530,7 +517,6 @@ $paymentHistory = $paymentHistory ?? [];
     margin-left: 5px;
 }
 
-/* Status Badge */
 .status-badge {
     display: inline-block;
     padding: 5px 15px;
@@ -556,10 +542,9 @@ $paymentHistory = $paymentHistory ?? [];
 
 .status-badge.cancelled {
     background: #F1F5F9;
-    color: #64748B;
+    color: #555;
 }
 
-/* Plan Badge */
 .plan-badge {
     display: inline-block;
     padding: 5px 15px;
@@ -583,7 +568,6 @@ $paymentHistory = $paymentHistory ?? [];
     color: #166534;
 }
 
-/* User Info */
 .user-avatar {
     display: flex;
     justify-content: center;
@@ -652,7 +636,6 @@ $paymentHistory = $paymentHistory ?? [];
     color: white;
 }
 
-/* Upgrade Info */
 .upgrade-info-card {
     background: linear-gradient(135deg, #FEF3C7, #FFFAF0);
     border: 2px solid #7f2677;
@@ -681,7 +664,7 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .upgrade-value {
-    color: #1E293B;
+    color: #000;
     font-weight: 700;
     font-size: 1.1rem;
 }
@@ -695,7 +678,6 @@ $paymentHistory = $paymentHistory ?? [];
     text-decoration: underline;
 }
 
-/* Tables */
 .payment-history-card,
 .user-history-card {
     background: white;
@@ -721,7 +703,7 @@ $paymentHistory = $paymentHistory ?? [];
     padding: 15px 20px;
     text-align: left;
     font-weight: 600;
-    color: #1E293B;
+    color: #000;
     border-bottom: 2px solid #E2E8F0;
 }
 
@@ -743,7 +725,7 @@ $paymentHistory = $paymentHistory ?? [];
 
 .transaction-id {
     font-family: monospace;
-    color: #64748B;
+    color: #555;
 }
 
 .btn-view-small {
@@ -764,7 +746,6 @@ $paymentHistory = $paymentHistory ?? [];
     color: white;
 }
 
-/* Badges */
 .badge-success {
     background: #F0FDF4;
     color: #166534;
@@ -795,7 +776,7 @@ $paymentHistory = $paymentHistory ?? [];
     border-radius: 12px;
     padding: 30px;
     text-align: center;
-    color: #64748B;
+    color: #555;
     margin: 20px 0;
 }
 
@@ -809,7 +790,6 @@ $paymentHistory = $paymentHistory ?? [];
     font-size: 1rem;
 }
 
-/* Animations */
 @keyframes slideDown {
     from {
         transform: translateY(-20px);
@@ -821,7 +801,6 @@ $paymentHistory = $paymentHistory ?? [];
     }
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
     .details-grid {
         grid-template-columns: 1fr;

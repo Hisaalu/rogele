@@ -1,19 +1,15 @@
 <?php
 // File: /views/admin/view_quiz.php
 $pageTitle = 'View Quiz | ROGELE';
-require_once __DIR__ . '/../layouts/header.php';
+require_once __DIR__ . '/../layouts/admin_header.php';
 
 $quiz = $quiz ?? [];
 $questions = $quiz['questions'] ?? [];
 ?>
 
 <div class="view-quiz-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="<?php echo BASE_URL; ?>/admin/quizzes" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Quizzes
-            </a>
             <h1 class="page-title">
                 <i class="fas fa-pencil-alt"></i>
                 View Quiz
@@ -21,7 +17,6 @@ $questions = $quiz['questions'] ?? [];
         </div>
     </div>
 
-    <!-- Quiz Details -->
     <div class="quiz-card">
         <div class="quiz-header">
             <h2><?php echo htmlspecialchars($quiz['title'] ?? ''); ?></h2>
@@ -65,7 +60,6 @@ $questions = $quiz['questions'] ?? [];
         </div>
         <?php endif; ?>
 
-        <!-- Questions Section -->
         <div class="questions-section">
             <h3>Questions (<?php echo count($questions); ?>)</h3>
             
@@ -124,7 +118,6 @@ $questions = $quiz['questions'] ?? [];
             <?php endif; ?>
         </div>
 
-        <!-- Admin Actions -->
         <div class="admin-actions">
             <a href="<?php echo BASE_URL; ?>/admin/quizzes/delete/<?php echo $quiz['id']; ?>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this quiz? This action cannot be undone.')">
                 <i class="fas fa-trash"></i> Delete Quiz
@@ -144,7 +137,7 @@ $questions = $quiz['questions'] ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -178,7 +171,7 @@ $questions = $quiz['questions'] ?? [];
 }
 
 .quiz-header h2 {
-    color: black;
+    color: #000;
     font-size: 2rem;
     margin-bottom: 15px;
 }
@@ -194,7 +187,7 @@ $questions = $quiz['questions'] ?? [];
     display: flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     font-size: 0.95rem;
 }
 
@@ -222,7 +215,7 @@ $questions = $quiz['questions'] ?? [];
 
 .status-badge.draft {
     background: #F1F5F9;
-    color: #64748B;
+    color: #555;
 }
 
 .quiz-description {
@@ -233,18 +226,18 @@ $questions = $quiz['questions'] ?? [];
 }
 
 .quiz-description h3 {
-    color: #1E293B;
+    color: #000;
     font-size: 1.1rem;
     margin-bottom: 10px;
 }
 
 .quiz-description p {
-    color: #475569;
+    color: #555;
     line-height: 1.6;
 }
 
 .questions-section h3 {
-    color: #1E293B;
+    color: #000;
     font-size: 1.2rem;
     margin-bottom: 20px;
 }
@@ -254,7 +247,7 @@ $questions = $quiz['questions'] ?? [];
     padding: 40px;
     background: #F8FAFC;
     border-radius: 12px;
-    color: #64748B;
+    color: #555;
 }
 
 .questions-list {
@@ -292,7 +285,7 @@ $questions = $quiz['questions'] ?? [];
 }
 
 .question-text {
-    color: #1E293B;
+    color: #000;
     font-weight: 500;
     margin-bottom: 15px;
     font-size: 1rem;
@@ -322,7 +315,7 @@ $questions = $quiz['questions'] ?? [];
 .option-letter {
     width: 28px;
     height: 28px;
-    background: #8B5CF6;
+    background: #555;
     color: white;
     border-radius: 6px;
     display: flex;
@@ -334,7 +327,7 @@ $questions = $quiz['questions'] ?? [];
 
 .option-text {
     flex: 1;
-    color: #1E293B;
+    color: #000;
 }
 
 .correct-badge {
@@ -377,7 +370,6 @@ $questions = $quiz['questions'] ?? [];
     box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .quiz-card {
         padding: 25px;

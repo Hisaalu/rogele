@@ -1,7 +1,7 @@
 <?php
 // File: /views/admin/lessons.php
 $pageTitle = 'Lessons | ROGELE';
-require_once __DIR__ . '/../layouts/header.php';
+require_once __DIR__ . '/../layouts/admin_header.php';
 
 $lessons = $lessons ?? [];
 $teachers = $teachers ?? [];
@@ -21,7 +21,6 @@ $statusFilter = $_GET['status'] ?? '';
         <p class="page-subtitle">View and moderate all lessons on the platform</p>
     </div>
 
-    <!-- Filters -->
     <div class="filters-section">
         <form method="GET" class="filters-form">
             <div class="search-box">
@@ -159,7 +158,7 @@ $statusFilter = $_GET['status'] ?? '';
 }
 
 .page-subtitle {
-    color: black;
+    color: #000;
     font-size: 1rem;
 }
 
@@ -203,16 +202,22 @@ $statusFilter = $_GET['status'] ?? '';
 .search-box input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .filters-form select {
     padding: 12px 20px;
-    border: 2px solid #f06724;
+    border: 1px solid #E2E8F0;
     border-radius: 8px;
     font-size: 0.95rem;
     min-width: 150px;
     background: white;
+}
+
+.filters-form select:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .btn-filter {
@@ -261,7 +266,7 @@ $statusFilter = $_GET['status'] ?? '';
 
 .data-table th {
     background: #F8FAFC;
-    color: black;
+    color: #000;
     font-weight: 600;
     font-size: 0.9rem;
     padding: 15px;
@@ -272,7 +277,7 @@ $statusFilter = $_GET['status'] ?? '';
 .data-table td {
     padding: 12px 15px;
     border-bottom: 1px solid #F1F5F9;
-    color: black;
+    color: #000;
 }
 
 .data-table tr:hover td {
@@ -294,7 +299,7 @@ $statusFilter = $_GET['status'] ?? '';
 
 .status-badge.draft {
     background: #F1F5F9;
-    color: #64748B;
+    color: #555;
 }
 
 .status-badge.approved {
@@ -356,7 +361,7 @@ $statusFilter = $_GET['status'] ?? '';
 .empty-message {
     text-align: center;
     padding: 40px !important;
-    color: #64748B;
+    color: #555;
 }
 
 .pagination {
@@ -375,19 +380,8 @@ $statusFilter = $_GET['status'] ?? '';
     justify-content: center;
     border-radius: 6px;
     text-decoration: none;
-    color: #1E293B;
+    color: #000;
     border: 1px solid #E2E8F0;
-}
-
-.page-link:hover {
-    background: #F1F5F9;
-    border-color: #8B5CF6;
-}
-
-.page-link.active {
-    background: #8B5CF6;
-    color: white;
-    border-color: #8B5CF6;
 }
 
 @media (max-width: 768px) {

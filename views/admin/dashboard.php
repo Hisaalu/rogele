@@ -1,9 +1,8 @@
 <?php
 // File: /views/admin/dashboard.php
 $pageTitle = 'Admin Dashboard | ROGELE';
-require_once __DIR__ . '/../layouts/header.php';
+require_once __DIR__ . '/../layouts/admin_header.php';
 
-// Get stats from controller
 $totalUsers = $totalUsers ?? 0;
 $totalTeachers = $totalTeachers ?? 0;
 $totalLearners = $totalLearners ?? 0;
@@ -13,7 +12,6 @@ $recentActivity = $recentActivity ?? [];
 ?>
 
 <div class="admin-dashboard">
-    <!-- Header -->
     <div class="dashboard-header">
         <div>
             <h1 class="page-title">
@@ -34,7 +32,6 @@ $recentActivity = $recentActivity ?? [];
         </div>
     </div>
 
-    <!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon" style="background-color: #f06724;">
@@ -89,7 +86,6 @@ $recentActivity = $recentActivity ?? [];
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="quick-actions">
         <h2 class="section-title">Quick Actions</h2>
         <div class="actions-grid">
@@ -139,9 +135,7 @@ $recentActivity = $recentActivity ?? [];
         </div>
     </div>
 
-    <!-- Recent Users & Activity -->
     <div class="dashboard-grid">
-        <!-- Recent Users -->
         <div class="dashboard-card">
             <div class="card-header">
                 <h3><i class="fas fa-user-plus"></i> Recent Users</h3>
@@ -152,7 +146,6 @@ $recentActivity = $recentActivity ?? [];
                     <p class="empty-message">No recent users</p>
                 <?php else: ?>
                     <?php 
-                    // Show only the last 4 users
                     $displayUsers = array_slice($recentUsers, 0, 4);
                     foreach ($displayUsers as $user): 
                     ?>
@@ -177,7 +170,6 @@ $recentActivity = $recentActivity ?? [];
             </div>
         </div>
 
-        <!-- Recent Activity -->
         <div class="dashboard-card">
             <div class="card-header">
                 <h3><i class="fas fa-history"></i> Recent Activity</h3>
@@ -188,7 +180,6 @@ $recentActivity = $recentActivity ?? [];
                     <p class="empty-message">No recent activity</p>
                 <?php else: ?>
                     <?php 
-                    // Show only the first 4 activities
                     $count = 0;
                     foreach ($recentActivity as $activity): 
                         if ($count >= 4) break;
@@ -242,7 +233,7 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .page-subtitle {
-    color: black;
+    color: #000;
     font-size: 1rem;
 }
 
@@ -251,7 +242,7 @@ $recentActivity = $recentActivity ?? [];
     padding: 12px 24px;
     border-radius: 50px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    color: black;
+    color: #000;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -262,7 +253,6 @@ $recentActivity = $recentActivity ?? [];
     color: #F97316;
 }
 
-/* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -318,12 +308,12 @@ $recentActivity = $recentActivity ?? [];
     display: block;
     font-size: 2.2rem;
     font-weight: 700;
-    color: black;
+    color: #000;
     line-height: 1.2;
 }
 
 .stat-label {
-    color: black;
+    color: #000;
     font-size: 0.9rem;
 }
 
@@ -342,14 +332,13 @@ $recentActivity = $recentActivity ?? [];
     color: #EF4444;
 }
 
-/* Quick Actions */
 .quick-actions {
     margin-bottom: 40px;
 }
 
 .section-title {
     font-size: 1.5rem;
-    color: black;
+    color: #000;
     margin-bottom: 20px;
     font-weight: 600;
 }
@@ -396,13 +385,13 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .action-content h3 {
-    color: #1E293B;
+    color: #000;
     font-size: 1rem;
     margin-bottom: 3px;
 }
 
 .action-content p {
-    color: #64748B;
+    color: #555;
     font-size: 0.85rem;
 }
 
@@ -417,7 +406,6 @@ $recentActivity = $recentActivity ?? [];
     transform: translateX(5px);
 }
 
-/* Dashboard Grid */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -440,7 +428,7 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .card-header h3 {
-    color: #1E293B;
+    color: #000;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -468,13 +456,12 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .empty-message {
-    color: #94A3B8;
+    color: #555;
     text-align: center;
     padding: 30px;
     font-style: italic;
 }
 
-/* User Item */
 .user-item {
     display: flex;
     align-items: center;
@@ -517,22 +504,21 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .user-info h4 {
-    color: #1E293B;
+    color: #000;
     font-size: 0.95rem;
     margin-bottom: 3px;
 }
 
 .user-info p {
-    color: #64748B;
+    color: #555;
     font-size: 0.85rem;
 }
 
 .user-date {
-    color: #94A3B8;
+    color: #555;
     font-size: 0.8rem;
 }
 
-/* Activity Item */
 .activity-item {
     display: flex;
     gap: 15px;
@@ -558,17 +544,16 @@ $recentActivity = $recentActivity ?? [];
 }
 
 .activity-info p {
-    color: #1E293B;
+    color: #000;
     font-size: 0.95rem;
     margin-bottom: 3px;
 }
 
 .activity-info small {
-    color: #94A3B8;
+    color: #555;
     font-size: 0.8rem;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .dashboard-header {
         flex-direction: column;
