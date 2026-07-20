@@ -1,16 +1,12 @@
 <?php
 // File: /views/admin/create_user.php
 $pageTitle = 'Create User | ROGELE';
-require_once __DIR__ . '/../layouts/header.php';
+require_once __DIR__ . '/../layouts/admin_header.php';
 ?>
 
 <div class="admin-container">
-    <!-- Header -->
     <div class="page-header">
         <div class="header-content">
-            <a href="<?php echo BASE_URL; ?>/admin/users" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Users
-            </a>
             <h1 class="page-title">
                 <i class="fas fa-user-plus"></i>
                 Create New User
@@ -26,10 +22,8 @@ require_once __DIR__ . '/../layouts/header.php';
         </div>
     <?php endif; ?>
 
-    <!-- Create User Form -->
     <div class="form-card">
         <form method="POST" action="<?php echo BASE_URL; ?>/admin/users/create" class="admin-form">
-            <!-- Basic Information -->
             <div class="form-section">
                 <h2 class="section-title">
                     <i class="fas fa-user"></i>
@@ -96,7 +90,6 @@ require_once __DIR__ . '/../layouts/header.php';
                 </div>
             </div>
 
-            <!-- Account Settings -->
             <div class="form-section">
                 <h2 class="section-title">
                     <i class="fas fa-cog"></i>
@@ -155,7 +148,6 @@ require_once __DIR__ . '/../layouts/header.php';
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <small class="input-hint">Default: Password123</small>
                     </div>
 
                     <div class="form-group">
@@ -179,16 +171,11 @@ require_once __DIR__ . '/../layouts/header.php';
                 </div>
             </div>
 
-            <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-primary">
                     <i class="fas fa-save"></i>
                     Create User
                 </button>
-                <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </a>
             </div>
         </form>
     </div>
@@ -209,7 +196,7 @@ require_once __DIR__ . '/../layouts/header.php';
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: black;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 15px;
@@ -233,11 +220,10 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .page-subtitle {
-    color: black;
+    color: #000;
     font-size: 1rem;
 }
 
-/* Form Card */
 .form-card {
     background: white;
     border-radius: 20px;
@@ -258,7 +244,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .section-title {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     margin-bottom: 25px;
     display: flex;
@@ -270,7 +256,6 @@ require_once __DIR__ . '/../layouts/header.php';
     color: #f06724;
 }
 
-/* Form Layout */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -287,7 +272,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: black;
+    color: #000;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -317,7 +302,7 @@ require_once __DIR__ . '/../layouts/header.php';
 .form-group select:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(240, 103, 36, 0.25);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .form-group input:hover,
@@ -341,23 +326,22 @@ require_once __DIR__ . '/../layouts/header.php';
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: #94A3B8;
+    color: #555;
     cursor: pointer;
     padding: 5px;
     transition: color 0.3s ease;
 }
 
 .toggle-password:hover {
-    color: #8B5CF6;
+    color: #f06724;
 }
 
 .input-hint {
     font-size: 0.85rem;
-    color: #64748B;
+    color: #555;
     margin-top: 5px;
 }
 
-/* Form Actions */
 .form-actions {
     display: flex;
     gap: 15px;
@@ -408,11 +392,10 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .btn-secondary:hover {
     background: #f06724;
-    border-color: #94A3B8;
+    border-color: #555;
     color: white;
 }
 
-/* Alert */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -440,7 +423,6 @@ require_once __DIR__ . '/../layouts/header.php';
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .form-card {
         padding: 25px;
@@ -490,7 +472,6 @@ function toggleClassField() {
     }
 }
 
-// Form validation
 document.querySelector('form').addEventListener('submit', function(e) {
     const password = document.getElementById('password').value;
     const confirm = document.getElementById('confirm_password').value;

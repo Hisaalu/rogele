@@ -9,7 +9,6 @@ $lessonViews = $lessonViews ?? [];
 ?>
 
 <div class="analytics-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <h1 class="page-title">
@@ -71,7 +70,6 @@ $lessonViews = $lessonViews ?? [];
         </div>
     </div>
 
-    <!-- Charts Row -->
     <div class="charts-row">
         <div class="chart-card">
             <div class="chart-header">
@@ -102,7 +100,6 @@ $lessonViews = $lessonViews ?? [];
         </div> -->
     </div>
 
-    <!-- Quiz Performance Table -->
     <div class="performance-section">
         <h2 class="section-title">Quiz Performance</h2>
         <div class="table-responsive">
@@ -151,7 +148,6 @@ $lessonViews = $lessonViews ?? [];
         </div>
     </div>
 
-    <!-- Popular Lessons -->
     <div class="lessons-section">
         <h2 class="section-title">Most Viewed Lessons</h2>
         <div class="lessons-grid">
@@ -178,7 +174,6 @@ $lessonViews = $lessonViews ?? [];
     </div>
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -188,7 +183,6 @@ let lessonChart = null;
 let currentQuizDays = 30;
 let currentLessonDays = 30;
 
-// Initialize charts with real data
 document.addEventListener('DOMContentLoaded', function() {
     loadQuizChart(30);
     loadLessonChart(30);
@@ -198,15 +192,12 @@ function loadQuizChart(days) {
     currentQuizDays = days;
     const ctx = document.getElementById('quizPerformanceChart').getContext('2d');
     
-    // Show loading state
     ctx.canvas.style.opacity = '0.5';
     
-    // Destroy existing chart if it exists
     if (quizChart) {
         quizChart.destroy();
     }
     
-    // Fetch real data from API
     fetch(`<?php echo BASE_URL; ?>/teacher/api/quiz-performance?days=${days}`)
         .then(response => response.json())
         .then(data => {
@@ -280,7 +271,7 @@ function loadQuizChart(days) {
                                 color: '#000'
                             },
                             grid: {
-                                display: false // <-- Changed this from color: '#E2E8F0' to hide the lines
+                                display: false 
                             },
                             ticks: {
                                 color: '#000'
@@ -297,7 +288,7 @@ function loadQuizChart(days) {
                                 color: '#000'
                             },
                             grid: {
-                                drawOnChartArea: false // Keeps the right axis line, hides inner grids
+                                drawOnChartArea: false
                             },
                             ticks: {
                                 color: '#000',
@@ -314,7 +305,7 @@ function loadQuizChart(days) {
                                 minRotation: 45
                             },
                             grid: {
-                                display: false // Already correctly hiding vertical grid lines
+                                display: false
                             }
                         }
                     }
@@ -339,7 +330,6 @@ function loadLessonChart(days) {
         lessonChart.destroy();
     }
     
-    // Fetch real data from API
     fetch(`<?php echo BASE_URL; ?>/teacher/api/lesson-views?days=${days}`)
         .then(response => response.json())
         .then(data => {
@@ -477,7 +467,6 @@ window.addEventListener('resize', function() {
     cursor: pointer;
 }
 
-/* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -525,7 +514,6 @@ window.addEventListener('resize', function() {
     line-height: 1.2;
 }
 
-/* Charts Row */
 .charts-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -579,7 +567,6 @@ window.addEventListener('resize', function() {
     overflow-x: auto;
 }
 
-/* Performance Section */
 .performance-section {
     background: white;
     border-radius: 20px;
@@ -674,7 +661,6 @@ window.addEventListener('resize', function() {
     background: #f06724;
 }
 
-/* Lessons Section */
 .lessons-section {
     background: white;
     border-radius: 20px;
@@ -728,7 +714,6 @@ window.addEventListener('resize', function() {
     transition: width 0.3s ease;
 }
 
-/* Empty States */
 .empty-message {
     text-align: center;
     padding: 40px;
