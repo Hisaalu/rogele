@@ -128,7 +128,7 @@ $lessonViews = $lessonViews ?? [];
                             <td class="quiz-title"><?php echo htmlspecialchars($quiz['title']); ?></td>
                             <td class="number-cell"><?php echo number_format($quiz['total_attempts']); ?></td>
                             <td class="number-cell"><?php echo number_format($quiz['unique_students']); ?></td>
-                            <td class="number-cell"><?php echo round($quiz['avg_score'], 1); ?>%</td>
+                            <td class="number-cell"><?php echo round($quiz['avg_score'] ?? 0, 1); ?>%</td>
                             <td>
                                 <?php 
                                 $passRate = $quiz['total_attempts'] > 0 ? round(($quiz['passed_count'] / $quiz['total_attempts']) * 100, 1) : 0;
