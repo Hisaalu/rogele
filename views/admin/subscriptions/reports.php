@@ -1,16 +1,14 @@
 <?php
 // File: /views/admin/subscriptions/reports.php
 $pageTitle = 'Subscription Reports | ROGELE';
-require_once __DIR__ . '/../../layouts/header.php';
+require_once __DIR__ . '/../../layouts/admin_header.php';
 
-// Get data from controller
 $stats = $stats ?? [];
 $expiring = $expiring ?? [];
 $revenueByMonth = $revenueByMonth ?? [];
 ?>
 
 <div class="reports-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <h1 class="page-title">
@@ -20,10 +18,6 @@ $revenueByMonth = $revenueByMonth ?? [];
             <p class="page-subtitle">Analytics and insights for all subscriptions</p>
         </div>
         <div class="header-actions">
-            <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="btn-back">
-                <i class="fas fa-arrow-left"></i>
-                Back to Subscriptions
-            </a>
             <a href="<?php echo BASE_URL; ?>/admin/subscriptions/export?report=true" class="btn-export">
                 <i class="fas fa-download"></i>
                 Export Report
@@ -31,7 +25,6 @@ $revenueByMonth = $revenueByMonth ?? [];
         </div>
     </div>
 
-    <!-- Summary Cards -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon active">
@@ -74,9 +67,7 @@ $revenueByMonth = $revenueByMonth ?? [];
         </div>
     </div>
 
-    <!-- Charts Section -->
     <div class="charts-grid">
-        <!-- Revenue Chart -->
         <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-chart-line"></i> Revenue Overview (Last 12 Months)</h3>
@@ -86,7 +77,6 @@ $revenueByMonth = $revenueByMonth ?? [];
             </div>
         </div>
 
-        <!-- Plan Distribution Chart -->
         <div class="chart-card">
             <div class="chart-header">
                 <h3><i class="fas fa-pie-chart"></i> Plan Distribution</h3>
@@ -97,7 +87,6 @@ $revenueByMonth = $revenueByMonth ?? [];
         </div>
     </div>
 
-    <!-- Expiring Soon -->
     <div class="expiring-section">
         <h2 class="section-title">
             <i class="fas fa-exclamation-triangle"></i>
@@ -156,7 +145,6 @@ $revenueByMonth = $revenueByMonth ?? [];
         <?php endif; ?>
     </div>
 
-    <!-- Plan Distribution Details -->
     <div class="plan-details-section">
         <h2 class="section-title">
             <i class="fas fa-chart-pie"></i>
@@ -167,13 +155,14 @@ $revenueByMonth = $revenueByMonth ?? [];
             <?php 
             $planDistribution = $stats['plan_distribution'] ?? [];
             $planColors = [
-                'monthly' => '#e41d59',
+                'monthly' => '#7f2677',
                 'termly' => '#f06724',
-                'yearly' => '#7f2677'
+                'yearly' => '#e41d59'
             ];
             
+            
             foreach ($planDistribution as $plan): 
-                $color = $planColors[$plan['plan_type']] ?? 'black';
+                $color = $planColors[$plan['plan_type']] ?? '#000';
             ?>
             <div class="plan-detail-card">
                 <div class="plan-header" style="background: <?php echo $color; ?>">
@@ -195,11 +184,9 @@ $revenueByMonth = $revenueByMonth ?? [];
     </div>
 </div>
 
-<!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-// Revenue Chart
 const revenueCtx = document.getElementById('revenueChart').getContext('2d');
 const revenueData = <?php echo json_encode(array_reverse($revenueByMonth)); ?>;
 
@@ -214,7 +201,7 @@ new Chart(revenueCtx, {
         datasets: [{
             label: 'Revenue (UGX)',
             data: revenueData.map(item => item.revenue),
-            borderColor: '#8B5CF6',
+            borderColor: '#7f2677',
             backgroundColor: 'rgba(139, 92, 246, 0.1)',
             borderWidth: 3,
             fill: true,
@@ -242,7 +229,6 @@ new Chart(revenueCtx, {
     }
 });
 
-// Plan Distribution Chart
 const planCtx = document.getElementById('planChart').getContext('2d');
 const planData = <?php echo json_encode($stats['plan_distribution'] ?? []); ?>;
 
@@ -252,7 +238,7 @@ new Chart(planCtx, {
         labels: planData.map(item => ucfirst(item.plan_type) + ' (' + item.count + ')'),
         datasets: [{
             data: planData.map(item => item.count),
-            backgroundColor: ['#e41d59', '#f06724', '#7f2677'],
+            backgroundColor: ['#7f2677', '#f06724', '#e41d59'],
             borderWidth: 0
         }]
     },
@@ -267,7 +253,6 @@ new Chart(planCtx, {
     }
 });
 
-// Helper function
 function ucfirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -299,7 +284,7 @@ function ucfirst(string) {
 }
 
 .page-subtitle {
-    color: black;
+    color: #000;
     font-size: 1rem;
 }
 
@@ -321,7 +306,7 @@ function ucfirst(string) {
 
 .btn-back {
     background: #F1F5F9;
-    color: black;
+    color: #000;
 }
 
 .btn-export {
@@ -334,7 +319,6 @@ function ucfirst(string) {
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-/* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -390,14 +374,14 @@ function ucfirst(string) {
 
 .stat-info h3 {
     font-size: 0.9rem;
-    color: #64748B;
+    color: #555;
     margin-bottom: 5px;
 }
 
 .stat-number {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1E293B;
+    color: #000;
 }
 
 /* Charts */
@@ -420,7 +404,7 @@ function ucfirst(string) {
 }
 
 .chart-header h3 {
-    color: black;
+    color: #000;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -436,7 +420,6 @@ function ucfirst(string) {
     position: relative;
 }
 
-/* Expiring Section */
 .expiring-section {
     background: white;
     border-radius: 20px;
@@ -446,7 +429,7 @@ function ucfirst(string) {
 }
 
 .section-title {
-    color: black;
+    color: #000;
     font-size: 1.3rem;
     margin-bottom: 20px;
     display: flex;
@@ -468,7 +451,7 @@ function ucfirst(string) {
     padding: 15px 20px;
     text-align: left;
     font-weight: 600;
-    color: black;
+    color: #000;
     border-bottom: 2px solid #E2E8F0;
 }
 
@@ -487,7 +470,7 @@ function ucfirst(string) {
 }
 
 .user-info small {
-    color: black;
+    color: #000;
     font-size: 0.8rem;
     margin-top: 3px;
 }
@@ -522,7 +505,7 @@ function ucfirst(string) {
     font-size: 0.8rem;
     font-weight: 600;
     background: #F1F5F9;
-    color: #1E293B;
+    color: #000;
 }
 
 .days-badge.urgent {
@@ -547,7 +530,6 @@ function ucfirst(string) {
     color: white;
 }
 
-/* Plan Details */
 .plan-details-section {
     background: white;
     border-radius: 20px;
@@ -599,20 +581,19 @@ function ucfirst(string) {
 }
 
 .stat-label {
-    color: #64748B;
+    color: #555;
     font-size: 0.9rem;
 }
 
 .stat-value {
     font-weight: 700;
-    color: black;
+    color: #000;
 }
 
-/* Empty Message */
 .empty-message {
     text-align: center;
     padding: 50px;
-    color: black;
+    color: #000;
 }
 
 .empty-message i {
@@ -621,7 +602,6 @@ function ucfirst(string) {
     color: #f06724;
 }
 
-/* Animations */
 @keyframes pulse {
     0% {
         opacity: 1;
@@ -634,7 +614,6 @@ function ucfirst(string) {
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .charts-grid {
         grid-template-columns: 1fr;

@@ -1,20 +1,17 @@
 <?php
 // File: /views/admin/edit_user.php
 $pageTitle = 'Edit User | ROGELE';
-require_once __DIR__ . '/../layouts/header.php';
+require_once __DIR__ . '/../layouts/admin_header.php';
 
-// Ensure user data is available
 if (!isset($user) || empty($user)) {
     header('Location: ' . BASE_URL . '/admin/users');
     exit;
 }
 
-// Get classes for dropdown
 $classes = $classes ?? [];
 ?>
 
 <div class="edit-user-container">
-    <!-- Header with Back Link -->
     <div class="page-header">
         <div>
             <a href="<?php echo BASE_URL; ?>/admin/users" class="back-link">
@@ -28,7 +25,6 @@ $classes = $classes ?? [];
         </div>
     </div>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-error">
             <i class="fas fa-exclamation-circle"></i>
@@ -43,10 +39,8 @@ $classes = $classes ?? [];
         </div>
     <?php endif; ?>
 
-    <!-- Edit Form -->
     <div class="form-card">
         <form method="POST" class="edit-form" action="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo $user['id']; ?>">
-            <!-- Personal Information Section -->
             <div class="form-section">
                 <h3 class="section-title">
                     <i class="fas fa-user"></i>
@@ -115,7 +109,6 @@ $classes = $classes ?? [];
                 </div>
             </div>
 
-            <!-- Account Settings Section -->
             <div class="form-section">
                 <h3 class="section-title">
                     <i class="fas fa-cog"></i>
@@ -150,7 +143,6 @@ $classes = $classes ?? [];
                 </div>
             </div>
 
-            <!-- Class Assignment Section (for learners and external users) -->
             <?php if (($user['role'] ?? '') == 'learner' || ($user['role'] ?? '') == 'external'): ?>
             <div class="form-section">
                 <h3 class="section-title">
@@ -176,7 +168,6 @@ $classes = $classes ?? [];
             </div>
             <?php endif; ?>
 
-            <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-save">
                     <i class="fas fa-save"></i>
@@ -190,7 +181,6 @@ $classes = $classes ?? [];
         </form>
     </div>
 
-    <!-- Danger Zone (only for other users, not self) -->
     <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] != $user['id']): ?>
     <div class="danger-zone">
         <div class="danger-header">
@@ -281,10 +271,9 @@ $classes = $classes ?? [];
 }
 
 .page-subtitle strong {
-    color: #1E293B;
+    color: #000;
 }
 
-/* Alert Messages */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -318,7 +307,6 @@ $classes = $classes ?? [];
     }
 }
 
-/* Form Card */
 .form-card {
     background: white;
     border-radius: 20px;
@@ -340,7 +328,7 @@ $classes = $classes ?? [];
 }
 
 .section-title {
-    color: #1E293B;
+    color: #000;
     font-size: 1.3rem;
     margin-bottom: 25px;
     display: flex;
@@ -368,7 +356,7 @@ $classes = $classes ?? [];
 .form-group label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: #1E293B;
+    color: #000;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -412,7 +400,6 @@ $classes = $classes ?? [];
     margin-top: 5px;
 }
 
-/* Form Actions */
 .form-actions {
     display: flex;
     gap: 15px;
@@ -445,7 +432,7 @@ $classes = $classes ?? [];
 .btn-cancel {
     padding: 14px 30px;
     background: #F1F5F9;
-    color: #475569;
+    color: #555;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
@@ -462,10 +449,9 @@ $classes = $classes ?? [];
 .btn-cancel:hover {
     background: #E2E8F0;
     border-color: #000;
-    color: #1E293B;
+    color: #000;
 }
 
-/* Danger Zone */
 .danger-zone {
     background: #FEF2F2;
     border: 2px solid #FECACA;
@@ -599,7 +585,6 @@ $classes = $classes ?? [];
     transform: translateY(-2px);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .form-card {
         padding: 25px;

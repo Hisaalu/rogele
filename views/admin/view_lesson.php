@@ -1,18 +1,14 @@
 <?php
 // File: /views/admin/view_lesson.php
 $pageTitle = 'Lesson | ROGELE';
-require_once __DIR__ . '/../layouts/header.php';
+require_once __DIR__ . '/../layouts/admin_header.php';
 
 $lesson = $lesson ?? [];
 ?>
 
 <div class="view-lesson-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
-            <a href="<?php echo BASE_URL; ?>/admin/lessons" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Lessons
-            </a>
             <h1 class="page-title">
                 <i class="fas fa-book-open"></i>
                 View Lesson
@@ -20,7 +16,6 @@ $lesson = $lesson ?? [];
         </div>
     </div>
 
-    <!-- Lesson Details -->
     <div class="lesson-card">
         <div class="lesson-header">
             <h2><?php echo htmlspecialchars($lesson['title'] ?? ''); ?></h2>
@@ -84,7 +79,6 @@ $lesson = $lesson ?? [];
         </div>
         <?php endif; ?>
 
-        <!-- Admin Actions -->
         <div class="admin-actions">
             <?php if (!$lesson['is_approved']): ?>
                 <a href="<?php echo BASE_URL; ?>/admin/lessons/approve/<?php echo $lesson['id']; ?>" class="btn-approve" onclick="return confirm('Approve this lesson?')">
@@ -103,7 +97,6 @@ $lesson = $lesson ?? [];
 </div>
 
 <?php
-// Helper function to extract YouTube video ID
 function getYoutubeId($url) {
     preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $url, $matches);
     return $matches[1] ?? '';
@@ -219,7 +212,7 @@ function getYoutubeId($url) {
 .lesson-content h3,
 .video-section h3,
 .materials-section h3 {
-    color: #1E293B;
+    color: #000;
     font-size: 1.2rem;
     margin-bottom: 15px;
 }
@@ -229,7 +222,7 @@ function getYoutubeId($url) {
     padding: 25px;
     border-radius: 12px;
     line-height: 1.8;
-    color: #1E293B;
+    color: #000;
 }
 
 .video-wrapper {
@@ -262,7 +255,7 @@ function getYoutubeId($url) {
     background: #F8FAFC;
     border-radius: 10px;
     text-decoration: none;
-    color: #1E293B;
+    color: #000;
     transition: all 0.3s ease;
 }
 
@@ -281,7 +274,7 @@ function getYoutubeId($url) {
 }
 
 .material-item i:last-child {
-    color: #8B5CF6;
+    color: #555;
 }
 
 .admin-actions {
@@ -345,7 +338,6 @@ function getYoutubeId($url) {
     gap: 8px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .lesson-card {
         padding: 25px;

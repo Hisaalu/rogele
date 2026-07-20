@@ -1,9 +1,8 @@
 <?php
 // File: /views/admin/subscriptions/index.php
 $pageTitle = 'Subscriptions | ROGELE';
-require_once __DIR__ . '/../../layouts/header.php';
+require_once __DIR__ . '/../../layouts/admin_header.php';
 
-// Get parameters
 $page = $_GET['page'] ?? 1;
 $status = $_GET['status'] ?? '';
 $planType = $_GET['plan_type'] ?? '';
@@ -33,7 +32,6 @@ $dateTo = $_GET['date_to'] ?? '';
         </div>
     </div>
 
-    <!-- Statistics Cards -->
     <?php if (!empty($stats)): ?>
     <div class="stats-grid">
         <div class="stat-card">
@@ -78,7 +76,6 @@ $dateTo = $_GET['date_to'] ?? '';
     </div>
     <?php endif; ?>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -95,7 +92,6 @@ $dateTo = $_GET['date_to'] ?? '';
         </div>
     <?php endif; ?>
 
-    <!-- Filters -->
     <div class="filters-card">
         <form method="GET" class="filters-form">
             <div class="search-box">
@@ -138,7 +134,6 @@ $dateTo = $_GET['date_to'] ?? '';
         </form>
     </div>
 
-    <!-- Subscriptions Table -->
     <div class="table-card">
         <div class="table-responsive">
             <table class="data-table">
@@ -213,7 +208,6 @@ $dateTo = $_GET['date_to'] ?? '';
             </table>
         </div>
 
-        <!-- Pagination -->
         <?php if (!empty($subscriptions) && $totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
@@ -268,7 +262,7 @@ $dateTo = $_GET['date_to'] ?? '';
 }
 
 .page-subtitle {
-    color: black;
+    color: #000;
     font-size: 1rem;
 }
 
@@ -303,7 +297,6 @@ $dateTo = $_GET['date_to'] ?? '';
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-/* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -359,17 +352,16 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .stat-info h3 {
     font-size: 0.9rem;
-    color: #64748B;
+    color: #555;
     margin-bottom: 5px;
 }
 
 .stat-number {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1E293B;
+    color: #000;
 }
 
-/* Filters */
 .filters-card {
     background: white;
     border-radius: 16px;
@@ -396,33 +388,51 @@ $dateTo = $_GET['date_to'] ?? '';
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94A3B8;
+    color: #555;
 }
 
 .search-box input {
     width: 100%;
     padding: 12px 15px 12px 45px;
-    border: 2px solid #E2E8F0;
-    border-radius: 50px;
-    font-size: 0.95rem;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 1rem;
     transition: all 0.3s ease;
 }
 
 .search-box input:focus {
     outline: none;
     border-color: #f06724;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+}
+
+.search-box select:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .filter-group select,
 .filter-group input[type="date"] {
     padding: 12px 20px;
-    border: 2px solid #f06724;
-    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
     font-size: 0.95rem;
     background: white;
     min-width: 150px;
     cursor: pointer;
+}
+
+.filter-group input[type="date"]:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+}
+
+.filter-group select:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .filter-group.date-range {
@@ -432,7 +442,7 @@ $dateTo = $_GET['date_to'] ?? '';
 }
 
 .filter-group.date-range span {
-    color: #64748B;
+    color: #555;
 }
 
 .btn-filter {
@@ -465,7 +475,6 @@ $dateTo = $_GET['date_to'] ?? '';
     color: white;
 }
 
-/* Table */
 .table-card {
     background: white;
     border-radius: 20px;
@@ -484,7 +493,7 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .data-table th {
     background: #F8FAFC;
-    color: black;
+    color: #000;
     font-weight: 600;
     font-size: 0.9rem;
     letter-spacing: 0.5px;
@@ -496,7 +505,7 @@ $dateTo = $_GET['date_to'] ?? '';
 .data-table td {
     padding: 16px 20px;
     border-bottom: 1px solid #F1F5F9;
-    color: #1E293B;
+    color: #000;
 }
 
 .data-table tr:hover td {
@@ -521,7 +530,7 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .user-email {
     font-size: 0.8rem;
-    color: #64748B;
+    color: #555;
 }
 
 .plan-badge {
@@ -588,10 +597,9 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .status-badge.cancelled {
     background: #F1F5F9;
-    color: #64748B;
+    color: #555;
 }
 
-/* Action Buttons */
 .actions-cell {
     display: flex;
     gap: 8px;
@@ -628,11 +636,10 @@ $dateTo = $_GET['date_to'] ?? '';
     color: white;
 }
 
-/* Empty Message */
 .empty-message {
     text-align: center;
     padding: 60px !important;
-    color: #94A3B8;
+    color: #555;
 }
 
 .empty-message i {
@@ -641,7 +648,6 @@ $dateTo = $_GET['date_to'] ?? '';
     opacity: 0.5;
 }
 
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -658,7 +664,7 @@ $dateTo = $_GET['date_to'] ?? '';
     justify-content: center;
     border-radius: 8px;
     text-decoration: none;
-    color: #1E293B;
+    color: #000;
     transition: all 0.3s ease;
 }
 
@@ -671,7 +677,6 @@ $dateTo = $_GET['date_to'] ?? '';
     color: white;
 }
 
-/* Alert Messages */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -717,7 +722,6 @@ $dateTo = $_GET['date_to'] ?? '';
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .filters-form {
         flex-direction: column;
