@@ -341,7 +341,7 @@ $currentPage = $_GET['page'] ?? 1;
 }
 
 .btn-submissions:hover {
-    background: #e05a1a;
+    background: #f06724;
 }
 
 .btn-edit, .btn-delete {
@@ -388,7 +388,7 @@ $currentPage = $_GET['page'] ?? 1;
 
 .empty-state i {
     font-size: 4rem;
-    color: #CBD5E1;
+    color: #f06724;
     margin-bottom: 20px;
 }
 

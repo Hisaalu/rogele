@@ -98,13 +98,13 @@ $allSubjects = $allSubjects ?? [];
             <?php endif; ?>
 
             <div class="form-group">
-                <label>Add New Attachments (Optional)</label>
+                <label>Add New Attachments (PDFs Preferably)</label>
                 <div class="file-dropzone">
                     <input type="file" id="new_attachments" name="new_attachments[]" multiple class="file-input" onchange="updateFileLabel()">
                     <div class="dropzone-text">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <span id="file-input-label">Tap to browse or upload documents</span>
-                        <small class="form-hint">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
+                        <small class="form-hint">Upload should be 5MB per file</small>
                     </div>
                 </div>
             </div>

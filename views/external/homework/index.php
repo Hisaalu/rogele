@@ -363,11 +363,10 @@ $currentStatus = $_GET['status'] ?? '';
 
 .empty-state i {
     font-size: 4rem;
-    color: #555;
+    color: #f06724;
     margin-bottom: 20px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .stats-overview {
         grid-template-columns: repeat(2, 1fr);
