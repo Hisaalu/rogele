@@ -526,7 +526,7 @@ $search = $_GET['search'] ?? '';
 
 .empty-icon i {
     font-size: 3rem;
-    color: white;
+    color: #f06724;
 }
 
 .empty-state h3 {

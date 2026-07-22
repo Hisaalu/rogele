@@ -165,7 +165,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
                     <div class="form-group">
                         <label for="submission_files">Attach Files</label>
                         <input type="file" id="submission_files" name="submission_files[]" multiple class="file-input">
-                        <small class="form-hint">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
+                        <small class="form-hint">Upload should be 5MB per file</small>
                     </div>
                     
                     <?php if ($isLate): ?>

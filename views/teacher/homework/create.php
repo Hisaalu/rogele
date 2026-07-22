@@ -80,7 +80,7 @@ $allSubjects = $allSubjects ?? [];
             <div class="form-group">
                 <label for="attachments">Attachments</label>
                 <input type="file" id="attachments" name="attachments[]" multiple class="file-input">
-                <small class="form-hint">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
+                <small class="form-hint">Upload should be 5MB per file</small>
             </div>
 
             <div class="form-actions">
@@ -251,7 +251,7 @@ document.querySelector('.homework-form').addEventListener('submit', function(e) 
         for (let i = 0; i < fileInput.files.length; i++) {
             if (fileInput.files[i].size > maxSizeBytes) {
                 e.preventDefault();
-                alert("Failed to Create Homework, your file exceeds 5Mb");
+                alert("Failed to Create Homework, your upload exceeds 5Mb");
                 return false;
             }
         }
