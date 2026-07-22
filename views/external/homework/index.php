@@ -123,7 +123,7 @@ $currentStatus = $_GET['status'] ?? '';
                     <?php endif; ?>
                     
                     <a href="<?php echo BASE_URL; ?>/external/homework/view/<?php echo $homework['id']; ?>" class="btn-view">
-                        <?php echo $submissionStatus === 'graded' ? 'View Feedback' : ($submissionStatus === 'submitted' ? 'View Submission' : 'Submit Homework'); ?>
+                        <?php echo $submissionStatus === 'graded' ? 'View Feedback' : ($submissionStatus === 'submitted' ? 'View Submission' : 'View / Submit Homework'); ?>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>

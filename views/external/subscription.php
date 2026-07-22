@@ -25,7 +25,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         <?php if ($trialDays > 0 && !$currentSubscription): ?>
         <div class="trial-badge">
             <i class="fas fa-gift"></i>
-            <span><?php echo $trialDays; ?> Days Free Trial on All Plans!</span>
+            <span>Unlimited Days on All Plans!</span>
         </div>
         <?php endif; ?>
     </div>
