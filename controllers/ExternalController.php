@@ -166,7 +166,7 @@ class ExternalController {
             return true;
         }
         
-        $_SESSION['error'] = 'Your free trial has ended. Please subscribe to continue accessing lessons and quizzes.';
+        $_SESSION['error'] = 'Your free trial/plan ended. Please subscribe to continue accessing lessons, quizzes and other features!';
         header('Location: ' . BASE_URL . '/external/subscription');
         exit;
     }
@@ -267,7 +267,7 @@ class ExternalController {
     }
     
     public function updateProfile() {
-        $this->checkAccess();
+        // $this->checkAccess();
         
         if (!$this->isPostRequest()) {
             $this->redirect(BASE_URL . '/external/profile');
@@ -370,7 +370,7 @@ class ExternalController {
     
     // ==================== LESSONS & MATERIALS ====================
     public function materials() {
-        $this->checkAccess();
+        // $this->checkAccess();
         $hideFooter = true;
         
         $user = $this->userModel->getById($this->userId);
@@ -417,7 +417,7 @@ class ExternalController {
     }
     
     public function viewLesson($lessonId) {
-        $this->checkAccess();
+        // $this->checkAccess();
         $hideFooter = true;
         
         $lesson = $this->lessonModel->getPublishedLessonById($lessonId, $this->userId);
@@ -469,9 +469,7 @@ class ExternalController {
     public function bookmarks() {
         $hideFooter = true;
         
-        if (!$this->hasAccess()) {
-            $this->redirectWithError('Please subscribe to access bookmarks.', BASE_URL . '/external/subscription');
-        }
+        // $this->checkAccess();
         
         $bookmarks = $this->lessonModel->getBookmarks($this->userId);
         
@@ -493,7 +491,7 @@ class ExternalController {
     
     // ==================== QUIZZES ====================
     public function quizzes() {
-        $this->checkAccess();
+        // $this->checkAccess();
         $hideFooter = true;
         
         $user = $this->userModel->getById($this->userId);
@@ -511,7 +509,7 @@ class ExternalController {
     }
     
     public function takeQuiz($quizId) {
-        $this->checkAccess();
+        // $this->checkAccess();
         $hideFooter = true;
         
         $availability = $this->quizModel->getQuizAvailabilityStatus($quizId);
@@ -581,9 +579,7 @@ class ExternalController {
     public function quizResult($attemptId) {
         $hideFooter = true;
         
-        if (!$this->hasAccess()) {
-            $this->redirectWithError('Please subscribe to view quiz results.', BASE_URL . '/external/subscription');
-        }
+        // $this->checkAccess();
         
         $result = $_SESSION['quiz_result'] ?? null;
         unset($_SESSION['quiz_result']);

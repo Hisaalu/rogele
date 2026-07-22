@@ -203,6 +203,10 @@ $currentPage = $_GET['page'] ?? 1;
     color: white;
 }
 
+.filter-tab.active i{
+    color: white;
+}
+
 .filter-tab:hover:not(.active) {
     background: #F1F5F9;
 }

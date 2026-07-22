@@ -125,7 +125,7 @@ $events = $events ?? [];
     </h1>
     
     <div class="dashboard-card">
-        <h2 style="color: #000; margin-bottom: 20px;">Dashboard</h2>
+        <h2 style="color: #000; margin-bottom: 20px; font-family: Roobert,sans-serif;">Overview</h2>
         
         <?php if ($hasActiveSubscription): ?>
             <div style="background: #F0FDF4; border-left: 4px solid #10B981; padding: 20px; margin-bottom: 30px; border-radius: 12px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
@@ -152,19 +152,14 @@ $events = $events ?? [];
                     </div>
                     <div style="flex: 1; min-width: 200px;">
                         <p style="color: #92400E; font-weight: 700; font-size: 1.1rem; margin-bottom: 5px;">
-                            Trial Period: <strong><?php echo $remainingTrialDays; ?> days remaining</strong>
+                            Trial Period: <strong>Unlimited days remaining</strong>
                         </p>
                         <p style="color: #B45309; font-size: 0.95rem;">
-                            You have <?php echo $remainingTrialDays; ?> days left to explore all features.
+                            You have Unlimited days to explore all features!
                             <?php if ($trialEndDate): ?>
-                                Your trial ends on <strong><?php echo date('F j, Y', strtotime($trialEndDate)); ?></strong>.
+                                Make good use of this Trial Period and consider Subscribing to support the system.
                             <?php endif; ?>
                         </p>
-                        <?php $usedDays = $trialDays - $remainingTrialDays; ?>
-                        <div style="background: #FFEDD5; height: 8px; border-radius: 10px; margin-top: 10px; max-width: 400px;">
-                            <div style="background: #f06724; width: <?php echo $trialPercentage; ?>%; height: 100%; border-radius: 10px;"></div>
-                        </div>
-                        <p style="color: #B45309; font-size: 0.75rem; margin-top: 5px;">Day <?php echo $usedDays; ?> of <?php echo $trialDays; ?></p>
                     </div>
                     <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: #f06724; color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
                         Subscribe Now
