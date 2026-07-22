@@ -55,7 +55,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
                 </div>
                 <div class="info-item">
                     <span class="info-label">Teacher</span>
-                    <span class="info-value">Tr. <?php echo htmlspecialchars($homework['teacher_first_name'] . ' ' . $homework['teacher_last_name']); ?></span>
+                    <span class="info-value">Tr. <?php echo htmlspecialchars(($homework['teacher_first_name'] ?? '') . ' ' . ($homework['teacher_last_name'] ?? '')); ?></span>
                 </div>
             </div>
         </div>
@@ -156,9 +156,9 @@ $canDelete = $submission && $submission['status'] !== 'graded';
         <?php if ($canResubmit): ?>
             <div class="submission-form">
                 <h3><i class="fas fa-upload"></i> <?php echo $submission ? 'Resubmit Your Work' : 'Submit Your Work'; ?></h3>
-                <form method="POST" enctype="multipart/form-data" action="<?php echo BASE_URL; ?>/external/homework/submit/<?php echo $homework['id']; ?>">
+                <form id="homeworkForm" method="POST" enctype="multipart/form-data" action="<?php echo BASE_URL; ?>/external/homework/submit/<?php echo $homework['id']; ?>">
                     <div class="form-group">
-                        <label for="text_answer">Your Answer <span class="optional">(Optional)</span></label>
+                        <label for="text_answer">Your Answer</label>
                         <textarea id="text_answer" name="text_answer" rows="5" placeholder="Type your answer here..."><?php echo htmlspecialchars($submission['text_answer'] ?? ''); ?></textarea>
                     </div>
                     
@@ -210,7 +210,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     padding: 30px 20px;
 }
 
-/* Back Link */
 .back-link {
     display: inline-flex;
     align-items: center;
@@ -226,7 +225,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     transform: translateX(-3px);
 }
 
-/* Page Title */
 .page-title {
     font-size: 2rem;
     font-weight: 700;
@@ -236,7 +234,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     margin-bottom: 20px;
 }
 
-/* Main Card */
 .homework-detail-card {
     background: white;
     border-radius: 24px;
@@ -244,7 +241,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     box-shadow: 0 10px 40px rgba(0,0,0,0.08);
 }
 
-/* Info Sections */
 .info-section {
     padding: 28px 30px;
     border-bottom: 1px solid #F1F5F9;
@@ -267,7 +263,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     color: #f06724;
 }
 
-/* Info Grid */
 .info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -307,17 +302,15 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     font-weight: 500;
 }
 
-/* Description */
 .description-text {
     background: #F8FAFC;
     padding: 18px;
     border-radius: 16px;
     line-height: 1.7;
-    color: #475569;
+    color: #555;
     font-size: 0.95rem;
 }
 
-/* Attachments */
 .attachments-list {
     display: flex;
     flex-direction: column;
@@ -349,7 +342,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     margin-left: auto;
 }
 
-/* Feedback Section */
 .feedback-section {
     margin: 20px 30px 30px 30px;
     padding: 25px;
@@ -399,7 +391,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     margin-bottom: 8px;
 }
 
-/* Submission Section */
 .submission-info {
     margin: 20px 30px 30px 30px;
     padding: 25px;
@@ -485,7 +476,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     border-radius: 12px;
     border: 1px solid #E2E8F0;
     line-height: 1.6;
-    color: #475569;
+    color: #555;
 }
 
 .file-list {
@@ -524,7 +515,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     color: #000;
 }
 
-/* Submission Form */
 .submission-form {
     margin: 20px 30px 30px 30px;
     padding: 25px;
@@ -552,12 +542,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #000;
-}
-
-.optional {
-    font-weight: normal;
-    font-size: 0.8rem;
     color: #000;
 }
 
@@ -626,7 +610,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     box-shadow: 0 5px 15px rgba(127, 38, 119, 0.3);
 }
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -670,7 +653,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
 .modal-close {
     font-size: 1.5rem;
     cursor: pointer;
-    color: #94A3B8;
+    color: #555;
     transition: color 0.2s;
 }
 
@@ -707,7 +690,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
 .btn-cancel-modal {
     padding: 10px 20px;
     background: #F1F5F9;
-    color: #475569;
+    color: #555;
     border: none;
     border-radius: 10px;
     font-weight: 600;
@@ -738,7 +721,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     transform: translateY(-1px);
 }
 
-/* Animations */
 @keyframes modalSlideUp {
     from {
         transform: translateY(30px);
@@ -750,7 +732,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     }
 }
 
-/* Alerts */
 .alert {
     padding: 14px 18px;
     border-radius: 12px;
@@ -784,7 +765,6 @@ $canDelete = $submission && $submission['status'] !== 'graded';
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .info-grid {
         grid-template-columns: 1fr;
@@ -879,15 +859,22 @@ document.getElementById('confirmDeleteBtn')?.addEventListener('click', function(
     });
 });
 
-document.querySelector('.homework-form').addEventListener('submit', function(e) {
-    const fileInput = document.getElementById('new_attachments');
+document.getElementById('homeworkForm')?.addEventListener('submit', function(e) {
+    const textAnswer = document.getElementById('text_answer').value.trim();
+    const fileInput = document.getElementById('submission_files');
     const maxSizeBytes = 5 * 1024 * 1024;
+
+    if (textAnswer === '' && (!fileInput || fileInput.files.length === 0)) {
+        e.preventDefault();
+        alert("Please enter a text answer or attach a file before submitting.");
+        return false;
+    }
 
     if (fileInput && fileInput.files.length > 0) {
         for (let i = 0; i < fileInput.files.length; i++) {
             if (fileInput.files[i].size > maxSizeBytes) {
                 e.preventDefault();
-                alert("Submission failed, your file exceeds 5Mb");
+                alert("Submission failed, file '" + fileInput.files[i].name + "' exceeds the 5MB size limit.");
                 return false;
             }
         }
