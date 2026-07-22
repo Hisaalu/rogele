@@ -728,7 +728,7 @@ window.addEventListener('resize', function() {
 
 .empty-state i {
     font-size: 3rem;
-    color: #CBD5E1;
+    color: #f06724;
     margin-bottom: 15px;
 }
 

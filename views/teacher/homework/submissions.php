@@ -818,7 +818,7 @@ input:checked + .toggle-slider:before {
 
 .empty-state i {
     font-size: 4rem;
-    color: #CBD5E1;
+    color: #f06724;
     margin-bottom: 20px;
 }
 
