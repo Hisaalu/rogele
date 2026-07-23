@@ -57,7 +57,7 @@ $lesson = $lesson ?? [];
                 <?php
                     $filename = basename($material['file_path']); 
                     
-                    $r2_url = "https://raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . $filename;
+                    $r2_url = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . $filename;
                 ?>
 
                 <a href="<?php echo htmlspecialchars($r2_url); ?>" 

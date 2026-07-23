@@ -178,7 +178,7 @@ if ($gradedCount > 0) {
                                     <?php foreach ($submission['files'] as $file): ?>
                                         <?php
                                             $cleanSubName = basename($file['file_path']); 
-                                            $officialSubmissionUrl = "https://raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubName;
+                                            $officialSubmissionUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubName;
                                         ?>
                                         <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" class="file-link">
                                             <i class="fas fa-download"></i>
