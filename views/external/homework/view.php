@@ -74,7 +74,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
                     <?php foreach ($homework['attachments'] as $attachment): ?>
                         <?php
                             $cleanFileName = basename($attachment['file_path']); 
-                            $officialDownloadUrl = "https://raysofgrace.ac.ug/rogele-platform/uploads/homework/" . $cleanFileName;
+                            $officialDownloadUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/homework/" . $cleanFileName;
                         ?>
                         <a href="<?php echo htmlspecialchars($officialDownloadUrl); ?>" target="_blank" class="attachment-link">
                             <i class="fas fa-download"></i>
@@ -136,7 +136,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
                                 <?php foreach ($submission['files'] as $file): ?>
                                     <?php 
                                         $cleanSubmissionFile = basename($file['file_path']); 
-                                        $officialSubmissionUrl = "https://raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubmissionFile;
+                                        $officialSubmissionUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubmissionFile;
                                     ?>
                                     <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" class="file-item-link">
                                         <div class="file-item">
