@@ -18,7 +18,6 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?php echo BASE_URL; ?>">
     
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
@@ -28,7 +27,6 @@
     <link rel="stylesheet" href="https://use.typekit.net/YOUR-KIT-ID.css">
     
     <style>
-        /* Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -400,7 +398,6 @@
             transform: translateY(-9px) rotate(-45deg);
         }
 
-        /* Responsive Styles */
         @media (max-width: 992px) {
             .nav-menu {
                 gap: 20px;
@@ -781,7 +778,6 @@
         </div>
     </header>
 
-    <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <?php if (isset($_SESSION['user_id'])): ?>
             <div class="mobile-menu-header">
@@ -819,7 +815,6 @@
                 </ul>
             </div>
         <?php else: ?>
-            <!-- Mobile Menu for Guests -->
             <div class="mobile-menu-header">
                 <div class="mobile-close-btn" id="mobileClose">
                     <i class="fas fa-times"></i>
@@ -849,7 +844,6 @@
         <?php endif; ?>
     </div>
 
-    <!-- Mobile Overlay -->
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
     <main class="main-content">
@@ -883,9 +877,8 @@
                     }
                     
                     link.addEventListener('click', function() {
-                        navLinks.forEach(l => {
-                            if(l.getAttribute('href').startsWith('#')) l.classList.remove('active');
-                        });
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        
                         this.classList.add('active');
                     });
                     return;
