@@ -21,7 +21,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 ?>
 
 <style>
-/* Home Page Specific Styles - Using ROGELE Brand Colors */
 :root {
     --primary-orange: #f06724;
     --primary-orange-dark: #e05a1a;
@@ -33,7 +32,6 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     --gradient-soft: linear-gradient(135deg, rgba(240, 103, 36, 0.1), rgba(127, 38, 119, 0.1));
 }
 
-/* Reset to prevent horizontal scroll */
 * {
     margin: 0;
     padding: 0;
@@ -59,7 +57,6 @@ body {
     padding: 0 20px;
 }
 
-/* Hero Section */
 .hero-section {
     background: var(--gradient-primary);
     padding: 60px 0;
@@ -236,7 +233,6 @@ body {
     50% { transform: translateY(-20px); }
 }
 
-/* How It Works Section */
 .how-it-works {
     padding: 80px 0;
     background: white;
@@ -333,7 +329,6 @@ body {
     line-height: 1.6;
 }
 
-/* Features Section */
 .features-section {
     padding: 80px 0;
     background: #F8FAFC;
@@ -392,7 +387,6 @@ body {
     line-height: 1.6;
 }
 
-/* Pricing Cards Section */
 .pricing-section {
     padding: 80px 0;
     background: white;
@@ -558,7 +552,6 @@ body {
     box-shadow: 0 10px 20px rgba(240, 103, 36, 0.3);
 }
 
-/* Classes Section */
 .classes-section {
     padding: 80px 0;
     background: #F8FAFC;
@@ -666,7 +659,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* CTA Section */
 .cta-section {
     padding: 80px 0;
     background: var(--gradient-primary);
@@ -696,7 +688,6 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive Breakpoints */
 @media (max-width: 1024px) {
     .classes-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -824,7 +815,6 @@ body {
     }
 }
 
-/* Animations */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -846,7 +836,6 @@ body {
 </style>
 
 <div class="home-page">
-    <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
             <div class="hero-wrapper">
@@ -904,7 +893,6 @@ body {
         </div>
     </section>
 
-    <!-- How It Works Section -->
     <section class="how-it-works" id="how-it-works">
         <div class="container">
             <div class="section-header">
@@ -946,7 +934,6 @@ body {
         </div>
     </section>
 
-    <!-- Features Section -->
     <section class="features-section" id="about">
         <div class="container">
             <div class="section-header">
@@ -984,7 +971,6 @@ body {
         </div>
     </section>
 
-    <!-- Pricing Cards Section -->
     <section class="pricing-section" id="pricing">
         <div class="container">
             <div class="section-header">
@@ -996,7 +982,6 @@ body {
             </div>
 
             <div class="pricing-grid">
-                <!-- Monthly Plan -->
                 <div class="pricing-card" data-plan="monthly" data-price="<?php echo $monthlyPrice; ?>">
                     <div class="plan-icon">
                         <i class="fas fa-calendar-alt"></i>
@@ -1019,7 +1004,6 @@ body {
                     </button>
                 </div>
 
-                <!-- Termly Plan (Most Popular) -->
                 <div class="pricing-card popular" data-plan="termly" data-price="<?php echo $termlyPrice; ?>">
                     <div class="popular-badge">RECOMMENDED</div>
                     <div class="plan-icon">
@@ -1044,7 +1028,6 @@ body {
                     </button>
                 </div>
 
-                <!-- Yearly Plan -->
                 <div class="pricing-card" data-plan="yearly" data-price="<?php echo $yearlyPrice; ?>">
                     <div class="plan-icon">
                         <i class="fas fa-crown"></i>
@@ -1072,7 +1055,6 @@ body {
         </div>
     </section>
 
-    <!-- Classes Section -->
     <section class="classes-section">
         <div class="container">
             <div class="section-header">
@@ -1084,7 +1066,6 @@ body {
             </div>
             
             <div class="classes-grid">
-                <!-- Lower Section (P1-P3) -->
                 <div class="class-card animate-fade-in">
                     <div class="class-image lower-section">
                         <span class="class-level">P1 - P3</span>
@@ -1105,7 +1086,6 @@ body {
                     </div>
                 </div>
                 
-                <!-- Upper Section (P4-P7) -->
                 <div class="class-card animate-fade-in delay-1">
                     <div class="class-image upper-section">
                         <span class="class-level">P4 - P7</span>
@@ -1129,7 +1109,6 @@ body {
         </div>
     </section>
 
-    <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
             <div class="cta-content">
@@ -1146,7 +1125,6 @@ body {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
@@ -1157,7 +1135,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Intersection Observer for animations
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
