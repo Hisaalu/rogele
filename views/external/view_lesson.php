@@ -67,7 +67,7 @@ if (!isset($lesson)) {
             <?php foreach ($lesson['materials'] as $material): ?>
                 <?php 
                     $cleanMaterialName = basename($material['file_path']);
-                    $officialMaterialUrl = "https://raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . $cleanMaterialName;
+                    $officialMaterialUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . $cleanMaterialName;
                 ?>
                 <a href="<?php echo htmlspecialchars($officialMaterialUrl); ?>" target="_blank" download 
                    style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #F8FAFC; border-radius: 10px; text-decoration: none; color: #1E293B; transition: background 0.3s ease;">
