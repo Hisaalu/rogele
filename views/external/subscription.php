@@ -29,7 +29,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         </div>
         <?php endif; ?>
     </div>
-
+    
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -168,7 +168,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                             <td>UGX <?php echo number_format($payment['amount']); ?></td>
                             <td>
                                 <i class="fas fa-<?php echo ($payment['payment_method'] ?? 'mobile_money') === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>"></i>
-                                <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'] ?? 'pesapal')); ?>
+                                <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'] ?? 'mobile_money')); ?>
                             </td>
                             <td>
                                 <span class="status-badge <?php echo $payment['status']; ?>">
@@ -191,7 +191,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
             <span class="close">&times;</span>
         </div>
         
-        <form id="paymentForm" action="<?php echo BASE_URL; ?>/external/process-pesapal-payment" method="POST">
+        <form id="paymentForm" action="<?php echo BASE_URL; ?>/external/process-mobile-money-payment" method="POST">
             <input type="hidden" name="plan_type" id="selectedPlan">
             
             <div class="plan-summary">
@@ -243,7 +243,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
             
             <div class="secure-badge">
                 <i class="fas fa-shield-alt"></i>
-                <span>Secured by PesaPal</span>
+                <span>Secured by ROGELE</span>
             </div>
             
             <div class="modal-buttons">

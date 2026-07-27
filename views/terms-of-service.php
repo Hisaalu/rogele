@@ -89,8 +89,7 @@ require_once __DIR__ . '/layouts/header.php';
             
             <h3>4.3 Payment Processing</h3>
             <p>
-                Payments are processed through secure third-party payment processors 
-                (PesaPal). We do not store your payment information. By subscribing, 
+                Payments are processed through Airtel Money and MTN Mobile Money. We do not store your payment information. By subscribing, 
                 you authorize us to charge your selected payment method.
             </p>
             

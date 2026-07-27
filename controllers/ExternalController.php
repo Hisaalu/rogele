@@ -9,8 +9,8 @@ require_once __DIR__ . '/../models/Homework.php';
 require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../models/Subject.php';
 require_once __DIR__ . '/../helpers/MailHelper.php';
-require_once __DIR__ . '/../config/pesapal.php';
-require_once __DIR__ . '/../lib/Pesapal.php';
+require_once __DIR__ . '/../config/mobile_money.php';
+require_once __DIR__ . '/../lib/MobileMoney.php';
 
 class ExternalController {
     private $subscriptionModel;
@@ -23,7 +23,7 @@ class ExternalController {
     private $homeworkModel;
     private $userId;
     
-    private $publicMethods = ['pesapalIpn', 'pesapalCallback', 'pesapalTest', 'paymentCallback'];
+    private $publicMethods = ['mobileMoneyIpn', 'mobileMoneyCallback', 'mobileMoneyTest', 'paymentCallback'];
     
     public function __construct() {
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
@@ -125,13 +125,13 @@ class ExternalController {
         return $prices[$planType] ?? 0;
     }
     
-    private function logPesapalRequest($type, $get, $post) {
+    private function logMobileMoneyRequest($type, $get, $post) {
         $logDir = __DIR__ . '/../logs';
         if (!file_exists($logDir)) {
             mkdir($logDir, 0777, true);
         }
         
-        $logFile = $logDir . '/pesapal_' . date('Y-m-d') . '.log';
+        $logFile = $logDir . '/mobile_money_' . date('Y-m-d') . '.log';
         
         $logData = [
             'timestamp' => date('Y-m-d H:i:s'),
@@ -612,7 +612,6 @@ class ExternalController {
         require_once __DIR__ . '/../views/external/quiz_result.php';
     }
     
-    // ==================== SUBSCRIPTION & PAYMENT ====================
     public function subscription() {
         $hideFooter = true;
         $currentSubscription = $this->subscriptionModel->getCurrentSubscription($this->userId);
@@ -637,80 +636,54 @@ class ExternalController {
         require_once __DIR__ . '/../views/external/purchase.php';
     }
     
-    public function processPesapalPayment() {
+    public function processMobilePayment() {
         if (!$this->isPostRequest()) {
             $this->redirect(BASE_URL . '/external/subscription');
         }
-        
+
         $userId = $this->userId;
         $planType = $_POST['plan_type'] ?? 'monthly';
-        
-        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
-        
-        $defaultPrices = [
-            'monthly' => 15000,
-            'termly' => 40000,
-            'yearly' => 120000
-        ];
-        
-        $amount = $defaultPrices[$planType];
-        
-        if (!empty($subscriptionSettings)) {
-            $priceKey = $planType . '_price';
-            if (isset($subscriptionSettings[$priceKey]) && !empty($subscriptionSettings[$priceKey])) {
-                $amount = (float)$subscriptionSettings[$priceKey];
-            }
-        }
-        
-        if ($amount <= 0) {
-            $this->redirectWithError('Invalid subscription amount. Please contact support.', BASE_URL . '/external/subscription');
-        }
-        
+        $provider = $_POST['provider'] ?? 'mtn';
         $phone = $_POST['phone_number'] ?? '';
-        
-        $user = $this->userModel->getById($userId);
-        
-        if (!$user) {
-            $this->redirectWithError('User not found.', BASE_URL . '/external/subscription');
+
+        if (empty($phone)) {
+            $this->redirectWithError('Phone number is required.', BASE_URL . '/external/subscription');
         }
-        
+
+        $subscriptionSettings = $this->settingsModel->getSubscriptionSettings();
+        $defaultPrices = ['monthly' => 15000, 'termly' => 40000, 'yearly' => 120000];
+        $amount = $defaultPrices[$planType] ?? 15000;
+
+        if (!empty($subscriptionSettings[$planType . '_price'])) {
+            $amount = (float)$subscriptionSettings[$planType . '_price'];
+        }
+
         $paymentResult = $this->subscriptionModel->createPendingPayment(
             $userId,
             $planType,
             $amount,
-            'pesapal',
+            $provider,
             $phone
         );
-        
+
         if (!$paymentResult['success']) {
             $this->redirectWithError($paymentResult['error'], BASE_URL . '/external/subscription');
         }
-        
-        $pesapal = new Pesapal();
-        $paymentData = [
-            'amount' => $amount,
-            'description' => ucfirst($planType) . " Subscription - ROGELE",
-            'reference' => $paymentResult['transaction_id'],
-            'first_name' => $user['first_name'],
-            'last_name' => $user['last_name'],
-            'email' => $user['email'],
-            'phone' => $phone
-        ];
-        
-        $result = $pesapal->submitPayment($paymentData);
-        
-        if (isset($result['success']) && $result['success'] && isset($result['redirect_url'])) {
-            $_SESSION['pending_payment'] = [
-                'transaction_id' => $paymentResult['transaction_id'],
-                'plan_type' => $planType,
-                'amount' => $amount,
-                'payment_id' => $paymentResult['payment_id']
-            ];
-            
-            $this->redirect($result['redirect_url']);
+
+        require_once __DIR__ . '/../lib/MobileMoney.php';
+        $mobileMoney = new MobileMoney();
+
+        if ($provider === 'airtel') {
+            $result = $mobileMoney->requestAirtelPayment($phone, $amount, $paymentResult['transaction_id']);
         } else {
-            $errorMsg = isset($result['message']) ? $result['message'] : 'Payment processing failed. Please try again.';
-            $this->redirectWithError($errorMsg, BASE_URL . '/external/subscription');
+            $result = $mobileMoney->requestMtnPayment($phone, $amount, $paymentResult['transaction_id']);
+        }
+
+        if ($result['success']) {
+            $message = 'Payment prompt sent. Check your phone and enter your Mobile Money PIN to complete the payment.';
+            $this->redirectWithSuccess($message, BASE_URL . '/external/subscription');
+        } else {
+            $this->redirectWithError($result['message'] ?? 'Unable to send push notification.', BASE_URL . '/external/subscription');
         }
     }
     
@@ -824,7 +797,7 @@ class ExternalController {
             $userId, 
             $toPlan, 
             $amount, 
-            'pesapal',
+            'mobile_money',
             $user['phone'] ?? ''
         );
         
@@ -832,7 +805,7 @@ class ExternalController {
             $this->redirectWithError($paymentResult['error'], BASE_URL . '/external/subscription');
         }
         
-        $pesapal = new Pesapal();
+        $mobileMoney = new MobileMoney();
         $paymentData = [
             'amount' => $amount,
             'description' => "Upgrade from " . ucfirst($fromPlan) . " to " . ucfirst($toPlan),
@@ -843,7 +816,7 @@ class ExternalController {
             'phone' => $user['phone'] ?? ''
         ];
         
-        $result = $pesapal->submitPayment($paymentData);
+        $result = $mobileMoney->submitPayment($paymentData);
         
         if ($result['success'] && isset($result['redirect_url'])) {
             $_SESSION['pending_upgrade'] = [
@@ -874,9 +847,8 @@ class ExternalController {
         require_once __DIR__ . '/../views/external/upgrade-success.php';
     }
     
-    // ==================== PESAPAL CALLBACKS ====================
-    public function pesapalCallback() {
-        $this->logPesapalRequest('CALLBACK', $_GET, $_POST);
+    public function mobileMoneyCallback() {
+        $this->logMobileMoneyRequest('CALLBACK', $_GET, $_POST);
         
         $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
         $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
@@ -891,12 +863,12 @@ class ExternalController {
         }
         
         try {
-            $pesapal = new Pesapal();
+            $mobileMoney = new MobileMoney();
             $status = null;
             $paymentStatus = '';
             
             for ($i = 0; $i < 5; $i++) {
-                $status = $pesapal->queryPaymentStatus($orderTrackingId);
+                $status = $mobileMoney->queryPaymentStatus($orderTrackingId);
                 
                 if (!empty($status['status'])) {
                     $paymentStatus = strtoupper(trim($status['status']));
@@ -949,9 +921,9 @@ class ExternalController {
         $this->redirect(BASE_URL . '/external/subscription');
     }
     
-    public function pesapalIpn() {
+    public function mobileMoneyIpn() {
         error_reporting(0);
-        $this->logPesapalRequest('IPN', $_GET, $_POST);
+        $this->logMobileMoneyRequest('IPN', $_GET, $_POST);
         
         $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
         $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
@@ -962,8 +934,8 @@ class ExternalController {
             exit;
         }
         
-        $pesapal = new Pesapal();
-        $status = $pesapal->queryPaymentStatus($orderTrackingId);
+        $mobileMoney = new MobileMoney();
+        $status = $mobileMoney->queryPaymentStatus($orderTrackingId);
         
         if ($status['success'] && strtoupper($status['status']) === 'COMPLETED') {
             $payment = $this->subscriptionModel->getPaymentByTransactionId($orderMerchantReference);
@@ -1007,16 +979,16 @@ class ExternalController {
         exit;
     }
     
-    public function pesapalTest() {
-        $this->logPesapalRequest('TEST', $_GET, $_POST);
+    public function mobileMoneyTest() {
+        $this->logMobileMoneyRequest('TEST', $_GET, $_POST);
         
         header('Content-Type: application/json');
         echo json_encode([
             'status' => 'ok',
-            'message' => 'PesaPal endpoint is reachable',
+            'message' => 'Mobile Money endpoint is reachable',
             'timestamp' => date('Y-m-d H:i:s'),
-            'callback_url' => PESAPAL_CALLBACK_URL,
-            'ipn_url' => PESAPAL_IPN_URL,
+            'callback_url' => MOBILE_MONEY_CALLBACK_URL,
+            'ipn_url' => MOBILE_MONEY_IPN_URL,
             'php_version' => PHP_VERSION,
             'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown'
         ]);

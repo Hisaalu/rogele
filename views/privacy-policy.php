@@ -48,7 +48,7 @@ require_once __DIR__ . '/layouts/header.php';
                 <li>School/Institution name</li>
                 <li>Class</li>
                 <li>Parent/Guardian information</li>
-                <li>Payment information (processed securely by PesaPal)</li>
+                <li>Payment information Airtel Money & MTN Mobile Money</li>
             </ul>
 
             <h3>2.2 Automatically Collected Information</h3>

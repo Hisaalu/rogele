@@ -120,8 +120,15 @@ $priceCalculation = $priceCalculation ?? [];
 
             <div class="payment-details" id="mobileMoneyDetails">
                 <div class="form-group">
+                    <label for="provider">Mobile Network</label>
+                    <select name="provider" id="provider" style="width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 15px;">
+                        <option value="mtn">MTN Mobile Money</option>
+                        <option value="airtel">Airtel Money</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="phone_number">Mobile Money Number</label>
-                    <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 0772 123 456">
+                    <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 0772 123 456" required>
                 </div>
             </div>
 
@@ -514,6 +521,17 @@ document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
         document.getElementById('cardDetails').style.display = this.value === 'card' ? 'block' : 'none';
     });
 });
+
+const phoneInput = document.getElementById('phone_number');
+if (phoneInput) {
+    phoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 0 && value.startsWith('0')) {
+            if (value.length > 3) value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 10);
+        }
+        e.target.value = value;
+    });
+}
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

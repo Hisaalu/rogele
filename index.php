@@ -114,10 +114,8 @@ $routes = [
     
     
     // External user routes
-    '/external/pesapal-ipn' => 'ExternalController@pesapalIpn',
-    '/external/pesapal-callback' => 'ExternalController@pesapalCallback',
-    '/external/pesapal-test' => 'ExternalController@pesapalTest',
-    '/external/process-pesapal-payment' => 'ExternalController@processPesapalPayment',
+    '/external/process-mobile-money-payment' => 'ExternalController@processMobilePayment',
+    '/external/payment-callback' => 'ExternalController@paymentCallback',
     '/external/dashboard' => 'ExternalController@dashboard',
     '/external/materials' => 'ExternalController@materials',
     '/external/view-lesson/{id}' => 'ExternalController@viewLesson',

@@ -630,7 +630,7 @@ class Subscription {
         }
     }
     
-    public function updatePaymentStatus($transactionId, $status, $pesapalData = null) {
+    public function updatePaymentStatus($transactionId, $status, $mobileMoneyData = null) {
         try {
             $payment = $this->getPaymentByTransactionId($transactionId);
             if (!$payment) {
@@ -645,7 +645,7 @@ class Subscription {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':transaction_id', $transactionId);
-            $stmt->bindValue(':gateway_response', $pesapalData ? json_encode($pesapalData) : null);
+            $stmt->bindValue(':gateway_response', $mobileMoneyData ? json_encode($mobileMoneyData) : null);
             $stmt->execute();
             
             if ($status == 'completed') {
@@ -698,7 +698,7 @@ class Subscription {
             $currentSubscription = $this->getCurrentSubscription($userId);
             
             $sql = "INSERT INTO subscriptions (user_id, plan_type, amount, start_date, end_date, status, payment_method, transaction_id, is_upgrade, created_at)
-                    VALUES (:user_id, :plan_type, :amount, :start_date, :end_date, 'active', 'pesapal', :transaction_id, :is_upgrade, NOW())";
+                    VALUES (:user_id, :plan_type, :amount, :start_date, :end_date, 'active', 'mobile_money', :transaction_id, :is_upgrade, NOW())";
             
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -758,9 +758,9 @@ class Subscription {
         }
     }
     
-    public function getPesaPalPaymentDetails($transactionId) {
+    public function getMobileMoneyPaymentDetails($transactionId) {
         try {
-            $sql = "SELECT * FROM payments WHERE transaction_id = :transaction_id AND payment_method = 'pesapal'";
+            $sql = "SELECT * FROM payments WHERE transaction_id = :transaction_id AND payment_method = 'mobile_money'";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindValue(':transaction_id', $transactionId);
             $stmt->execute();
