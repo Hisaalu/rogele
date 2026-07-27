@@ -35,7 +35,21 @@ define('DB_NAME', getenv('DB_NAME') ?: '');
 define('DB_USER', getenv('DB_USER') ?: '');
 define('DB_PASS', getenv('DB_PASS') ?: '');
 
-$appUrl = getenv('APP_URL') ?: (getenv('RENDER') ? 'https://rogele-payments.onrender.com' : 'http://localhost/rogele-prod');
+$detectedHost = $_SERVER['HTTP_HOST'] ?? '';
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
+           || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+
+if (getenv('APP_URL')) {
+    $appUrl = getenv('APP_URL');
+} elseif (getenv('RENDER_EXTERNAL_URL')) {
+    $appUrl = getenv('RENDER_EXTERNAL_URL');
+} elseif ($detectedHost) {
+    $scheme = $isHttps ? 'https://' : 'http://';
+    $appUrl = $scheme . $detectedHost;
+} else {
+    $appUrl = 'http://localhost/rogele-pay';
+}
+
 define('BASE_URL', rtrim($appUrl, '/'));
 define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
 
@@ -58,21 +72,20 @@ if (getenv('RENDER')) {
     ini_set('session.save_path', $sessionSavePath);
 }
 
-$host = $_SERVER['HTTP_HOST'] ?? '';
-$isProd = (strpos($host, 'raysofgrace.ac.ug') !== false);
-$cookieDomain = $isProd ? '.raysofgrace.ac.ug' : ''; 
+$isRender = !empty(getenv('RENDER')) || (strpos($detectedHost, 'onrender.com') !== false);
+$isSecure = $isHttps || $isRender;
 
 session_set_cookie_params([
-    'path' => '/',
-    'domain' => $cookieDomain,
-    'secure' => $isProd,
+    'path'     => '/',
+    'domain'   => '', 
+    'secure'   => $isSecure,
     'httponly' => true,
     'samesite' => 'Lax'
 ]);
 
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', $isProd ? 1 : 0); 
+ini_set('session.cookie_secure', $isSecure ? 1 : 0); 
 ini_set('session.cookie_samesite', 'Lax');
 
 if (session_status() === PHP_SESSION_NONE) {
