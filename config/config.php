@@ -35,7 +35,7 @@ define('DB_NAME', getenv('DB_NAME') ?: '');
 define('DB_USER', getenv('DB_USER') ?: '');
 define('DB_PASS', getenv('DB_PASS') ?: '');
 
-$appUrl = getenv('APP_URL') ?: (getenv('RENDER') ? 'https://rogele.raysofgrace.ac.ug' : 'http://localhost/rogele-prod');
+$appUrl = getenv('APP_URL') ?: (getenv('RENDER') ? 'https://rogele-payments.onrender.com' : 'http://localhost/rogele-prod');
 define('BASE_URL', rtrim($appUrl, '/'));
 define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
 
