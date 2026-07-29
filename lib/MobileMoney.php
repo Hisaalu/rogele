@@ -2,6 +2,11 @@
 // File: /lib/MobileMoney.php
 
 class MobileMoney {
+    
+    private function getSslOption() {
+        return (MTN_MOMO_ENVIRONMENT === 'production' || AIRTEL_MONEY_ENVIRONMENT === 'production');
+    }
+
     public function requestMtnPayment($phone, $amount, $reference) {
         $formattedPhone = $this->formatPhoneNumber($phone);
         $token = $this->getMtnToken();
@@ -14,7 +19,6 @@ class MobileMoney {
             $bytes = random_bytes(16);
             $bytes[6] = chr(ord($bytes[6]) & 0x0f | 0x40); 
             $bytes[8] = chr(ord($bytes[8]) & 0x3f | 0x80); 
-
             $reference = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
         }
 
@@ -27,6 +31,7 @@ class MobileMoney {
             'X-Reference-Id: ' . $reference,
             'X-Target-Environment: ' . MTN_MOMO_TARGET_ENV,
             'Ocp-Apim-Subscription-Key: ' . MTN_MOMO_PRIMARY_KEY,
+            'X-Callback-Url: ' . MOBILE_MONEY_IPN_URL,
             'Content-Type: application/json'
         ];
 
@@ -47,7 +52,7 @@ class MobileMoney {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->getSslOption());
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -58,10 +63,9 @@ class MobileMoney {
         }
 
         error_log("MTN RequestToPay Failed [HTTP {$httpCode}]: " . $response);
-
         return [
             'success' => false, 
-            'message' => 'MTN Payment request failed with HTTP code ' . $httpCode . '. Details: ' . $response
+            'message' => 'MTN Payment request failed with HTTP code ' . $httpCode
         ];
     }
 
@@ -83,7 +87,7 @@ class MobileMoney {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['grant_type' => 'client_credentials']));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->getSslOption());
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -96,6 +100,36 @@ class MobileMoney {
 
         $result = json_decode($response, true);
         return $result['access_token'] ?? null;
+    }
+
+    public function checkMtnStatus($reference) {
+        $token = $this->getMtnToken();
+        if (!$token) return ['success' => false, 'message' => 'Token failed'];
+
+        $baseUrl = (MTN_MOMO_ENVIRONMENT === 'production') 
+            ? 'https://proxy.momoapi.mtn.com/collection/v1_0/requesttopay/' . $reference
+            : 'https://sandbox.momodeveloper.mtn.com/collection/v1_0/requesttopay/' . $reference;
+
+        $headers = [
+            'Authorization: Bearer ' . $token,
+            'X-Target-Environment: ' . MTN_MOMO_TARGET_ENV,
+            'Ocp-Apim-Subscription-Key: ' . MTN_MOMO_PRIMARY_KEY
+        ];
+
+        $ch = curl_init($baseUrl);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->getSslOption());
+        
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $result = json_decode($response, true);
+        return [
+            'success' => true,
+            'status'  => strtoupper($result['status'] ?? 'PENDING'),
+            'raw'     => $result
+        ];
     }
 
     public function requestAirtelPayment($phone, $amount, $reference) {
@@ -138,7 +172,7 @@ class MobileMoney {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->getSslOption());
 
         $response = curl_exec($ch);
         curl_close($ch);
@@ -150,6 +184,39 @@ class MobileMoney {
         }
 
         return ['success' => false, 'message' => $result['status']['message'] ?? 'Airtel Payment request failed.'];
+    }
+
+    public function checkAirtelStatus($reference) {
+        $token = $this->getAirtelToken();
+        if (!$token) return ['success' => false, 'message' => 'Token failed'];
+
+        $baseUrl = (AIRTEL_MONEY_ENVIRONMENT === 'production') 
+            ? 'https://openapi.airtel.africa/standard/v1/payments/' . $reference
+            : 'https://openapiuat.airtel.africa/standard/v1/payments/' . $reference;
+
+        $headers = [
+            'Accept: */*',
+            'X-Country: ' . AIRTEL_MONEY_COUNTRY,
+            'X-Currency: ' . AIRTEL_MONEY_CURRENCY,
+            'Authorization: Bearer ' . $token
+        ];
+
+        $ch = curl_init($baseUrl);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->getSslOption());
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $result = json_decode($response, true);
+        $status = strtoupper($result['data']['transaction']['status'] ?? 'PENDING');
+
+        return [
+            'success' => true,
+            'status'  => ($status === 'SUCCESS' || $status === 'TS') ? 'SUCCESSFUL' : $status,
+            'raw'     => $result
+        ];
     }
 
     private function getAirtelToken() {
@@ -173,7 +240,7 @@ class MobileMoney {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->getSslOption());
 
         $response = curl_exec($ch);
         curl_close($ch);
@@ -182,7 +249,7 @@ class MobileMoney {
         return $result['access_token'] ?? null;
     }
 
-    private function formatPhoneNumber($phone) {
+    public function formatPhoneNumber($phone) {
         $phone = preg_replace('/[^0-9]/', '', $phone);
         if (substr($phone, 0, 1) === '0') {
             return '256' . substr($phone, 1);
@@ -191,52 +258,5 @@ class MobileMoney {
             return $phone;
         }
         return '256' . $phone;
-    }
-
-    public function submitPayment(array $paymentData) {
-        $phone = $paymentData['phone'] ?? '';
-        $amount = $paymentData['amount'] ?? 0;
-        $reference = $paymentData['reference'] ?? ($paymentData['transaction_id'] ?? '');
-        $provider = strtolower($paymentData['provider'] ?? 'mtn');
-
-        if (empty($phone)) {
-            return ['success' => false, 'message' => 'Phone number is required.'];
-        }
-
-        if ($provider === 'airtel') {
-            return $this->requestAirtelPayment($phone, $amount, $reference);
-        }
-
-        return $this->requestMtnPayment($phone, $amount, $reference);
-    }
-
-    public function checkMtnStatus($reference) {
-        $token = $this->getMtnToken();
-        if (!$token) return ['success' => false, 'message' => 'Token failed'];
-
-        $baseUrl = (MTN_MOMO_ENVIRONMENT === 'production') 
-            ? 'https://proxy.momoapi.mtn.com/collection/v1_0/requesttopay/' . $reference
-            : 'https://sandbox.momodeveloper.mtn.com/collection/v1_0/requesttopay/' . $reference;
-
-        $headers = [
-            'Authorization: Bearer ' . $token,
-            'X-Target-Environment: ' . MTN_MOMO_TARGET_ENV,
-            'Ocp-Apim-Subscription-Key: ' . MTN_MOMO_PRIMARY_KEY
-        ];
-
-        $ch = curl_init($baseUrl);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $result = json_decode($response, true);
-        return [
-            'success' => true,
-            'status'  => strtoupper($result['status'] ?? 'PENDING'),
-            'raw'     => $result
-        ];
     }
 }

@@ -643,7 +643,7 @@ class ExternalController {
 
         $userId = $this->userId;
         $planType = $_POST['plan_type'] ?? 'monthly';
-        $provider = $_POST['provider'] ?? 'mtn';
+        $provider = strtolower($_POST['provider'] ?? 'mtn');
         $phone = $_POST['phone_number'] ?? '';
 
         if (empty($phone)) {
@@ -670,18 +670,19 @@ class ExternalController {
             $this->redirectWithError($paymentResult['error'], BASE_URL . '/external/subscription');
         }
 
-        require_once __DIR__ . '/../lib/MobileMoney.php';
+        $transactionId = $paymentResult['transaction_id'];
         $mobileMoney = new MobileMoney();
 
         if ($provider === 'airtel') {
-            $result = $mobileMoney->requestAirtelPayment($phone, $amount, $paymentResult['transaction_id']);
+            $result = $mobileMoney->requestAirtelPayment($phone, $amount, $transactionId);
         } else {
-            $result = $mobileMoney->requestMtnPayment($phone, $amount, $paymentResult['transaction_id']);
+            $result = $mobileMoney->requestMtnPayment($phone, $amount, $transactionId);
         }
 
         if ($result['success']) {
-            $message = 'Payment prompt sent. Check your phone and enter your Mobile Money PIN to complete the payment.';
-            $this->redirectWithSuccess($message, BASE_URL . '/external/subscription');
+            $_SESSION['pending_tx_id'] = $transactionId;
+            $message = 'Payment prompt sent. Check your phone and enter your Mobile Money PIN to complete payment.';
+            $this->redirectWithSuccess($message, BASE_URL . '/external/subscription?tx_id=' . urlencode($transactionId));
         } else {
             $this->redirectWithError($result['message'] ?? 'Unable to send push notification.', BASE_URL . '/external/subscription');
         }
@@ -782,13 +783,18 @@ class ExternalController {
         $fromPlan = $_POST['from_plan'] ?? '';
         $toPlan = $_POST['to_plan'] ?? '';
         $amount = (float)($_POST['amount'] ?? 0);
+        $provider = strtolower($_POST['provider'] ?? 'mtn');
+        $phone = $_POST['phone_number'] ?? '';
         
         if (empty($fromPlan) || empty($toPlan) || $amount <= 0) {
             $this->redirectWithError('Invalid upgrade request or amount.', BASE_URL . '/external/subscription');
         }
+
+        if (empty($phone)) {
+            $this->redirectWithError('Phone number is required for payment.', BASE_URL . '/external/subscription');
+        }
         
         $user = $this->userModel->getById($userId);
-        
         if (!$user) {
             $this->redirectWithError('User not found.', BASE_URL . '/external/subscription');
         }
@@ -797,37 +803,35 @@ class ExternalController {
             $userId, 
             $toPlan, 
             $amount, 
-            'mobile_money',
-            $user['phone'] ?? ''
+            $provider,
+            $phone
         );
         
         if (!$paymentResult['success']) {
             $this->redirectWithError($paymentResult['error'], BASE_URL . '/external/subscription');
         }
         
+        $transactionId = $paymentResult['transaction_id'];
         $mobileMoney = new MobileMoney();
-        $paymentData = [
-            'amount' => $amount,
-            'description' => "Upgrade from " . ucfirst($fromPlan) . " to " . ucfirst($toPlan),
-            'reference' => $paymentResult['transaction_id'],
-            'first_name' => $user['first_name'],
-            'last_name' => $user['last_name'],
-            'email' => $user['email'],
-            'phone' => $user['phone'] ?? ''
-        ];
         
-        $result = $mobileMoney->submitPayment($paymentData);
+        if ($provider === 'airtel') {
+            $result = $mobileMoney->requestAirtelPayment($phone, $amount, $transactionId);
+        } else {
+            $result = $mobileMoney->requestMtnPayment($phone, $amount, $transactionId);
+        }
         
-        if ($result['success'] && isset($result['redirect_url'])) {
+        if ($result['success']) {
+            $_SESSION['pending_tx_id'] = $transactionId;
             $_SESSION['pending_upgrade'] = [
-                'transaction_id' => $paymentResult['transaction_id'],
+                'transaction_id' => $transactionId,
                 'from_plan' => $fromPlan,
                 'to_plan' => $toPlan,
                 'amount' => $amount,
-                'payment_id' => $paymentResult['payment_id']
+                'payment_id' => $paymentResult['payment_id'] ?? null
             ];
-            
-            $this->redirect($result['redirect_url']);
+
+            $message = 'Upgrade payment prompt sent. Check your phone and enter your PIN to complete the upgrade.';
+            $this->redirectWithSuccess($message, BASE_URL . '/external/subscription?tx_id=' . urlencode($transactionId));
         } else {
             $this->redirectWithError($result['message'] ?? 'Payment processing failed. Please try again.', BASE_URL . '/external/subscription');
         }
@@ -894,13 +898,6 @@ class ExternalController {
                         json_encode($status)
                     );
                     
-                    $this->subscriptionModel->createOrUpdateSubscription(
-                        $payment['user_id'],
-                        $payment['plan_type'] ?? 'monthly',
-                        $status['amount'] ?? $payment['amount'],
-                        $orderMerchantReference
-                    );
-                    
                     $this->sendPaymentConfirmationEmail(
                         $payment['user_id'],
                         $payment['plan_type'] ?? 'monthly',
@@ -922,61 +919,33 @@ class ExternalController {
     }
     
     public function mobileMoneyIpn() {
-        error_reporting(0);
-        $this->logMobileMoneyRequest('IPN', $_GET, $_POST);
-        
-        $orderTrackingId = $_GET['OrderTrackingId'] ?? $_GET['order_tracking_id'] ?? null;
-        $orderMerchantReference = $_GET['OrderMerchantReference'] ?? $_GET['merchant_reference'] ?? null;
-        
-        if (!$orderTrackingId || !$orderMerchantReference) {
-            http_response_code(200); 
-            echo "Missing parameters";
-            exit;
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+
+        if (empty($data)) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid payload']);
+            return;
         }
-        
-        $mobileMoney = new MobileMoney();
-        $status = $mobileMoney->queryPaymentStatus($orderTrackingId);
-        
-        if ($status['success'] && strtoupper($status['status']) === 'COMPLETED') {
-            $payment = $this->subscriptionModel->getPaymentByTransactionId($orderMerchantReference);
-            
-            if ($payment) {
-                if ($payment['status'] !== 'completed') {
-                    $this->subscriptionModel->updatePaymentStatus(
-                        $orderMerchantReference,
-                        'completed',
-                        $status
-                    );
-                    
-                    $this->subscriptionModel->createOrUpdateSubscription(
-                        $payment['user_id'],
-                        $payment['plan_type'] ?? 'monthly',
-                        $status['amount'] ?? $payment['amount'],
-                        $orderMerchantReference
-                    );
-                    
-                    $this->sendPaymentConfirmationEmail(
-                        $payment['user_id'],
-                        $payment['plan_type'] ?? 'monthly',
-                        $status['amount'] ?? $payment['amount']
-                    );
-                    
-                    http_response_code(200);
-                    echo "IPN processed successfully";
-                } else {
-                    http_response_code(200);
-                    echo "Payment already processed";
-                }
-            } else {
-                http_response_code(200);
-                echo "Payment record not found";
-            }
-        } else {
+
+        $transactionId = $data['transaction_id'] ?? $data['tx_ref'] ?? $data['OrderMerchantReference'] ?? null;
+        $status        = strtolower($data['status'] ?? 'completed');
+
+        if (!$transactionId) {
+            http_response_code(422);
+            echo json_encode(['status' => 'error', 'message' => 'Missing transaction reference']);
+            return;
+        }
+
+        $result = $this->subscriptionModel->processCompletedPayment($transactionId, $status, $data);
+
+        if ($result['success']) {
             http_response_code(200);
-            echo "Payment not completed";
+            echo json_encode(['status' => 'success', 'message' => 'Payment processed successfully']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => $result['error'] ?? 'Processing failed']);
         }
-        
-        exit;
     }
     
     public function mobileMoneyTest() {
@@ -993,6 +962,49 @@ class ExternalController {
             'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown'
         ]);
         exit;
+    }
+
+    public function checkPaymentStatus() {
+        header('Content-Type: application/json');
+        
+        $transactionId = $_GET['transaction_id'] ?? $_SESSION['pending_tx_id'] ?? null;
+
+        if (!$transactionId) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing transaction ID']);
+            return;
+        }
+
+        $payment = $this->subscriptionModel->getPaymentByTransactionId($transactionId);
+
+        if (!$payment) {
+            echo json_encode(['status' => 'not_found']);
+            return;
+        }
+        
+        if ($payment['status'] === 'pending') {
+            $mobileMoney = new MobileMoney();
+            $provider = strtolower($payment['payment_method'] ?? 'mtn');
+
+            $apiCheck = ($provider === 'airtel') 
+                ? $mobileMoney->checkAirtelStatus($transactionId)
+                : $mobileMoney->checkMtnStatus($transactionId);
+
+            if (!empty($apiCheck['status'])) {
+                $statusStr = strtoupper($apiCheck['status']);
+                if (in_array($statusStr, ['SUCCESSFUL', 'SUCCESS', 'COMPLETED'])) {
+                    $this->subscriptionModel->processCompletedPayment($transactionId, 'completed', $apiCheck['raw'] ?? []);
+                    $payment['status'] = 'completed';
+                } elseif (in_array($statusStr, ['FAILED', 'REJECTED', 'EXPIRED'])) {
+                    $this->subscriptionModel->processCompletedPayment($transactionId, 'failed', $apiCheck['raw'] ?? []);
+                    $payment['status'] = 'failed';
+                }
+            }
+        }
+
+        echo json_encode([
+            'status' => $payment['status'],
+            'redirect_url' => BASE_URL . '/external/subscription?status=' . $payment['status']
+        ]);
     }
 }
 ?>

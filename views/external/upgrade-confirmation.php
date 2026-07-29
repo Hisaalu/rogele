@@ -91,34 +91,11 @@ $priceCalculation = $priceCalculation ?? [];
             <input type="hidden" name="from_plan" value="<?php echo htmlspecialchars($fromPlan); ?>">
             <input type="hidden" name="to_plan" value="<?php echo htmlspecialchars($toPlan); ?>">
             <input type="hidden" name="amount" value="<?php echo $priceCalculation['upgrade_price'] ?? 0; ?>">
+            <input type="hidden" name="payment_method" value="mobile_money">
             
-            <h3>Select Payment Method</h3>
-            
-            <div class="payment-methods">
-                <label class="payment-method">
-                    <input type="radio" name="payment_method" value="mobile_money" checked>
-                    <div class="method-content">
-                        <i class="fas fa-mobile-alt"></i>
-                        <div>
-                            <strong>Mobile Money</strong>
-                            <small>Pay via MTN or Airtel Money</small>
-                        </div>
-                    </div>
-                </label>
-                
-                <label class="payment-method">
-                    <input type="radio" name="payment_method" value="card">
-                    <div class="method-content">
-                        <i class="fas fa-credit-card"></i>
-                        <div>
-                            <strong>Card Payment</strong>
-                            <small>Visa, Mastercard, or American Express</small>
-                        </div>
-                    </div>
-                </label>
-            </div>
+            <h3>Payment Details</h3>
 
-            <div class="payment-details" id="mobileMoneyDetails">
+            <div class="payment-details">
                 <div class="form-group">
                     <label for="provider">Mobile Network</label>
                     <select name="provider" id="provider" style="width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 15px;">
@@ -129,25 +106,6 @@ $priceCalculation = $priceCalculation ?? [];
                 <div class="form-group">
                     <label for="phone_number">Mobile Money Number</label>
                     <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 0772 123 456" required>
-                </div>
-            </div>
-
-            <div class="payment-details" id="cardDetails" style="display: none;">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="card_number">Card Number</label>
-                        <input type="text" id="card_number" placeholder="1234 5678 9012 3456">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="expiry_date">Expiry Date</label>
-                        <input type="text" id="expiry_date" placeholder="MM/YY">
-                    </div>
-                    <div class="form-group">
-                        <label for="cvv">CVV</label>
-                        <input type="text" id="cvv" placeholder="123">
-                    </div>
                 </div>
             </div>
 
@@ -381,41 +339,6 @@ $priceCalculation = $priceCalculation ?? [];
     color: #92400E;
 }
 
-.payment-methods {
-    display: flex;
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.payment-method {
-    flex: 1;
-    cursor: pointer;
-}
-
-.payment-method input {
-    display: none;
-}
-
-.method-content {
-    border: 1px solid #E2E8F0;
-    border-radius: 16px;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.3s ease;
-}
-
-.payment-method input:checked + .method-content {
-    border-color: #f06724;
-    background: #F8FAFC;
-}
-
-.method-content i {
-    font-size: 1.5rem;
-    color: #f06724;
-}
-
 .payment-details {
     background: #F8FAFC;
     border-radius: 16px;
@@ -445,12 +368,6 @@ $priceCalculation = $priceCalculation ?? [];
     padding: 12px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
 }
 
 .terms-section {
@@ -504,10 +421,6 @@ $priceCalculation = $priceCalculation ?? [];
         display: block;
     }
     
-    .payment-methods {
-        flex-direction: column;
-    }
-    
     .form-actions {
         flex-direction: column;
     }
@@ -515,13 +428,6 @@ $priceCalculation = $priceCalculation ?? [];
 </style>
 
 <script>
-document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        document.getElementById('mobileMoneyDetails').style.display = this.value === 'mobile_money' ? 'block' : 'none';
-        document.getElementById('cardDetails').style.display = this.value === 'card' ? 'block' : 'none';
-    });
-});
-
 const phoneInput = document.getElementById('phone_number');
 if (phoneInput) {
     phoneInput.addEventListener('input', function(e) {
