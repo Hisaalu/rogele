@@ -244,13 +244,19 @@ class TeacherController {
         $subjects = $this->subjectModel->getAll();
         
         if ($this->isPost()) {
+            $videoUrl = !empty(trim($_POST['video_url'] ?? '')) ? trim($_POST['video_url']) : null;
+            $duration = !empty($_POST['duration']) ? (int)$_POST['duration'] : null;
+            $content  = !empty(trim($_POST['content'] ?? '')) ? $_POST['content'] : null;
+            $subjectId = !empty($_POST['subject_id']) ? $_POST['subject_id'] : null;
+            $classId   = !empty($_POST['class_id']) ? $_POST['class_id'] : null;
+            
             $data = [
-                'title' => $_POST['title'] ?? '',
-                'content' => $_POST['content'] ?? '',
-                'subject_id' => $_POST['subject_id'] ?? null,
-                'class_id' => $_POST['class_id'] ?? null,
-                'video_url' => $_POST['video_url'] ?? null,
-                'duration' => $_POST['duration'] ?? null,
+                'title'        => trim($_POST['title'] ?? ''),
+                'content'      => $content,
+                'subject_id'   => $subjectId,
+                'class_id'     => $classId,
+                'video_url'    => $videoUrl,
+                'duration'     => $duration,
                 'is_published' => isset($_POST['is_published']) ? 1 : 0
             ];
             

@@ -3,14 +3,12 @@
 $pageTitle = 'Edit Lesson | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Get lesson data from controller
 $lesson = $lesson ?? [];
 $subjects = $subjects ?? [];
 $classes = $classes ?? [];
 ?>
 
 <div class="edit-lesson-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="back-link">
@@ -24,7 +22,6 @@ $classes = $classes ?? [];
         </div>
     </div>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -39,10 +36,8 @@ $classes = $classes ?? [];
         </div>
     <?php endif; ?>
 
-    <!-- Edit Lesson Form -->
     <div class="form-card">
         <form method="POST" action="<?php echo BASE_URL; ?>/teacher/lessons/edit/<?php echo $lesson['id']; ?>" enctype="multipart/form-data" class="lesson-form" id="lessonForm">
-            <!-- Basic Information -->
             <div class="form-section">
                 <h3 class="section-title">
                     <i class="fas fa-info-circle"></i>
@@ -102,7 +97,6 @@ $classes = $classes ?? [];
                 </div>
             </div>
 
-            <!-- Lesson Content -->
             <div class="form-section">
                 <h3 class="section-title">
                     <i class="fas fa-align-left"></i>
@@ -123,7 +117,6 @@ $classes = $classes ?? [];
                 </div>
             </div>
 
-            <!-- Media Section -->
             <div class="form-section">
                 <h3 class="section-title">
                     <i class="fas fa-video"></i>
@@ -200,7 +193,6 @@ $classes = $classes ?? [];
                 </div>
             </div>
 
-            <!-- Publishing Options -->
             <div class="form-section">
                 <h3 class="section-title">
                     <i class="fas fa-globe"></i>
@@ -216,7 +208,6 @@ $classes = $classes ?? [];
                 </div>
             </div>
 
-            <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-primary">
                     <i class="fas fa-save"></i>
@@ -267,7 +258,6 @@ $classes = $classes ?? [];
     margin-bottom: 30px;
 }
 
-/* Form Card */
 .form-card {
     background: white;
     border-radius: 24px;
@@ -294,7 +284,6 @@ $classes = $classes ?? [];
     color: #f06724;
 }
 
-/* Form Groups */
 .form-group {
     margin-bottom: 20px;
 }
@@ -426,7 +415,6 @@ $classes = $classes ?? [];
     font-size: 0.95rem;
 }
 
-/* Checkbox */
 .checkbox-group {
     margin-top: 10px;
 }
@@ -444,7 +432,6 @@ $classes = $classes ?? [];
     accent-color: #f06724;
 }
 
-/* Form Actions */
 .form-actions {
     display: flex;
     gap: 15px;
@@ -497,7 +484,6 @@ $classes = $classes ?? [];
     color: white;
 }
 
-/* Alerts */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -531,7 +517,6 @@ $classes = $classes ?? [];
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .form-card {
         padding: 25px;
@@ -554,7 +539,6 @@ function filterSubjects() {
     const subjectSelect = document.getElementById('subject_id');
     const options = subjectSelect.querySelectorAll('.subject-option');
     
-    // Show/hide options based on selected class
     options.forEach(opt => {
         if (opt.getAttribute('data-class') == classId) {
             opt.style.display = 'block';
@@ -564,7 +548,6 @@ function filterSubjects() {
     });
 }
 
-// File upload handling
 document.getElementById('materials').addEventListener('change', function(e) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '';
@@ -582,7 +565,6 @@ document.getElementById('materials').addEventListener('change', function(e) {
     });
 });
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     const classSelect = document.getElementById('class_id');
     if (classSelect) {
