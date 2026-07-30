@@ -24,11 +24,7 @@ if (empty($classes)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
-    
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
 
@@ -336,7 +332,6 @@ if (empty($classes)) {
 
 <div class="register-page">
     <div class="register-container">
-        <div class="register-card">
             <div class="logo-section">
                 <div class="logo">
                     <?php 
@@ -352,6 +347,7 @@ if (empty($classes)) {
                 <h1>Welcome to ROGELE</h1>
                 <p>Let's create your account</p>
             </div>
+        <div class="register-card">
             
             <form action="<?php echo BASE_URL; ?>/register" method="POST" class="register-form" id="registerForm">
                 <div class="form-row">

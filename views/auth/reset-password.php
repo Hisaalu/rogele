@@ -10,11 +10,7 @@ $token = $token ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
-    
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
     <style>
@@ -271,8 +267,7 @@ $token = $token ?? '';
 
 <div class="reset-page">
     <div class="reset-container">
-        <div class="reset-card">
-            <div class="logo-section">
+        <div class="logo-section">
                 <div class="logo">
                     <?php 
                     $logoPath = BASE_URL . '/public/images/logo.png';
@@ -281,13 +276,15 @@ $token = $token ?? '';
                     <?php if (file_exists($logoFile)): ?>
                         <img src="<?php echo $logoPath; ?>" alt="ROGELE Logo">
                     <?php else: ?>
-                        <span style="font-size: 2.5rem; font-weight: 700; color: #f06724;">RG</span>
+                        <span style="font-size: 2.5rem; font-weight: 700; color: #f06724;">ROGELE</span>
                     <?php endif; ?>
                 </div>
                 <h1>Reset password</h1>
+            </div>
+        <div class="reset-card">
+            <div class="logo-section">
                 <p>To complete this process, provide your new password and its confirmation below.</p>
             </div>
-            
             <form action="<?php echo BASE_URL; ?>/auth/process-reset-password" method="POST" class="reset-form" id="resetForm">
                 <input type="hidden" name="token" value="<?php echo htmlspecialchars($token ?? ''); ?>">
                 

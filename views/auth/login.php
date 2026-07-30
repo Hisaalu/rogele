@@ -8,13 +8,11 @@ $pageTitle = 'Login | ROGELE';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $pageTitle; ?></title>
-    
+    <title><?php echo $pageTitle; ?></title> 
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    
     <style>
     * {
         margin: 0;
@@ -333,22 +331,22 @@ $pageTitle = 'Login | ROGELE';
 
 <div class="login-page">
     <div class="login-container">
-        <div class="login-card">
+            <div class="logo" style="background: none; box-shadow: none;">
+                <?php 
+                $logoPath = BASE_URL . '/public/images/logo.png';
+                $logoFile = __DIR__ . '/../../public/images/logo.png';
+                ?>
+                <?php if (file_exists($logoFile)): ?>
+                    <img src="<?php echo $logoPath; ?>" alt="ROGELE Logo">
+                <?php else: ?>
+                    <span style="font-size: 3rem; font-weight: 700; color: #f06724;">RG</span>
+                <?php endif; ?>
+            </div>
             <div class="logo-section">
-                <div class="logo" style="background: none; box-shadow: none;">
-                    <?php 
-                    $logoPath = BASE_URL . '/public/images/logo.png';
-                    $logoFile = __DIR__ . '/../../public/images/logo.png';
-                    ?>
-                    <?php if (file_exists($logoFile)): ?>
-                        <img src="<?php echo $logoPath; ?>" alt="ROGELE Logo">
-                    <?php else: ?>
-                        <span style="font-size: 3rem; font-weight: 700; color: #f06724;">RG</span>
-                    <?php endif; ?>
-                </div>
                 <h1>Login to ROGELE</h1>
                 <p>Rays of Grace E-Learning</p>
             </div>
+        <div class="login-card">
             
             <form action="<?php echo BASE_URL; ?>/login" method="POST" class="login-form" id="loginForm">
                 <div class="form-group">

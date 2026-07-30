@@ -9,11 +9,7 @@ $pageTitle = 'Forgot Password | ROGELE';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
-    
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
     <style>
@@ -275,7 +271,6 @@ $pageTitle = 'Forgot Password | ROGELE';
 
 <div class="forgot-page">
     <div class="forgot-container">
-        <div class="forgot-card">
             <div class="logo-section">
                 <div class="logo">
                     <?php 
@@ -288,10 +283,14 @@ $pageTitle = 'Forgot Password | ROGELE';
                         <span style="font-size: 2.5rem; font-weight: 700; color: #f06724;">RG</span>
                     <?php endif; ?>
                 </div>
+                <div class="logo-section">
                 <h1>Reset your password</h1>
-                <p>Enter your ROGELE account email address and we will send you a password reset link.</p>
             </div>
-            
+            </div>
+        <div class="forgot-card">
+            <div class="logo-section">
+                    <p>Enter your ROGELE account email address and we will send you a password reset link.</p>
+            </div>
             <?php if (isset($_SESSION['reset_sent'])): ?>
                 <div class="success-message">
                     <div class="success-icon">
