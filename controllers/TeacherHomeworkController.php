@@ -264,4 +264,19 @@ class TeacherHomeworkController {
         }
         exit;
     }
+
+    public function preview($id) {
+        $hideFooter = true;
+        $teacherId = $_SESSION['user_id'];
+        
+        $homework = $this->homeworkModel->getById($id);
+        
+        if (!$homework || $homework['teacher_id'] != $teacherId) {
+            $_SESSION['error'] = 'Homework not found or unauthorized access.';
+            header('Location: ' . BASE_URL . '/teacher/homework');
+            exit;
+        }
+        
+        require_once __DIR__ . '/../views/teacher/homework/preview.php';
+    }
 }

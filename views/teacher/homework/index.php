@@ -97,11 +97,14 @@ $currentPage = $_GET['page'] ?? 1;
                         <a href="<?php echo BASE_URL; ?>/teacher/homework/submissions/<?php echo $homework['id']; ?>" class="btn-submissions">
                             <i class="fas fa-users"></i> View Submissions
                         </a>
-                        <a href="<?php echo BASE_URL; ?>/teacher/homework/edit/<?php echo $homework['id']; ?>" class="btn-edit">
+                        <a href="<?php echo BASE_URL; ?>/teacher/homework/preview/<?php echo $homework['id']; ?>" class="btn-preview" target="_blank" title="Preview Homework">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="<?php echo BASE_URL; ?>/teacher/homework/edit/<?php echo $homework['id']; ?>" class="btn-edit" title="Edit Homework">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="<?php echo BASE_URL; ?>/teacher/homework/delete/<?php echo $homework['id']; ?>" class="btn-delete" 
-                           onclick="return confirm('Are you sure you want to delete this homework?')">
+                        <a href="<?php echo BASE_URL; ?>/teacher/homework/delete/<?php echo $homework['id']; ?>" class="btn-delete" title="Delete Homework"
+                        onclick="return confirm('Are you sure you want to delete this homework?')">
                             <i class="fas fa-trash"></i>
                         </a>
                     </div>
@@ -325,6 +328,24 @@ $currentPage = $_GET['page'] ?? 1;
 .homework-actions {
     display: flex;
     gap: 10px;
+}
+
+.btn-preview {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.3s;
+    background: #F3E8FF;
+    color: #7f2677;
+}
+
+.btn-preview:hover {
+    background: #7f2677;
+    color: white;
 }
 
 .btn-submissions {

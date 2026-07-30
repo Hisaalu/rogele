@@ -107,6 +107,7 @@ $routes = [
     '/teacher/homework/delete-attachment/{id}' => 'TeacherHomeworkController@deleteAttachment',
     '/teacher/homework/download-file/{id}' => 'TeacherHomeworkController@downloadFile',
     '/teacher/homework/toggle-submissions' => 'TeacherHomeworkController@toggleSubmissions',
+    '/teacher/homework/preview/{id}' => 'TeacherHomeworkController@preview',
     
      // Teacher API routes
     '/teacher/api/quiz-performance' => 'TeacherApiController@quizPerformance',
