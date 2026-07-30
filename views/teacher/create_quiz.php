@@ -250,7 +250,7 @@ $subjects = $subjects ?? [];
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 30px;
 }
 
@@ -324,7 +324,7 @@ $subjects = $subjects ?? [];
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
     font-family: inherit;
 }
@@ -416,7 +416,7 @@ $subjects = $subjects ?? [];
     padding: 14px 30px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -438,7 +438,7 @@ $subjects = $subjects ?? [];
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;

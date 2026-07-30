@@ -150,7 +150,7 @@ $currentStatus = $_GET['status'] ?? '';
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 /* Stats Overview */
@@ -358,7 +358,7 @@ $currentStatus = $_GET['status'] ?? '';
 
 .empty-state p{
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .empty-state i {

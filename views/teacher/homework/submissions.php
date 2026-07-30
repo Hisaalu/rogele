@@ -298,7 +298,7 @@ if ($gradedCount > 0) {
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 /* Submission Toggle */
@@ -542,7 +542,7 @@ input:checked + .toggle-slider:before {
 
 .student-info h3 {
     color: #1E293B;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 3px;
 }
 
@@ -677,7 +677,7 @@ input:checked + .toggle-slider:before {
 }
 
 .grade-value {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #10B981;
 }

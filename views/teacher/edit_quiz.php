@@ -381,7 +381,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 /* Form Card */
@@ -461,7 +461,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
     font-family: inherit;
 }
@@ -579,7 +579,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
     padding: 14px 30px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -601,7 +601,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -716,7 +716,7 @@ $currentStatus = $quiz['status'] ?? 'draft';
     color: #000;
     font-weight: 600;
     margin-bottom: 10px;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .question-options {

@@ -165,7 +165,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
                     <div class="form-group">
                         <label for="submission_files">Attach Files</label>
                         <input type="file" id="submission_files" name="submission_files[]" multiple class="file-input">
-                        <small class="form-hint">Upload should be 5MB per file</small>
+                        <small class="form-hint">Upload should not exceed 5MB per file</small>
                     </div>
                     
                     <?php if ($isLate): ?>
@@ -285,7 +285,7 @@ $canDelete = $submission && $submission['status'] !== 'graded';
 .info-value {
     font-weight: 600;
     color: #000;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .text-danger {

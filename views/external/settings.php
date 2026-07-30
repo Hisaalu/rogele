@@ -328,7 +328,7 @@ $activeTab = $_GET['tab'] ?? 'password';
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 30px;
 }
 
@@ -447,7 +447,7 @@ $activeTab = $_GET['tab'] ?? 'password';
     padding: 14px 45px 14px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
     font-family: 'Inter', sans-serif;
 }
@@ -700,7 +700,7 @@ input:checked + .slider:before {
     padding: 16px;
     border-radius: 12px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -723,7 +723,7 @@ input:checked + .slider:before {
     padding: 16px;
     border-radius: 12px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -799,7 +799,7 @@ input:checked + .slider:before {
     .toggle-info i {
         width: 35px;
         height: 35px;
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
     
     .btn-save, .btn-delete {

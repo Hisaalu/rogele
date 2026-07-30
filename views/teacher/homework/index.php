@@ -157,7 +157,7 @@ $currentPage = $_GET['page'] ?? 1;
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .btn-primary {

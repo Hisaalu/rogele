@@ -256,7 +256,7 @@ require_once __DIR__ . '/../../layouts/header.php';
 }
 
 .homework-content h3, .homework-attachments h3 {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     color: #000;
     margin-bottom: 15px;
     display: flex;
@@ -269,7 +269,7 @@ require_once __DIR__ . '/../../layouts/header.php';
 }
 
 .description-text {
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.7;
     color: #555;
 }

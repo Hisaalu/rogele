@@ -466,7 +466,7 @@ body {
 }
 
 .currency {
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #555;
     vertical-align: top;
 }
@@ -516,7 +516,7 @@ body {
 
 .features-list li i {
     color: #10B981;
-    font-size: 1rem;
+    font-size: 0.95rem;
     width: 20px;
 }
 
@@ -527,7 +527,7 @@ body {
     border: none;
     border-radius: 60px;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -673,7 +673,7 @@ body {
 }
 
 .cta-content p {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     color: rgba(255, 255, 255, 0.9);
     margin-bottom: 30px;
 }

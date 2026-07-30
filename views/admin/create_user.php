@@ -221,7 +221,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 
 .page-subtitle {
     color: #000;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .form-card {
@@ -280,7 +280,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 
 .form-group label i {
     color: #f06724;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .required {
@@ -293,7 +293,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
     font-family: 'Inter', sans-serif;
 }
@@ -357,7 +357,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     padding: 14px 32px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -380,7 +380,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     padding: 12px 30px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;

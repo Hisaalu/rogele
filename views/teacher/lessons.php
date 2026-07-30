@@ -215,7 +215,7 @@ function getYoutubeId($url) {
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .btn-primary {
@@ -303,7 +303,7 @@ function getYoutubeId($url) {
     padding: 12px 15px 12px 45px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
 }
 
@@ -497,7 +497,7 @@ function getYoutubeId($url) {
     justify-content: center;
     text-decoration: none;
     transition: all 0.3s ease;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .action-btn.edit {

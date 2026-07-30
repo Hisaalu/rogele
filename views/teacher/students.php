@@ -252,7 +252,7 @@ $search = $_GET['search'] ?? '';
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 /* Quick Stats */
@@ -492,7 +492,7 @@ $search = $_GET['search'] ?? '';
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1rem;
+    font-size: 0.95rem;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 

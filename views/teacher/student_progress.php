@@ -224,7 +224,7 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 30px;
 }
 

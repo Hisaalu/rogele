@@ -216,7 +216,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 30px;
 }
 
@@ -435,14 +435,14 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .form-group label i {
     color: #f06724;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .form-group input {
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
     font-family: 'Inter', sans-serif;
 }
@@ -468,7 +468,7 @@ require_once __DIR__ . '/../layouts/header.php';
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-family: 'Inter', sans-serif;
     background-color: white;
     cursor: pointer;
@@ -512,7 +512,7 @@ require_once __DIR__ . '/../layouts/header.php';
     padding: 14px 30px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -604,7 +604,7 @@ require_once __DIR__ . '/../layouts/header.php';
     .photo-upload-btn {
         width: 35px;
         height: 35px;
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 }
 
@@ -628,7 +628,7 @@ require_once __DIR__ . '/../layouts/header.php';
     .stat-icon {
         width: 35px;
         height: 35px;
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 }
 

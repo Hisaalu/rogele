@@ -263,7 +263,7 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .page-subtitle {
     color: #000;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .header-actions {
@@ -396,7 +396,7 @@ $dateTo = $_GET['date_to'] ?? '';
     padding: 12px 15px 12px 45px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
 }
 

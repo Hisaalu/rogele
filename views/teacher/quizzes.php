@@ -201,7 +201,7 @@ $search = $_GET['search'] ?? '';
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .btn-primary {
@@ -289,7 +289,7 @@ $search = $_GET['search'] ?? '';
     padding: 12px 15px 12px 45px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
 }
 
@@ -452,7 +452,7 @@ $search = $_GET['search'] ?? '';
     justify-content: center;
     text-decoration: none;
     transition: all 0.3s ease;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .action-btn.questions {

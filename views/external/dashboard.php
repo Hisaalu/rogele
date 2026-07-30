@@ -151,7 +151,7 @@ $events = $events ?? [];
                         <i class="fas fa-hourglass-half" style="color: white; font-size: 1.5rem;"></i>
                     </div>
                     <div style="flex: 1; min-width: 200px;">
-                        <p style="color: #92400E; font-weight: 700; font-size: 1.1rem; margin-bottom: 5px;">
+                        <p style="color: #92400E; font-weight: 700; font-size: 0.95rem; margin-bottom: 5px;">
                             Trial Period: <strong>Unlimited days remaining</strong>
                         </p>
                         <p style="color: #B45309; font-size: 0.95rem;">
@@ -224,7 +224,7 @@ $events = $events ?? [];
             
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h4 id="calendar-month-year" style="margin: 0; font-size: 1.1rem; color: #7f2677; font-weight: 700;"></h4>
+                    <h4 id="calendar-month-year" style="margin: 0; font-size: 0.95rem; color: #7f2677; font-weight: 700;"></h4>
                     <div style="display: flex; gap: 5px;">
                         <button onclick="changeMonth(-1)" style="background: white; border: 1px solid #E5E7EB; border-radius: 6px; padding: 5px 10px; cursor: pointer; color: #555;"><i class="fas fa-chevron-left"></i></button>
                         <button onclick="changeMonth(1)" style="background: white; border: 1px solid #E5E7EB; border-radius: 6px; padding: 5px 10px; cursor: pointer; color: #555;"><i class="fas fa-chevron-right"></i></button>
@@ -238,14 +238,14 @@ $events = $events ?? [];
             </div>
 
             <div style="display: flex; flex-direction: column; justify-content: flex-start;">
-                <h4 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #000;">Upcoming Deadlines & Events</h4>
+                <h4 style="margin: 0 0 15px 0; font-size: 0.95rem; color: #000;">Upcoming Deadlines & Events</h4>
                 <div style="display: flex; flex-direction: column; gap: 12px; max-height: 280px; overflow-y: auto; padding-right: 5px;">
                     <?php if (!empty($events)): ?>
                         <?php foreach ($events as $event): ?>
                             <a href="<?php echo htmlspecialchars($event['url'] ?? '#'); ?>" class="event-feed-item">
                                 <div style="background: #FFF7ED; padding: 8px 12px; border-radius: 8px; text-align: center; min-width: 50px; box-sizing: border-box;">
                                     <span style="display: block; font-size: 0.75rem; text-transform: uppercase; color: #f06724; font-weight: 700;"><?php echo date('M', strtotime($event['date'])); ?></span>
-                                    <span style="display: block; font-size: 1.1rem; font-weight: 700; color: #7f2677; line-height: 1.1;"><?php echo date('d', strtotime($event['date'])); ?></span>
+                                    <span style="display: block; font-size: 0.95rem; font-weight: 700; color: #7f2677; line-height: 1.1;"><?php echo date('d', strtotime($event['date'])); ?></span>
                                 </div>
                                 <div style="flex: 1;">
                                     <h5 style="margin: 0 0 4px 0; font-size: 0.95rem; color: #555; font-weight: 600;"><?php echo htmlspecialchars($event['title']); ?></h5>

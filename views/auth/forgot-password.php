@@ -130,7 +130,7 @@ $pageTitle = 'Forgot Password | ROGELE';
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
             transition: background 0.2s ease;

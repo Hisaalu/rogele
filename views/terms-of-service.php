@@ -393,7 +393,7 @@ require_once __DIR__ . '/layouts/header.php';
     }
     
     .legal-content h3 {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 }
 </style>

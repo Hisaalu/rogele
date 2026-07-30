@@ -273,7 +273,7 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 .question-text {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: #000;
     margin-bottom: 20px;

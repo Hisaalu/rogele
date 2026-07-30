@@ -347,7 +347,7 @@ $paymentHistory = $paymentHistory ?? [];
 
 .page-subtitle {
     color: black;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .header-actions {
@@ -505,7 +505,7 @@ $paymentHistory = $paymentHistory ?? [];
 
 .info-value.amount {
     color: #059669;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .info-value.expired {
@@ -666,7 +666,7 @@ $paymentHistory = $paymentHistory ?? [];
 .upgrade-value {
     color: #000;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .upgrade-value a {
@@ -787,7 +787,7 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .info-message p {
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 @keyframes slideDown {

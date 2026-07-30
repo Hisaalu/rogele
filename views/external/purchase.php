@@ -246,7 +246,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
     padding: 14px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
 }
 
@@ -296,7 +296,7 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
     padding: 16px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;

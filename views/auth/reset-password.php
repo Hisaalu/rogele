@@ -142,7 +142,7 @@ $token = $token ?? '';
             border: none;
             cursor: pointer;
             color: #555;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             padding: 8px;
             transition: color 0.2s ease;
         }
@@ -158,7 +158,7 @@ $token = $token ?? '';
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
             transition: background 0.2s ease;

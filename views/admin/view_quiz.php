@@ -227,7 +227,7 @@ $questions = $quiz['questions'] ?? [];
 
 .quiz-description h3 {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     margin-bottom: 10px;
 }
 
@@ -288,7 +288,7 @@ $questions = $quiz['questions'] ?? [];
     color: #000;
     font-weight: 500;
     margin-bottom: 15px;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .options-list {
@@ -355,7 +355,7 @@ $questions = $quiz['questions'] ?? [];
     border: none;
     border-radius: 10px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     text-decoration: none;
     display: flex;
     align-items: center;

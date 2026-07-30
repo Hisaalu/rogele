@@ -285,7 +285,7 @@ function ucfirst(string) {
 
 .page-subtitle {
     color: #000;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .header-actions {
@@ -405,7 +405,7 @@ function ucfirst(string) {
 
 .chart-header h3 {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     gap: 8px;

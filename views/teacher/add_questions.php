@@ -190,7 +190,7 @@ $quizId = $quiz['id'] ?? 0;
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 30px;
 }
 
@@ -225,7 +225,7 @@ $quizId = $quiz['id'] ?? 0;
 
 .question-title {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -326,7 +326,7 @@ $quizId = $quiz['id'] ?? 0;
     padding: 15px 30px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -357,7 +357,7 @@ $quizId = $quiz['id'] ?? 0;
     padding: 14px 30px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -379,7 +379,7 @@ $quizId = $quiz['id'] ?? 0;
     border: 2px solid #E2E8F0;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;

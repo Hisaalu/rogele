@@ -455,7 +455,7 @@ window.addEventListener('resize', function() {
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .time-range-select {
@@ -539,7 +539,7 @@ window.addEventListener('resize', function() {
 
 .chart-header h3 {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -683,7 +683,7 @@ window.addEventListener('resize', function() {
 
 .lesson-stat-card h4 {
     color: #000;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 10px;
 }
 

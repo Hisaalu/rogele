@@ -246,7 +246,7 @@ $classPerformance = $classPerformance ?? [
 }
 
 .welcome-subtitle {
-    font-size: 1rem;
+    font-size: 0.95rem;
     opacity: 0.9;
 }
 
@@ -385,7 +385,7 @@ $classPerformance = $classPerformance ?? [
 
 .action-content h3 {
     color: #000;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 3px;
 }
 
@@ -434,7 +434,7 @@ $classPerformance = $classPerformance ?? [
 
 .performance-header h3 {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 600;
 }
 
@@ -479,7 +479,7 @@ $classPerformance = $classPerformance ?? [
 
 .card-header h3 {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -545,7 +545,7 @@ $classPerformance = $classPerformance ?? [
 
 .activity-content h4 {
     color: #000;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 5px;
     white-space: nowrap;
     overflow: hidden;

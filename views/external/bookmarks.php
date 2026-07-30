@@ -164,7 +164,7 @@ $bookmarks = $bookmarks ?? [];
 
 .page-subtitle {
     color: var(--color-text-muted);
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     margin: 0;
 }
 
@@ -223,7 +223,7 @@ $bookmarks = $bookmarks ?? [];
 .empty-state p {
     color: var(--color-text-muted);
     margin: 0 0 30px 0;
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.5;
 }
 
@@ -398,7 +398,7 @@ $bookmarks = $bookmarks ?? [];
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .btn-share:hover {
@@ -468,7 +468,7 @@ $bookmarks = $bookmarks ?? [];
 .modal-body p {
     color: var(--color-text-dark);
     margin: 0 0 16px 0;
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.5;
 }
 

@@ -291,7 +291,7 @@ function getYoutubeId($url) {
     padding: 14px 20px;
     border-radius: 10px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     text-decoration: none;
     display: flex;
     align-items: center;

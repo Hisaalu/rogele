@@ -337,7 +337,7 @@ if (!empty($quizzes)) {
 
 .page-subtitle {
     color: #555;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .alert {
@@ -624,7 +624,7 @@ if (!empty($quizzes)) {
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .btn-results:hover {

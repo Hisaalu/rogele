@@ -339,7 +339,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 .plan-icon i { font-size: 2rem; color: #7f2677; }
 .plan-name { font-size: 1.8rem; font-weight: 800; color: #000; margin-bottom: 16px; }
 .price-wrapper { margin-bottom: 8px; }
-.currency { font-size: 1rem; color: #000; vertical-align: top; }
+.currency { font-size: 0.95rem; color: #000; vertical-align: top; }
 .amount { font-size: 3rem; font-weight: 800; color: #000; line-height: 1; }
 .period { color: #555; font-size: 0.9rem; margin-bottom: 24px; }
 .savings-tag {
@@ -362,7 +362,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     color: #555;
     font-size: 0.95rem;
 }
-.features-list li i { color: #10B981; font-size: 1rem; width: 20px; }
+.features-list li i { color: #10B981; font-size: 0.95rem; width: 20px; }
 .btn-select {
     width: 100%;
     padding: 14px;
@@ -370,7 +370,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     border: none;
     border-radius: 60px;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -447,7 +447,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 .close:hover { transform: scale(1.1); }
 #paymentForm { padding: 24px; }
 .plan-summary { background: #F8FAFC; border-radius: 16px; padding: 16px; text-align: center; margin-bottom: 24px; }
-.plan-summary strong { color: #7f2677; font-size: 1.1rem; }
+.plan-summary strong { color: #7f2677; font-size: 0.95rem; }
 .amount-display { margin-top: 8px; font-size: 1.2rem; }
 .amount-display span { font-weight: 700; color: #7f2677; }
 .payment-fields { background: #F8FAFC; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
@@ -457,7 +457,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 .input-group input:focus { outline: none; border-color: #f06724; box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25); }
 .input-group small { display: block; margin-top: 6px; color: #666; font-size: 0.75rem; }

@@ -138,13 +138,13 @@
             font-weight: 500;
             border-radius: 50px;
             transition: all 0.3s ease;
-            font-size: 1rem;
+            font-size: 0.95rem;
             white-space: nowrap;
         }
 
         .nav-links a i {
             color: #f06724;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             transition: transform 0.3s ease;
         }
 
@@ -347,7 +347,7 @@
         .dropdown-content a i {
             width: 20px;
             color: #f06724;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
         }
 
         .dropdown-content a:hover,
@@ -433,7 +433,7 @@
             }
             
             .logo-main {
-                font-size: 1rem;
+                font-size: 0.95rem;
             }
             
             .logo-sub {
@@ -557,7 +557,7 @@
             font-weight: 500;
             border-radius: 12px;
             transition: all 0.3s ease;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
         .mobile-nav-links a i {
@@ -599,7 +599,7 @@
             border-radius: 12px;
             font-weight: 600;
             text-decoration: none;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
         }
 

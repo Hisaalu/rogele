@@ -104,7 +104,7 @@ $allSubjects = $allSubjects ?? [];
                     <div class="dropzone-text">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <span id="file-input-label">Tap to browse or upload documents</span>
-                        <small class="form-hint">Upload should be 5MB per file</small>
+                        <small class="form-hint">Upload should not exceed 5MB per file</small>
                     </div>
                 </div>
             </div>
@@ -219,7 +219,7 @@ $allSubjects = $allSubjects ?? [];
     padding: 14px 16px;
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.2s ease;
     font-family: inherit;
     background-color: #fff;
@@ -399,7 +399,7 @@ $allSubjects = $allSubjects ?? [];
     width: 100%;
     padding: 14px 28px;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     text-align: center;
     text-decoration: none;

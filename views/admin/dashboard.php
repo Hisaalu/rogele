@@ -234,7 +234,7 @@ $recentActivity = $recentActivity ?? [];
 
 .page-subtitle {
     color: #000;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .date-display {
@@ -386,7 +386,7 @@ $recentActivity = $recentActivity ?? [];
 
 .action-content h3 {
     color: #000;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 3px;
 }
 
@@ -429,7 +429,7 @@ $recentActivity = $recentActivity ?? [];
 
 .card-header h3 {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -496,7 +496,7 @@ $recentActivity = $recentActivity ?? [];
     justify-content: center;
     color: white;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .user-info {

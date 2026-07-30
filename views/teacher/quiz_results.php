@@ -221,7 +221,7 @@ $stats = $stats ?? [];
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 /* Download Buttons */
@@ -362,7 +362,7 @@ $stats = $stats ?? [];
 
 .card-header h3 {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -580,7 +580,7 @@ $stats = $stats ?? [];
     padding: 12px;
     border: 2px solid #E2E8F0;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     text-align: center;
     letter-spacing: 2px;

@@ -165,7 +165,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     align-items: center;
     justify-content: center;
     color: var(--primary-orange);
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     flex-shrink: 0;
 }
 

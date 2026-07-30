@@ -149,7 +149,7 @@ class User {
                 .email-header p {
                     color: rgba(255,255,255,0.9);
                     margin: 10px 0 0;
-                    font-size: 1.1rem;
+                    font-size: 0.95rem;
                 }
                 .email-body {
                     padding: 40px 30px;
@@ -177,7 +177,7 @@ class User {
                     padding: 16px 40px;
                     border-radius: 50px;
                     font-weight: 600;
-                    font-size: 1.1rem;
+                    font-size: 0.95rem;
                     box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3);
                     transition: all 0.3s ease;
                 }

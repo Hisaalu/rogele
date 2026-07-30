@@ -192,7 +192,7 @@ function getYoutubeId($url) {
 
 .page-subtitle {
     color: #555;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .header-actions {
@@ -222,7 +222,7 @@ function getYoutubeId($url) {
 }
 
 .bookmark-link i {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .bookmark-count {
@@ -318,7 +318,7 @@ function getYoutubeId($url) {
     padding: 14px 15px 14px 45px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
 }
 
@@ -332,7 +332,7 @@ function getYoutubeId($url) {
     padding: 14px 20px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     background: white;
     min-width: 180px;
     cursor: pointer;
@@ -442,7 +442,7 @@ function getYoutubeId($url) {
     cursor: pointer;
     transition: all 0.3s ease;
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
@@ -532,7 +532,7 @@ function getYoutubeId($url) {
     padding: 14px 20px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -605,7 +605,7 @@ function getYoutubeId($url) {
 
 .empty-state p {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
     max-width: 400px;
     margin: 0 auto;
 }

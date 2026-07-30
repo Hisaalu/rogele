@@ -149,7 +149,7 @@ $endTime = time() + $timeLimitSeconds;
     align-items: center;
     gap: 10px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .sticky-timer-info i, .sticky-progress-info i {
@@ -275,7 +275,7 @@ $endTime = time() + $timeLimitSeconds;
 }
 
 .question-text {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: #000;
     margin-bottom: 20px;
@@ -373,7 +373,7 @@ $endTime = time() + $timeLimitSeconds;
     padding: 14px 40px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -398,7 +398,7 @@ $endTime = time() + $timeLimitSeconds;
     .quiz-stats { gap: 15px; }
     .sticky-timer-content { justify-content: center; }
     .sticky-timer-info, .sticky-progress-info { font-size: 0.85rem; }
-    #stickyTimerDisplay, #stickyAnsweredCount { font-size: 1rem; padding: 2px 8px; }
+    #stickyTimerDisplay, #stickyAnsweredCount { font-size: 0.95rem; padding: 2px 8px; }
 }
 </style>
 

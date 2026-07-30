@@ -108,7 +108,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .section-header p {
     color: #555;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -149,7 +149,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 .info-card h3 {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     margin-bottom: 10px;
 }
 
@@ -177,7 +177,7 @@ require_once __DIR__ . '/../layouts/header.php';
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
     font-family: inherit;
 }
@@ -197,7 +197,7 @@ require_once __DIR__ . '/../layouts/header.php';
     border: none;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;

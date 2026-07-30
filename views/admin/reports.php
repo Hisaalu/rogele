@@ -295,7 +295,7 @@ $revenueData = $revenueData ?? [];
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     color: white;
     flex-shrink: 0;
     background-color: var(--primary-orange);
@@ -384,7 +384,7 @@ $revenueData = $revenueData ?? [];
 
 .stat-mini-value {
     display: block;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--text-dark);
 }

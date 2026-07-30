@@ -80,7 +80,7 @@ $allSubjects = $allSubjects ?? [];
             <div class="form-group">
                 <label for="attachments">Attachments</label>
                 <input type="file" id="attachments" name="attachments[]" multiple class="file-input">
-                <small class="form-hint">Upload should be 5MB per file</small>
+                <small class="form-hint">Upload should not exceed 5MB per file</small>
             </div>
 
             <div class="form-actions">
@@ -153,7 +153,7 @@ $allSubjects = $allSubjects ?? [];
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
     font-family: 'Inter', sans-serif;
 }

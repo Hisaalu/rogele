@@ -64,7 +64,7 @@ try {
             <?php endif; ?>
             
             <div style="text-align: center;">
-                <a href="<?php echo BASE_URL; ?>/external/subscription" style="display: inline-block; background-color: #f06724; color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: 600; font-size: 1.1rem;">
+                <a href="<?php echo BASE_URL; ?>/external/subscription" style="display: inline-block; background-color: #f06724; color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: 600; font-size: 0.95rem;">
                     Choose a Subscription Plan
                 </a>
             </div>

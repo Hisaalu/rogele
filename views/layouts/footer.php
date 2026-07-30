@@ -355,7 +355,7 @@
 
         .footer-col h4 {
             color: white;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             margin-bottom: 20px;
             position: relative;
             padding-bottom: 10px;
@@ -409,7 +409,7 @@
         .contact-info i {
             color: #f06724;
             width: 20px;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
         }
 
         .footer-bottom {
@@ -468,7 +468,7 @@
                 right: 20px;
                 width: 45px;
                 height: 45px;
-                font-size: 1rem;
+                font-size: 0.95rem;
             }
         }
 

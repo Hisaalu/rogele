@@ -185,7 +185,7 @@ if (empty($classes)) {
             border: none;
             cursor: pointer;
             color: #999;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             padding: 8px;
         }
 
@@ -200,7 +200,7 @@ if (empty($classes)) {
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
             transition: background 0.2s ease;

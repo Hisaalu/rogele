@@ -52,7 +52,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 
 .page-subtitle {
     color: var(--text-dark);
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .btn-save-all {
@@ -62,7 +62,7 @@ $appearanceSettings = $appearanceSettings ?? [];
     padding: 14px 32px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;

@@ -251,7 +251,7 @@ $students = $students ?? [];
 
 .page-subtitle {
     color: #555;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 /* Alert Messages */
@@ -503,7 +503,7 @@ $students = $students ?? [];
 
 .form-group label i {
     color: #f06724;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .required {
@@ -516,7 +516,7 @@ $students = $students ?? [];
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
     font-family: 'Inter', sans-serif;
 }
@@ -553,7 +553,7 @@ $students = $students ?? [];
     padding: 14px 30px;
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -609,7 +609,7 @@ $students = $students ?? [];
     .photo-upload-btn {
         width: 35px;
         height: 35px;
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 }
 
@@ -629,7 +629,7 @@ $students = $students ?? [];
     .stat-icon {
         width: 35px;
         height: 35px;
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 }
 
