@@ -39,15 +39,19 @@ $detectedHost = $_SERVER['HTTP_HOST'] ?? '';
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
            || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
 
-if (getenv('RENDER') && getenv('RENDER_EXTERNAL_URL')) {
-    $appUrl = getenv('RENDER_EXTERNAL_URL');
-} elseif (getenv('APP_URL')) {
+if (getenv('APP_URL')) {
     $appUrl = getenv('APP_URL');
-} elseif ($detectedHost) {
+}
+elseif ($detectedHost) {
     $scheme = $isHttps ? 'https://' : 'http://';
     $appUrl = $scheme . $detectedHost;
-} else {
-    $appUrl = 'http://localhost/rogele-prod';
+} 
+
+elseif (getenv('RENDER') && getenv('RENDER_EXTERNAL_URL')) {
+    $appUrl = getenv('RENDER_EXTERNAL_URL');
+}
+else {
+    $appUrl = 'http://localhost/rogele-pay';
 }
 
 define('BASE_URL', rtrim($appUrl, '/'));
