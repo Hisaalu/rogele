@@ -264,11 +264,7 @@ require_once __DIR__ . '/../../layouts/header.php';
     gap: 8px;
 }
 
-.homework-content i {
-    color: #f06724;
-}
-
-.homework-attachments i {
+.homework-content h3 i, .homework-attachments h3 i {
     color: #f06724;
 }
 
@@ -283,44 +279,39 @@ require_once __DIR__ . '/../../layouts/header.php';
     font-style: italic;
 }
 
-.attachments-list {
+.file-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.attachment-item {
-    display: flex;
+.file-link {
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: #F8FAFC;
     padding: 12px 18px;
     border-radius: 10px;
     border: 1px solid #E2E8F0;
-}
-
-.attachment-item i {
-    color: #f06724;
-}
-
-.file-name {
-    flex: 1;
-    font-weight: 500;
-    color: #555;
-}
-
-.btn-download {
     color: #7f2677;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
-.btn-download:hover {
+.file-link:hover {
+    border-color: #f06724;
     color: #f06724;
+    background: #FFF;
+}
+
+.file-link i {
+    color: #f06724;
+}
+
+.file-size {
+    color: #64748B;
+    font-size: 0.85rem;
 }
 
 @media (max-width: 768px) {
