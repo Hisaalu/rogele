@@ -135,6 +135,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 
     <!-- Payment History -->
     <?php if (!empty($paymentHistory)): ?>
+        <?php $recentPaymentHistory = array_slice($paymentHistory, 0, 5); ?>
         <div class="history-section">
             <h2 class="section-title"><i class="fas fa-history"></i> Payment History</h2>
             <div class="table-responsive">
@@ -149,7 +150,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($paymentHistory as $payment): ?>
+                        <?php foreach ($recentPaymentHistory as $payment): ?>
                         <tr>
                             <td><?= date('M d, Y', strtotime($payment['created_at'])) ?></td>
                             <td><strong><?= htmlspecialchars(ucfirst($payment['plan_type'] ?? 'N/A')) ?></strong></td>
