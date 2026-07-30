@@ -585,7 +585,7 @@ function getYoutubeId($url) {
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background-color: #7f2677;
+    background-color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
