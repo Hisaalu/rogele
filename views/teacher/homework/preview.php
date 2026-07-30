@@ -81,15 +81,19 @@ require_once __DIR__ . '/../../layouts/header.php';
             <hr class="divider">
             <div class="homework-attachments">
                 <h3><i class="fas fa-paperclip"></i> Attached Materials</h3>
-                <div class="attachments-list">
+                <div class="file-list">
                     <?php foreach ($homework['attachments'] as $file): ?>
-                        <div class="attachment-item">
-                            <i class="fas fa-file-alt"></i>
-                            <span class="file-name"><?php echo htmlspecialchars($file['file_name']); ?></span>
-                            <a href="<?php echo BASE_URL . '/' . htmlspecialchars($file['file_path']); ?>" download class="btn-download">
-                                <i class="fas fa-download"></i>
-                            </a>
-                        </div>
+                        <?php
+                            $cleanFileName = basename($file['file_path']); 
+                            $officialHomeworkUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/homework/" . $cleanFileName;
+                        ?>
+                        <a href="<?php echo htmlspecialchars($officialHomeworkUrl); ?>" target="_blank" class="file-link">
+                            <i class="fas fa-download"></i>
+                            <?php echo htmlspecialchars($file['file_name']); ?>
+                            <?php if (isset($file['file_size'])): ?>
+                                <span class="file-size">(<?php echo round($file['file_size'] / 1024, 2); ?> KB)</span>
+                            <?php endif; ?>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             </div>

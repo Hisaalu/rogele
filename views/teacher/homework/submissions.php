@@ -7,7 +7,6 @@ $homework = $homework ?? [];
 $submissions = $submissions ?? [];
 $isAcceptingSubmissions = $homework['is_active'] ?? true;
 
-// Calculate statistics
 $totalSubmissions = count($submissions);
 $gradedCount = count(array_filter($submissions, function($s) { return $s['status'] === 'graded'; }));
 $lateCount = count(array_filter($submissions, function($s) { return $s['status'] === 'late'; }));
@@ -32,7 +31,6 @@ if ($gradedCount > 0) {
         </div>
         
         <div class="header-actions">
-            <!-- Stop/Start Submissions Toggle -->
             <div class="submission-toggle">
                 <span class="toggle-label">
                     <i class="fas fa-door-open"></i>
@@ -45,7 +43,6 @@ if ($gradedCount > 0) {
                 </label>
             </div>
             
-            <!-- Export Button -->
             <?php if (!empty($submissions)): ?>
                 <button onclick="exportGrades()" class="btn-export">
                     <i class="fas fa-download"></i>
@@ -69,7 +66,6 @@ if ($gradedCount > 0) {
         </div>
     <?php endif; ?>
 
-    <!-- Status Banner -->
     <?php if (!$isAcceptingSubmissions): ?>
         <div class="status-banner closed">
             <i class="fas fa-ban"></i>
@@ -88,7 +84,6 @@ if ($gradedCount > 0) {
         </div>
     <?php endif; ?>
 
-    <!-- Statistics Cards -->
     <?php if (!empty($submissions)): ?>
         <div class="stats-cards">
             <div class="stat-card">
