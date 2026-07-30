@@ -190,14 +190,17 @@ class TeacherController {
             }
             
             if (empty($errors)) {
+                $videoUrl = !empty(trim($_POST['video_url'] ?? '')) ? trim($_POST['video_url']) : null;
+                $duration = !empty($_POST['duration']) ? (int)$_POST['duration'] : null;
+
                 $data = [
-                    'title' => $_POST['title'],
+                    'title' => trim($_POST['title']),
                     'content' => $_POST['content'] ?? '',
                     'subject_id' => $_POST['subject_id'],
                     'class_id' => $_POST['class_id'],
                     'teacher_id' => $this->teacherId,
-                    'video_url' => $_POST['video_url'] ?? null,
-                    'duration' => $_POST['duration'] ?? null,
+                    'video_url' => $videoUrl,
+                    'duration' => $duration,
                     'is_published' => isset($_POST['is_published']) ? 1 : 0
                 ];
                 
