@@ -15,6 +15,59 @@ $termlySavings        = $monthlyTotal3 - $termlyPrice;
 $yearlySavings        = $monthlyTotal12 - $yearlyPrice;
 $termlySavingsPercent = $monthlyTotal3 > 0 ? round(($termlySavings / $monthlyTotal3) * 100) : 0;
 $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTotal12) * 100) : 0;
+
+$plans = [
+    'monthly' => [
+        'name' => 'Monthly',
+        'icon' => 'fas fa-calendar-alt',
+        'price' => $monthlyPrice,
+        'period' => 'per month • cancel anytime',
+        'popular' => false,
+        'badge' => null,
+        'savings' => null,
+        'features' => [
+            'Full access to all lessons',
+            'Practice quizzes & assessments',
+            'Homework support',
+            'Progress tracking dashboard',
+            '24/7 support'
+        ]
+    ],
+    'termly' => [
+        'name' => 'Termly',
+        'icon' => 'fas fa-chart-line',
+        'price' => $termlyPrice,
+        'period' => 'per term (3 months)',
+        'popular' => true,
+        'badge' => 'RECOMMENDED',
+        'savings' => 'Save ' . number_format($termlySavings) . ' UGX (' . $termlySavingsPercent . '%)',
+        'savings_class' => '',
+        'features' => [
+            'Everything in Monthly',
+            'Save ' . number_format($termlySavings) . ' UGX',
+            'Priority support',
+            'Downloadable materials',
+            'Quiz solutions'
+        ]
+    ],
+    'yearly' => [
+        'name' => 'Yearly',
+        'icon' => 'fas fa-crown',
+        'price' => $yearlyPrice,
+        'period' => 'per year • best value',
+        'popular' => false,
+        'badge' => null,
+        'savings' => 'Save ' . number_format($yearlySavings) . ' UGX (' . $yearlySavingsPercent . '%)',
+        'savings_class' => 'best',
+        'features' => [
+            'Everything in Termly',
+            '2 months free',
+            'Full access to all resources',
+            'ROGELE AI Assistant',
+            'Certificate of completion'
+        ]
+    ]
+];
 ?>
 
 <div class="subscription-container">
@@ -23,14 +76,14 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
         <h1 class="page-title">Choose Your Learning Path</h1>
         <p class="page-subtitle">Select the perfect plan for your educational journey</p>
     </div>
-    
+
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
             <span><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
         </div>
     <?php endif; ?>
-    
+
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-error">
             <i class="fas fa-exclamation-circle"></i>
@@ -52,7 +105,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
             $nextPlan    = $currentPlan === 'monthly' ? 'termly' : ($currentPlan === 'termly' ? 'yearly' : null);
             if ($nextPlan):
             ?>
-            <a href="<?= BASE_URL ?>/external/upgrade-confirmation?from=<?= $currentPlan ?>&to=<?= $nextPlan ?>" class="btn-upgrade">
+            <a href="<?= BASE_URL ?>/external/upgrade-confirmation?from=<?= urlencode($currentPlan) ?>&to=<?= urlencode($nextPlan) ?>" class="btn-upgrade">
                 <i class="fas fa-rocket"></i> Upgrade to <?= ucfirst($nextPlan) ?>
             </a>
             <?php endif; ?>
@@ -60,77 +113,36 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
     <?php endif; ?>
 
     <div class="pricing-grid">
-        <!-- Monthly Plan -->
-        <div class="pricing-card" data-plan="monthly" data-price="<?= $monthlyPrice ?>">
-            <div class="plan-icon"><i class="fas fa-calendar-alt"></i></div>
-            <h3 class="plan-name">Monthly</h3>
-            <div class="price-wrapper">
-                <span class="currency">UGX</span>
-                <span class="amount"><?= number_format($monthlyPrice) ?></span>
-            </div>
-            <p class="period">per month • cancel anytime</p>
-            <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> Full access to all lessons</li>
-                <li><i class="fas fa-check-circle"></i> Practice quizzes & assessments</li>
-                <li><i class="fas fa-check-circle"></i> Homework support</li>
-                <li><i class="fas fa-check-circle"></i> Progress tracking dashboard</li>
-                <li><i class="fas fa-check-circle"></i> 24/7 support</li>
-            </ul>
-            <?php if (empty($currentSubscription)): ?>
-            <button type="button" class="btn-select open-payment-modal" data-plan="monthly" data-price="<?= $monthlyPrice ?>">
-                <i class="fas fa-shopping-cart"></i> Select Plan
-            </button>
-            <?php endif; ?>
-        </div>
+        <?php foreach ($plans as $key => $plan): ?>
+            <div class="pricing-card <?= $plan['popular'] ? 'popular' : '' ?>" data-plan="<?= $key ?>" data-price="<?= $plan['price'] ?>">
+                <?php if ($plan['badge']): ?>
+                    <div class="popular-badge"><?= $plan['badge'] ?></div>
+                <?php endif; ?>
+                <div class="plan-icon"><i class="<?= $plan['icon'] ?>"></i></div>
+                <h3 class="plan-name"><?= $plan['name'] ?></h3>
+                <div class="price-wrapper">
+                    <span class="currency">UGX</span>
+                    <span class="amount"><?= number_format($plan['price']) ?></span>
+                </div>
+                <p class="period"><?= $plan['period'] ?></p>
 
-        <!-- Termly Plan -->
-        <div class="pricing-card popular" data-plan="termly" data-price="<?= $termlyPrice ?>">
-            <div class="popular-badge">RECOMMENDED</div>
-            <div class="plan-icon"><i class="fas fa-chart-line"></i></div>
-            <h3 class="plan-name">Termly</h3>
-            <div class="price-wrapper">
-                <span class="currency">UGX</span>
-                <span class="amount"><?= number_format($termlyPrice) ?></span>
-            </div>
-            <p class="period">per term (3 months)</p>
-            <div class="savings-tag">Save <?= number_format($termlySavings) ?> UGX (<?= $termlySavingsPercent ?>%)</div>
-            <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> Everything in Monthly</li>
-                <li><i class="fas fa-check-circle"></i> Save <?= number_format($termlySavings) ?> UGX</li>
-                <li><i class="fas fa-check-circle"></i> Priority support</li>
-                <li><i class="fas fa-check-circle"></i> Downloadable materials</li>
-                <li><i class="fas fa-check-circle"></i> Quiz solutions</li>
-            </ul>
-            <?php if (empty($currentSubscription)): ?>
-            <button type="button" class="btn-select btn-primary open-payment-modal" data-plan="termly" data-price="<?= $termlyPrice ?>">
-                <i class="fas fa-rocket"></i> Select Plan
-            </button>
-            <?php endif; ?>
-        </div>
+                <?php if (!empty($plan['savings'])): ?>
+                    <div class="savings-tag <?= $plan['savings_class'] ?? '' ?>"><?= $plan['savings'] ?></div>
+                <?php endif; ?>
 
-        <!-- Yearly Plan -->
-        <div class="pricing-card" data-plan="yearly" data-price="<?= $yearlyPrice ?>">
-            <div class="plan-icon"><i class="fas fa-crown"></i></div>
-            <h3 class="plan-name">Yearly</h3>
-            <div class="price-wrapper">
-                <span class="currency">UGX</span>
-                <span class="amount"><?= number_format($yearlyPrice) ?></span>
+                <ul class="features-list">
+                    <?php foreach ($plan['features'] as $feature): ?>
+                        <li><i class="fas fa-check-circle"></i> <?= htmlspecialchars($feature) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+
+                <?php if (empty($currentSubscription)): ?>
+                <button type="button" class="btn-select <?= $plan['popular'] ? 'btn-primary' : '' ?> open-payment-modal" data-plan="<?= $key ?>" data-price="<?= $plan['price'] ?>">
+                    <i class="fas <?= $key === 'yearly' ? 'fa-crown' : ($key === 'termly' ? 'fa-rocket' : 'fa-shopping-cart') ?>"></i> Select Plan
+                </button>
+                <?php endif; ?>
             </div>
-            <p class="period">per year • best value</p>
-            <div class="savings-tag best">Save <?= number_format($yearlySavings) ?> UGX (<?= $yearlySavingsPercent ?>%)</div>
-            <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> Everything in Termly</li>
-                <li><i class="fas fa-check-circle"></i> 2 months free</li>
-                <li><i class="fas fa-check-circle"></i> Full access to all resources</li>
-                <li><i class="fas fa-check-circle"></i> ROGELE AI Assistant</li>
-                <li><i class="fas fa-check-circle"></i> Certificate of completion</li>
-            </ul>
-            <?php if (empty($currentSubscription)): ?>
-            <button type="button" class="btn-select open-payment-modal" data-plan="yearly" data-price="<?= $yearlyPrice ?>">
-                <i class="fas fa-crown"></i> Select Plan
-            </button>
-            <?php endif; ?>
-        </div>
+        <?php endforeach; ?>
     </div>
 
     <!-- Payment History -->
@@ -188,18 +200,22 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
                 <p>You're subscribing to: <strong id="planNameDisplay"></strong></p>
                 <p class="amount-display">Total: <span id="planAmountDisplay"></span></p>
             </div>
+
+            <div class="input-group">
+                <label for="provider">Payment Network</label>
+                <select id="provider" name="provider" required>
+                    <option value="">Select Network</option>
+                    <option value="mtn">MTN Mobile Money</option>
+                    <option value="airtel">Airtel Money</option>
+                </select>
+            </div>
             
             <div class="payment-fields">
-                <div class="input-group">
+                <div class="input-group" style="margin-bottom:0;">
                     <label for="phoneNumber">Mobile Money Phone Number</label>
                     <input type="tel" id="phoneNumber" name="phone_number" placeholder="0772 123 456" required>
                     <small>Enter your MTN or Airtel Mobile Money number</small>
                 </div>
-            </div>
-            
-            <div class="secure-badge">
-                <i class="fas fa-shield-alt"></i>
-                <span>Secured by ROGELE</span>
             </div>
             
             <div class="modal-buttons">
@@ -414,6 +430,7 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 .alert { padding: 16px 20px; border-radius: 16px; margin-bottom: 30px; display: flex; align-items: center; gap: 12px; }
 .alert-success { background: #F0FDF4; border: 1px solid #BBF7D0; color: #166534; }
 .alert-error { background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; }
+
 .modal {
     display: none;
     position: fixed;
@@ -451,29 +468,53 @@ $yearlySavingsPercent = $monthlyTotal12 > 0 ? round(($yearlySavings / $monthlyTo
 .plan-summary strong { color: #7f2677; font-size: 0.95rem; }
 .amount-display { margin-top: 8px; font-size: 1.2rem; }
 .amount-display span { font-weight: 700; color: #7f2677; }
-.payment-fields { background: #F8FAFC; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
-.input-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #000; font-size: 0.9rem; }
+.payment-fields { background: #F8FAFC; border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+
+.input-group { margin-bottom: 20px; }
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
 .input-group input {
     width: 100%;
     padding: 12px 16px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 0.95rem;
+    box-sizing: border-box;
 }
 .input-group input:focus { outline: none; border-color: #f06724; box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25); }
 .input-group small { display: block; margin-top: 6px; color: #666; font-size: 0.75rem; }
-.secure-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #EFF6FF;
+
+.input-group select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #e5e7eb;
     border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 24px;
-    font-size: 0.85rem;
-    color: #1E40AF;
-    justify-content: center;
+    background: #fff;
+    color: #333;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5l6 6 6-6' stroke='%23666' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 14px;
+    box-sizing: border-box;
 }
+.input-group select:hover { border-color: #f06724; }
+.input-group select:focus {
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+}
+
 .modal-buttons { display: flex; gap: 12px; }
 .btn-cancel, .btn-submit {
     flex: 1;
@@ -510,7 +551,7 @@ const paymentForm = document.getElementById('paymentForm');
 function openModal(plan, price) {
     document.getElementById('selectedPlan').value = plan;
     document.getElementById('planNameDisplay').textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
-    document.getElementById('planAmountDisplay').textContent = 'UGX ' + parseInt(price).toLocaleString();
+    document.getElementById('planAmountDisplay').textContent = 'UGX ' + parseInt(price, 10).toLocaleString();
     modal.style.display = 'flex';
 }
 
@@ -553,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const pollInterval = setInterval(() => {
             attempts++;
-            fetch('<?= BASE_URL ?>/external/check-payment-status?transaction_id=' + txId)
+            fetch('<?= BASE_URL ?>/external/check-payment-status?transaction_id=' + encodeURIComponent(txId))
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'completed') {

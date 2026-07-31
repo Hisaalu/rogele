@@ -643,7 +643,7 @@ class ExternalController {
 
         $userId = $this->userId;
         $planType = $_POST['plan_type'] ?? 'monthly';
-        $provider = strtolower($_POST['provider'] ?? 'mtn');
+        $provider = $_POST['provider'] ?? 'NA';
         $phone = $_POST['phone_number'] ?? '';
 
         if (empty($phone)) {
@@ -783,7 +783,7 @@ class ExternalController {
         $fromPlan = $_POST['from_plan'] ?? '';
         $toPlan = $_POST['to_plan'] ?? '';
         $amount = (float)($_POST['amount'] ?? 0);
-        $provider = strtolower($_POST['provider'] ?? 'mtn');
+        $provider = $_POST['provider'] ?? 'NA';
         $phone = $_POST['phone_number'] ?? '';
         
         if (empty($fromPlan) || empty($toPlan) || $amount <= 0) {

@@ -8,6 +8,25 @@ $toPlan = $toPlan ?? '';
 $fromPlanDetails = $fromPlanDetails ?? [];
 $toPlanDetails = $toPlanDetails ?? [];
 $priceCalculation = $priceCalculation ?? [];
+
+$comparisonPlans = [
+    'current' => [
+        'badge' => 'Current Plan',
+        'badge_class' => 'current-plan',
+        'icon' => $fromPlan === 'yearly' ? 'crown' : ($fromPlan === 'termly' ? 'star' : 'user'),
+        'name' => ucfirst($fromPlanDetails['name'] ?? $fromPlan),
+        'price' => $fromPlanDetails['price'] ?? 0,
+        'features' => $fromPlanDetails['features'] ?? []
+    ],
+    'new' => [
+        'badge' => 'New Plan',
+        'badge_class' => 'new-plan',
+        'icon' => $toPlan === 'yearly' ? 'crown' : ($toPlan === 'termly' ? 'star' : 'rocket'),
+        'name' => ucfirst($toPlanDetails['name'] ?? $toPlan),
+        'price' => $toPlanDetails['price'] ?? 0,
+        'features' => $toPlanDetails['features'] ?? []
+    ]
+];
 ?>
 
 <div class="upgrade-container">
@@ -21,44 +40,30 @@ $priceCalculation = $priceCalculation ?? [];
         </div>
 
         <div class="plan-comparison">
-            <div class="plan-card current-plan">
-                <div class="plan-badge">Current Plan</div>
-                <div class="plan-icon">
-                    <i class="fas fa-<?php echo $fromPlan === 'yearly' ? 'crown' : ($fromPlan === 'termly' ? 'star' : 'user'); ?>"></i>
+            <?php foreach ($comparisonPlans as $type => $plan): ?>
+                <div class="plan-card <?= $plan['badge_class'] ?>">
+                    <div class="plan-badge"><?= $plan['badge'] ?></div>
+                    <div class="plan-icon">
+                        <i class="fas fa-<?= $plan['icon'] ?>"></i>
+                    </div>
+                    <h3><?= htmlspecialchars($plan['name']) ?></h3>
+                    <div class="plan-price">
+                        <small>UGX</small>
+                        <span><?= number_format($plan['price']) ?></span>
+                    </div>
+                    <ul class="plan-features">
+                        <?php foreach ($plan['features'] as $feature): ?>
+                            <li><i class="fas fa-check"></i> <?= htmlspecialchars($feature) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
-                <h3><?php echo ucfirst($fromPlanDetails['name'] ?? $fromPlan); ?></h3>
-                <div class="plan-price">
-                    <small>UGX</small>
-                    <span><?php echo number_format($fromPlanDetails['price'] ?? 0); ?></span>
-                </div>
-                <ul class="plan-features">
-                    <?php foreach (($fromPlanDetails['features'] ?? []) as $feature): ?>
-                        <li><i class="fas fa-check"></i> <?php echo $feature; ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-
-            <div class="upgrade-arrow">
-                <i class="fas fa-arrow-right"></i>
-                <i class="fas fa-arrow-down"></i>
-            </div>
-
-            <div class="plan-card new-plan">
-                <div class="plan-badge">New Plan</div>
-                <div class="plan-icon">
-                    <i class="fas fa-<?php echo $toPlan === 'yearly' ? 'crown' : ($toPlan === 'termly' ? 'star' : 'rocket'); ?>"></i>
-                </div>
-                <h3><?php echo ucfirst($toPlanDetails['name'] ?? $toPlan); ?></h3>
-                <div class="plan-price">
-                    <small>UGX</small>
-                    <span><?php echo number_format($toPlanDetails['price'] ?? 0); ?></span>
-                </div>
-                <ul class="plan-features">
-                    <?php foreach (($toPlanDetails['features'] ?? []) as $feature): ?>
-                        <li><i class="fas fa-check"></i> <?php echo $feature; ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+                <?php if ($type === 'current'): ?>
+                    <div class="upgrade-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
         </div>
 
         <div class="price-breakdown">
@@ -66,19 +71,19 @@ $priceCalculation = $priceCalculation ?? [];
             
             <div class="breakdown-item">
                 <span>New Plan Price:</span>
-                <strong>UGX <?php echo number_format($priceCalculation['new_price'] ?? 0); ?></strong>
+                <strong>UGX <?= number_format($priceCalculation['new_price'] ?? 0) ?></strong>
             </div>
             
             <div class="breakdown-item">
-                <span>Remaining Value (<?php echo $priceCalculation['days_remaining'] ?? 0; ?> days):</span>
-                <strong class="text-success">- UGX <?php echo number_format($priceCalculation['remaining_value'] ?? 0); ?></strong>
+                <span>Remaining Value (<?= (int)($priceCalculation['days_remaining'] ?? 0) ?> days):</span>
+                <strong class="text-success">- UGX <?= number_format($priceCalculation['remaining_value'] ?? 0) ?></strong>
             </div>
             
             <div class="breakdown-divider"></div>
             
             <div class="breakdown-item total">
                 <span>You Pay Today:</span>
-                <strong class="total-amount">UGX <?php echo number_format($priceCalculation['upgrade_price'] ?? 0); ?></strong>
+                <strong class="total-amount">UGX <?= number_format($priceCalculation['upgrade_price'] ?? 0) ?></strong>
             </div>
             
             <div class="savings-note">
@@ -87,10 +92,10 @@ $priceCalculation = $priceCalculation ?? [];
             </div>
         </div>
 
-        <form action="<?php echo BASE_URL; ?>/external/process-upgrade" method="POST" class="payment-form">
-            <input type="hidden" name="from_plan" value="<?php echo htmlspecialchars($fromPlan); ?>">
-            <input type="hidden" name="to_plan" value="<?php echo htmlspecialchars($toPlan); ?>">
-            <input type="hidden" name="amount" value="<?php echo $priceCalculation['upgrade_price'] ?? 0; ?>">
+        <form action="<?= BASE_URL ?>/external/process-upgrade" method="POST" class="payment-form">
+            <input type="hidden" name="from_plan" value="<?= htmlspecialchars($fromPlan) ?>">
+            <input type="hidden" name="to_plan" value="<?= htmlspecialchars($toPlan) ?>">
+            <input type="hidden" name="amount" value="<?= (float)($priceCalculation['upgrade_price'] ?? 0) ?>">
             <input type="hidden" name="payment_method" value="mobile_money">
             
             <h3>Payment Details</h3>
@@ -98,7 +103,7 @@ $priceCalculation = $priceCalculation ?? [];
             <div class="payment-details">
                 <div class="form-group">
                     <label for="provider">Mobile Network</label>
-                    <select name="provider" id="provider" style="width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 15px;">
+                    <select name="provider" id="provider" required>
                         <option value="mtn">MTN Mobile Money</option>
                         <option value="airtel">Airtel Money</option>
                     </select>
@@ -112,16 +117,16 @@ $priceCalculation = $priceCalculation ?? [];
             <div class="terms-section">
                 <label class="checkbox-label">
                     <input type="checkbox" name="terms" required>
-                    <span>I agree to the <a href="<?php echo BASE_URL; ?>/terms-of-service" target="_blank">Terms of Service</a></span>
+                    <span>I agree to the <a href="<?= BASE_URL ?>/terms-of-service" target="_blank">Terms of Service</a></span>
                 </label>
             </div>
 
             <div class="form-actions">
-                <a href="<?php echo BASE_URL; ?>/external/subscription" class="btn-cancel">
+                <a href="<?= BASE_URL ?>/external/subscription" class="btn-cancel">
                     <i class="fas fa-arrow-left"></i> Cancel
                 </a>
                 <button type="submit" class="btn-pay">
-                    Pay UGX <?php echo number_format($priceCalculation['upgrade_price'] ?? 0); ?>
+                    Pay UGX <?= number_format($priceCalculation['upgrade_price'] ?? 0) ?>
                 </button>
             </div>
         </form>
@@ -133,6 +138,7 @@ $priceCalculation = $priceCalculation ?? [];
     max-width: 1000px;
     margin: 40px auto;
     padding: 0 20px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .upgrade-card {
@@ -346,13 +352,6 @@ $priceCalculation = $priceCalculation ?? [];
     margin: 20px 0;
 }
 
-.payment-details .form-group input:focus {
-    outline: none;
-    border-color: #f06724;
-    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
-    transition: all 0.3s ease;
-}
-
 .form-group {
     margin-bottom: 15px;
 }
@@ -363,11 +362,22 @@ $priceCalculation = $priceCalculation ?? [];
     font-weight: 500;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
     width: 100%;
     padding: 12px;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.2);
 }
 
 .terms-section {
@@ -396,16 +406,26 @@ $priceCalculation = $priceCalculation ?? [];
     text-decoration: none;
     border: none;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .btn-cancel {
-    background: #7f2677;
-    color: white;
+    background: #F1F5F9;
+    color: #1E293B;
+}
+
+.btn-cancel:hover {
+    background: #E2E8F0;
 }
 
 .btn-pay {
     background-color: #7f2677;
     color: white;
+}
+
+.btn-pay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(127, 38, 119, 0.3);
 }
 
 @media (max-width: 768px) {
