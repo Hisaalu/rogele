@@ -57,7 +57,7 @@ $token = $token ?? '';
 
         .reset-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             padding: 40px 32px;
             width: 100%;
