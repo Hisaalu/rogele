@@ -380,8 +380,14 @@ $comparisonPlans = [
     box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.2);
 }
 
-.terms-section {
-    margin: 20px 0;
+.terms-section a {
+    text-decoration: none;
+    color: #2563EB;
+}
+
+.terms-section a:hover,
+.terms-section a:focus {
+    text-decoration: underline;
 }
 
 .checkbox-label {
