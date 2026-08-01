@@ -207,7 +207,7 @@ $events = $events ?? [];
                 <?php endif; ?>
             </a>
             
-            <a href="<?php echo BASE_URL; ?>/external/subscription" class="nav-card" style="background: white; color: #000; border: 2px solid #E2E8F0;">
+            <a href="<?php echo BASE_URL; ?>/external/subscription" class="nav-card" style="background: white; color: #000; border: 1px solid #E2E8F0;">
                 <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 15px; color: #f06724;"></i>
                 <h3 style="margin-bottom: 10px;">Subscription</h3>
                 <p style="color: #555; font-size: 0.9rem;">

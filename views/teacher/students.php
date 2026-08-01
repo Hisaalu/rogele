@@ -381,7 +381,7 @@ $search = $_GET['search'] ?? '';
 
 .filter-group select {
     padding: 12px 20px;
-    border: 2px solid #E2E8F0;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 0.95rem;
     background: white;
@@ -392,6 +392,7 @@ $search = $_GET['search'] ?? '';
 .filter-group select:focus {
     outline: none;
     border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .btn-filter {
@@ -413,7 +414,7 @@ $search = $_GET['search'] ?? '';
     padding: 12px 30px;
     background: #7f2677;
     color: white;
-    border: 2px solid #E2E8F0;
+    border: none;
     border-radius: 12px;
     font-weight: 600;
     text-decoration: none;
@@ -667,7 +668,7 @@ $search = $_GET['search'] ?? '';
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background-color: #f06724;
+    background-color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
