@@ -61,7 +61,7 @@
         </div>
         <div class="footer-bottom">
             <div class="container">
-                <p>&copy; <?php echo date('Y'); ?> ROGELE (Rays of Grace E-Learning Environment) | All rights reserved.</p>
+                <p>&copy; <?php echo date('Y'); ?> ROGELE Learning. All rights reserved.</p>
             </div>
         </div>
     </footer>

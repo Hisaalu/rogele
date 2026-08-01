@@ -10,7 +10,7 @@ require_once __DIR__ . '/layouts/header.php';
             <i class="fas fa-shield-alt"></i>
             Privacy Policy
         </h1>
-        <p class="legal-date">Last Updated: April 1, 2026</p>
+        <p class="legal-date">Last Updated: August 1, 2026</p>
     </div>
 
     <div class="legal-content">
@@ -36,7 +36,7 @@ require_once __DIR__ . '/layouts/header.php';
             <ul>
                 <li>Registering for an account</li>
                 <li>Enrolling for lessons</li>
-                <li>Taking quizzes or assessments</li>
+                <li>Taking quizzes, homework and assessments</li>
                 <li>Contacting our support team</li>
             </ul>
             
@@ -74,7 +74,7 @@ require_once __DIR__ . '/layouts/header.php';
             <h3>3.1 Core ROGELE Functionality</h3>
             <ul>
                 <li>Create and manage your account</li>
-                <li>Provide access to Lessons, learning materials and quizzes</li>
+                <li>Provide access to Lessons, homework and quizzes</li>
                 <li>Track your progress and performance</li>
                 <li>Process payments and manage subscriptions</li>
             </ul>
@@ -241,7 +241,7 @@ require_once __DIR__ . '/layouts/header.php';
             <p>If you have questions about this privacy policy or our data practices, please contact us at:</p>
             <ul class="contact-info">
                 <li><strong>Email:</strong> info@raysofgrace.ac.ug</li>
-                <li><strong>Phone:</strong> +256 778 086 883</li>
+                <li><strong>Phone:</strong> +256 786 764 239</li>
                 <li><strong>Address:</strong> Njeru, Uganda</li>
             </ul>
         </section>
@@ -264,7 +264,7 @@ require_once __DIR__ . '/layouts/header.php';
 
         <div class="legal-footer">
             <p>By using ROGELE, you acknowledge that you have read and understood this Privacy Policy.</p>
-            <p class="legal-small">© <?php echo date('Y'); ?> Rays of Grace E-Learning Environment. All rights reserved.</p>
+            <p class="legal-small">© <?php echo date('Y'); ?> ROGELE Learning. All rights reserved.</p>
         </div>
     </div>
 </div>
@@ -297,7 +297,7 @@ require_once __DIR__ . '/layouts/header.php';
 }
 
 .legal-date {
-    color: #94A3B8;
+    color: #555;
     font-size: 0.9rem;
 }
 
@@ -313,7 +313,7 @@ require_once __DIR__ . '/layouts/header.php';
 }
 
 .legal-content h2 {
-    color: #f06724;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 15px;
     padding-bottom: 8px;
@@ -321,20 +321,20 @@ require_once __DIR__ . '/layouts/header.php';
 }
 
 .legal-content h3 {
-    color: #f06724;
+    color: #000;
     font-size: 1.2rem;
     margin: 20px 0 10px 0;
 }
 
 .legal-content p {
-    color: black;
+    color: #000;
     line-height: 1.6;
     margin-bottom: 15px;
 }
 
 .legal-content ul {
     margin: 10px 0 15px 25px;
-    color: black;
+    color: #000;
     line-height: 1.6;
 }
 
@@ -361,7 +361,7 @@ require_once __DIR__ . '/layouts/header.php';
 
 .legal-small {
     font-size: 0.8rem;
-    color: #94A3B8;
+    color: #555;
     margin-top: 10px;
 }
 

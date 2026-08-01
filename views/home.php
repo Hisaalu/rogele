@@ -860,7 +860,7 @@ body {
                             <span>Start Free Trial</span>
                             <i class="fas fa-arrow-right"></i>
                         </a>
-                        <a href="#how-it-works" class="btn-outline">
+                        <a href="https://youtu.be/8DrZ80nR2o0?si=nDKQ8bIIqFBzy7o6" target="_blank" class="btn-outline">
                             <i class="fas fa-play"></i>
                             <span>See How It Works</span>
                         </a>

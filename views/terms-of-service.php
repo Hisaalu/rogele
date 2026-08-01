@@ -10,7 +10,7 @@ require_once __DIR__ . '/layouts/header.php';
             <i class="fas fa-file-contract"></i>
             Terms of Service
         </h1>
-        <p class="legal-date">Last Updated: April 1, 2026</p>
+        <p class="legal-date">Last Updated: August 1, 2026</p>
     </div>
 
     <div class="legal-content">
@@ -36,7 +36,7 @@ require_once __DIR__ . '/layouts/header.php';
             </p>
             <ul>
                 <li>Interactive lessons and learning materials</li>
-                <li>Quizzes and assessments</li>
+                <li>Quizzes, homework, and assessments</li>
                 <li>Progress tracking and performance analytics</li>
                 <li>Teacher-student communication tools</li>
                 <li>Subscription management for external users</li>
@@ -62,7 +62,7 @@ require_once __DIR__ . '/layouts/header.php';
             
             <h3>3.3 Account Types</h3>
             <ul>
-                <li><strong>Learners/Students:</strong> Access to lessons, quizzes, and learning materials</li>
+                <li><strong>Learners/Students:</strong> Access to lessons, quizzes, homework and other learning materials</li>
                 <li><strong>Teachers:</strong> Create and manage lessons, assess student progress</li>
                 <li><strong>Administrators:</strong> Platform management and user administration</li>
                 <li><strong>External Users:</strong> Trial access with subscription options</li>
@@ -251,7 +251,7 @@ require_once __DIR__ . '/layouts/header.php';
             <p>For questions about these terms, please contact us at:</p>
             <ul class="contact-info">
                 <li><strong>Email:</strong> info@raysofgrace.ac.ug</li>
-                <li><strong>Phone:</strong> +256 778 086 883</li>
+                <li><strong>Phone:</strong> +256 786 764 239</li>
                 <li><strong>Address:</strong> Njeru, Uganda</li>
             </ul>
         </section>
@@ -277,7 +277,7 @@ require_once __DIR__ . '/layouts/header.php';
 
         <div class="legal-footer">
             <p>By using ROGELE, you acknowledge that you have read, understood, and agree to these Terms of Service.</p>
-            <p class="legal-small">© <?php echo date('Y'); ?> Rays of Grace E-Learning Environment. All rights reserved.</p>
+            <p class="legal-small">© <?php echo date('Y'); ?> ROGELE Learning. All rights reserved.</p>
         </div>
     </div>
 </div>
@@ -310,7 +310,7 @@ require_once __DIR__ . '/layouts/header.php';
 }
 
 .legal-date {
-    color: #94A3B8;
+    color: #555;
     font-size: 0.9rem;
 }
 
@@ -326,7 +326,7 @@ require_once __DIR__ . '/layouts/header.php';
 }
 
 .legal-content h2 {
-    color: #f06724;
+    color: #000;
     font-size: 1.5rem;
     margin-bottom: 15px;
     padding-bottom: 8px;
@@ -334,20 +334,20 @@ require_once __DIR__ . '/layouts/header.php';
 }
 
 .legal-content h3 {
-    color: #f06724;
+    color: #000;
     font-size: 1.2rem;
     margin: 20px 0 10px 0;
 }
 
 .legal-content p {
-    color: black;
+    color: #000;
     line-height: 1.6;
     margin-bottom: 15px;
 }
 
 .legal-content ul {
     margin: 10px 0 15px 25px;
-    color: black;
+    color: #000;
     line-height: 1.6;
 }
 
@@ -363,6 +363,7 @@ require_once __DIR__ . '/layouts/header.php';
 
 .contact-info li {
     margin-bottom: 8px;
+    color: #555;
 }
 
 .legal-footer {
@@ -374,7 +375,7 @@ require_once __DIR__ . '/layouts/header.php';
 
 .legal-small {
     font-size: 0.8rem;
-    color: #94A3B8;
+    color: #555;
     margin-top: 10px;
 }
 
