@@ -116,8 +116,7 @@ $comparisonPlans = [
 
             <div class="terms-section">
                 <label class="checkbox-label">
-                    <input type="checkbox" name="terms" required>
-                    <span>I agree to the <a href="<?= BASE_URL ?>/terms-of-service" target="_blank">Terms of Service</a></span>
+                    <span>By continuing you agree to our <a href="<?= BASE_URL ?>/terms-of-service" target="_blank">Terms of Service</a></span>
                 </label>
             </div>
 
@@ -388,13 +387,6 @@ $comparisonPlans = [
 .terms-section a:hover,
 .terms-section a:focus {
     text-decoration: underline;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
 }
 
 .form-actions {

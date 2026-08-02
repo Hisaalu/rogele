@@ -223,13 +223,6 @@ if (empty($classes)) {
             margin: 20px 0;
         }
 
-        .terms-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            margin-top: 2px;
-            cursor: pointer;
-        }
-
         .terms-group label {
             font-size: 0.8rem;
             color: #555;
@@ -400,9 +393,8 @@ if (empty($classes)) {
                 </div>
                 
                 <div class="terms-group">
-                    <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms">
-                        I agree to the <a href="<?php echo BASE_URL; ?>/terms-of-service" target="_blank" >Terms of Service</a> and <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank">Privacy Policy</a>
+                        By continuing, you agree to our <a href="<?php echo BASE_URL; ?>/terms-of-service" target="_blank" >Terms of Service</a> and <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank">Privacy Policy</a>
                     </label>
                 </div>
                 
@@ -473,7 +465,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const password = passwordInput.value;
             const confirm = confirmInput.value;
             const classId = classSelect.value;
-            const terms = document.getElementById('terms').checked;
             
             if (!firstName || !lastName || !email || !phone || !password || !confirm) {
                 e.preventDefault();
@@ -511,12 +502,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (password.length < 8) {
                 e.preventDefault();
                 showAlert('Password must be at least 8 characters', 'error');
-                return;
-            }
-            
-            if (!terms) {
-                e.preventDefault();
-                showAlert('Please accept the Terms of Service', 'error');
                 return;
             }
             

@@ -4,20 +4,18 @@
     </main>
 
     <?php if (!isset($hideFooter) || !$hideFooter): ?>
-    <!-- Footer -->
     <footer class="site-footer">
         <div class="footer-main">
             <div class="container">
                 <div class="footer-grid">
-                    <!-- About Column -->
                     <div class="footer-col">
                         <div class="footer-logo">
                             <div class="logo-icon">
-                                <img src="<?php echo BASE_URL; ?>/public/images/logo.jpg" alt="ROGELE Logo" style="width: 45px; height: 45px; object-fit: contain;">
+                                <img src="<?php echo BASE_URL; ?>/public/images/logo.jpg" alt="ROGELE Logo" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'font-size: 1.5rem; color: white;\'></i>'">
                             </div>
                             <div class="logo-text">
-                                <span class="logo-main">Rays of Grace</span>
-                                <span class="logo-sub">Junior School</span>
+                                <span class="logo-main">RAYS OF GRACE</span>
+                                <span class="logo-sub">E-Learning Environment</span>
                             </div>
                         </div>
                         <p class="footer-about">
@@ -35,7 +33,6 @@
                         </div>
                     </div>
 
-                    <!-- Quick Links -->
                     <div class="footer-col">
                         <h4>Quick Links</h4>
                         <ul>
@@ -46,11 +43,18 @@
                             <li><a href="<?php echo BASE_URL; ?>/contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
                         </ul>
                     </div>
-
-                    <!-- Contact Info -->
+                    <div class="footer-col">
+                        <h4>Resources</h4>
+                        <ul>
+                            <li><a href="<?php echo BASE_URL; ?>/external/upgrade-confirmation"><i class="fas fa-chevron-right"></i> Upgrade Account</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/forgot-password"><i class="fas fa-chevron-right"></i> Forgot Password</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/terms-of-service"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>/privacy-policy"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+                        </ul>
+                    </div>
                     <div class="footer-col">
                         <h4>Contact Us</h4>
-                        <ul class="contact-info">
+                        <ul class="contact-page-info">
                             <li><i class="fas fa-phone"></i> +256 786 764 239</li>
                             <li><i class="fas fa-envelope"></i> info@raysofgrace.ac.ug</li>
                             <li><i class="fas fa-map-marker"></i> Njeru, Uganda</li>
@@ -67,12 +71,10 @@
     </footer>
     <?php endif; ?>
 
-    <!-- Back to Top Button -->
     <button id="backToTop" class="back-to-top" aria-label="Back to Top">
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- JavaScript for Mobile Menu -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const mobileToggle = document.getElementById('mobileToggle');
@@ -82,7 +84,6 @@
         const body = document.body;
         const backToTop = document.getElementById('backToTop');
 
-        // Function to open menu
         function openMenu() {
             mobileToggle.classList.add('active');
             mobileMenu.classList.add('active');
@@ -90,7 +91,6 @@
             body.classList.add('menu-open');
         }
 
-        // Function to close menu
         function closeMenu() {
             mobileToggle.classList.remove('active');
             mobileMenu.classList.remove('active');
@@ -98,7 +98,6 @@
             body.classList.remove('menu-open');
         }
 
-        // Toggle menu on hamburger click
         if (mobileToggle) {
             mobileToggle.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -112,7 +111,6 @@
             });
         }
 
-        // Close menu on close button click
         if (mobileClose) {
             mobileClose.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -120,14 +118,12 @@
             });
         }
 
-        // Close menu on overlay click
         if (mobileOverlay) {
             mobileOverlay.addEventListener('click', function() {
                 closeMenu();
             });
         }
 
-        // Close menu when clicking on a link
         const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
         mobileLinks.forEach(link => {
             link.addEventListener('click', function() {
@@ -135,21 +131,18 @@
             });
         });
 
-        // Handle window resize
         window.addEventListener('resize', function() {
             if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
                 closeMenu();
             }
         });
 
-        // Prevent menu from closing when clicking inside it
         if (mobileMenu) {
             mobileMenu.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
         }
 
-        // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 const targetId = this.getAttribute('href');
@@ -163,7 +156,6 @@
                         block: 'start'
                     });
                     
-                    // Close mobile menu if open
                     if (mobileMenu.classList.contains('active')) {
                         closeMenu();
                     }
@@ -171,7 +163,6 @@
             });
         });
 
-        // Auto-hide alerts after 5 seconds
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(alert => {
                 alert.style.transition = 'opacity 0.3s ease';
@@ -180,7 +171,6 @@
             });
         }, 5000);
 
-        // Back to Top Button functionality
         if (backToTop) {
             window.addEventListener('scroll', function() {
                 if (window.scrollY > 2500) {
@@ -199,7 +189,6 @@
         }
     });
 
-     //click drop down functionality
      document.addEventListener('DOMContentLoaded', function() {
          const userMenuButton = document.getElementById('userMenuButton');
          const userDropdown = document.getElementById('userDropdown');
@@ -228,14 +217,12 @@
                  }
              });
              
-             // Prevent dropdown from closing when clicking inside it
              userDropdown.addEventListener('click', function(event) {
                  event.stopPropagation();
              });
          }
      });
 
-     // Mobile menu functionality (keep your existing mobile menu code)
      document.addEventListener('DOMContentLoaded', function() {
          const mobileToggle = document.getElementById('mobileToggle');
          const mobileMenu = document.getElementById('mobileMenu');
@@ -276,11 +263,13 @@
 
     <style>
         .site-footer {
-            background: linear-gradient(135deg, #1E293B, #0F172A);
-            color: white;
+            background: linear-gradient(rgba(33, 37, 41, 0.75), rgba(33, 37, 41, 0.95)), 
+                        url('<?php echo BASE_URL; ?>/public/images/footer-bg.jpg') no-repeat center center / cover;
+            color: #fff;
             padding: 60px 0 20px;
             width: 100%;
             margin-top: 60px;
+            position: relative;
         }
 
         .footer-grid {
@@ -301,7 +290,7 @@
             width: 45px;
             height: auto;
             background: transparent;
-            border-radius: 12px;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -320,11 +309,11 @@
         }
 
         .footer-logo .logo-sub {
-            color: #94A3B8;
+            color: #fff;
         }
 
         .footer-about {
-            color: #94A3B8;
+            color: #fff;
             line-height: 1.6;
             margin-bottom: 20px;
             font-size: 0.95rem;
@@ -332,30 +321,40 @@
 
         .footer-social {
             display: flex;
-            gap: 15px;
+            align-items: center;
+            gap: 22px;
         }
 
         .footer-social a {
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            display: flex;
+            width: auto;
+            height: auto;
+            background: transparent;
+            border-radius: 0;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #ffffff;
             text-decoration: none;
-            transition: all 0.3s ease;
+            font-size: 1.25rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .footer-social a svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            transition: fill 0.3s ease;
         }
 
         .footer-social a:hover {
-            background-color: #7f2677;
-            transform: translateY(-3px);
+            background-color: transparent;
+            color: #f06724;
+            transform: translateY(-2px);
         }
 
         .footer-col h4 {
-            color: white;
-            font-size: 0.95rem;
+            color: #fff;
+            font-size: 18px;
             margin-bottom: 20px;
             position: relative;
             padding-bottom: 10px;
@@ -380,7 +379,7 @@
         }
 
         .footer-col ul li a {
-            color: #94A3B8;
+            color: #fff;
             text-decoration: none;
             transition: all 0.3s ease;
             display: inline-flex;
@@ -402,7 +401,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #94A3B8;
+            color: #fff;
             margin-bottom: 15px;
         }
 
@@ -419,11 +418,10 @@
         }
 
         .footer-bottom p {
-            color: #94A3B8;
+            color: #fff;
             font-size: 0.9rem;
         }
 
-        /* Back to Top Button Styles */
         .back-to-top {
             position: fixed;
             bottom: 30px;

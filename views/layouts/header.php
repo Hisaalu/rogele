@@ -820,9 +820,10 @@
                     <i class="fas fa-times"></i>
                 </div>
                 <div style="text-align: center; padding: 10px 0;">
-                    <img src="<?php echo BASE_URL; ?>/public/images/logo.jpg" alt="ROGELE" style="width: 60px; height: 60px; margin-bottom: 10px; border-radius: 12px;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'font-size: 3rem; color: white;\'></i>'">
+                    <img src="<?php echo BASE_URL; ?>/public/images/logo.jpg" alt="ROGELE" style="width: 60px; height: 60px; margin-bottom: 10px; border-radius: 0;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'font-size: 3rem; color: white;\'></i>'">
                     <h3 style="color: white;">Welcome to</h3>
-                    <h2 style="color: white;">Rays of Grace</h2>
+                    <h2 style="color: white;">RAYS OF GRACE</h2>
+                    <h5 style="color: white;">E-Learning Environment</h5>
                 </div>
             </div>
             <div class="mobile-menu-content">
