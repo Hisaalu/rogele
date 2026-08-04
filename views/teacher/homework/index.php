@@ -81,13 +81,13 @@ function buildQueryString($extraParams = []) {
 
         <div class="filter-tabs">
             <a href="<?php echo BASE_URL; ?>/teacher/homework?<?php echo buildQueryString(['status' => '']); ?>" class="filter-tab <?php echo !$currentStatus ? 'active' : ''; ?>">
-                <i class="fas fa-list"></i> All
+                <i class="fas fa-list" title="All"></i>
             </a>
             <a href="<?php echo BASE_URL; ?>/teacher/homework?<?php echo buildQueryString(['status' => 'active']); ?>" class="filter-tab <?php echo $currentStatus === 'active' ? 'active' : ''; ?>">
-                <i class="fas fa-clock"></i> Active
+                <i class="fas fa-clock" title="Active"></i>
             </a>
             <a href="<?php echo BASE_URL; ?>/teacher/homework?<?php echo buildQueryString(['status' => 'expired']); ?>" class="filter-tab <?php echo $currentStatus === 'expired' ? 'active' : ''; ?>">
-                <i class="fas fa-calendar-times"></i> Expired
+                <i class="fas fa-calendar-times" title="Expired"></i>
             </a>
         </div>
     </div>
