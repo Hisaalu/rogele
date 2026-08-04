@@ -2,6 +2,9 @@
 //File: views/teacher/preview_quiz.php
 $pageTitle = 'Preview: ' . ($quiz['title'] ?? 'Quiz') . ' | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
+
+// Retrieve deadline with proper fallback
+$deadlineRaw = $quiz['end_date'] ?? $quiz['deadline'] ?? $quiz['due_date'] ?? null;
 ?>
 
 <div class="preview-container">
@@ -49,6 +52,16 @@ require_once __DIR__ . '/../layouts/header.php';
                 <div class="stat">
                     <i class="fas fa-clock"></i>
                     <span><?php echo $quiz['time_limit'] ?? 'NA'; ?> minutes</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>
+                        <?php if ($deadlineRaw): ?>
+                            Deadline: <?php echo date('M d, Y h:i A', strtotime($deadlineRaw)); ?>
+                        <?php else: ?>
+                            No Deadline
+                        <?php endif; ?>
+                    </span>
                 </div>
                 <div class="stat">
                     <i class="fas fa-trophy"></i>

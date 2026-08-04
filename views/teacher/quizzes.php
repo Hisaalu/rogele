@@ -89,6 +89,17 @@ $selectedClass = $_GET['class_id'] ?? '';
     <?php else: ?>
         <div class="quizzes-grid">
             <?php foreach ($quizzes as $quiz): ?>
+                <?php 
+                    $deadlineRaw = $quiz['end_date'] ?? $quiz['deadline'] ?? $quiz['due_date'] ?? null;
+                    $isExpired = false;
+                    $formattedDeadline = 'No Deadline';
+
+                    if (!empty($deadlineRaw)) {
+                        $deadlineTime = strtotime($deadlineRaw);
+                        $isExpired = $deadlineTime < time();
+                        $formattedDeadline = date('M d, h:i A', $deadlineTime);
+                    }
+                ?>
                 <div class="quiz-card">
                     <div class="quiz-header">
                         <div class="quiz-status <?php echo $quiz['is_published'] ? 'published' : 'draft'; ?>">
@@ -100,11 +111,11 @@ $selectedClass = $_GET['class_id'] ?? '';
                     <div class="quiz-meta">
                         <span>
                             <i class="fas fa-graduation-cap"></i>
-                            <?php echo $quiz['class_name'] ?? 'All Classes'; ?>
+                            <?php echo htmlspecialchars($quiz['class_name'] ?? 'All Classes'); ?>
                         </span>
                         <span>
                             <i class="fas fa-book"></i>
-                            <?php echo $quiz['subject_name'] ?? 'General'; ?>
+                            <?php echo htmlspecialchars($quiz['subject_name'] ?? 'General'); ?>
                         </span>
                         <span>
                             <i class="fas fa-clock"></i>
@@ -129,6 +140,16 @@ $selectedClass = $_GET['class_id'] ?? '';
                             <i class="fas fa-trophy"></i> 
                             <?php echo $quiz['passing_score'] ?? 50; ?>% to pass
                         </span>
+                        <?php if (!empty($deadlineRaw)): ?>
+                            <span title="Quiz Deadline" class="deadline-status <?php echo $isExpired ? 'expired' : 'active'; ?>">
+                                <i class="fas <?php echo $isExpired ? 'fa-calendar-times' : 'fa-calendar-check'; ?>"></i>
+                                <?php echo $formattedDeadline; ?>
+                            </span>
+                        <?php else: ?>
+                            <span title="Quiz Deadline" class="deadline-status none">
+                                <i class="fas fa-calendar-alt"></i> No Deadline
+                            </span>
+                        <?php endif; ?>
                     </div>
 
                     <div class="quiz-actions">
@@ -202,9 +223,7 @@ $selectedClass = $_GET['class_id'] ?? '';
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #7f2677;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -349,7 +368,6 @@ $selectedClass = $_GET['class_id'] ?? '';
     padding: 12px 30px;
     background: #7f2677;
     color: white;
-    border: 2px solid #E2E8F0;
     border-radius: 12px;
     font-weight: 600;
     text-decoration: none;
@@ -464,6 +482,16 @@ $selectedClass = $_GET['class_id'] ?? '';
 
 .quiz-stats i {
     color: #f06724;
+}
+
+.deadline-status.active {
+    color: #10B981;
+    font-size: 0.85rem;
+}
+
+.deadline-status.expired {
+    color: #EF4444;
+    font-size: 0.85rem;
 }
 
 .quiz-actions {
@@ -621,7 +649,6 @@ $selectedClass = $_GET['class_id'] ?? '';
         justify-content: center;
     }
 }
-
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
