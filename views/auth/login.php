@@ -275,7 +275,6 @@ $pageTitle = 'Login | ROGELE';
         to { transform: rotate(360deg); }
     }
 
-    /* Responsive */
     @media (max-width: 480px) {
         .login-card {
             padding: 32px 24px;
@@ -302,7 +301,6 @@ $pageTitle = 'Login | ROGELE';
 </head>
 <body>
 
-<!-- Consolidated Notification Area at the top of the viewport -->
 <div class="alert-container" id="globalAlertContainer">
     <div id="timeoutAlertContainer"></div>
 

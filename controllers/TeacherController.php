@@ -593,6 +593,8 @@ class TeacherController {
     public function quizzes() {
         $hideFooter = true;
         
+        $this->quizModel->autoDraftExpiredQuizzes();
+
         $teacherId = $this->teacherId;
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $search = isset($_GET['search']) ? trim($_GET['search']) : null;

@@ -199,13 +199,18 @@ $deadlineRaw = $quiz['end_date'] ?? $quiz['deadline'] ?? $quiz['due_date'] ?? nu
 }
 
 .btn-edit {
-    background-color: #7f2677;
+    background-color: #2563EB;
     color: white;
 }
 
-.btn-back:hover, .btn-edit:hover {
+.btn-back:hover {
     transform: translateY(-2px);
     color: #f06724;
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    color: #fff;
 }
 
 .quiz-info-card {

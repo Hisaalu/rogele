@@ -99,6 +99,8 @@ $selectedClass = $_GET['class_id'] ?? '';
                         $isExpired = $deadlineTime < time();
                         $formattedDeadline = date('M d, h:i A', $deadlineTime);
                     }
+
+                    $isPublished = $quiz['is_published'] && !$isExpired;
                 ?>
                 <div class="quiz-card">
                     <div class="quiz-header">

@@ -135,9 +135,18 @@ $selectedClass = $_GET['class_id'] ?? '';
                             <span title="Created">
                                 <i class="fas fa-calendar"></i> <?php echo date('M d, Y', strtotime($lesson['created_at'])); ?>
                             </span>
-                            <span title="Edited">
-                                <i class="fas fa-edit"></i> <?php echo date('M d, Y', strtotime($lesson['updated_at'])); ?>
-                            </span>
+                            
+                            <?php 
+                            $createdAt = strtotime($lesson['created_at']);
+                            $updatedAt = !empty($lesson['updated_at']) ? strtotime($lesson['updated_at']) : null;
+                            $isRealEdit = ($updatedAt && $createdAt && ($updatedAt - $createdAt > 5)); 
+                            ?>
+
+                            <?php if ($isRealEdit): ?>
+                                <span title="Edited" style="color: #2563EB;">
+                                    <i class="fas fa-edit" style="color: #f06724;"></i> <?php echo date('M d, Y', $updatedAt); ?>
+                                </span>
+                            <?php endif; ?>
                         </div>
 
                         <div class="lesson-actions">
@@ -506,16 +515,17 @@ function getYoutubeId($url) {
 
 .lesson-stats {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     margin-bottom: 15px;
     padding: 10px 0;
     border-top: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
     font-size: 0.85rem;
     color: #555;
+    flex-wrap: wrap;
 }
 
-.lesson-stats i{
+.lesson-stats i {
     color: #f06724;
 }
 
@@ -655,7 +665,6 @@ function getYoutubeId($url) {
         grid-template-columns: 1fr;
     }
 }
-
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

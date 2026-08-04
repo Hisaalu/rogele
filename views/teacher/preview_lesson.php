@@ -12,9 +12,16 @@ $lesson = $lesson ?? [];
             <i class="fas fa-eye"></i>
             Lesson Preview
         </h1>
-        <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="back-link">
-            <i class="fas fa-arrow-left"></i> Back to Lessons
-        </a>
+        <div class="header-actions">
+            <?php if (!empty($lesson['id'])): ?>
+                <a href="<?php echo BASE_URL; ?>/teacher/lessons/edit/<?php echo $lesson['id']; ?>" class="btn-edit-header">
+                    <i class="fas fa-edit"></i> Edit Lesson
+                </a>
+            <?php endif; ?>
+            <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Lessons
+            </a>
+        </div>
     </div>
 
     <div class="lesson-preview-card">
@@ -29,11 +36,24 @@ $lesson = $lesson ?? [];
             <span class="status-badge <?php echo ($lesson['is_published'] ?? 0) ? 'published' : 'draft'; ?>">
                 <?php echo ($lesson['is_published'] ?? 0) ? 'Published' : 'Draft'; ?>
             </span>
+
+            <?php 
+            $createdAt = !empty($lesson['created_at']) ? strtotime($lesson['created_at']) : null;
+            $updatedAt = !empty($lesson['updated_at']) ? strtotime($lesson['updated_at']) : null;
+            $isRealEdit = ($updatedAt && $createdAt && ($updatedAt - $createdAt > 5)); 
+            ?>
+
+            <?php if ($isRealEdit): ?>
+                <span title="Last Edited" style="color: #555;">
+                    <i class="fas fa-edit" style="color: #f06724;"></i> 
+                    <strong style="color: #2563EB;">Last Edited:</strong> <?php echo date('M d, Y', $updatedAt); ?>
+                </span>
+            <?php endif; ?>
         </div>
 
         <?php if (!empty($lesson['video_url'])): ?>
         <div class="video-section">
-            <h3>Video</h3>
+            <h3><i class="fas fa-video" style="color: #f06724;"></i> Video</h3>
             <div class="video-wrapper">
                 <iframe src="https://www.youtube.com/embed/<?php echo getYoutubeId($lesson['video_url']); ?>" 
                         frameborder="0" allowfullscreen></iframe>
@@ -42,7 +62,7 @@ $lesson = $lesson ?? [];
         <?php endif; ?>
 
         <div class="content-section">
-            <h3>Lesson Content</h3>
+            <h3><i class="fas fa-file-alt" style="color: #f06724;"></i> Lesson Content</h3>
             <div class="lesson-content">
                 <?php echo nl2br(htmlspecialchars($lesson['content'] ?? '')); ?>
             </div>
@@ -50,13 +70,12 @@ $lesson = $lesson ?? [];
 
         <?php if (!empty($lesson['materials'])): ?>
         <div class="materials-section">
-            <h3>Materials</h3>
+            <h3><i class="fas fa-paperclip" style="color: #f06724;"></i> Materials</h3>
             <div class="materials-list">
                 <?php foreach ($lesson['materials'] as $material): ?>
                 
                 <?php
                     $filename = basename($material['file_path']); 
-                    
                     $r2_url = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . $filename;
                 ?>
 
@@ -96,12 +115,37 @@ function getYoutubeId($url) {
     margin-bottom: 30px;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .page-title {
     font-size: 2rem;
     font-weight: 700;
     background-color: #7f2677;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+.btn-edit-header {
+    background-color: #2563EB;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-edit-header:hover {
+    background-color: #1D4ED8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .back-link {
@@ -112,6 +156,7 @@ function getYoutubeId($url) {
     gap: 8px;
     padding: 10px 20px;
     border-radius: 8px;
+    border: 1px solid #E2E8F0;
     transition: all 0.3s ease;
 }
 
@@ -145,7 +190,7 @@ function getYoutubeId($url) {
     color: #000;
     font-size: 2rem;
     margin-bottom: 20px;
-    padding-right: 100px;
+    padding-right: 120px;
 }
 
 .lesson-meta {
@@ -200,12 +245,6 @@ function getYoutubeId($url) {
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-.video-section h3 i,
-.content-section h3 i,
-.materials-section h3 i {
-    color: #f06724;
 }
 
 .video-wrapper {
@@ -274,6 +313,11 @@ function getYoutubeId($url) {
         gap: 15px;
     }
     
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
     .lesson-preview-card {
         padding: 25px;
     }
@@ -289,7 +333,6 @@ function getYoutubeId($url) {
         margin-bottom: 15px;
     }
 }
-
 </style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

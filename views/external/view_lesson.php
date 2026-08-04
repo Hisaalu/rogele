@@ -4,7 +4,7 @@ $pageTitle = 'Lessons | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 if (!isset($lesson)) {
-    header('Location: <?php echo BASE_URL; ?>/external/materials');
+    header('Location: ' . BASE_URL . '/external/materials');
     exit;
 }
 ?>
@@ -17,7 +17,7 @@ if (!isset($lesson)) {
         
         <?php if (isset($_SESSION['user_id'])): ?>
             <button class="bookmark-btn <?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'bookmarked' : ''; ?>" 
-                    onclick="toggleBookmark(<?php echo $lesson['id']; ?>, this)"
+                    onclick="toggleBookmark(<?php echo $lesson['id']; opacity: 1; ?>, this)"
                     title="<?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'Remove from bookmarks' : 'Add to bookmarks'; ?>">
                 <i class="fas fa-bookmark"></i>
             </button>
@@ -32,8 +32,8 @@ if (!isset($lesson)) {
         <span><i class="fas fa-eye" style="color: #f06724;"></i> <?php echo $lesson['views']; ?> views</span>
         <span><i class="fas fa-calendar" style="color: #f06724;"></i> <?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></span>
         <?php 
-        $createdAt = strtotime($lesson['created_at']);
-        $updatedAt = strtotime($lesson['updated_at']);
+        $createdAt = !empty($lesson['created_at']) ? strtotime($lesson['created_at']) : null;
+        $updatedAt = !empty($lesson['updated_at']) ? strtotime($lesson['updated_at']) : null;
         $isRealEdit = ($updatedAt && $createdAt && ($updatedAt - $createdAt > 5)); 
         ?>
 
