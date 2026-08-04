@@ -115,32 +115,39 @@ class Lesson {
         }
     }
     
-    public function getByTeacher($teacherId, $limit = null, $offset = 0) {
+    public function getByTeacher($teacherId, $limit = null, $offset = 0, $classId = null) {
         try {
             $query = "SELECT l.*, s.name as subject_name, c.name as class_name,
                     (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
                     FROM lessons l
                     LEFT JOIN subjects s ON l.subject_id = s.id
                     LEFT JOIN classes c ON l.class_id = c.id
-                    WHERE l.teacher_id = :teacher_id
-                    ORDER BY l.created_at DESC";
-            
+                    WHERE l.teacher_id = :teacher_id";
+
+            if (!empty($classId)) {
+                $query .= " AND l.class_id = :class_id";
+            }
+
+            $query .= " ORDER BY l.created_at DESC";
+
             if ($limit) {
                 $query .= " LIMIT :limit OFFSET :offset";
             }
-            
+
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
-            
+
+            if (!empty($classId)) {
+                $stmt->bindValue(':class_id', $classId, PDO::PARAM_INT);
+            }
+
             if ($limit) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
-            
+
             $stmt->execute();
-            $results = $stmt->fetchAll();
-            
-            return $results;
+            return $stmt->fetchAll();
         } catch (PDOException $e) {
             return [];
         }
@@ -262,29 +269,42 @@ class Lesson {
         }
     }
     
-    public function searchByTeacher($teacherId, $keyword) {
+    public function searchByTeacher($teacherId, $keyword = null, $classId = null) {
         try {
-            $searchPattern = '%' . $keyword . '%';
-            
             $query = "SELECT l.*, s.name as subject_name, c.name as class_name,
                         (SELECT COUNT(*) FROM lesson_materials WHERE lesson_id = l.id) as materials_count
                     FROM lessons l
                     LEFT JOIN subjects s ON l.subject_id = s.id
                     LEFT JOIN classes c ON l.class_id = c.id
-                    WHERE l.teacher_id = :teacher_id 
-                    AND (l.title LIKE :search1 OR l.content LIKE :search2)
-                    ORDER BY l.created_at DESC
-                    LIMIT 50";
-            
+                    WHERE l.teacher_id = :teacher_id";
+
+            if (!empty($keyword)) {
+                $query .= " AND (l.title LIKE :search1 OR l.content LIKE :search2)";
+            }
+
+            if (!empty($classId)) {
+                $query .= " AND l.class_id = :class_id";
+            }
+
+            $query .= " ORDER BY l.created_at DESC LIMIT 50";
+
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
-            $stmt->bindValue(':search1', $searchPattern);
-            $stmt->bindValue(':search2', $searchPattern);
+
+            if (!empty($keyword)) {
+                $searchPattern = '%' . $keyword . '%';
+                $stmt->bindValue(':search1', $searchPattern);
+                $stmt->bindValue(':search2', $searchPattern);
+            }
+
+            if (!empty($classId)) {
+                $stmt->bindValue(':class_id', $classId, PDO::PARAM_INT);
+            }
+
             $stmt->execute();
-            
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            return array();
+            return [];
         }
     }
     

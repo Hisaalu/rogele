@@ -4,13 +4,14 @@ $pageTitle = 'Lessons | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $lessons = $lessons ?? [];
+$classes = $classes ?? [];
 $totalPages = $totalPages ?? 1;
 $currentPage = $_GET['page'] ?? 1;
 $search = $_GET['search'] ?? '';
+$selectedClass = $_GET['class_id'] ?? '';
 ?>
 
 <div class="lessons-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <h1 class="page-title">
@@ -25,7 +26,6 @@ $search = $_GET['search'] ?? '';
         </a>
     </div>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -40,9 +40,8 @@ $search = $_GET['search'] ?? '';
         </div>
     <?php endif; ?>
 
-    <!-- Search Bar -->
     <div class="search-section">
-        <form method="GET" class="search-form">
+        <form method="GET" action="<?php echo BASE_URL; ?>/teacher/lessons" class="search-form">
             <div class="search-box">
                 <i class="fas fa-search"></i>
                 <input 
@@ -52,25 +51,37 @@ $search = $_GET['search'] ?? '';
                     value="<?php echo htmlspecialchars($search); ?>"
                 >
             </div>
+
+            <div class="filter-box">
+                <select name="class_id" class="class-select" onchange="this.form.submit()">
+                    <option value="">All Classes</option>
+                    <?php foreach ($classes as $class): ?>
+                        <option value="<?php echo $class['id']; ?>" <?php echo ($selectedClass == $class['id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($class['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <button type="submit" class="btn-search">
                 <i class="fas fa-search"></i> Search
             </button>
-            <?php if ($search): ?>
+
+            <?php if ($search || $selectedClass): ?>
                 <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="btn-clear">
-                    <i class="fas fa-times"></i> Clear
+                    <i class="fas fa-times"></i> Clear Filters
                 </a>
             <?php endif; ?>
         </form>
     </div>
 
-    <!-- Lessons Grid -->
     <?php if (empty($lessons)): ?>
         <div class="empty-state">
             <div class="empty-icon">
                 <i class="fas fa-book-open"></i>
             </div>
-            <h3>No Lessons Yet</h3>
-            <p>You haven't created any lessons. Start by creating your first lesson!</p>
+            <h3>No Lessons Found</h3>
+            <p>No lessons match your current criteria. Try resetting your search or class filter!</p>
             <a href="<?php echo BASE_URL; ?>/teacher/lessons/create" class="btn-primary">
                 <i class="fas fa-plus-circle"></i>
                 Create Your First Lesson
@@ -80,7 +91,6 @@ $search = $_GET['search'] ?? '';
         <div class="lessons-grid">
             <?php foreach ($lessons as $lesson): ?>
                 <div class="lesson-card">
-                    <!-- Lesson Thumbnail -->
                     <div class="lesson-thumbnail">
                         <?php if (!empty($lesson['video_url'])): ?>
                             <img src="https://img.youtube.com/vi/<?php echo getYoutubeId($lesson['video_url']); ?>/0.jpg" alt="Thumbnail">
@@ -97,7 +107,6 @@ $search = $_GET['search'] ?? '';
                         </div>
                     </div>
 
-                    <!-- Lesson Content -->
                     <div class="lesson-content">
                         <h3 class="lesson-title"><?php echo htmlspecialchars($lesson['title']); ?></h3>
                         
@@ -131,7 +140,6 @@ $search = $_GET['search'] ?? '';
                             </span>
                         </div>
 
-                        <!-- Action Buttons -->
                         <div class="lesson-actions">
                             <a href="<?php echo BASE_URL; ?>/teacher/lessons/edit/<?php echo $lesson['id']; ?>" class="action-btn edit" title="Edit Lesson">
                                 <i class="fas fa-edit"></i>
@@ -148,36 +156,38 @@ $search = $_GET['search'] ?? '';
             <?php endforeach; ?>
         </div>
 
-        <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
+            <?php 
+                $queryParams = $_GET;
+                unset($queryParams['page']);
+                $queryString = http_build_query($queryParams);
+                $queryString = $queryString ? '&' . $queryString : '';
+            ?>
             <div class="pagination">
-
                 <?php if ($currentPage > 1): ?>
-                    <a href="<?php echo BASE_URL; ?>/teacher/lessons?page=<?php echo $currentPage - 1; ?>" class="page-link">
+                    <a href="<?php echo BASE_URL; ?>/teacher/lessons?page=<?php echo $currentPage - 1 . $queryString; ?>" class="page-link">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="<?php echo BASE_URL; ?>/teacher/lessons?page=<?php echo $i; ?>"
+                    <a href="<?php echo BASE_URL; ?>/teacher/lessons?page=<?php echo $i . $queryString; ?>"
                     class="page-link <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
                         <?php echo $i; ?>
                     </a>
                 <?php endfor; ?>
 
                 <?php if ($currentPage < $totalPages): ?>
-                    <a href="<?php echo BASE_URL; ?>/teacher/lessons?page=<?php echo $currentPage + 1; ?>" class="page-link">
+                    <a href="<?php echo BASE_URL; ?>/teacher/lessons?page=<?php echo $currentPage + 1 . $queryString; ?>" class="page-link">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 <?php endif; ?>
-
             </div>
         <?php endif; ?>
     <?php endif; ?>
 </div>
 
 <?php
-// Helper function to extract YouTube video ID
 function getYoutubeId($url) {
     preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $url, $matches);
     return $matches[1] ?? '';
@@ -191,7 +201,6 @@ function getYoutubeId($url) {
     padding: 30px 20px;
 }
 
-/* Page Header */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -239,7 +248,6 @@ function getYoutubeId($url) {
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
 
-/* Alerts */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -273,7 +281,6 @@ function getYoutubeId($url) {
     }
 }
 
-/* Search Section */
 .search-section {
     margin-bottom: 30px;
 }
@@ -328,11 +335,51 @@ function getYoutubeId($url) {
     background: #f06724;
 }
 
+.filter-box {
+    position: relative;
+    min-width: 180px;
+}
+
+.filter-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    z-index: 1;
+}
+
+.filter-box select {
+    width: 100%;
+    padding: 12px 15px 12px 40px;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background-color: white;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-box select:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+}
+
+.class-select {
+    color: #000;
+    outline: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 14px;
+}
+
 .btn-clear {
     padding: 12px 30px;
     background: #7f2677;
     color: white;
-    border: 2px solid #E2E8F0;
     border-radius: 12px;
     font-weight: 600;
     text-decoration: none;
@@ -341,10 +388,8 @@ function getYoutubeId($url) {
 
 .btn-clear:hover {
     background: #f06724;
-    border-color: #f06724;
 }
 
-/* Lessons Grid */
 .lessons-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -365,7 +410,6 @@ function getYoutubeId($url) {
     box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15);
 }
 
-/* Lesson Thumbnail */
 .lesson-thumbnail {
     height: 180px;
     position: relative;
@@ -424,7 +468,6 @@ function getYoutubeId($url) {
     color: white;
 }
 
-/* Lesson Content */
 .lesson-content {
     padding: 20px;
 }
@@ -482,7 +525,6 @@ function getYoutubeId($url) {
     gap: 5px;
 }
 
-/* Action Buttons */
 .lesson-actions {
     display: flex;
     gap: 8px;
@@ -530,7 +572,6 @@ function getYoutubeId($url) {
     color: white;
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -565,7 +606,6 @@ function getYoutubeId($url) {
     margin-bottom: 25px;
 }
 
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -597,7 +637,6 @@ function getYoutubeId($url) {
     border-color: #8B5CF6;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .page-header {
         flex-direction: column;

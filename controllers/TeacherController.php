@@ -144,12 +144,15 @@ class TeacherController {
         $teacherId = $this->teacherId;
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $search = isset($_GET['search']) ? trim($_GET['search']) : null;
+        $classId = isset($_GET['class_id']) && $_GET['class_id'] !== '' ? (int)$_GET['class_id'] : null;
         
         $limit = 10;
         $offset = ($page - 1) * $limit;
         
-        if ($search) {
-            $lessons = $this->lessonModel->searchByTeacher($teacherId, $search);
+        $classes = $this->classModel->getActive();
+        
+        if ($search || $classId) {
+            $lessons = $this->lessonModel->searchByTeacher($teacherId, $search, $classId);
             $totalLessons = count($lessons);
             $totalPages = 1;
         } else {
@@ -591,14 +594,17 @@ class TeacherController {
         $hideFooter = true;
         
         $teacherId = $this->teacherId;
-        $page = $_GET['page'] ?? 1;
-        $search = $_GET['search'] ?? null;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $search = isset($_GET['search']) ? trim($_GET['search']) : null;
+        $classId = (isset($_GET['class_id']) && $_GET['class_id'] !== '') ? (int)$_GET['class_id'] : null;
         
         $limit = 10;
         $offset = ($page - 1) * $limit;
+
+        $classes = $this->classModel->getActive();
         
-        if ($search) {
-            $quizzes = $this->quizModel->searchByTeacher($teacherId, $search);
+        if ($search !== null && $search !== '' || $classId !== null) {
+            $quizzes = $this->quizModel->searchByTeacher($teacherId, $search, $classId);
             $totalQuizzes = count($quizzes);
             $totalPages = 1;
         } else {

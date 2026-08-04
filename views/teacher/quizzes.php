@@ -4,13 +4,14 @@ $pageTitle = 'My Quizzes | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
 $quizzes = $quizzes ?? [];
+$classes = $classes ?? [];
 $totalPages = $totalPages ?? 1;
 $currentPage = $_GET['page'] ?? 1;
 $search = $_GET['search'] ?? '';
+$selectedClass = $_GET['class_id'] ?? '';
 ?>
 
 <div class="quizzes-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <h1 class="page-title">
@@ -25,7 +26,6 @@ $search = $_GET['search'] ?? '';
         </a>
     </div>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -40,9 +40,8 @@ $search = $_GET['search'] ?? '';
         </div>
     <?php endif; ?>
 
-    <!-- Search Bar -->
     <div class="search-section">
-        <form method="GET" class="search-form">
+        <form method="GET" action="<?php echo BASE_URL; ?>/teacher/quizzes" class="search-form">
             <div class="search-box">
                 <i class="fas fa-search"></i>
                 <input 
@@ -52,10 +51,22 @@ $search = $_GET['search'] ?? '';
                     value="<?php echo htmlspecialchars($search); ?>"
                 >
             </div>
+
+            <div class="filter-box">
+                <select name="class_id" class="class-select" onchange="this.form.submit()">
+                    <option value="">All Classes</option>
+                    <?php foreach ($classes as $class): ?>
+                        <option value="<?php echo $class['id']; ?>" <?php echo ($selectedClass == $class['id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($class['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <button type="submit" class="btn-search">
                 <i class="fas fa-search"></i> Search
             </button>
-            <?php if ($search): ?>
+            <?php if ($search || $selectedClass): ?>
                 <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-clear">
                     <i class="fas fa-times"></i> Clear
                 </a>
@@ -63,17 +74,16 @@ $search = $_GET['search'] ?? '';
         </form>
     </div>
 
-    <!-- Quizzes Grid -->
     <?php if (empty($quizzes)): ?>
         <div class="empty-state">
             <div class="empty-icon">
                 <i class="fas fa-pencil-alt"></i>
             </div>
-            <h3>No Quizzes Yet</h3>
-            <p>You haven't created any quizzes. Start by creating your first quiz!</p>
+            <h3>No Quizzes Found</h3>
+            <p>No quizzes matching your criteria. Try adjusting your search filters!</p>
             <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-primary">
                 <i class="fas fa-plus-circle"></i>
-                Create Your First Quiz
+                Create New Quiz
             </a>
         </div>
     <?php else: ?>
@@ -142,29 +152,32 @@ $search = $_GET['search'] ?? '';
             <?php endforeach; ?>
         </div>
 
-        <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
             <div class="pagination">
+                <?php 
+                $queryParams = [];
+                if ($search) $queryParams['search'] = $search;
+                if ($selectedClass) $queryParams['class_id'] = $selectedClass;
+                ?>
 
                 <?php if ($currentPage > 1): ?>
-                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?page=<?php echo $currentPage - 1; ?>" class="page-link">
+                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?<?php echo http_build_query(array_merge($queryParams, ['page' => $currentPage - 1])); ?>" class="page-link">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?page=<?php echo $i; ?>"
+                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?<?php echo http_build_query(array_merge($queryParams, ['page' => $i])); ?>"
                     class="page-link <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
                         <?php echo $i; ?>
                     </a>
                 <?php endfor; ?>
 
                 <?php if ($currentPage < $totalPages): ?>
-                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?page=<?php echo $currentPage + 1; ?>" class="page-link">
+                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?<?php echo http_build_query(array_merge($queryParams, ['page' => $currentPage + 1])); ?>" class="page-link">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 <?php endif; ?>
-
             </div>
         <?php endif; ?>
     <?php endif; ?>
@@ -177,7 +190,6 @@ $search = $_GET['search'] ?? '';
     padding: 30px 20px;
 }
 
-/* Page Header */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -225,7 +237,6 @@ $search = $_GET['search'] ?? '';
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
 
-/* Alerts */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -259,7 +270,6 @@ $search = $_GET['search'] ?? '';
     }
 }
 
-/* Search Section */
 .search-section {
     margin-bottom: 30px;
 }
@@ -314,6 +324,27 @@ $search = $_GET['search'] ?? '';
     background: #f06724;
 }
 
+.class-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.class-select:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+}
+
+.filter-box {
+    min-width: 180px;
+}
+
 .btn-clear {
     padding: 12px 30px;
     background: #7f2677;
@@ -327,10 +358,8 @@ $search = $_GET['search'] ?? '';
 
 .btn-clear:hover {
     background: #f06724;
-    border-color: #f06724;
 }
 
-/* Quizzes Grid */
 .quizzes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -539,7 +568,6 @@ $search = $_GET['search'] ?? '';
     margin-bottom: 25px;
 }
 
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -571,7 +599,6 @@ $search = $_GET['search'] ?? '';
     border-color: #7f2677;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .page-header {
         flex-direction: column;

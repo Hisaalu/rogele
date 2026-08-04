@@ -526,7 +526,7 @@ class Quiz {
         }
     }
     
-    public function getByTeacher($teacherId, $limit = null, $offset = 0) {
+    public function getByTeacher($teacherId, $limit = null, $offset = 0, $classId = null) {
         try {
             $query = "SELECT q.*, 
                     c.name as class_name, 
@@ -537,17 +537,28 @@ class Quiz {
                     LEFT JOIN classes c ON q.class_id = c.id
                     LEFT JOIN subjects s ON q.subject_id = s.id
                     LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id
-                    WHERE q.teacher_id = :teacher_id
-                    GROUP BY q.id, c.name, s.name 
-                    ORDER BY q.created_at DESC";
+                    WHERE q.teacher_id = :teacher_id";
+            
+            $params = [':teacher_id' => $teacherId];
+
+            if ($classId !== null) {
+                $query .= " AND q.class_id = :class_id";
+                $params[':class_id'] = $classId;
+            }
+
+            $query .= " GROUP BY q.id, c.name, s.name ORDER BY q.created_at DESC";
             
             if ($limit !== null) {
                 $query .= " LIMIT :limit OFFSET :offset";
             }
             
             $stmt = $this->conn->prepare($query);
-            $stmt->bindValue(':teacher_id', $teacherId);
+            $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
             
+            if ($classId !== null) {
+                $stmt->bindValue(':class_id', $classId, PDO::PARAM_INT);
+            }
+
             if ($limit !== null) {
                 $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
@@ -562,29 +573,44 @@ class Quiz {
         }
     }
     
-    public function searchByTeacher($teacherId, $keyword) {
+    public function searchByTeacher($teacherId, $keyword = null, $classId = null) {
         try {
-            $searchPattern = '%' . $keyword . '%';
-            
             $query = "SELECT q.*, 
                         s.name as subject_name,
                         c.name as class_name,
-                        (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                        (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
+                        COUNT(DISTINCT qa.id) as attempt_count
                     FROM quizzes q
                     LEFT JOIN subjects s ON q.subject_id = s.id
                     LEFT JOIN classes c ON q.class_id = c.id
-                    WHERE q.teacher_id = ? 
-                    AND (q.title LIKE ? OR q.description LIKE ?)
-                    ORDER BY q.created_at DESC
-                    LIMIT 50";
+                    LEFT JOIN quiz_attempts qa ON q.id = qa.quiz_id
+                    WHERE q.teacher_id = :teacher_id";
+            
+            $params = [':teacher_id' => (int)$teacherId];
+
+            $cleanKeyword = trim($keyword ?? '');
+
+            if ($cleanKeyword !== '') {
+                $query .= " AND (LOWER(q.title) LIKE :search_title OR LOWER(q.description) LIKE :search_desc)";
+                $searchTerm = '%' . mb_strtolower($cleanKeyword, 'UTF-8') . '%';
+                $params[':search_title'] = $searchTerm;
+                $params[':search_desc']  = $searchTerm;
+            }
+
+            if ($classId !== null && $classId !== '') {
+                $query .= " AND q.class_id = :class_id";
+                $params[':class_id'] = (int)$classId;
+            }
+
+            $query .= " GROUP BY q.id, c.name, s.name ORDER BY q.created_at DESC LIMIT 50";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute(array($teacherId, $searchPattern, $searchPattern));
+            $stmt->execute($params);
             
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            return array();
+            return [];
         }
     }
     

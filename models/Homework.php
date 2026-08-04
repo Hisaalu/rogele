@@ -717,22 +717,39 @@ class Homework {
         }
     }
     
-    public function countByTeacher($teacherId, $status = null) {
+    public function countByTeacher($teacherId, $status = null, $search = null, $classId = null) {
         try {
-            $sql = "SELECT COUNT(*) as total FROM homework WHERE teacher_id = ?";
-            $params = [$teacherId];
+            $sql = "SELECT COUNT(*) as total FROM homework WHERE teacher_id = :teacher_id";
             
             if ($status === 'active') {
                 $sql .= " AND due_date > NOW() AND is_active = 1";
             } elseif ($status === 'expired') {
                 $sql .= " AND due_date < NOW()";
             }
+
+            if (!empty($classId)) {
+                $sql .= " AND class_id = :class_id";
+            }
+
+            if (!empty($search)) {
+                $sql .= " AND CONCAT_WS(' ', title, description) LIKE :search";
+            }
             
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute($params);
+            $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
+
+            if (!empty($classId)) {
+                $stmt->bindValue(':class_id', $classId, PDO::PARAM_INT);
+            }
+            if (!empty($search)) {
+                $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+            }
+
+            $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total'] ?? 0;
         } catch (PDOException $e) {
+            error_log("Error in countByTeacher: " . $e->getMessage());
             return 0;
         }
     }
@@ -851,7 +868,7 @@ class Homework {
         }
     }
 
-    public function getTeacherHomeworks($teacherId, $status = null, $limit = 15, $offset = 0) {
+    public function getTeacherHomeworks($teacherId, $status = null, $search = null, $classId = null, $limit = 15, $offset = 0) {
         try {
             $query = "
                 SELECT 
@@ -870,11 +887,28 @@ class Homework {
             } elseif ($status === 'expired') {
                 $query .= " AND h.due_date < NOW()";
             }
+
+            if (!empty($classId)) {
+                $query .= " AND h.class_id = :class_id";
+            }
+
+            if (!empty($search)) {
+                // CONCAT_WS safely handles NULL description values and uses :search only once
+                $query .= " AND CONCAT_WS(' ', h.title, h.description) LIKE :search";
+            }
             
             $query .= " ORDER BY h.created_at DESC LIMIT :limit OFFSET :offset";
             
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
+
+            if (!empty($classId)) {
+                $stmt->bindValue(':class_id', $classId, PDO::PARAM_INT);
+            }
+            if (!empty($search)) {
+                $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+            }
+
             $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
             $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
             
@@ -887,6 +921,7 @@ class Homework {
             
             return $homeworks;
         } catch (PDOException $e) {
+            error_log("Error in getTeacherHomeworks: " . $e->getMessage());
             return [];
         }
     }

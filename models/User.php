@@ -856,38 +856,50 @@ class User {
     
     public function searchUsers($searchTerm) {
         try {
-            $searchPattern = '%' . $searchTerm . '%';
-            
-            $sql = "SELECT * FROM users 
-                    WHERE (first_name LIKE :search1 
-                        OR last_name LIKE :search2 
-                        OR CONCAT(first_name, ' ', last_name) LIKE :search3 
-                        OR email LIKE :search4 
-                        OR registration_number LIKE :search5)";
-            
-            if (is_numeric($searchTerm)) {
-                $sql .= " OR id = :id_search";
+            $searchTerm = trim($searchTerm);
+            if (empty($searchTerm)) {
+                return [];
             }
-            
-            $sql .= " ORDER BY created_at DESC";
-            
+
+            $searchPattern = '%' . mb_strtolower($searchTerm, 'UTF-8') . '%';
+
+            $sql = "SELECT u.*, c.name as class_name 
+                    FROM users u 
+                    LEFT JOIN classes c ON u.class_id = c.id
+                    WHERE (
+                        LOWER(u.first_name) LIKE :search1 
+                        OR LOWER(u.last_name) LIKE :search2 
+                        OR LOWER(CONCAT(u.first_name, ' ', u.last_name)) LIKE :search3 
+                        OR LOWER(CONCAT(u.last_name, ' ', u.first_name)) LIKE :search4 
+                        OR LOWER(u.email) LIKE :search5 
+                        OR LOWER(u.registration_number) LIKE :search6
+                    )";
+
+            if (is_numeric($searchTerm)) {
+                $sql .= " OR u.id = :id_search";
+            }
+
+            $sql .= " ORDER BY u.created_at DESC";
+
             $stmt = $this->conn->prepare($sql);
-            
+
             $stmt->bindValue(':search1', $searchPattern);
             $stmt->bindValue(':search2', $searchPattern);
             $stmt->bindValue(':search3', $searchPattern);
             $stmt->bindValue(':search4', $searchPattern);
             $stmt->bindValue(':search5', $searchPattern);
-            
+            $stmt->bindValue(':search6', $searchPattern);
+
             if (is_numeric($searchTerm)) {
                 $stmt->bindValue(':id_search', (int)$searchTerm, PDO::PARAM_INT);
             }
-            
+
             $stmt->execute();
-            
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
         } catch (PDOException $e) {
+            error_log("Error searching users: " . $e->getMessage());
             return [];
         }
     }
@@ -1186,67 +1198,67 @@ class User {
     }
     
     public function getStudentsWithStats($teacherId, $classId = null, $search = null) {
-        try {
-            $query = "
-                SELECT 
-                    u.id,
-                    u.first_name,
-                    u.last_name,
-                    u.email,
-                    u.phone,
-                    u.role,
+    try {
+        $params = [];
+        
+        $sql = "SELECT 
+                    u.id, 
+                    u.first_name, 
+                    u.last_name, 
+                    u.email, 
+                    u.role, 
                     u.profile_photo,
-                    u.class_id,
                     c.name as class_name,
-                    COUNT(DISTINCT qa.id) as quizzes_taken,
-                    COALESCE(AVG(qa.score), 0) as avg_score,
-                    MAX(qa.score) as highest_score,
-                    MIN(qa.score) as lowest_score,
-                    COUNT(DISTINCT lv.id) as lessons_viewed
+                    COALESCE(qa_stats.quizzes_taken, 0) as quizzes_taken,
+                    COALESCE(qa_stats.avg_score, 0) as avg_score
                 FROM users u
                 LEFT JOIN classes c ON u.class_id = c.id
-                LEFT JOIN quiz_attempts qa ON u.id = qa.user_id 
-                    AND qa.completed_at IS NOT NULL
-                LEFT JOIN lesson_views lv ON u.id = lv.user_id
-                WHERE u.role IN ('learner', 'external')
-                AND u.is_active = 1
-            ";
-            
-            $params = [];
-            
-            if ($classId) {
-                $query .= " AND u.class_id = ?";
-                $params[] = $classId;
-            }
-            
-            if ($search) {
-                $query .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ?)";
-                $searchTerm = "%$search%";
-                $params[] = $searchTerm;
-                $params[] = $searchTerm;
-                $params[] = $searchTerm;
-            }
-            
-            $query .= " GROUP BY u.id, u.first_name, u.last_name, u.email, u.phone, u.role, u.profile_photo, u.class_id, c.name
-                        ORDER BY u.first_name ASC";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute($params);
-            
-            $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            foreach ($students as &$student) {
-                $student['avg_score'] = round($student['avg_score'] ?? 0, 1);
-                $student['quizzes_taken'] = (int)$student['quizzes_taken'];
-                $student['lessons_viewed'] = (int)$student['lessons_viewed'];
-            }
-            
-            return $students;
-            
-        } catch (PDOException $e) {
-            return [];
+                LEFT JOIN (
+                    SELECT 
+                        user_id, 
+                        COUNT(id) as quizzes_taken, 
+                        AVG(score) as avg_score 
+                    FROM quiz_attempts 
+                    GROUP BY user_id
+                ) qa_stats ON u.id = qa_stats.user_id
+                WHERE u.role IN ('learner', 'external')";
+
+        if (!empty($classId)) {
+            $sql .= " AND u.class_id = :class_id";
+            $params[':class_id'] = (int)$classId;
         }
+
+        if ($search !== null && trim($search) !== '') {
+            $searchTerm = trim($search);
+            $searchPattern = '%' . mb_strtolower($searchTerm, 'UTF-8') . '%';
+            
+            $sql .= " AND (
+                LOWER(u.first_name) LIKE :search1 
+                OR LOWER(u.last_name) LIKE :search2 
+                OR LOWER(CONCAT(u.first_name, ' ', u.last_name)) LIKE :search3 
+                OR LOWER(CONCAT(u.last_name, ' ', u.first_name)) LIKE :search4 
+                OR LOWER(u.email) LIKE :search5
+            )";
+
+            $params[':search1'] = $searchPattern;
+            $params[':search2'] = $searchPattern;
+            $params[':search3'] = $searchPattern;
+            $params[':search4'] = $searchPattern;
+            $params[':search5'] = $searchPattern;
+        }
+
+        $sql .= " ORDER BY u.first_name ASC, u.last_name ASC";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    } catch (PDOException $e) {
+        error_log("Error fetching students with stats: " . $e->getMessage());
+        return [];
     }
+}
     
     public function addStudentToClass($userId, $classId) {
         try {

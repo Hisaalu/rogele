@@ -27,6 +27,7 @@ $search = $_GET['search'] ?? '';
         </div>
     </div>
 
+    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -43,6 +44,7 @@ $search = $_GET['search'] ?? '';
         </div>
     <?php endif; ?>
 
+    <!-- Search & Filter Controls -->
     <div class="search-section">
         <form method="GET" class="search-form">
             <div class="search-box">
@@ -184,9 +186,7 @@ function getYoutubeId($url) {
 .page-title {
     font-size: 2.5rem;
     font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #7f2677;
     margin-bottom: 10px;
 }
 
@@ -218,7 +218,7 @@ function getYoutubeId($url) {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(240, 103, 36, 0.2);
     background: #f06724;
-    color: white;
+    color: #FFFFFF;
 }
 
 .bookmark-link i {
@@ -227,7 +227,7 @@ function getYoutubeId($url) {
 
 .bookmark-count {
     background: #f06724;
-    color: white;
+    color: #FFFFFF;
     padding: 2px 8px;
     border-radius: 20px;
     font-size: 0.7rem;
@@ -235,7 +235,7 @@ function getYoutubeId($url) {
 }
 
 .bookmark-link:hover .bookmark-count {
-    background: white;
+    background: #FFFFFF;
     color: #7f2677;
 }
 
@@ -247,7 +247,6 @@ function getYoutubeId($url) {
     align-items: center;
     gap: 12px;
     animation: slideDown 0.3s ease;
-    position: relative;
 }
 
 .alert-success {
@@ -273,23 +272,12 @@ function getYoutubeId($url) {
     padding: 0 5px;
 }
 
-@keyframes slideDown {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
 .search-section {
-    background: white;
+    background: #FFFFFF;
     border-radius: 16px;
     padding: 25px;
     margin-bottom: 40px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
 }
 
 .search-form {
@@ -333,9 +321,10 @@ function getYoutubeId($url) {
     border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-size: 0.95rem;
-    background: white;
+    background: #FFFFFF;
     min-width: 180px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .filter-group select:focus {
@@ -347,7 +336,7 @@ function getYoutubeId($url) {
 .btn-search {
     padding: 14px 30px;
     background: #7f2677;
-    color: white;
+    color: #FFFFFF;
     border: none;
     border-radius: 12px;
     font-weight: 600;
@@ -360,6 +349,25 @@ function getYoutubeId($url) {
     background: #f06724;
 }
 
+.btn-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background-color: #7f2677;
+    color: #FFFFFF;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-clear:hover {
+    background-color: #f06724;
+    color: #FFFFFF;
+}
+
 .lessons-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -367,10 +375,10 @@ function getYoutubeId($url) {
 }
 
 .lesson-card {
-    background: white;
+    background: #FFFFFF;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -379,7 +387,7 @@ function getYoutubeId($url) {
 
 .lesson-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 20px 60px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 20px 60px rgba(127, 38, 119, 0.15);
 }
 
 .lesson-thumbnail {
@@ -410,7 +418,7 @@ function getYoutubeId($url) {
 
 .thumbnail-placeholder i {
     font-size: 4rem;
-    color: white;
+    color: #FFFFFF;
     opacity: 0.5;
 }
 
@@ -419,7 +427,7 @@ function getYoutubeId($url) {
     bottom: 10px;
     right: 10px;
     background: rgba(0, 0, 0, 0.8);
-    color: white;
+    color: #FFFFFF;
     padding: 5px 10px;
     border-radius: 30px;
     font-size: 0.8rem;
@@ -434,7 +442,7 @@ function getYoutubeId($url) {
     right: 10px;
     width: 35px;
     height: 35px;
-    background: white;
+    background: #FFFFFF;
     border: none;
     border-radius: 50%;
     display: flex;
@@ -445,18 +453,13 @@ function getYoutubeId($url) {
     color: #555;
     font-size: 0.95rem;
     z-index: 10;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.card-bookmark-btn:hover {
-    transform: scale(1.1);
-    background: #f06724;
-    color: white;
-}
-
+.card-bookmark-btn:hover,
 .card-bookmark-btn.bookmarked {
     background: #f06724;
-    color: white;
+    color: #FFFFFF;
 }
 
 .card-bookmark-btn.bookmarked:hover {
@@ -471,7 +474,7 @@ function getYoutubeId($url) {
 }
 
 .lesson-title {
-    color: #000;
+    color: #000000;
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 15px;
@@ -493,12 +496,13 @@ function getYoutubeId($url) {
     gap: 5px;
 }
 
-.lesson-meta i {
+.lesson-meta i, 
+.lesson-stats i {
     color: #f06724;
 }
 
 .lesson-description {
-    color: #000;
+    color: #333333;
     font-size: 0.95rem;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -522,13 +526,9 @@ function getYoutubeId($url) {
     gap: 5px;
 }
 
-.lesson-stats i {
-    color: #f06724;
-}
-
 .btn-view {
     background-color: #7f2677;
-    color: white;
+    color: #FFFFFF;
     text-decoration: none;
     padding: 14px 20px;
     border-radius: 50px;
@@ -544,7 +544,8 @@ function getYoutubeId($url) {
 
 .btn-view:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+    background-color: #f06724;
+    box-shadow: 0 10px 25px rgba(240, 103, 36, 0.3);
 }
 
 .btn-view i {
@@ -555,42 +556,24 @@ function getYoutubeId($url) {
     transform: translateX(5px);
 }
 
-.btn-view-bookmarks {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 20px;
-    padding: 12px 24px;
-    background-color: #7f2677;
-    color: white;
-    text-decoration: none;
-    border-radius: 50px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-view-bookmarks:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
-}
-
+/* Empty State Styling */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
-    background: white;
+    background: #FFFFFF;
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
 }
 
 .empty-icon {
     width: 100px;
     height: 100px;
     margin: 0 auto 20px;
-    background-color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #FFF7ED;
 }
 
 .empty-icon i {
@@ -599,7 +582,7 @@ function getYoutubeId($url) {
 }
 
 .empty-state h3 {
-    color: #000;
+    color: #000000;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
@@ -611,6 +594,61 @@ function getYoutubeId($url) {
     margin: 0 auto;
 }
 
+.btn-view-bookmarks {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color: #7f2677;
+    color: #FFFFFF;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-view-bookmarks:hover {
+    transform: translateY(-2px);
+    background-color: #f06724;
+    box-shadow: 0 10px 20px rgba(240, 103, 36, 0.3);
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Responsive Media Queries */
 @media (max-width: 768px) {
     .materials-header {
         flex-direction: column;
@@ -622,6 +660,7 @@ function getYoutubeId($url) {
     }
     
     .search-box,
+    .filter-group,
     .filter-group select,
     .btn-search,
     .btn-clear {
@@ -630,11 +669,6 @@ function getYoutubeId($url) {
     
     .lessons-grid {
         grid-template-columns: 1fr;
-    }
-    
-    .lesson-meta {
-        flex-direction: column;
-        gap: 8px;
     }
     
     .bookmark-link {
@@ -665,8 +699,6 @@ function toggleCardBookmark(lessonId, buttonElement) {
     const originalIcon = buttonElement.innerHTML;
     buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     
-    showNotification('Processing...', 'info');
-    
     fetch(`<?php echo BASE_URL; ?>/external/toggle-bookmark/${lessonId}`, {
         method: 'POST',
         headers: {
@@ -690,11 +722,8 @@ function toggleCardBookmark(lessonId, buttonElement) {
                 buttonElement.title = 'Add to bookmarks';
             }
             buttonElement.innerHTML = '<i class="fas fa-bookmark"></i>';
-            
             updateBookmarkCount();
-            
-            const notificationType = data.bookmarked ? 'success' : 'plain';
-            showNotification(data.message, notificationType);
+            showNotification(data.message, data.bookmarked ? 'success' : 'plain');
         } else {
             buttonElement.innerHTML = originalIcon;
             showNotification(data.error || 'Failed to update bookmark', 'error');
@@ -743,15 +772,14 @@ function showNotification(message, type = 'info') {
     
     const notification = document.createElement('div');
     notification.className = `notification-toast notification-${type}`;
-    
     notification.innerHTML = `<span>${message}</span>`;
     
     Object.assign(notification.style, {
         position: 'fixed',
         top: '80px',
         right: '20px',
-        background: type === 'success' ? '#10B981' : (type === 'error' ? '#EF4444' : '#10B981'),
-        color: 'white',
+        background: type === 'error' ? '#EF4444' : '#10B981',
+        color: '#FFFFFF',
         padding: '12px 24px',
         borderRadius: '8px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -762,6 +790,7 @@ function showNotification(message, type = 'info') {
     });
     
     document.body.appendChild(notification);
+    
     setTimeout(() => {
         if (notification.parentElement) {
             notification.style.animation = 'slideOut 0.3s ease';
@@ -770,46 +799,16 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-if (!document.querySelector('#notification-styles')) {
-    const style = document.createElement('style');
-    style.id = 'notification-styles';
-    style.textContent = `
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-}
-
 setTimeout(() => {
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
-        setTimeout(() => {
-            if (alert.parentElement) {
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 300);
-            }
-        }, 5000);
+        if (alert.parentElement) {
+            alert.style.opacity = '0';
+            alert.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => alert.remove(), 300);
+        }
     });
-}, 1000);
+}, 5000);
 
 document.addEventListener('DOMContentLoaded', function() {
     updateBookmarkCount();

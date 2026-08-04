@@ -31,16 +31,22 @@ class TeacherHomeworkController {
         $hideFooter = true;
         $teacherId = $_SESSION['user_id'];
         
-        $page = $_GET['page'] ?? 1;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $status = isset($_GET['status']) && !empty($_GET['status']) ? $_GET['status'] : null;
+        $search = isset($_GET['search']) ? trim($_GET['search']) : null;
+        $classId = isset($_GET['class_id']) && !empty($_GET['class_id']) ? (int)$_GET['class_id'] : null;
+
         $limit = 20;
         $offset = ($page - 1) * $limit;
         
-        $homeworks = $this->homeworkModel->getTeacherHomeworks($teacherId, $status, $limit, $offset);
-        $total = $this->homeworkModel->countByTeacher($teacherId, $status);
+        $classes = $this->classModel->getAll();
+        $homeworks = $this->homeworkModel->getTeacherHomeworks($teacherId, $status, $search, $classId, $limit, $offset);
+        $total = $this->homeworkModel->countByTeacher($teacherId, $status, $search, $classId);
         $totalPages = ceil($total / $limit);
         
         $currentStatus = $status;
+        $currentSearch = $search ?? '';
+        $currentClassId = $classId ?? '';
         
         require_once __DIR__ . '/../views/teacher/homework/index.php';
     }

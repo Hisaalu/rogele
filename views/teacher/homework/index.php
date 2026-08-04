@@ -4,9 +4,18 @@ $pageTitle = 'Manage Homework | ROGELE';
 require_once __DIR__ . '/../../layouts/header.php';
 
 $homeworks = $homeworks ?? [];
+$classes = $classes ?? [];
 $currentStatus = $_GET['status'] ?? '';
+$currentSearch = $_GET['search'] ?? '';
+$currentClassId = $_GET['class_id'] ?? '';
 $totalPages = $totalPages ?? 1;
 $currentPage = $_GET['page'] ?? 1;
+
+function buildQueryString($extraParams = []) {
+    $params = $_GET;
+    unset($params['page']);
+    return http_build_query(array_merge($params, $extraParams));
+}
 ?>
 
 <div class="homework-container">
@@ -38,23 +47,56 @@ $currentPage = $_GET['page'] ?? 1;
         </div>
     <?php endif; ?>
 
-    <div class="filter-tabs">
-        <a href="<?php echo BASE_URL; ?>/teacher/homework" class="filter-tab <?php echo !$currentStatus ? 'active' : ''; ?>">
-            <i class="fas fa-list"></i> All
-        </a>
-        <a href="<?php echo BASE_URL; ?>/teacher/homework?status=active" class="filter-tab <?php echo $currentStatus === 'active' ? 'active' : ''; ?>">
-            <i class="fas fa-clock"></i> Active
-        </a>
-        <a href="<?php echo BASE_URL; ?>/teacher/homework?status=expired" class="filter-tab <?php echo $currentStatus === 'expired' ? 'active' : ''; ?>">
-            <i class="fas fa-calendar-times"></i> Expired
-        </a>
+    <div class="toolbar-section">
+        <form method="GET" action="<?php echo BASE_URL; ?>/teacher/homework" class="search-filter-form">
+            <?php if (!empty($currentStatus)): ?>
+                <input type="hidden" name="status" value="<?php echo htmlspecialchars($currentStatus); ?>">
+            <?php endif; ?>
+
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="search" placeholder="Search title or description..." 
+                       value="<?php echo htmlspecialchars($currentSearch); ?>" class="form-input">
+            </div>
+
+            <div class="filter-box">
+                <select name="class_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Classes</option>
+                    <?php foreach ($classes as $class): ?>
+                        <option value="<?php echo $class['id']; ?>" <?php echo $currentClassId == $class['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($class['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-search"><i class="fas fa-search"></i> Search</button>
+
+            <?php if (!empty($currentSearch) || !empty($currentClassId)): ?>
+                <a href="<?php echo BASE_URL; ?>/teacher/homework<?php echo $currentStatus ? '?status=' . urlencode($currentStatus) : ''; ?>" class="btn-reset">
+                    <i class="fas fa-redo"></i> Reset Filters
+                </a>
+            <?php endif; ?>
+        </form>
+
+        <div class="filter-tabs">
+            <a href="<?php echo BASE_URL; ?>/teacher/homework?<?php echo buildQueryString(['status' => '']); ?>" class="filter-tab <?php echo !$currentStatus ? 'active' : ''; ?>">
+                <i class="fas fa-list"></i> All
+            </a>
+            <a href="<?php echo BASE_URL; ?>/teacher/homework?<?php echo buildQueryString(['status' => 'active']); ?>" class="filter-tab <?php echo $currentStatus === 'active' ? 'active' : ''; ?>">
+                <i class="fas fa-clock"></i> Active
+            </a>
+            <a href="<?php echo BASE_URL; ?>/teacher/homework?<?php echo buildQueryString(['status' => 'expired']); ?>" class="filter-tab <?php echo $currentStatus === 'expired' ? 'active' : ''; ?>">
+                <i class="fas fa-calendar-times"></i> Expired
+            </a>
+        </div>
     </div>
 
     <?php if (empty($homeworks)): ?>
         <div class="empty-state">
             <i class="fas fa-tasks"></i>
-            <h3>No Homework Created Yet</h3>
-            <p>Click the "Create New Homework" button to assign homework to your students.</p>
+            <h3>No Homework Found</h3>
+            <p>Try refining your search terms or filters to find what you're looking for.</p>
         </div>
     <?php else: ?>
         <div class="homework-grid">
@@ -115,7 +157,7 @@ $currentPage = $_GET['page'] ?? 1;
         <?php if ($totalPages > 1): ?>
             <div class="pagination">
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="?page=<?php echo $i; ?>&status=<?php echo urlencode($currentStatus); ?>"
+                    <a href="?<?php echo buildQueryString(['page' => $i]); ?>"
                         class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
                             <?php echo $i; ?>
                     </a>
@@ -126,6 +168,85 @@ $currentPage = $_GET['page'] ?? 1;
 </div>
 
 <style>
+.toolbar-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.search-filter-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    width: 280px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #f06724;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    border: 1px solid #E2E8F0;
+    border-radius: 50px;
+    outline: none;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.form-input:focus, .form-select:focus {
+    border-color: #f06724;
+    box-shadow: 0 0 0 3px rgba(240, 103, 36, 0.1);
+}
+
+.form-select {
+    padding: 10px 20px;
+    border: 1px solid #E2E8F0;
+    border-radius: 50px;
+    outline: none;
+    font-size: 0.9rem;
+    background: white;
+    cursor: pointer;
+}
+
+.btn-search {
+    background: #7f2677;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-search:hover {
+    background: #f06724;
+}
+
+.btn-reset {
+    color: #ef4444;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 .homework-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -181,15 +302,15 @@ $currentPage = $_GET['page'] ?? 1;
 .filter-tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 30px;
     background: white;
-    padding: 10px;
+    padding: 6px;
     border-radius: 60px;
     width: fit-content;
+    border: 1px solid #E2E8F0;
 }
 
 .filter-tab {
-    padding: 8px 24px;
+    padding: 8px 20px;
     border-radius: 50px;
     text-decoration: none;
     font-weight: 400;
@@ -439,6 +560,23 @@ $currentPage = $_GET['page'] ?? 1;
 }
 
 @media (max-width: 768px) {
+    .toolbar-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-filter-form {
+        flex-direction: column;
+    }
+    
+    .search-box {
+        width: 100%;
+    }
+
+    .form-select {
+        width: 100%;
+    }
+
     .homework-grid {
         grid-template-columns: 1fr;
     }
