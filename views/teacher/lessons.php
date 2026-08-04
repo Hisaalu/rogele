@@ -147,7 +147,7 @@ $selectedClass = $_GET['class_id'] ?? '';
                             <a href="<?php echo BASE_URL; ?>/teacher/lessons/delete/<?php echo $lesson['id']; ?>" class="action-btn delete" title="Delete Lesson" onclick="return confirm('Are you sure you want to delete this lesson? This action cannot be undone.')">
                                 <i class="fas fa-trash"></i>
                             </a>
-                            <a href="<?php echo BASE_URL; ?>/teacher/lessons/preview/<?php echo $lesson['id']; ?>" class="action-btn preview" title="Preview Lesson" target="_blank">
+                            <a href="<?php echo BASE_URL; ?>/teacher/lessons/preview/<?php echo $lesson['id']; ?>" class="action-btn preview" title="Preview Lesson">
                                 <i class="fas fa-eye"></i>
                             </a>
                         </div>

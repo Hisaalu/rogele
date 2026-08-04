@@ -148,7 +148,7 @@ $allSubjects = $allSubjects ?? [];
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--text-muted);
+    color: var(--text-main);
     text-decoration: none;
     margin-bottom: 12px;
     font-size: 0.95rem;

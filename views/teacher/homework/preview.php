@@ -112,7 +112,7 @@ require_once __DIR__ . '/../../layouts/header.php';
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #555;
+    color: #000;
     text-decoration: none;
     font-size: 0.95rem;
     margin-bottom: 10px;

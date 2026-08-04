@@ -69,7 +69,7 @@ $lesson = $lesson ?? [];
             <h3>Materials</h3>
             <div class="materials-list">
                 <?php foreach ($lesson['materials'] as $material): ?>
-                <a href="<?php echo BASE_URL; ?>/public/<?php echo $material['file_path']; ?>" target="_blank" class="material-item">
+                <a href="<?php echo BASE_URL; ?>/public/<?php echo $material['file_path']; ?>" class="material-item">
                     <i class="fas fa-file-pdf"></i>
                     <span><?php echo htmlspecialchars($material['file_name']); ?></span>
                     <i class="fas fa-download"></i>

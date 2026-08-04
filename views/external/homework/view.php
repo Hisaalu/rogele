@@ -254,9 +254,8 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--hw-text-muted);
+    color: var(--hw-text-dark);
     text-decoration: none;
-    font-weight: 600;
     font-size: 0.9rem;
     margin-bottom: 12px;
     transition: color 0.2s ease, transform 0.2s ease;

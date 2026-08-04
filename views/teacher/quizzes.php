@@ -141,7 +141,7 @@ $selectedClass = $_GET['class_id'] ?? '';
                         <a href="<?php echo BASE_URL; ?>/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="action-btn results" title="View Results">
                             <i class="fas fa-chart-bar"></i>
                         </a>
-                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/preview/<?php echo $quiz['id']; ?>" class="action-btn preview" title="Preview Quiz" target="_blank">
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/preview/<?php echo $quiz['id']; ?>" class="action-btn preview" title="Preview Quiz">
                             <i class="fas fa-eye"></i>
                         </a>
                         <a href="<?php echo BASE_URL; ?>/teacher/quizzes/delete/<?php echo $quiz['id']; ?>" class="action-btn delete" title="Delete Quiz" onclick="return confirm('Are you sure you want to delete this quiz? All associated questions and results will be lost.')">

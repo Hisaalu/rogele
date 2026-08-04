@@ -139,7 +139,7 @@ function buildQueryString($extraParams = []) {
                         <a href="<?php echo BASE_URL; ?>/teacher/homework/submissions/<?php echo $homework['id']; ?>" class="btn-submissions">
                             <i class="fas fa-users"></i> View Submissions
                         </a>
-                        <a href="<?php echo BASE_URL; ?>/teacher/homework/preview/<?php echo $homework['id']; ?>" class="btn-preview" target="_blank" title="Preview Homework">
+                        <a href="<?php echo BASE_URL; ?>/teacher/homework/preview/<?php echo $homework['id']; ?>" class="btn-preview" title="Preview Homework">
                             <i class="fas fa-eye"></i>
                         </a>
                         <a href="<?php echo BASE_URL; ?>/teacher/homework/edit/<?php echo $homework['id']; ?>" class="btn-edit" title="Edit Homework">
