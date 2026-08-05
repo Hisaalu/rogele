@@ -349,10 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    if (passwordInput) {
-        passwordInput.focus();
-    }
-    
     if (resetForm) {
         resetForm.addEventListener('submit', function(e) {
             const password = passwordInput.value;

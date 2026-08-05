@@ -337,10 +337,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     const emailInput = document.getElementById('email');
     
-    if (emailInput) {
-        emailInput.focus();
-    }
-    
     if (forgotForm) {
         forgotForm.addEventListener('submit', function(e) {
             const email = emailInput.value.trim();
