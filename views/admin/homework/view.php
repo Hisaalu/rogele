@@ -148,6 +148,9 @@ $submissions = $submissions ?? [];
                                             </div>
                                             <div>
                                                 <strong><?php echo htmlspecialchars(($sub['first_name'] ?? '') . ' ' . ($sub['last_name'] ?? 'Student')); ?></strong>
+                                                <?php if (!empty($sub['text_answer'])): ?>
+                                                    <br><small class="text-muted" style="font-style: italic;">"<?php echo htmlspecialchars(mb_strimwidth($sub['text_answer'], 0, 40, '...')); ?>"</small>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </td>
@@ -160,7 +163,7 @@ $submissions = $submissions ?? [];
                                     <td>
                                         <?php 
                                             $subStatus = strtolower($sub['status'] ?? 'submitted');
-                                            $statusClass = $subStatus === 'graded' ? 'sub-graded' : 'sub-pending';
+                                            $statusClass = $subStatus === 'graded' ? 'sub-graded' : ($subStatus === 'late' ? 'sub-disabled' : 'sub-pending');
                                         ?>
                                         <span class="sub-badge <?php echo $statusClass; ?>">
                                             <?php echo ucfirst($subStatus); ?>
@@ -168,16 +171,18 @@ $submissions = $submissions ?? [];
                                     </td>
                                     <td>
                                         <strong class="score-text">
-                                            <?php echo isset($sub['score']) && $sub['score'] !== '' ? htmlspecialchars($sub['score']) : '<span class="text-muted">--</span>'; ?>
+                                            <?php echo isset($sub['grade']) && $sub['grade'] !== '' && $sub['grade'] !== null ? htmlspecialchars($sub['grade']) : '<span class="text-muted">--</span>'; ?>
                                         </strong>
                                     </td>
                                     <td>
-                                        <?php if (!empty($sub['file_path'])): ?>
-                                            <a href="<?php echo BASE_URL . '/' . htmlspecialchars($sub['file_path']); ?>" target="_blank" class="file-link-btn" title="Download Submission File">
-                                                <i class="fas fa-file-download"></i> View File
-                                            </a>
+                                        <?php if (!empty($sub['files'])): ?>
+                                            <?php foreach ($sub['files'] as $file): ?>
+                                                <a href="<?php echo htmlspecialchars($file['file_path']); ?>" target="_blank" class="file-link-btn" title="<?php echo htmlspecialchars($file['file_name']); ?>">
+                                                    <i class="fas fa-file-download"></i> View File
+                                                </a>
+                                            <?php endforeach; ?>
                                         <?php else: ?>
-                                            <span class="text-muted"><i class="fas fa-minus"></i></span>
+                                            <span class="text-muted"><i class="fas fa-minus"></i> No Attachment</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

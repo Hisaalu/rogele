@@ -826,16 +826,23 @@ class Homework {
                     u.email,
                     u.profile_photo,
                     hs.submitted_at,
-                    hs.score,
+                    hs.grade,
                     hs.feedback,
-                    hs.status
+                    hs.status,
+                    hs.text_answer
                 FROM homework_submissions hs
                 LEFT JOIN users u ON hs.student_id = u.id
                 WHERE hs.homework_id = ?
                 ORDER BY hs.submitted_at DESC
             ");
             $stmt->execute([$homeworkId]);
-            return $stmt->fetchAll();
+            $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($submissions as &$sub) {
+                $sub['files'] = $this->getCachedSubmissionFiles($sub['id']);
+            }
+
+            return $submissions;
         } catch (PDOException $e) {
             return [];
         }
