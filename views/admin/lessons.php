@@ -158,7 +158,7 @@ $statusFilter = $_GET['status'] ?? '';
 }
 
 .page-subtitle {
-    color: #000;
+    color: #555;
     font-size: 0.95rem;
 }
 

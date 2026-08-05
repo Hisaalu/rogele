@@ -213,7 +213,7 @@ $search = $_GET['search'] ?? '';
 }
 
 .page-subtitle {
-    color: black;
+    color: #555;
     font-size: 0.95rem;
 }
 

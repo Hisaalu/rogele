@@ -37,7 +37,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 }
 
 .page-subtitle {
-    color: var(--text-dark);
+    color: var(--text-light);
     font-size: clamp(0.9rem, 2vw, 1rem);
 }
 

@@ -1286,5 +1286,18 @@ class User {
             return 0;
         }
     }
+
+    public function getByRole($role) {
+        try {
+            $query = "SELECT * FROM users WHERE role = :role ORDER BY first_name ASC, last_name ASC";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':role', $role, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error in getByRole: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

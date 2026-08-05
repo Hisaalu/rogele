@@ -51,7 +51,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 }
 
 .page-subtitle {
-    color: var(--text-dark);
+    color: var(--text-light);
     font-size: 0.95rem;
 }
 

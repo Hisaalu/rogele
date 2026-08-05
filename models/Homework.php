@@ -305,10 +305,11 @@ class Homework {
         }
         
         $sql = "SELECT h.*, 
-                       c.name as class_name,
-                       s.name as subject_name,
-                       u.first_name as teacher_first_name,
-                       u.last_name as teacher_last_name
+                    c.name as class_name,
+                    s.name as subject_name,
+                    u.first_name as teacher_first_name,
+                    u.last_name as teacher_last_name,
+                    CONCAT_WS(' ', u.first_name, u.last_name) as teacher_name
                 FROM homework h
                 LEFT JOIN classes c ON h.class_id = c.id
                 LEFT JOIN subjects s ON h.subject_id = s.id

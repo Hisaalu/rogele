@@ -220,7 +220,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 }
 
 .page-subtitle {
-    color: #000;
+    color: #555;
     font-size: 0.95rem;
 }
 

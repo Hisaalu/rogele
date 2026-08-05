@@ -175,6 +175,10 @@ $routes = [
     '/admin/subscriptions/cancel/{id}' => 'AdminSubscriptionController@cancel',
     '/admin/subscriptions/export' => 'AdminSubscriptionController@export',
     '/admin/subscriptions/reports' => 'AdminSubscriptionController@reports',
+    '/admin/homework' => 'AdminHomeworkController@index',
+    '/admin/homework/view/{id}' => 'AdminHomeworkController@view',
+    '/admin/homework/toggle-status/{id}' => 'AdminHomeworkController@toggleStatus',
+    '/admin/homework/delete/{id}' => 'AdminHomeworkController@delete',
 ];
 
 // Route matching
