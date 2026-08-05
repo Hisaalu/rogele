@@ -176,11 +176,21 @@ $submissions = $submissions ?? [];
                                     </td>
                                     <td>
                                         <?php if (!empty($sub['files'])): ?>
-                                            <?php foreach ($sub['files'] as $file): ?>
-                                                <a href="<?php echo htmlspecialchars($file['file_path']); ?>" target="_blank" class="file-link-btn" title="<?php echo htmlspecialchars($file['file_name']); ?>">
-                                                    <i class="fas fa-file-download"></i> View File
-                                                </a>
-                                            <?php endforeach; ?>
+                                            <div class="attachment-list">
+                                                <?php foreach ($sub['files'] as $file): ?>
+                                                    <?php
+                                                        $cleanSubName = basename($file['file_path']); 
+                                                        $officialSubmissionUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubName;
+                                                        $fileName = $file['file_name'] ?? $cleanSubName;
+                                                        $fileSize = isset($file['file_size']) ? round($file['file_size'] / 1024, 1) : 0;
+                                                    ?>
+                                                    <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" class="attachment-btn" title="<?php echo htmlspecialchars($fileName); ?>">
+                                                        <i class="fas fa-paperclip"></i>
+                                                        <span class="file-name"><?php echo htmlspecialchars($fileName); ?></span>
+                                                        <span class="file-size"><?php echo $fileSize; ?> KB</span>
+                                                    </a>
+                                                <?php endforeach; ?>
+                                            </div>
                                         <?php else: ?>
                                             <span class="text-muted"><i class="fas fa-minus"></i> No Attachment</span>
                                         <?php endif; ?>
@@ -588,6 +598,60 @@ $submissions = $submissions ?? [];
 
 .file-link-btn:hover {
     background: #DBEAFE;
+}
+
+.attachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 260px;
+}
+
+.attachment-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    color: #555;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.attachment-btn:hover {
+    background-color: #e2e8f0;
+    border-color: #555;
+    color: #000;
+    text-decoration: none;
+}
+
+.attachment-btn i {
+    color: #f06724;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.attachment-btn .file-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.attachment-btn .file-size {
+    font-size: 0.75rem;
+    color: #555;
+    background: #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .empty-state {
