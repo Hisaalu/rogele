@@ -90,6 +90,10 @@ class AuthController {
             $password = $_POST['password'] ?? '';
             
             if (empty($username) || empty($password)) {
+                $_SESSION['old_input'] = [
+                    'username' => $username,
+                    'password' => $password
+                ];
                 $this->redirectWithError('Please enter both your email and password!', BASE_URL . '/login');
             }
             
@@ -100,9 +104,14 @@ class AuthController {
             }
             
             if ($result['success']) {
+                unset($_SESSION['old_input']);
                 $this->setUserSession($result['user']);
                 $this->redirectToDashboard();
             } else {
+                $_SESSION['old_input'] = [
+                    'username' => $username,
+                    'password' => $password
+                ];
                 $this->redirectWithError($result['error'] ?? 'Login failed. Please try again!', BASE_URL . '/login');
             }
         }
@@ -139,6 +148,7 @@ class AuthController {
         }
         
         if (!empty($errors)) {
+            $_SESSION['old_input'] = $data;
             $this->redirectWithError(implode(', ', $errors), BASE_URL . '/register');
         }
         
@@ -155,9 +165,11 @@ class AuthController {
         $result = $this->userModel->register($userData);
         
         if ($result['success']) {
+            unset($_SESSION['old_input']);
             $this->setUserSession($result['user']);
             $this->redirectToDashboard();
         } else {
+            $_SESSION['old_input'] = $data;
             $this->redirectWithError($result['error'] ?? 'Registration failed. Please try again!', BASE_URL . '/register');
         }
     }
@@ -206,13 +218,15 @@ class AuthController {
             $this->redirect(BASE_URL . '/forgot-password');
         }
         
-        $email = $_POST['email'] ?? '';
+        $email = trim($_POST['email'] ?? '');
         
         if (empty($email)) {
+            $_SESSION['old_input'] = ['email' => $email];
             $this->redirectWithError('Please enter your email address!', BASE_URL . '/forgot-password');
         }
         
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['old_input'] = ['email' => $email];
             $this->redirectWithError('Please enter a valid email address!', BASE_URL . '/forgot-password');
         }
         
@@ -229,15 +243,18 @@ class AuthController {
                 $sent = $this->mailHelper->sendResetEmail($email, $user['first_name'], $resetLink);
                 
                 if ($sent) {
+                    unset($_SESSION['old_input']);
                     $_SESSION['success'] = 'Password reset link sent to your email!';
                 } else {
                     $_SESSION['debug_reset_link'] = $resetLink;
                     $_SESSION['info'] = 'Email could not be sent. Please use the debug link below to reset your password.';
                 }
             } else {
+                $_SESSION['old_input'] = ['email' => $email];
                 $_SESSION['error'] = 'Failed to process request. Please try again.';
             }
         } else {
+            $_SESSION['old_input'] = ['email' => $email];
             $_SESSION['error'] = 'We couldn\'t find a user with the provided email address!';
         }
         

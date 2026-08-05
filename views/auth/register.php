@@ -2,6 +2,8 @@
 // File: /views/auth/register.php
 $hideHeader = true;
 $pageTitle = 'Create Account | ROGELE';
+$oldInput = $_SESSION['old_input'] ?? [];
+unset($_SESSION['old_input']);
 
 $classes = $classes ?? [];
 
@@ -345,29 +347,60 @@ if (empty($classes)) {
             <form action="<?php echo BASE_URL; ?>/register" method="POST" class="register-form" id="registerForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <input type="text" name="first_name" id="first_name" placeholder="First name" required>
+                        <input 
+                            type="text" 
+                            name="first_name" 
+                            id="first_name" 
+                            placeholder="First name" 
+                            value="<?php echo htmlspecialchars($_POST['first_name'] ?? $oldInput['first_name'] ?? ''); ?>" 
+                            required
+                        >
                     </div>
                     <div class="form-group">
-                        <input type="text" name="last_name" id="last_name" placeholder="Last name" required>
+                        <input 
+                            type="text" 
+                            name="last_name" 
+                            id="last_name" 
+                            placeholder="Last name" 
+                            value="<?php echo htmlspecialchars($_POST['last_name'] ?? $oldInput['last_name'] ?? ''); ?>" 
+                            required
+                        >
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <input type="email" name="email" id="email" placeholder="Email address" required>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="email" 
+                        placeholder="Email address" 
+                        value="<?php echo htmlspecialchars($_POST['email'] ?? $oldInput['email'] ?? ''); ?>" 
+                        required
+                    >
                 </div>
                 
                 <div class="form-group">
                     <div class="phone-field">
                         <span class="country-code">+256</span>
-                        <input type="tel" name="phone" id="phone" placeholder="e.g 701234567" required>
+                        <input 
+                            type="tel" 
+                            name="phone" 
+                            id="phone" 
+                            placeholder="e.g 701234567" 
+                            value="<?php echo htmlspecialchars($_POST['phone'] ?? $oldInput['phone'] ?? ''); ?>" 
+                            required
+                        >
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <select name="class_id" id="class_id" required>
                         <option value="">Select your class</option>
-                        <?php foreach ($classes as $class): ?>
-                            <option value="<?php echo $class['id']; ?>">
+                        <?php 
+                        $selectedClass = $_POST['class_id'] ?? $oldInput['class_id'] ?? '';
+                        foreach ($classes as $class): 
+                        ?>
+                            <option value="<?php echo $class['id']; ?>" <?php echo $selectedClass == $class['id'] ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($class['name']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -376,7 +409,14 @@ if (empty($classes)) {
                 
                 <div class="form-group">
                     <div class="password-field">
-                        <input type="password" name="password" id="password" placeholder="Password" required>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            id="password" 
+                            placeholder="Password" 
+                            value="<?php echo htmlspecialchars($_POST['password'] ?? $oldInput['password'] ?? ''); ?>" 
+                            required
+                        >
                         <button type="button" class="toggle-password" data-target="password">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -385,7 +425,14 @@ if (empty($classes)) {
                 
                 <div class="form-group">
                     <div class="password-field">
-                        <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm password" required>
+                        <input 
+                            type="password" 
+                            name="confirm_password" 
+                            id="confirm_password" 
+                            placeholder="Confirm password" 
+                            value="<?php echo htmlspecialchars($_POST['confirm_password'] ?? $oldInput['confirm_password'] ?? ''); ?>" 
+                            required
+                        >
                         <button type="button" class="toggle-password" data-target="confirm_password">
                             <i class="fas fa-eye"></i>
                         </button>

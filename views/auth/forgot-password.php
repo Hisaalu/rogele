@@ -2,6 +2,8 @@
 // File: /views/auth/forgot-password.php
 $hideHeader = true;
 $pageTitle = 'Forgot Password | ROGELE';
+$oldInput = $_SESSION['old_input'] ?? [];
+unset($_SESSION['old_input']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -310,6 +312,7 @@ $pageTitle = 'Forgot Password | ROGELE';
                             name="email" 
                             id="email"
                             placeholder="Your ROGELE Email address"
+                            value="<?php echo htmlspecialchars($_POST['email'] ?? $oldInput['email'] ?? ''); ?>"
                             required
                             autocomplete="off"
                         >

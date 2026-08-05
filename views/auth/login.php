@@ -2,6 +2,8 @@
 //File: /views/auth/login.php
 $hideHeader = true; 
 $pageTitle = 'Login | ROGELE';
+$oldInput = $_SESSION['old_input'] ?? [];
+unset($_SESSION['old_input']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -353,11 +355,12 @@ $pageTitle = 'Login | ROGELE';
                         name="username" 
                         id="username"
                         placeholder="Your Email address"
+                        value="<?php echo htmlspecialchars($_POST['username'] ?? $oldInput['username'] ?? ''); ?>"
                         required
                         autocomplete="username"
                     >
                 </div>
-                
+
                 <div class="form-group">
                     <div class="password-field">
                         <input 
@@ -365,6 +368,7 @@ $pageTitle = 'Login | ROGELE';
                             name="password" 
                             id="password"
                             placeholder="Your Password"
+                            value="<?php echo htmlspecialchars($_POST['password'] ?? $oldInput['password'] ?? ''); ?>"
                             required
                             autocomplete="current-password"
                         >
