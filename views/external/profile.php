@@ -167,7 +167,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 <div class="form-group">
                     <label for="class_id">
                         <i class="fas fa-graduation-cap"></i>
-                        Current Class
+                        Class/Club
                     </label>
                     <select id="class_id" name="class_id" class="class-select">
                         <option value="">Select your class</option>

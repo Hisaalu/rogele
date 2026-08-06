@@ -40,7 +40,7 @@ if (!isset($lesson)) {
         <?php if ($isRealEdit): ?>
             <span>
                 <i class="fas fa-edit" style="color: #f06724;"></i> 
-                <strong style="color: #2563EB;">Last Edited:</strong> <?php echo date('M d, Y', $updatedAt); ?>
+                <strong style="color: #2563EB;">Updated:</strong> <?php echo date('M d, Y', $updatedAt); ?>
             </span>
         <?php endif; ?>
     </div>

@@ -16,7 +16,7 @@ if (empty($classes)) {
         ['id' => 5, 'name' => 'Primary 5'],
         ['id' => 6, 'name' => 'Primary 6'],
         ['id' => 7, 'name' => 'Primary 7'],
-        ['id' => 8, 'name' => 'Computer Class']
+        ['id' => 8, 'name' => 'Computer Club']
     ];
 }
 ?>
@@ -395,7 +395,7 @@ if (empty($classes)) {
                 
                 <div class="form-group">
                     <select name="class_id" id="class_id" required>
-                        <option value="">Select your class</option>
+                        <option value="">Select Class/Club</option>
                         <?php 
                         $selectedClass = $_POST['class_id'] ?? $oldInput['class_id'] ?? '';
                         foreach ($classes as $class): 
