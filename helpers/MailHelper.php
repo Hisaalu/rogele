@@ -219,7 +219,7 @@ class MailHelper {
                     </div>
                 </div>
                 <div class="footer">
-                    <p>&copy; ' . date('Y') . ' ROGELE | All rights reserved.</p>
+                    <p>&copy; ' . date('Y') . ' ROGELE Learning. All rights reserved.</p>
                 </div>
             </div>
         </body>

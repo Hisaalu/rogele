@@ -9,51 +9,45 @@ $paymentHistory = $paymentHistory ?? [];
 ?>
 
 <div class="subscription-view-container">
-    <div class="page-header">
+    <header class="page-header">
         <div>
             <h1 class="page-title">
-                <i class="fas fa-credit-card"></i>
+                <i class="fas fa-credit-card" aria-hidden="true"></i>
                 Subscription Details
             </h1>
-            <p class="page-subtitle">View and manage subscription #<?php echo $subscription['id'] ?? ''; ?></p>
+            <p class="page-subtitle">View and manage subscription #<?php echo htmlspecialchars($subscription['id'] ?? 'N/A'); ?></p>
         </div>
-        <div class="header-actions">
-            <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="btn-back">
-                <i class="fas fa-arrow-left"></i>
-                Back to Subscriptions
-            </a>
-        </div>
-    </div>
+    </header>
 
     <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        <div class="alert alert-success" role="status">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
         </div>
     <?php endif; ?>
     
     <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        <div class="alert alert-error" role="alert">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
         </div>
     <?php endif; ?>
 
     <div class="details-grid">
-        <div class="info-card subscription-info">
+        <section class="info-card subscription-info">
             <div class="card-header">
-                <h2><i class="fas fa-info-circle"></i> Subscription Information</h2>
+                <h2><i class="fas fa-info-circle" aria-hidden="true"></i> Subscription Information</h2>
                 
                 <form action="<?php echo BASE_URL; ?>/admin/subscriptions/update-status" method="POST" class="status-update-form">
-                    <input type="hidden" name="subscription_id" value="<?php echo $subscription['id'] ?? 0; ?>">
-                    <select name="status" onchange="this.form.submit()" class="status-select <?php echo $subscription['status'] ?? 'pending'; ?>">
+                    <input type="hidden" name="subscription_id" value="<?php echo htmlspecialchars($subscription['id'] ?? 0); ?>">
+                    <select name="status" onchange="this.form.submit()" class="status-select <?php echo htmlspecialchars($subscription['status'] ?? 'pending'); ?>" aria-label="Update Subscription Status">
                         <?php 
                         $statuses = ['active', 'expired', 'pending', 'cancelled'];
-                        foreach ($statuses as $status): ?>
-                            <option value="<?php echo $status; ?>" <?php echo (($subscription['status'] ?? 'pending') === $status) ? 'selected' : ''; ?>>
-                                <?php echo ucfirst($status); ?>
+                        foreach ($statuses as $st): ?>
+                            <option value="<?php echo $st; ?>" <?php echo (($subscription['status'] ?? 'pending') === $st) ? 'selected' : ''; ?>>
+                                <?php echo ucfirst($st); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -63,15 +57,15 @@ $paymentHistory = $paymentHistory ?? [];
             <div class="info-content">
                 <div class="info-row">
                     <span class="info-label">Subscription ID:</span>
-                    <span class="info-value">#<?php echo $subscription['id'] ?? 'NA'; ?></span>
+                    <span class="info-value">#<?php echo htmlspecialchars($subscription['id'] ?? 'N/A'); ?></span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">Plan Type:</span>
-                    <span class="info-value plan-badge <?php echo $subscription['plan_type'] ?? ''; ?>">
-                        <?php echo ucfirst($subscription['plan_type'] ?? 'NA'); ?>
+                    <span class="info-value plan-badge <?php echo htmlspecialchars($subscription['plan_type'] ?? ''); ?>">
+                        <?php echo htmlspecialchars(ucfirst($subscription['plan_type'] ?? 'N/A')); ?>
                         <?php if (!empty($subscription['is_upgrade'])): ?>
-                            <i class="fas fa-arrow-up" title="Upgraded"></i>
+                            <i class="fas fa-arrow-up" title="Upgraded" aria-hidden="true"></i>
                         <?php endif; ?>
                     </span>
                 </div>
@@ -83,14 +77,19 @@ $paymentHistory = $paymentHistory ?? [];
                 
                 <div class="info-row">
                     <span class="info-label">Start Date:</span>
-                    <span class="info-value"><?php echo date('F j, Y', strtotime($subscription['start_date'] ?? 'now')); ?></span>
+                    <span class="info-value">
+                        <?php echo !empty($subscription['start_date']) ? date('F j, Y', strtotime($subscription['start_date'])) : 'N/A'; ?>
+                    </span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">End Date:</span>
-                    <span class="info-value <?php echo strtotime($subscription['end_date'] ?? 'now') < time() ? 'expired' : ''; ?>">
-                        <?php echo date('F j, Y', strtotime($subscription['end_date'] ?? 'now')); ?>
-                        <?php if (strtotime($subscription['end_date'] ?? 'now') < time()): ?>
+                    <?php 
+                    $isExpired = !empty($subscription['end_date']) && strtotime($subscription['end_date']) < time();
+                    ?>
+                    <span class="info-value <?php echo $isExpired ? 'expired' : ''; ?>">
+                        <?php echo !empty($subscription['end_date']) ? date('F j, Y', strtotime($subscription['end_date'])) : 'N/A'; ?>
+                        <?php if ($isExpired): ?>
                             <span class="expired-label">(Expired)</span>
                         <?php endif; ?>
                     </span>
@@ -100,9 +99,9 @@ $paymentHistory = $paymentHistory ?? [];
                     <span class="info-label">Auto Renew:</span>
                     <span class="info-value">
                         <?php if (!empty($subscription['auto_renew'])): ?>
-                            <span class="badge-success"><i class="fas fa-check"></i> Enabled</span>
+                            <span class="badge-success"><i class="fas fa-check" aria-hidden="true"></i> Enabled</span>
                         <?php else: ?>
-                            <span class="badge-warning"><i class="fas fa-times"></i> Disabled</span>
+                            <span class="badge-warning"><i class="fas fa-times" aria-hidden="true"></i> Disabled</span>
                         <?php endif; ?>
                     </span>
                 </div>
@@ -110,26 +109,28 @@ $paymentHistory = $paymentHistory ?? [];
                 <div class="info-row">
                     <span class="info-label">Payment Method:</span>
                     <span class="info-value">
-                        <i class="fas fa-<?php echo ($subscription['payment_method'] ?? 'mobile_money') === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>"></i>
-                        <?php echo ucfirst(str_replace('_', ' ', $subscription['payment_method'] ?? 'unknown')); ?>
+                        <i class="fas fa-<?php echo ($subscription['payment_method'] ?? 'mobile_money') === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>" aria-hidden="true"></i>
+                        <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $subscription['payment_method'] ?? 'unknown'))); ?>
                     </span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">Transaction ID:</span>
-                    <span class="info-value transaction-id"><?php echo $subscription['transaction_id'] ?? 'NA'; ?></span>
+                    <span class="info-value transaction-id"><?php echo htmlspecialchars($subscription['transaction_id'] ?? 'N/A'); ?></span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">Created At:</span>
-                    <span class="info-value"><?php echo date('F j, Y h:i A', strtotime($subscription['created_at'] ?? 'now')); ?></span>
+                    <span class="info-value">
+                        <?php echo !empty($subscription['created_at']) ? date('F j, Y h:i A', strtotime($subscription['created_at'])) : 'N/A'; ?>
+                    </span>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="info-card user-info-card">
+        <section class="info-card user-info-card">
             <div class="card-header">
-                <h2><i class="fas fa-user"></i> User Information</h2>
+                <h2><i class="fas fa-user" aria-hidden="true"></i> User Information</h2>
             </div>
             
             <div class="info-content">
@@ -138,7 +139,7 @@ $paymentHistory = $paymentHistory ?? [];
                         <?php 
                         $firstInitial = strtoupper(substr($subscription['first_name'] ?? 'U', 0, 1));
                         $lastInitial = strtoupper(substr($subscription['last_name'] ?? 'S', 0, 1));
-                        echo $firstInitial . $lastInitial;
+                        echo htmlspecialchars($firstInitial . $lastInitial);
                         ?>
                     </div>
                 </div>
@@ -146,80 +147,92 @@ $paymentHistory = $paymentHistory ?? [];
                 <div class="info-row">
                     <span class="info-label">Name:</span>
                     <span class="info-value">
-                        <?php echo htmlspecialchars(($subscription['first_name'] ?? '') . ' ' . ($subscription['last_name'] ?? '')); ?>
+                        <?php echo htmlspecialchars(trim(($subscription['first_name'] ?? '') . ' ' . ($subscription['last_name'] ?? ''))); ?>
                     </span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">Email:</span>
                     <span class="info-value">
-                        <a href="mailto:<?php echo htmlspecialchars($subscription['email'] ?? ''); ?>">
-                            <?php echo htmlspecialchars($subscription['email'] ?? 'NA'); ?>
-                        </a>
+                        <?php if (!empty($subscription['email'])): ?>
+                            <a href="mailto:<?php echo htmlspecialchars($subscription['email']); ?>">
+                                <?php echo htmlspecialchars($subscription['email']); ?>
+                            </a>
+                        <?php else: ?>
+                            N/A
+                        <?php endif; ?>
                     </span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">Phone:</span>
-                    <span class="info-value"><?php echo htmlspecialchars($subscription['phone'] ?? 'NA'); ?></span>
+                    <span class="info-value"><?php echo htmlspecialchars($subscription['phone'] ?? 'N/A'); ?></span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">User Role:</span>
                     <span class="info-value">
-                        <span class="role-badge role-<?php echo $subscription['user_role'] ?? 'external'; ?>">
-                            <?php echo ucfirst($subscription['user_role'] ?? 'external'); ?>
+                        <span class="role-badge role-<?php echo htmlspecialchars($subscription['user_role'] ?? 'external'); ?>">
+                            <?php echo htmlspecialchars(ucfirst($subscription['user_role'] ?? 'external')); ?>
                         </span>
                     </span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">User ID:</span>
-                    <span class="info-value">#<?php echo $subscription['user_id'] ?? 'NA'; ?></span>
+                    <span class="info-value">#<?php echo htmlspecialchars($subscription['user_id'] ?? 'N/A'); ?></span>
                 </div>
                 
+                <?php if (!empty($subscription['user_id'])): ?>
                 <div class="user-actions">
-                    <a href="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo $subscription['user_id'] ?? 0; ?>" class="btn-view-user">
-                        <i class="fas fa-user-edit"></i> View User Profile
+                    <a href="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo urlencode($subscription['user_id']); ?>" class="btn-view-user">
+                        <i class="fas fa-user-edit" aria-hidden="true"></i> View User Profile
                     </a>
                 </div>
+                <?php endif; ?>
             </div>
-        </div>
+        </section>
     </div>
 
     <?php if (!empty($subscription['is_upgrade'])): ?>
-    <div class="upgrade-info-card">
+    <section class="upgrade-info-card">
         <div class="card-header">
-            <h2><i class="fas fa-arrow-up"></i> Upgrade Information</h2>
+            <h2><i class="fas fa-arrow-up" aria-hidden="true"></i> Upgrade Information</h2>
         </div>
         
         <div class="upgrade-details">
             <div class="upgrade-item">
                 <span class="upgrade-label">Upgraded From:</span>
-                <span class="upgrade-value"><?php echo ucfirst($subscription['upgraded_from'] ?? 'NA'); ?></span>
+                <span class="upgrade-value"><?php echo htmlspecialchars(ucfirst($subscription['upgraded_from'] ?? 'N/A')); ?></span>
             </div>
             
             <div class="upgrade-item">
                 <span class="upgrade-label">Upgraded At:</span>
-                <span class="info-value"><?php echo date('F j, Y h:i A', strtotime($subscription['created_at'] ?? 'now')); ?></span>
+                <span class="info-value">
+                    <?php echo !empty($subscription['created_at']) ? date('F j, Y h:i A', strtotime($subscription['created_at'])) : 'N/A'; ?>
+                </span>
             </div>
             
             <div class="upgrade-item">
                 <span class="upgrade-label">Original Subscription ID:</span>
                 <span class="upgrade-value">
-                    <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo $subscription['original_subscription_id'] ?? 0; ?>">
-                        #<?php echo $subscription['original_subscription_id'] ?? 'NA'; ?>
-                    </a>
+                    <?php if (!empty($subscription['original_subscription_id'])): ?>
+                        <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($subscription['original_subscription_id']); ?>">
+                            #<?php echo htmlspecialchars($subscription['original_subscription_id']); ?>
+                        </a>
+                    <?php else: ?>
+                        N/A
+                    <?php endif; ?>
                 </span>
             </div>
         </div>
-    </div>
+    </section>
     <?php endif; ?>
 
     <?php if (!empty($paymentHistory) && is_array($paymentHistory)): ?>
-        <div class="payment-history-card">
+        <section class="payment-history-card">
             <div class="card-header">
-                <h2><i class="fas fa-history"></i> Payment History</h2>
+                <h2><i class="fas fa-history" aria-hidden="true"></i> Payment History</h2>
                 <span class="payment-count"><?php echo count($paymentHistory); ?> payment(s)</span>
             </div>
             
@@ -238,20 +251,20 @@ $paymentHistory = $paymentHistory ?? [];
                         <?php foreach ($paymentHistory as $payment): ?>
                         <?php if (is_array($payment)): ?>
                         <tr>
-                            <td><?php echo isset($payment['created_at']) ? date('M d, Y h:i A', strtotime($payment['created_at'])) : 'NA'; ?></td>
-                            <td class="amount-cell">UGX <?php echo isset($payment['amount']) ? number_format($payment['amount']) : '0'; ?></td>
+                            <td><?php echo !empty($payment['created_at']) ? date('M d, Y h:i A', strtotime($payment['created_at'])) : 'N/A'; ?></td>
+                            <td class="amount-cell">UGX <?php echo number_format($payment['amount'] ?? 0); ?></td>
                             <td>
                                 <?php 
                                 $method = $payment['payment_method'] ?? 'mobile_money';
                                 $icon = $method === 'mobile_money' ? 'mobile-alt' : 'credit-card';
                                 ?>
-                                <i class="fas fa-<?php echo $icon; ?>"></i>
-                                <?php echo ucfirst(str_replace('_', ' ', $method)); ?>
+                                <i class="fas fa-<?php echo $icon; ?>" aria-hidden="true"></i>
+                                <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $method))); ?>
                             </td>
-                            <td class="transaction-id"><?php echo $payment['transaction_id'] ?? 'NA'; ?></td>
+                            <td class="transaction-id"><?php echo htmlspecialchars($payment['transaction_id'] ?? 'N/A'); ?></td>
                             <td>
-                                <span class="status-badge <?php echo $payment['status'] ?? 'unknown'; ?>">
-                                    <?php echo isset($payment['status']) ? ucfirst($payment['status']) : 'Unknown'; ?>
+                                <span class="status-badge <?php echo htmlspecialchars($payment['status'] ?? 'unknown'); ?>">
+                                    <?php echo htmlspecialchars(ucfirst($payment['status'] ?? 'Unknown')); ?>
                                 </span>
                             </td>
                         </tr>
@@ -260,18 +273,18 @@ $paymentHistory = $paymentHistory ?? [];
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
     <?php else: ?>
     <div class="info-message">
-        <i class="fas fa-info-circle"></i>
+        <i class="fas fa-info-circle" aria-hidden="true"></i>
         <p>No payment history found for this subscription.</p>
     </div>
     <?php endif; ?>
 
-    <?php if (!empty($userHistory)): ?>
-    <div class="user-history-card">
+    <?php if (!empty($userHistory) && is_array($userHistory)): ?>
+    <section class="user-history-card">
         <div class="card-header">
-            <h2><i class="fas fa-list"></i> User's Subscription History</h2>
+            <h2><i class="fas fa-list" aria-hidden="true"></i> User's Subscription History</h2>
         </div>
         
         <div class="table-responsive">
@@ -289,26 +302,26 @@ $paymentHistory = $paymentHistory ?? [];
                 </thead>
                 <tbody>
                     <?php foreach ($userHistory as $history): 
-                        if ($history['id'] == ($subscription['id'] ?? 0)) continue;
+                        if (!is_array($history) || ($history['id'] ?? 0) == ($subscription['id'] ?? 0)) continue;
                     ?>
                     <tr>
-                        <td>#<?php echo $history['id']; ?></td>
+                        <td>#<?php echo htmlspecialchars($history['id'] ?? ''); ?></td>
                         <td>
-                            <span class="plan-badge <?php echo $history['plan_type']; ?>">
-                                <?php echo ucfirst($history['plan_type']); ?>
+                            <span class="plan-badge <?php echo htmlspecialchars($history['plan_type'] ?? ''); ?>">
+                                <?php echo htmlspecialchars(ucfirst($history['plan_type'] ?? '')); ?>
                             </span>
                         </td>
-                        <td class="amount-cell">UGX <?php echo number_format($history['amount']); ?></td>
-                        <td><?php echo date('M d, Y', strtotime($history['start_date'])); ?></td>
-                        <td><?php echo date('M d, Y', strtotime($history['end_date'])); ?></td>
+                        <td class="amount-cell">UGX <?php echo number_format($history['amount'] ?? 0); ?></td>
+                        <td><?php echo !empty($history['start_date']) ? date('M d, Y', strtotime($history['start_date'])) : 'N/A'; ?></td>
+                        <td><?php echo !empty($history['end_date']) ? date('M d, Y', strtotime($history['end_date'])) : 'N/A'; ?></td>
                         <td>
-                            <span class="status-badge <?php echo $history['status']; ?>">
-                                <?php echo ucfirst($history['status']); ?>
+                            <span class="status-badge <?php echo htmlspecialchars($history['status'] ?? ''); ?>">
+                                <?php echo htmlspecialchars(ucfirst($history['status'] ?? '')); ?>
                             </span>
                         </td>
                         <td>
-                            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo $history['id']; ?>" class="btn-view-small">
-                                <i class="fas fa-eye"></i>
+                            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($history['id'] ?? ''); ?>" class="btn-view-small" title="View Details">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
                             </a>
                         </td>
                     </tr>
@@ -316,111 +329,118 @@ $paymentHistory = $paymentHistory ?? [];
                 </tbody>
             </table>
         </div>
-    </div>
+    </section>
     <?php endif; ?>
 </div>
 
 <style>
+:root {
+    --primary-purple: #7f2677;
+    --accent-orange: #f06724;
+    --text-dark: #000;
+    --text-muted: #555;
+    --bg-surface: #FFFFFF;
+    --border-color: #E2E8F0;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.05);
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.subscription-view-container,
+.subscription-view-container * {
+    box-sizing: border-box;
+}
+
 .subscription-view-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 30px 20px;
+    padding: clamp(16px, 3vw, 32px);
+    color: var(--text-dark);
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: clamp(20px, 3vw, 30px);
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 16px;
 }
 
 .page-title {
-    font-size: 2.2rem;
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
     font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
+    color: var(--primary-purple);
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .page-subtitle {
-    color: black;
+    color: var(--text-muted);
     font-size: 0.95rem;
-}
-
-.header-actions {
-    display: flex;
-    gap: 15px;
+    margin: 0;
 }
 
 .btn-back {
-    padding: 12px 25px;
-    border-radius: 12px;
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
     text-decoration: none;
     font-weight: 600;
+    font-size: 0.9rem;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.3s ease;
-    background: #7f2677;
+    transition: var(--transition);
+    background: var(--primary-purple);
     color: white;
 }
 
 .btn-back:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    color: white;
-    background: #f06724;
+    background: var(--accent-orange);
 }
 
 .alert {
-    padding: 16px 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
-    gap: 15px;
-    animation: slideDown 0.3s ease;
+    gap: 12px;
     position: relative;
+    font-size: 0.9rem;
 }
 
-.alert-success {
-    background: #F0FDF4;
-    color: #166534;
-    border: 1px solid #BBF7D0;
-}
-
-.alert-error {
-    background: #FEF2F2;
-    color: #B91C1C;
-    border: 1px solid #FECACA;
-}
+.alert-success { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+.alert-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
 
 .alert-close {
     background: none;
     border: none;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     cursor: pointer;
     color: currentColor;
     opacity: 0.7;
     margin-left: auto;
-    padding: 0 5px;
 }
 
 .details-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    gap: 25px;
-    margin-bottom: 25px;
+    gap: 20px;
+    margin-bottom: 24px;
 }
 
 .info-card {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .card-header {
@@ -428,15 +448,16 @@ $paymentHistory = $paymentHistory ?? [];
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    padding-bottom: 15px;
+    padding-bottom: 14px;
     border-bottom: 2px solid #F1F5F9;
     flex-wrap: wrap;
     gap: 12px;
 }
 
 .card-header h2 {
-    color: #000;
-    font-size: 1.2rem;
+    color: var(--text-dark);
+    font-size: 1.15rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -444,7 +465,7 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .card-header h2 i {
-    color: #f06724;
+    color: var(--accent-orange);
 }
 
 .status-select {
@@ -454,20 +475,19 @@ $paymentHistory = $paymentHistory ?? [];
     font-weight: 600;
     border: 1px solid transparent;
     cursor: pointer;
-    transition: all 0.3s ease;
-    background: white;
+    transition: var(--transition);
+    background: var(--bg-surface);
     font-family: inherit;
 }
 
 .status-select:hover {
     filter: brightness(0.95);
-    transform: translateY(-1px);
 }
 
 .status-select.active { background: #F0FDF4; color: #166534; border-color: #BBF7D0; }
 .status-select.expired { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
 .status-select.pending { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
-.status-select.cancelled { background: #F1F5F9; color: #555; border-color: #E2E8F0; }
+.status-select.cancelled { background: #F1F5F9; color: var(--text-muted); border-color: #E2E8F0; }
 
 .status-update-form {
     display: inline-flex;
@@ -477,7 +497,7 @@ $paymentHistory = $paymentHistory ?? [];
 .info-content {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .info-row {
@@ -493,19 +513,19 @@ $paymentHistory = $paymentHistory ?? [];
 }
 
 .info-label {
-    color: #555;
+    color: var(--text-muted);
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .info-value {
-    color: #000;
+    color: var(--text-dark);
     font-weight: 600;
+    font-size: 0.9rem;
 }
 
 .info-value.amount {
     color: #059669;
-    font-size: 0.95rem;
 }
 
 .info-value.expired {
@@ -514,163 +534,126 @@ $paymentHistory = $paymentHistory ?? [];
 
 .expired-label {
     font-size: 0.8rem;
-    margin-left: 5px;
+    margin-left: 4px;
 }
 
 .status-badge {
     display: inline-block;
-    padding: 5px 15px;
+    padding: 4px 12px;
     border-radius: 50px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
-.status-badge.active {
-    background: #F0FDF4;
-    color: #166534;
-}
-
-.status-badge.expired {
-    background: #FEF2F2;
-    color: #B91C1C;
-}
-
-.status-badge.pending {
-    background: #FEF3C7;
-    color: #92400E;
-}
-
-.status-badge.cancelled {
-    background: #F1F5F9;
-    color: #555;
-}
+.status-badge.active { background: #F0FDF4; color: #166534; }
+.status-badge.expired { background: #FEF2F2; color: #B91C1C; }
+.status-badge.pending { background: #FEF3C7; color: #92400E; }
+.status-badge.cancelled { background: #F1F5F9; color: var(--text-muted); }
 
 .plan-badge {
     display: inline-block;
-    padding: 5px 15px;
+    padding: 4px 12px;
     border-radius: 50px;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
-.plan-badge.monthly {
-    background: #EFF6FF;
-    color: #1E40AF;
-}
-
-.plan-badge.termly {
-    background: #FEF3C7;
-    color: #92400E;
-}
-
-.plan-badge.yearly {
-    background: #F0FDF4;
-    color: #166534;
-}
+.plan-badge.monthly { background: #EFF6FF; color: #1E40AF; }
+.plan-badge.termly { background: #FEF3C7; color: #92400E; }
+.plan-badge.yearly { background: #F0FDF4; color: #166534; }
 
 .user-avatar {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .avatar-placeholder {
-    width: 80px;
-    height: 80px;
-    background-color: #f06724;
+    width: 72px;
+    height: 72px;
+    background-color: var(--accent-orange);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 700;
 }
 
 .role-badge {
     display: inline-block;
-    padding: 5px 12px;
+    padding: 4px 10px;
     border-radius: 50px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
-.role-badge.role-admin {
-    background: #FEF2F2;
-    color: #B91C1C;
-}
-
-.role-badge.role-teacher {
-    background: #EFF6FF;
-    color: #1E40AF;
-}
-
-.role-badge.role-learner {
-    background: #F0FDF4;
-    color: #166534;
-}
-
-.role-badge.role-external {
-    background: #FEF3C7;
-    color: #92400E;
-}
+.role-badge.role-admin { background: #FEF2F2; color: #B91C1C; }
+.role-badge.role-teacher { background: #EFF6FF; color: #1E40AF; }
+.role-badge.role-learner { background: #F0FDF4; color: #166534; }
+.role-badge.role-external { background: #FEF3C7; color: #92400E; }
 
 .user-actions {
-    margin-top: 20px;
+    margin-top: 16px;
     text-align: center;
 }
 
 .btn-view-user {
-    display: inline-block;
-    padding: 10px 20px;
-    background: #7f2677;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: var(--primary-purple);
     color: white;
     text-decoration: none;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
+    font-size: 0.88rem;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: var(--transition);
 }
 
 .btn-view-user:hover {
-    background: #f06724;
+    background: var(--accent-orange);
     color: white;
 }
 
 .upgrade-info-card {
     background: linear-gradient(135deg, #FEF3C7, #FFFAF0);
-    border: 2px solid #7f2677;
-    border-radius: 20px;
-    padding: 25px;
-    margin-bottom: 25px;
+    border: 1px solid #FDE68A;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-md);
 }
 
 .upgrade-details {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
+    gap: 16px;
+    margin-top: 12px;
 }
 
 .upgrade-item {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
 }
 
 .upgrade-label {
     color: #92400E;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 500;
 }
 
 .upgrade-value {
-    color: #000;
+    color: var(--text-dark);
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .upgrade-value a {
-    color: #8B5CF6;
+    color: var(--primary-purple);
     text-decoration: none;
 }
 
@@ -680,11 +663,12 @@ $paymentHistory = $paymentHistory ?? [];
 
 .payment-history-card,
 .user-history-card {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .table-responsive {
@@ -695,22 +679,26 @@ $paymentHistory = $paymentHistory ?? [];
 .history-table {
     width: 100%;
     border-collapse: collapse;
+    text-align: left;
 }
 
 .payment-table th,
 .history-table th {
     background: #F8FAFC;
-    padding: 15px 20px;
-    text-align: left;
+    padding: 14px 18px;
     font-weight: 600;
-    color: #000;
-    border-bottom: 2px solid #E2E8F0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--border-color);
 }
 
 .payment-table td,
 .history-table td {
-    padding: 15px 20px;
+    padding: 14px 18px;
     border-bottom: 1px solid #F1F5F9;
+    font-size: 0.9rem;
 }
 
 .payment-table tr:hover td,
@@ -725,24 +713,24 @@ $paymentHistory = $paymentHistory ?? [];
 
 .transaction-id {
     font-family: monospace;
-    color: #555;
+    color: var(--text-muted);
 }
 
 .btn-view-small {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     background: #EFF6FF;
-    color: #2563EB;
+    color: var(--primary-purple);
     text-decoration: none;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    border-radius: 6px;
+    transition: var(--transition);
 }
 
 .btn-view-small:hover {
-    background: #2563EB;
+    background: var(--accent-orange);
     color: white;
 }
 
@@ -751,7 +739,8 @@ $paymentHistory = $paymentHistory ?? [];
     color: #166534;
     padding: 3px 8px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 600;
 }
 
 .badge-warning {
@@ -759,46 +748,38 @@ $paymentHistory = $paymentHistory ?? [];
     color: #92400E;
     padding: 3px 8px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 600;
 }
 
 .payment-count {
-    background: #7f2677;
+    background: var(--primary-purple);
     color: white;
     padding: 3px 10px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
 .info-message {
-    background: #F8FAFC;
-    border-radius: 12px;
-    padding: 30px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    padding: 36px;
     text-align: center;
-    color: #555;
+    color: var(--text-muted);
     margin: 20px 0;
+    border: 1px solid var(--border-color);
 }
 
 .info-message i {
     font-size: 2rem;
     margin-bottom: 10px;
-    color: #f06724;
+    color: var(--accent-orange);
 }
 
 .info-message p {
     font-size: 0.95rem;
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    margin: 0;
 }
 
 @media (max-width: 1024px) {
@@ -813,15 +794,10 @@ $paymentHistory = $paymentHistory ?? [];
         align-items: flex-start;
     }
     
-    .header-actions {
-        width: 100%;
-        flex-direction: column;
-    }
-    
     .info-row {
         flex-direction: column;
         align-items: flex-start;
-        gap: 5px;
+        gap: 4px;
     }
     
     .card-header {

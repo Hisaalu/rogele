@@ -9,46 +9,46 @@ $revenueByMonth = $revenueByMonth ?? [];
 ?>
 
 <div class="reports-container">
-    <div class="page-header">
+    <header class="page-header">
         <div>
             <h1 class="page-title">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-chart-bar" aria-hidden="true"></i>
                 Subscription Reports
             </h1>
-            <p class="page-subtitle">Analytics and insights for all subscriptions</p>
+            <p class="page-subtitle">Analytics and insights for all platform subscriptions</p>
         </div>
         <div class="header-actions">
             <a href="<?php echo BASE_URL; ?>/admin/subscriptions/export?report=true" class="btn-export">
-                <i class="fas fa-download"></i>
+                <i class="fas fa-download" aria-hidden="true"></i>
                 Export Report
             </a>
         </div>
-    </div>
+    </header>
 
-    <div class="stats-grid">
+    <section class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon active">
-                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
             </div>
             <div class="stat-info">
                 <h3>Active Subscriptions</h3>
-                <p class="stat-number"><?php echo $stats['active'] ?? 0; ?></p>
+                <p class="stat-number"><?php echo number_format($stats['active'] ?? 0); ?></p>
             </div>
         </div>
         
         <div class="stat-card">
             <div class="stat-icon expired">
-                <i class="fas fa-clock"></i>
+                <i class="fas fa-clock" aria-hidden="true"></i>
             </div>
             <div class="stat-info">
                 <h3>Expired</h3>
-                <p class="stat-number"><?php echo $stats['expired'] ?? 0; ?></p>
+                <p class="stat-number"><?php echo number_format($stats['expired'] ?? 0); ?></p>
             </div>
         </div>
         
         <div class="stat-card">
             <div class="stat-icon revenue">
-                <i class="fas fa-dollar-sign"></i>
+                <i class="fas fa-coins" aria-hidden="true"></i>
             </div>
             <div class="stat-info">
                 <h3>Total Revenue</h3>
@@ -58,44 +58,44 @@ $revenueByMonth = $revenueByMonth ?? [];
         
         <div class="stat-card">
             <div class="stat-icon monthly">
-                <i class="fas fa-calendar-alt"></i>
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
             </div>
             <div class="stat-info">
                 <h3>This Month</h3>
                 <p class="stat-number">UGX <?php echo number_format($stats['monthly_revenue'] ?? 0); ?></p>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="charts-grid">
+    <section class="charts-grid">
         <div class="chart-card">
             <div class="chart-header">
-                <h3><i class="fas fa-chart-line"></i> Revenue Overview (Last 12 Months)</h3>
+                <h3><i class="fas fa-chart-line" aria-hidden="true"></i> Revenue Overview (Last 12 Months)</h3>
             </div>
             <div class="chart-body">
-                <canvas id="revenueChart" style="width:100%; height:300px;"></canvas>
+                <canvas id="revenueChart"></canvas>
             </div>
         </div>
 
         <div class="chart-card">
             <div class="chart-header">
-                <h3><i class="fas fa-pie-chart"></i> Plan Distribution</h3>
+                <h3><i class="fas fa-chart-pie" aria-hidden="true"></i> Plan Distribution</h3>
             </div>
             <div class="chart-body">
-                <canvas id="planChart" style="width:100%; height:300px;"></canvas>
+                <canvas id="planChart"></canvas>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="expiring-section">
+    <section class="expiring-section">
         <h2 class="section-title">
-            <i class="fas fa-exclamation-triangle"></i>
+            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
             Subscriptions Expiring Soon (Next 30 Days)
         </h2>
         
         <?php if (empty($expiring)): ?>
             <div class="empty-message">
-                <i class="fas fa-calendar-check"></i>
+                <i class="fas fa-calendar-check" aria-hidden="true"></i>
                 <p>No subscriptions expiring in the next 30 days</p>
             </div>
         <?php else: ?>
@@ -112,29 +112,30 @@ $revenueByMonth = $revenueByMonth ?? [];
                     </thead>
                     <tbody>
                         <?php foreach ($expiring as $sub): 
-                            $daysLeft = floor((strtotime($sub['end_date']) - time()) / 86400);
+                            $endDateTimestamp = !empty($sub['end_date']) ? strtotime($sub['end_date']) : time();
+                            $daysLeft = (int)floor(($endDateTimestamp - time()) / 86400);
                         ?>
                         <tr>
                             <td>
                                 <div class="user-info">
-                                    <strong><?php echo htmlspecialchars($sub['first_name'] . ' ' . $sub['last_name']); ?></strong>
-                                    <small><?php echo htmlspecialchars($sub['email']); ?></small>
+                                    <strong><?php echo htmlspecialchars(trim(($sub['first_name'] ?? '') . ' ' . ($sub['last_name'] ?? ''))); ?></strong>
+                                    <small><?php echo htmlspecialchars($sub['email'] ?? ''); ?></small>
                                 </div>
                             </td>
                             <td>
-                                <span class="plan-badge <?php echo $sub['plan_type']; ?>">
-                                    <?php echo ucfirst($sub['plan_type']); ?>
+                                <span class="plan-badge <?php echo htmlspecialchars($sub['plan_type'] ?? ''); ?>">
+                                    <?php echo htmlspecialchars(ucfirst($sub['plan_type'] ?? '')); ?>
                                 </span>
                             </td>
-                            <td><?php echo date('M d, Y', strtotime($sub['end_date'])); ?></td>
+                            <td><?php echo date('M d, Y', $endDateTimestamp); ?></td>
                             <td>
                                 <span class="days-badge <?php echo $daysLeft <= 7 ? 'urgent' : ''; ?>">
-                                    <?php echo $daysLeft; ?> days
+                                    <?php echo $daysLeft < 0 ? '0' : $daysLeft; ?> days
                                 </span>
                             </td>
                             <td>
-                                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo $sub['id']; ?>" class="btn-view">
-                                    <i class="fas fa-eye"></i> View
+                                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($sub['id']); ?>" class="btn-view">
+                                    <i class="fas fa-eye" aria-hidden="true"></i> View
                                 </a>
                             </td>
                         </tr>
@@ -143,11 +144,11 @@ $revenueByMonth = $revenueByMonth ?? [];
                 </table>
             </div>
         <?php endif; ?>
-    </div>
+    </section>
 
-    <div class="plan-details-section">
+    <section class="plan-details-section">
         <h2 class="section-title">
-            <i class="fas fa-chart-pie"></i>
+            <i class="fas fa-cubes" aria-hidden="true"></i>
             Plan Distribution Details
         </h2>
         
@@ -156,263 +157,297 @@ $revenueByMonth = $revenueByMonth ?? [];
             $planDistribution = $stats['plan_distribution'] ?? [];
             $planColors = [
                 'monthly' => '#7f2677',
-                'termly' => '#f06724',
-                'yearly' => '#e41d59'
+                'termly'  => '#f06724',
+                'yearly'  => '#e41d59'
             ];
             
-            
             foreach ($planDistribution as $plan): 
-                $color = $planColors[$plan['plan_type']] ?? '#000';
+                $pType = strtolower($plan['plan_type'] ?? '');
+                $color = $planColors[$pType] ?? '#7f2677';
             ?>
             <div class="plan-detail-card">
-                <div class="plan-header" style="background: <?php echo $color; ?>">
-                    <h4><?php echo ucfirst($plan['plan_type']); ?></h4>
+                <div class="plan-header" style="background: <?php echo $color; ?>;">
+                    <h4><?php echo htmlspecialchars(ucfirst($plan['plan_type'] ?? '')); ?></h4>
                 </div>
                 <div class="plan-stats">
                     <div class="plan-stat">
-                        <span class="stat-label">Active Subscribers:</span>
-                        <span class="stat-value"><?php echo $plan['count']; ?></span>
+                        <span class="stat-label">Active Subscribers</span>
+                        <span class="stat-value"><?php echo number_format($plan['count'] ?? 0); ?></span>
                     </div>
                     <div class="plan-stat">
-                        <span class="stat-label">Revenue:</span>
-                        <span class="stat-value">UGX <?php echo number_format($plan['total']); ?></span>
+                        <span class="stat-label">Revenue Generated</span>
+                        <span class="stat-value">UGX <?php echo number_format($plan['total'] ?? 0); ?></span>
                     </div>
                 </div>
             </div>
             <?php endforeach; ?>
         </div>
-    </div>
+    </section>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-const revenueData = <?php echo json_encode(array_reverse($revenueByMonth)); ?>;
+document.addEventListener('DOMContentLoaded', function() {
+    const revenueElement = document.getElementById('revenueChart');
+    if (revenueElement) {
+        const revenueCtx = revenueElement.getContext('2d');
+        const revenueData = <?php echo json_encode(array_reverse($revenueByMonth)); ?>;
 
-new Chart(revenueCtx, {
-    type: 'line',
-    data: {
-        labels: revenueData.map(item => {
-            const [year, month] = item.month.split('-');
-            const date = new Date(year, month - 1);
-            return date.toLocaleString('default', { month: 'short', year: 'numeric' });
-        }),
-        datasets: [{
-            label: 'Revenue (UGX)',
-            data: revenueData.map(item => item.revenue),
-            borderColor: '#7f2677',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return 'UGX ' + value.toLocaleString();
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: revenueData.map(item => {
+                    if (!item.month) return '';
+                    const [year, month] = item.month.split('-');
+                    const date = new Date(year, month - 1);
+                    return date.toLocaleString('default', { month: 'short', year: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'Revenue (UGX)',
+                    data: revenueData.map(item => item.revenue || 0),
+                    borderColor: '#7f2677',
+                    backgroundColor: 'rgba(127, 38, 119, 0.08)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#f06724'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' Revenue: UGX ' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'UGX ' + value.toLocaleString();
+                            }
+                        },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    x: {
+                        grid: { display: false }
                     }
                 }
             }
-        }
+        });
     }
-});
 
-const planCtx = document.getElementById('planChart').getContext('2d');
-const planData = <?php echo json_encode($stats['plan_distribution'] ?? []); ?>;
+    const planElement = document.getElementById('planChart');
+    if (planElement) {
+        const planCtx = planElement.getContext('2d');
+        const planData = <?php echo json_encode($stats['plan_distribution'] ?? []); ?>;
 
-new Chart(planCtx, {
-    type: 'doughnut',
-    data: {
-        labels: planData.map(item => ucfirst(item.plan_type) + ' (' + item.count + ')'),
-        datasets: [{
-            data: planData.map(item => item.count),
-            backgroundColor: ['#7f2677', '#f06724', '#e41d59'],
-            borderWidth: 0
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom'
+        new Chart(planCtx, {
+            type: 'doughnut',
+            data: {
+                labels: planData.map(item => ucfirst(item.plan_type || '') + ' (' + (item.count || 0) + ')'),
+                datasets: [{
+                    data: planData.map(item => item.count || 0),
+                    backgroundColor: ['#7f2677', '#f06724', '#e41d59', '#3B82F6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
             }
-        }
+        });
+    }
+
+    function ucfirst(string) {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
     }
 });
-
-function ucfirst(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
 </script>
 
 <style>
+:root {
+    --primary-purple: #7f2677;
+    --accent-orange: #f06724;
+    --text-dark: #000;
+    --text-muted: #555;
+    --bg-surface: #FFFFFF;
+    --border-color: #E2E8F0;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.05);
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reports-container,
+.reports-container * {
+    box-sizing: border-box;
+}
+
 .reports-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 30px 20px;
+    padding: clamp(16px, 3vw, 32px);
+    color: var(--text-dark);
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: clamp(20px, 3vw, 30px);
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 16px;
 }
 
 .page-title {
-    font-size: 2.2rem;
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
     font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
+    color: var(--primary-purple);
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .page-subtitle {
-    color: #000;
+    color: var(--text-muted);
     font-size: 0.95rem;
+    margin: 0;
 }
 
 .header-actions {
     display: flex;
-    gap: 15px;
+    gap: 12px;
 }
 
 .btn-back, .btn-export {
-    padding: 12px 25px;
-    border-radius: 12px;
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
     text-decoration: none;
     font-weight: 600;
+    font-size: 0.9rem;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.3s ease;
+    transition: var(--transition);
 }
 
 .btn-back {
     background: #F1F5F9;
-    color: #000;
+    color: var(--text-dark);
 }
 
 .btn-export {
-    background: #7f2677;
+    background: var(--primary-purple);
     color: white;
 }
 
 .btn-back:hover, .btn-export:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+}
+
+.stat-icon.active { background: #F0FDF4; color: #10B981; }
+.stat-icon.expired { background: #FEF2F2; color: #EF4444; }
+.stat-icon.revenue { background: #EFF6FF; color: #3B82F6; }
+.stat-icon.monthly { background: #FEF3C7; color: #F59E0B; }
+
+.stat-info h3 {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0 0 4px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-number {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
 
-.stat-card {
-    background: white;
-    border-radius: 16px;
-    padding: 25px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-
-.stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-}
-
-.stat-icon.active {
-    background: #F0FDF4;
-    color: #10B981;
-}
-
-.stat-icon.expired {
-    background: #FEF2F2;
-    color: #EF4444;
-}
-
-.stat-icon.revenue {
-    background: #EFF6FF;
-    color: #3B82F6;
-}
-
-.stat-icon.monthly {
-    background: #FEF3C7;
-    color: #F59E0B;
-}
-
-.stat-info h3 {
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 5px;
-}
-
-.stat-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #000;
-}
-
-/* Charts */
-.charts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    gap: 25px;
-    margin-bottom: 40px;
-}
-
 .chart-card {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .chart-header {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .chart-header h3 {
-    color: #000;
-    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-size: 1rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 8px;
+    margin: 0;
 }
 
 .chart-header h3 i {
-    color: #f06724;
+    color: var(--accent-orange);
 }
 
 .chart-body {
@@ -420,44 +455,55 @@ function ucfirst(string) {
     position: relative;
 }
 
-.expiring-section {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    margin-bottom: 40px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+.expiring-section,
+.plan-details-section {
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .section-title {
-    color: #000;
-    font-size: 1.3rem;
-    margin-bottom: 20px;
+    color: var(--text-dark);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 20px 0;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
 .section-title i {
-    color: #f06724;
+    color: var(--accent-orange);
+}
+
+.table-responsive {
+    overflow-x: auto;
 }
 
 .expiring-table {
     width: 100%;
     border-collapse: collapse;
+    text-align: left;
 }
 
 .expiring-table th {
     background: #F8FAFC;
-    padding: 15px 20px;
-    text-align: left;
+    padding: 14px 18px;
     font-weight: 600;
-    color: #000;
-    border-bottom: 2px solid #E2E8F0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--border-color);
 }
 
 .expiring-table td {
-    padding: 15px 20px;
+    padding: 14px 18px;
     border-bottom: 1px solid #F1F5F9;
+    font-size: 0.9rem;
 }
 
 .expiring-table tr:hover td {
@@ -470,108 +516,95 @@ function ucfirst(string) {
 }
 
 .user-info small {
-    color: #000;
+    color: var(--text-muted);
     font-size: 0.8rem;
-    margin-top: 3px;
+    margin-top: 2px;
 }
 
 .plan-badge {
     display: inline-block;
-    padding: 5px 12px;
+    padding: 4px 10px;
     border-radius: 50px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
-.plan-badge.monthly {
-    background: #EFF6FF;
-    color: #1E40AF;
-}
-
-.plan-badge.termly {
-    background: #FEF3C7;
-    color: #f06724;
-}
-
-.plan-badge.yearly {
-    background: #F0FDF4;
-    color: #7f2677;
-}
+.plan-badge.monthly { background: #EFF6FF; color: #1E40AF; }
+.plan-badge.termly { background: #FEF3C7; color: #92400E; }
+.plan-badge.yearly { background: #F0FDF4; color: #166534; }
 
 .days-badge {
     display: inline-block;
-    padding: 4px 12px;
+    padding: 4px 10px;
     border-radius: 50px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
     background: #F1F5F9;
-    color: #000;
+    color: var(--text-dark);
 }
 
 .days-badge.urgent {
     background: #FEF2F2;
     color: #B91C1C;
-    animation: pulse 2s infinite;
+    animation: alertPulse 2s infinite;
 }
 
 .btn-view {
-    padding: 6px 15px;
+    padding: 6px 14px;
     background: #EFF6FF;
-    color: #2563EB;
+    color: var(--primary-purple);
     text-decoration: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 0.8rem;
     font-weight: 600;
-    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
 }
 
 .btn-view:hover {
-    background: #2563EB;
+    background: var(--accent-orange);
     color: white;
-}
-
-.plan-details-section {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
 }
 
 .plan-details-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
 }
 
 .plan-detail-card {
-    border-radius: 16px;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .plan-header {
-    padding: 20px;
+    padding: 16px;
     text-align: center;
 }
 
 .plan-header h4 {
     color: white;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin: 0;
+    font-weight: 600;
 }
 
 .plan-stats {
-    padding: 20px;
+    padding: 16px;
     background: #F8FAFC;
 }
 
 .plan-stat {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #E2E8F0;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .plan-stat:last-child {
@@ -581,37 +614,33 @@ function ucfirst(string) {
 }
 
 .stat-label {
-    color: #555;
-    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
 }
 
 .stat-value {
     font-weight: 700;
-    color: #000;
+    color: var(--text-dark);
+    font-size: 0.95rem;
 }
 
 .empty-message {
     text-align: center;
-    padding: 50px;
-    color: #000;
+    padding: 40px;
+    color: var(--text-muted);
 }
 
 .empty-message i {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    color: #f06724;
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    color: var(--accent-orange);
+    opacity: 0.8;
 }
 
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.7;
-    }
-    100% {
-        opacity: 1;
-    }
+@keyframes alertPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.65; }
+    100% { opacity: 1; }
 }
 
 @media (max-width: 768px) {
@@ -638,18 +667,7 @@ function ucfirst(string) {
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
-    .expiring-table {
-        font-size: 0.85rem;
-    }
-    
-    .expiring-table th,
-    .expiring-table td {
-        padding: 10px;
-    }
 }
-
-
 </style>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>

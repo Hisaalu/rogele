@@ -3,102 +3,129 @@
 $pageTitle = 'Homework Management | ROGELE';
 require_once __DIR__ . '/../../layouts/admin_header.php';
 
-$homeworks = $homeworks ?? [];
-$teachers = $teachers ?? [];
-$classes = $classes ?? [];
-$totalPages = $totalPages ?? 1;
+$homeworks   = $homeworks ?? [];
+$teachers    = $teachers ?? [];
+$classes     = $classes ?? [];
+$totalPages  = $totalPages ?? 1;
 $currentPage = $_GET['page'] ?? 1;
-$search = $_GET['search'] ?? '';
+$search      = $_GET['search'] ?? '';
 $teacherFilter = $_GET['teacher'] ?? '';
-$statusFilter = $_GET['status'] ?? '';
-$classFilter = $_GET['class_id'] ?? '';
+$statusFilter  = $_GET['status'] ?? '';
+$classFilter   = $_GET['class_id'] ?? '';
 ?>
 
-<div class="admin-lessons-container">
-    <div class="page-header">
-        <h1 class="page-title">
-            <i class="fas fa-tasks"></i>
-            Manage Homework
-        </h1>
-        <p class="page-subtitle">View and moderate all homework assignments across the platform</p>
-    </div>
+<div class="admin-homework-container">
+    <header class="page-header">
+        <div class="header-text">
+            <h1 class="page-title">
+                <i class="fas fa-tasks" aria-hidden="true"></i>
+                <span>Manage Homework</span>
+            </h1>
+            <p class="page-subtitle">View, review, and moderate all homework assignments across the platform</p>
+        </div>
+    </header>
 
-    <div class="filters-section">
-        <form method="GET" class="filters-form">
+    <section class="filters-section">
+        <form method="GET" class="filters-form" id="filterForm">
             <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="Search homework title or description..." value="<?php echo htmlspecialchars($search); ?>">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search homework title or description..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                    aria-label="Search homework"
+                >
             </div>
             
-            <select name="teacher">
-                <option value="">All Teachers</option>
-                <?php foreach ($teachers as $teacher): ?>
-                    <option value="<?php echo $teacher['id']; ?>" <?php echo $teacherFilter == $teacher['id'] ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($teacher['first_name'] . ' ' . $teacher['last_name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <div class="filter-group">
+                <select name="teacher" aria-label="Filter by teacher">
+                    <option value="">All Teachers</option>
+                    <?php foreach ($teachers as $teacher): ?>
+                        <option value="<?php echo htmlspecialchars($teacher['id'] ?? ''); ?>" <?php echo $teacherFilter == ($teacher['id'] ?? '') ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars(explode(' ', trim($teacher['first_name'] ?? ''))[0]); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
-            <select name="class_id">
-                <option value="">All Classes</option>
-                <?php foreach ($classes as $class): ?>
-                    <option value="<?php echo $class['id']; ?>" <?php echo $classFilter == $class['id'] ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($class['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <div class="filter-group">
+                <select name="class_id" aria-label="Filter by class">
+                    <option value="">All Classes</option>
+                    <?php foreach ($classes as $class): ?>
+                        <option value="<?php echo htmlspecialchars($class['id'] ?? ''); ?>" <?php echo $classFilter == ($class['id'] ?? '') ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($class['name'] ?? ''); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             
-            <select name="status">
-                <option value="">All Status</option>
-                <option value="active" <?php echo $statusFilter == 'active' ? 'selected' : ''; ?>>Active</option>
-                <option value="expired" <?php echo $statusFilter == 'expired' ? 'selected' : ''; ?>>Expired</option>
-                <option value="disabled" <?php echo $statusFilter == 'disabled' ? 'selected' : ''; ?>>Disabled</option>
-            </select>
+            <div class="filter-group">
+                <select name="status" aria-label="Filter by status">
+                    <option value="">All Statuses</option>
+                    <option value="active" <?php echo $statusFilter === 'active' ? 'selected' : ''; ?>>Active</option>
+                    <option value="expired" <?php echo $statusFilter === 'expired' ? 'selected' : ''; ?>>Expired</option>
+                    <option value="disabled" <?php echo $statusFilter === 'disabled' ? 'selected' : ''; ?>>Disabled</option>
+                </select>
+            </div>
             
-            <button type="submit" class="btn-filter">Apply Filters</button>
-            <a href="<?php echo BASE_URL; ?>/admin/homework" class="btn-clear">Clear</a>
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">Apply Filters</button>
+                <a href="<?php echo BASE_URL; ?>/admin/homework" class="btn-clear">Reset</a>
+            </div>
         </form>
-    </div>
+    </section>
 
-    <div class="table-card">
+    <main class="table-card">
         <div class="table-responsive">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Title</th>
                         <th>Teacher</th>
                         <th>Class</th>
                         <th>Subject</th>
-                        <th>Submissions</th>
+                        <th class="text-center">Submissions</th>
                         <th>Due Date</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($homeworks)): ?>
                         <tr>
-                            <td colspan="9" class="empty-message">No homework found</td>
+                            <td colspan="8" class="empty-message">
+                                <i class="fas fa-tasks" aria-hidden="true"></i>
+                                <p>No homework found</p>
+                            </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($homeworks as $hw): ?>
                             <?php 
-                                $isExpired = strtotime($hw['due_date']) < time();
-                                $isActive = (bool)$hw['is_active'];
+                                $dueDate   = !empty($hw['due_date']) ? strtotime($hw['due_date']) : 0;
+                                $isExpired = $dueDate < time();
+                                $isActive  = !empty($hw['is_active']);
+                                
+                                $rawName    = $hw['teacher_name'] ?? 'Unknown';
+                                $firstName  = explode(' ', trim($rawName))[0];
                             ?>
                         <tr>
-                            <td><?php echo $hw['id']; ?></td>
-                            <td><strong><?php echo htmlspecialchars($hw['title']); ?></strong></td>
-                            <td><?php echo htmlspecialchars($hw['teacher_name'] ?? 'Unknown'); ?></td>
-                            <td><?php echo htmlspecialchars($hw['class_name'] ?? 'N/A'); ?></td>
-                            <td><?php echo htmlspecialchars($hw['subject_name'] ?? 'N/A'); ?></td>
-                            <td>
-                                <span class="badge-count">
-                                    <i class="fas fa-file-upload"></i> <?php echo $hw['submissions_count']; ?>
+                            <td class="title-cell">
+                                <span class="homework-title">
+                                    <?php echo htmlspecialchars($hw['title'] ?? 'Untitled Homework'); ?>
                                 </span>
                             </td>
-                            <td><?php echo date('M d, Y h:i A', strtotime($hw['due_date'])); ?></td>
+                            <td><?php echo htmlspecialchars($firstName); ?></td>
+                            <td><span class="meta-tag"><?php echo htmlspecialchars($hw['class_name'] ?? 'N/A'); ?></span></td>
+                            <td><span class="meta-tag"><?php echo htmlspecialchars($hw['subject_name'] ?? 'N/A'); ?></span></td>
+                            <td class="text-center">
+                                <span class="count-badge submissions">
+                                    <i class="fas fa-file-upload" aria-hidden="true"></i> <?php echo htmlspecialchars((string)($hw['submissions_count'] ?? 0)); ?>
+                                </span>
+                            </td>
+                            <td class="date-cell">
+                                <?php echo $dueDate ? date('M d, Y h:i A', $dueDate) : 'N/A'; ?>
+                            </td>
                             <td>
                                 <?php if (!$isActive): ?>
                                     <span class="status-badge draft">Disabled</span>
@@ -110,13 +137,13 @@ $classFilter = $_GET['class_id'] ?? '';
                             </td>
                             <td class="actions-cell">
                                 <a href="<?php echo BASE_URL; ?>/admin/homework/view/<?php echo $hw['id']; ?>" class="action-btn view" title="View Submissions & Details">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
                                 </a>
                                 <a href="<?php echo BASE_URL; ?>/admin/homework/toggle-status/<?php echo $hw['id']; ?>" class="action-btn toggle" title="<?php echo $isActive ? 'Disable Homework' : 'Enable Homework'; ?>" onclick="return confirm('Change status for this homework?')">
-                                    <i class="fas <?php echo $isActive ? 'fa-ban' : 'fa-check-circle'; ?>"></i>
+                                    <i class="fas <?php echo $isActive ? 'fa-ban' : 'fa-check-circle'; ?>" aria-hidden="true"></i>
                                 </a>
-                                <a href="<?php echo BASE_URL; ?>/admin/homework/delete/<?php echo $hw['id']; ?>" class="action-btn reject" title="Delete Homework" onclick="return confirm('Are you sure you want to permanently delete this homework and associated files?')">
-                                    <i class="fas fa-trash-alt"></i>
+                                <a href="<?php echo BASE_URL; ?>/admin/homework/delete/<?php echo $hw['id']; ?>" class="action-btn delete" title="Delete Homework" onclick="return confirm('Are you sure you want to permanently delete this homework and associated files?')">
+                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                 </a>
                             </td>
                         </tr>
@@ -126,150 +153,204 @@ $classFilter = $_GET['class_id'] ?? '';
             </table>
         </div>
 
-        <?php if ($totalPages > 1): ?>
-            <div class="pagination">
+        <?php if (!empty($homeworks) && $totalPages > 1): ?>
+            <nav class="pagination" aria-label="Homework pagination">
                 <?php if ($currentPage > 1): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo $teacherFilter; ?>&class_id=<?php echo $classFilter; ?>&status=<?php echo $statusFilter; ?>" class="page-link">
-                        <i class="fas fa-chevron-left"></i>
+                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&class_id=<?php echo urlencode($classFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Previous Page">
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
                     </a>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo $teacherFilter; ?>&class_id=<?php echo $classFilter; ?>&status=<?php echo $statusFilter; ?>" 
-                    class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
+                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&class_id=<?php echo urlencode($classFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" 
+                       class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
                         <?php echo $i; ?>
                     </a>
                 <?php endfor; ?>
 
                 <?php if ($currentPage < $totalPages): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo $teacherFilter; ?>&class_id=<?php echo $classFilter; ?>&status=<?php echo $statusFilter; ?>" class="page-link">
-                        <i class="fas fa-chevron-right"></i>
+                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&class_id=<?php echo urlencode($classFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Next Page">
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
                     </a>
                 <?php endif; ?>
-            </div>
+            </nav>
         <?php endif; ?>
-    </div>
+    </main>
 </div>
 
 <style>
-.admin-lessons-container {
-    padding: 30px 20px;
-    max-width: 1400px;
+:root {
+    --primary-purple: #7f2677;
+    --accent-orange: #f06724;
+    --text-dark: #000;
+    --text-muted: #555;
+    --bg-surface: #FFFFFF;
+    --border-color: #E2E8F0;
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --shadow-sm: 0 4px 12px rgba(0,0,0,0.03);
+    --shadow-md: 0 10px 30px rgba(0,0,0,0.05);
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-homework-container, 
+.admin-homework-container * {
+    box-sizing: border-box;
+}
+
+.admin-homework-container {
+    width: 100%;
+    max-width: 100%;
     margin: 0 auto;
+    padding: clamp(16px, 3vw, 32px);
 }
 
 .page-header {
-    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: clamp(20px, 3vw, 30px);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.header-text {
+    flex: 0 1 auto;
 }
 
 .page-title {
-    font-size: 2rem;
+    font-size: clamp(1.4rem, 3.5vw, 2.2rem);
     font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
+    color: var(--primary-purple);
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .page-subtitle {
-    color: #555;
-    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
+    margin: 0;
 }
 
 .filters-section {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    padding: clamp(14px, 2.5vw, 20px);
+    margin-bottom: clamp(20px, 3vw, 25px);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
 }
 
 .filters-form {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     flex-wrap: wrap;
     align-items: center;
 }
 
 .search-box {
-    flex: 2;
-    min-width: 250px;
+    flex: 1 1 240px;
     position: relative;
 }
 
 .search-box i {
     position: absolute;
-    left: 15px;
+    left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94A3B8;
+    color: var(--text-muted);
 }
 
 .search-box input {
     width: 100%;
-    padding: 12px 15px 12px 45px;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    font-size: 0.95rem;
+    padding: 10px 14px 10px 40px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    transition: var(--transition);
 }
 
 .search-box input:focus {
     outline: none;
-    border-color: #f06724;
-    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(240, 103, 36, 0.15);
+}
+
+.filter-group {
+    flex: 0 1 160px;
 }
 
 .filters-form select {
-    padding: 12px 20px;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    min-width: 150px;
-    background: white;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    background: var(--bg-surface);
+    cursor: pointer;
+    transition: var(--transition);
 }
 
 .filters-form select:focus {
     outline: none;
-    border-color: #f06724;
-    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(240, 103, 36, 0.15);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-filter, .btn-clear {
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
 }
 
 .btn-filter {
-    padding: 12px 25px;
-    background: #7f2677;
+    background: var(--primary-purple);
     color: white;
     border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
 }
 
 .btn-filter:hover {
-    background: #f06724;
+    background: var(--accent-orange);
 }
 
 .btn-clear {
-    padding: 12px 25px;
-    background: #7f2677;
-    color: white;
-    border-radius: 8px;
-    font-weight: 600;
-    text-decoration: none;
+    background: #F1F5F9;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
 }
 
 .btn-clear:hover {
-    background: #f06724;
+    background: #E2E8F0;
 }
 
 .table-card {
-    background: white;
-    border-radius: 12px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .table-responsive {
+    width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
@@ -279,144 +360,189 @@ $classFilter = $_GET['class_id'] ?? '';
 
 .data-table th {
     background: #F8FAFC;
-    color: #000;
+    color: var(--text-dark);
     font-weight: 600;
-    font-size: 0.9rem;
-    padding: 15px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 18px;
     text-align: left;
-    border-bottom: 2px solid #E2E8F0;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.data-table th.text-center,
+.data-table td.text-center {
+    text-align: center;
+}
+
+.data-table th.text-right {
+    text-align: right;
 }
 
 .data-table td {
-    padding: 12px 15px;
+    padding: 14px 18px;
     border-bottom: 1px solid #F1F5F9;
-    color: #000;
+    color: var(--text-dark);
+    vertical-align: middle;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .data-table tr:hover td {
     background: #F8FAFC;
 }
 
-.badge-count {
-    background: #F1F5F9;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.85rem;
+.title-cell {
+    min-width: 200px;
+}
+
+.homework-title {
     font-weight: 600;
-    color: #475569;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    display: inline-block;
+}
+
+.meta-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: #F1F5F9;
+    font-size: 0.8rem;
+    color: var(--text-dark);
+    white-space: nowrap;
+}
+
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.825rem;
+}
+
+.count-badge.submissions {
+    background: #EFF6FF;
+    color: var(--primary-purple);
+}
+
+.date-cell {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
 }
 
 .status-badge {
     display: inline-block;
     padding: 4px 10px;
-    border-radius: 30px;
-    font-size: 0.8rem;
+    border-radius: 50px;
+    font-size: 0.775rem;
     font-weight: 600;
+    white-space: nowrap;
 }
 
-.status-badge.published {
-    background: #F0FDF4;
-    color: #166534;
-}
-
-.status-badge.draft {
-    background: #F1F5F9;
-    color: #555;
-}
-
-.status-badge.pending {
-    background: #FEF3C7;
-    color: #92400E;
-}
+.status-badge.published { background: #F0FDF4; color: #166534; }
+.status-badge.draft { background: #F1F5F9; color: var(--text-muted); }
+.status-badge.pending { background: #FEF3C7; color: #92400E; }
 
 .actions-cell {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    justify-content: flex-end;
+    align-items: center;
 }
 
 .action-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: var(--transition);
+    font-size: 0.875rem;
 }
 
-.action-btn.view {
-    background: #EFF6FF;
-    color: #7f2677;
-}
+.action-btn.view { background: #EFF6FF; color: var(--primary-purple); }
+.action-btn.view:hover { background: var(--accent-orange); color: white; transform: translateY(-2px); }
 
-.action-btn.view:hover {
-    background: #f06724;
-    color: white;
-}
+.action-btn.toggle { background: #FEF3C7; color: #D97706; }
+.action-btn.toggle:hover { background: #D97706; color: white; transform: translateY(-2px); }
 
-.action-btn.toggle {
-    background: #FEF3C7;
-    color: #D97706;
-}
-
-.action-btn.toggle:hover {
-    background: #D97706;
-    color: white;
-}
-
-.action-btn.reject {
-    background: #FEF2F2;
-    color: #DC2626;
-}
-
-.action-btn.reject:hover {
-    background: #DC2626;
-    color: white;
-}
+.action-btn.delete { background: #FEF2F2; color: #DC2626; }
+.action-btn.delete:hover { background: #DC2626; color: white; transform: translateY(-2px); }
 
 .empty-message {
     text-align: center;
-    padding: 40px !important;
-    color: #555;
+    padding: 48px 20px !important;
+    color: var(--text-muted);
+}
+
+.empty-message i {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
+.empty-message p {
+    font-size: 0.9rem;
+    margin: 0;
 }
 
 .pagination {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    padding: 20px;
-    border-top: 1px solid #E2E8F0;
+    gap: 6px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
 }
 
 .page-link {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
+    border-radius: 8px;
     text-decoration: none;
-    color: #000;
-    border: 1px solid #E2E8F0;
+    color: var(--text-dark);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.page-link:hover {
+    background: #F1F5F9;
 }
 
 .page-link.active {
-    background: #7f2677;
+    background: var(--primary-purple);
     color: white;
-    border-color: #7f2677;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 576px) {
     .filters-form {
         flex-direction: column;
+        align-items: stretch;
     }
-    
-    .search-box,
-    .filters-form select,
-    .btn-filter,
-    .btn-clear {
+
+    .search-box, .filter-group {
+        flex: 1 1 100%;
+    }
+
+    .filter-actions {
         width: 100%;
+    }
+
+    .btn-filter, .btn-clear {
+        flex: 1;
+        text-align: center;
     }
 }
 </style>

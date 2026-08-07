@@ -3,99 +3,108 @@
 $pageTitle = 'Subscriptions | ROGELE';
 require_once __DIR__ . '/../../layouts/admin_header.php';
 
-$page = $_GET['page'] ?? 1;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $status = $_GET['status'] ?? '';
 $planType = $_GET['plan_type'] ?? '';
 $search = $_GET['search'] ?? '';
 $dateFrom = $_GET['date_from'] ?? '';
 $dateTo = $_GET['date_to'] ?? '';
+$queryParams = array_filter([
+    'status' => $status,
+    'plan_type' => $planType,
+    'search' => $search,
+    'date_from' => $dateFrom,
+    'date_to' => $dateTo,
+]);
+$queryString = http_build_query($queryParams);
+$exportUrl = BASE_URL . '/admin/subscriptions/export' . ($queryString ? '?' . $queryString : '');
 ?>
 
 <div class="subscriptions-container">
-    <div class="page-header">
+    <header class="page-header">
         <div>
             <h1 class="page-title">
-                <i class="fas fa-credit-card"></i>
+                <i class="fas fa-credit-card" aria-hidden="true"></i>
                 Manage Subscriptions
             </h1>
             <p class="page-subtitle">View and manage all user subscriptions on the platform</p>
         </div>
         <div class="header-actions">
-            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/export?status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" class="btn-export">
-                <i class="fas fa-download"></i>
+            <a href="<?php echo htmlspecialchars($exportUrl); ?>" class="btn-export">
+                <i class="fas fa-download" aria-hidden="true"></i>
                 Export CSV
             </a>
             <a href="<?php echo BASE_URL; ?>/admin/subscriptions/reports" class="btn-reports">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-chart-bar" aria-hidden="true"></i>
                 View Reports
             </a>
         </div>
-    </div>
+    </header>
 
     <?php if (!empty($stats)): ?>
-    <div class="stats-grid">
+    <section class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon active">
-                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
             </div>
             <div class="stat-info">
                 <h3>Active</h3>
-                <p class="stat-number"><?php echo $stats['active']; ?></p>
+                <p class="stat-number"><?php echo number_format($stats['active'] ?? 0); ?></p>
             </div>
         </div>
         
         <div class="stat-card">
             <div class="stat-icon expired">
-                <i class="fas fa-clock"></i>
+                <i class="fas fa-clock" aria-hidden="true"></i>
             </div>
             <div class="stat-info">
                 <h3>Expired</h3>
-                <p class="stat-number"><?php echo $stats['expired']; ?></p>
+                <p class="stat-number"><?php echo number_format($stats['expired'] ?? 0); ?></p>
             </div>
         </div>
         
         <div class="stat-card">
             <div class="stat-icon pending">
-                <i class="fas fa-hourglass-half"></i>
+                <i class="fas fa-hourglass-half" aria-hidden="true"></i>
             </div>
             <div class="stat-info">
                 <h3>Pending</h3>
-                <p class="stat-number"><?php echo $stats['pending']; ?></p>
+                <p class="stat-number"><?php echo number_format($stats['pending'] ?? 0); ?></p>
             </div>
         </div>
         
         <div class="stat-card">
             <div class="stat-icon revenue">
-                <i class="fas fa-dollar-sign"></i>
+                <i class="fas fa-coins" aria-hidden="true"></i>
             </div>
             <div class="stat-info">
                 <h3>Revenue</h3>
-                <p class="stat-number">UGX <?php echo number_format($stats['total_revenue']); ?></p>
+                <p class="stat-number">UGX <?php echo number_format($stats['total_revenue'] ?? 0); ?></p>
             </div>
         </div>
-    </div>
+    </section>
     <?php endif; ?>
 
     <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        <div class="alert alert-success" role="status">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
         </div>
     <?php endif; ?>
     
     <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        <div class="alert alert-error" role="alert">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
         </div>
     <?php endif; ?>
 
-    <div class="filters-card">
-        <form method="GET" class="filters-form">
+    <section class="filters-card">
+        <form method="GET" action="<?php echo BASE_URL; ?>/admin/subscriptions" class="filters-form">
             <div class="search-box">
-                <i class="fas fa-search"></i>
+                <i class="fas fa-search" aria-hidden="true"></i>
                 <input 
                     type="text" 
                     name="search" 
@@ -105,7 +114,7 @@ $dateTo = $_GET['date_to'] ?? '';
             </div>
             
             <div class="filter-group">
-                <select name="status">
+                <select name="status" aria-label="Filter by Status">
                     <option value="">All Status</option>
                     <option value="active" <?php echo $status === 'active' ? 'selected' : ''; ?>>Active</option>
                     <option value="expired" <?php echo $status === 'expired' ? 'selected' : ''; ?>>Expired</option>
@@ -115,7 +124,7 @@ $dateTo = $_GET['date_to'] ?? '';
             </div>
             
             <div class="filter-group">
-                <select name="plan_type">
+                <select name="plan_type" aria-label="Filter by Plan Type">
                     <option value="">All Plans</option>
                     <option value="monthly" <?php echo $planType === 'monthly' ? 'selected' : ''; ?>>Monthly</option>
                     <option value="termly" <?php echo $planType === 'termly' ? 'selected' : ''; ?>>Termly</option>
@@ -124,22 +133,23 @@ $dateTo = $_GET['date_to'] ?? '';
             </div>
             
             <div class="filter-group date-range">
-                <input type="date" name="date_from" placeholder="From" value="<?php echo htmlspecialchars($dateFrom); ?>">
+                <input type="date" name="date_from" aria-label="From Date" value="<?php echo htmlspecialchars($dateFrom); ?>">
                 <span>to</span>
-                <input type="date" name="date_to" placeholder="To" value="<?php echo htmlspecialchars($dateTo); ?>">
+                <input type="date" name="date_to" aria-label="To Date" value="<?php echo htmlspecialchars($dateTo); ?>">
             </div>
             
-            <button type="submit" class="btn-filter">Apply Filters</button>
-            <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="btn-reset">Reset</a>
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">Apply Filters</button>
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="btn-reset">Reset</a>
+            </div>
         </form>
-    </div>
+    </section>
 
-    <div class="table-card">
+    <main class="table-card">
         <div class="table-responsive">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>User</th>
                         <th>Plan</th>
                         <th>Amount</th>
@@ -153,51 +163,53 @@ $dateTo = $_GET['date_to'] ?? '';
                     <?php if (empty($subscriptions)): ?>
                         <tr>
                             <td colspan="8" class="empty-message">
-                                <i class="fas fa-credit-card"></i>
+                                <i class="fas fa-credit-card" aria-hidden="true"></i>
                                 <p>No subscriptions found</p>
                             </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($subscriptions as $sub): ?>
                         <tr>
-                            <td><span class="subscription-id">#<?php echo $sub['id']; ?></span></td>
                             <td class="user-cell">
                                 <div class="user-info">
-                                    <div class="user-name"><?php echo htmlspecialchars($sub['first_name'] . ' ' . $sub['last_name']); ?></div>
-                                    <div class="user-email"><?php echo htmlspecialchars($sub['email']); ?></div>
+                                    <div class="user-name"><?php echo htmlspecialchars(trim(($sub['first_name'] ?? '') . ' ' . ($sub['last_name'] ?? ''))); ?></div>
+                                    <div class="user-email"><?php echo htmlspecialchars($sub['email'] ?? ''); ?></div>
                                 </div>
                             </td>
                             <td>
-                                <span class="plan-badge <?php echo $sub['plan_type']; ?>">
-                                    <?php echo ucfirst($sub['plan_type']); ?>
-                                    <?php if ($sub['is_upgrade']): ?>
-                                        <i class="fas fa-arrow-up" title="Upgraded"></i>
+                                <span class="plan-badge <?php echo htmlspecialchars($sub['plan_type'] ?? ''); ?>">
+                                    <?php echo htmlspecialchars(ucfirst($sub['plan_type'] ?? '')); ?>
+                                    <?php if (!empty($sub['is_upgrade'])): ?>
+                                        <i class="fas fa-arrow-up" title="Upgraded" aria-hidden="true"></i>
                                     <?php endif; ?>
                                 </span>
                             </td>
-                            <td class="amount-cell">UGX <?php echo number_format($sub['amount']); ?></td>
-                            <td><?php echo date('M d, Y', strtotime($sub['start_date'])); ?></td>
+                            <td class="amount-cell">UGX <?php echo number_format($sub['amount'] ?? 0); ?></td>
+                            <td><?php echo !empty($sub['start_date']) ? date('M d, Y', strtotime($sub['start_date'])) : '—'; ?></td>
                             <td>
-                                <span class="end-date <?php echo strtotime($sub['end_date']) < time() ? 'expired' : ''; ?>">
-                                    <?php echo date('M d, Y', strtotime($sub['end_date'])); ?>
+                                <?php 
+                                $isExpired = !empty($sub['end_date']) && strtotime($sub['end_date']) < time();
+                                ?>
+                                <span class="end-date <?php echo $isExpired ? 'expired' : ''; ?>">
+                                    <?php echo !empty($sub['end_date']) ? date('M d, Y', strtotime($sub['end_date'])) : '—'; ?>
                                 </span>
                             </td>
                             <td>
-                                <span class="status-badge <?php echo $sub['status']; ?>">
-                                    <?php echo ucfirst($sub['status']); ?>
+                                <span class="status-badge <?php echo htmlspecialchars($sub['status'] ?? ''); ?>">
+                                    <?php echo htmlspecialchars(ucfirst($sub['status'] ?? '')); ?>
                                 </span>
                             </td>
                             <td class="actions-cell">
-                                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo $sub['id']; ?>" class="action-btn view" title="View Details">
-                                    <i class="fas fa-eye"></i>
+                                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($sub['id']); ?>" class="action-btn view" title="View Details">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
                                 </a>
                                 
-                                <?php if ($sub['status'] === 'active'): ?>
-                                    <a href="<?php echo BASE_URL; ?>/admin/subscriptions/cancel/<?php echo $sub['id']; ?>" 
+                                <?php if (($sub['status'] ?? '') === 'active'): ?>
+                                    <a href="<?php echo BASE_URL; ?>/admin/subscriptions/cancel/<?php echo urlencode($sub['id']); ?>" 
                                        class="action-btn cancel" 
                                        title="Cancel Subscription"
                                        onclick="return confirm('Are you sure you want to cancel this subscription?')">
-                                        <i class="fas fa-ban"></i>
+                                        <i class="fas fa-ban" aria-hidden="true"></i>
                                     </a>
                                 <?php endif; ?>
                             </td>
@@ -208,278 +220,284 @@ $dateTo = $_GET['date_to'] ?? '';
             </table>
         </div>
 
-        <?php if (!empty($subscriptions) && $totalPages > 1): ?>
-        <div class="pagination">
+        <?php if (!empty($subscriptions) && isset($totalPages) && $totalPages > 1): ?>
+        <nav class="pagination" aria-label="Subscription Pagination">
             <?php if ($page > 1): ?>
-                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?page=<?php echo $page - 1; ?>&status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" class="page-link">
-                    <i class="fas fa-chevron-left"></i>
+                <?php $prevParams = array_merge($queryParams, ['page' => $page - 1]); ?>
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?<?php echo http_build_query($prevParams); ?>" class="page-link" aria-label="Previous Page">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
                 </a>
             <?php endif; ?>
 
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?page=<?php echo $i; ?>&status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" 
-                   class="page-link <?php echo $i == $page ? 'active' : ''; ?>">
+                <?php $pageParams = array_merge($queryParams, ['page' => $i]); ?>
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?<?php echo http_build_query($pageParams); ?>" 
+                   class="page-link <?php echo $i === $page ? 'active' : ''; ?>">
                     <?php echo $i; ?>
                 </a>
             <?php endfor; ?>
 
             <?php if ($page < $totalPages): ?>
-                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?page=<?php echo $page + 1; ?>&status=<?php echo urlencode($status); ?>&plan_type=<?php echo urlencode($planType); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($dateFrom); ?>&date_to=<?php echo urlencode($dateTo); ?>" class="page-link">
-                    <i class="fas fa-chevron-right"></i>
+                <?php $nextParams = array_merge($queryParams, ['page' => $page + 1]); ?>
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?<?php echo http_build_query($nextParams); ?>" class="page-link" aria-label="Next Page">
+                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
                 </a>
             <?php endif; ?>
-        </div>
+        </nav>
         <?php endif; ?>
-    </div>
+    </main>
 </div>
 
 <style>
+:root {
+    --primary-purple: #7f2677;
+    --accent-orange: #f06724;
+    --text-dark: #000;
+    --text-muted: #555;
+    --bg-surface: #FFFFFF;
+    --border-color: #E2E8F0;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.05);
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.subscriptions-container,
+.subscriptions-container * {
+    box-sizing: border-box;
+}
+
 .subscriptions-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 30px 20px;
+    padding: clamp(16px, 3vw, 32px);
+    color: var(--text-dark);
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: clamp(20px, 3vw, 30px);
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 16px;
 }
 
 .page-title {
-    font-size: 2.2rem;
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
     font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
+    color: var(--primary-purple);
+    margin: 0 0 6px 0;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
 .page-subtitle {
-    color: #000;
+    color: var(--text-muted);
     font-size: 0.95rem;
+    margin: 0;
 }
 
 .header-actions {
     display: flex;
-    gap: 15px;
+    gap: 12px;
 }
 
 .btn-export, .btn-reports {
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
     text-decoration: none;
     font-weight: 600;
+    font-size: 0.9rem;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.3s ease;
+    transition: var(--transition);
 }
 
 .btn-export {
-    background: #f06724;
+    background: var(--accent-orange);
     color: white;
 }
 
 .btn-reports {
-    background: #7f2677;
+    background: var(--primary-purple);
     color: white;
 }
 
 .btn-export:hover, .btn-reports:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
 }
 
 .stat-card {
-    background: white;
-    border-radius: 16px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
     padding: 20px;
     display: flex;
     align-items: center;
-    gap: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+    gap: 16px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
 }
 
 .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .stat-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.35rem;
+    flex-shrink: 0;
 }
 
-.stat-icon.active {
-    background: #F0FDF4;
-    color: #10B981;
-}
-
-.stat-icon.expired {
-    background: #FEF2F2;
-    color: #EF4444;
-}
-
-.stat-icon.pending {
-    background: #FEF3C7;
-    color: #F59E0B;
-}
-
-.stat-icon.revenue {
-    background: #EFF6FF;
-    color: #3B82F6;
-}
+.stat-icon.active { background: #F0FDF4; color: #10B981; }
+.stat-icon.expired { background: #FEF2F2; color: #EF4444; }
+.stat-icon.pending { background: #FEF3C7; color: #F59E0B; }
+.stat-icon.revenue { background: #EFF6FF; color: #3B82F6; }
 
 .stat-info h3 {
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 5px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0 0 4px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stat-number {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    color: #000;
+    color: var(--text-dark);
+    margin: 0;
 }
 
 .filters-card {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .filters-form {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     flex-wrap: wrap;
     align-items: center;
 }
 
 .search-box {
     flex: 2;
-    min-width: 250px;
+    min-width: 260px;
     position: relative;
 }
 
 .search-box i {
     position: absolute;
-    left: 15px;
+    left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: #555;
+    color: var(--text-muted);
 }
 
 .search-box input {
     width: 100%;
-    padding: 12px 15px 12px 45px;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
+    padding: 10px 14px 10px 40px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    transition: var(--transition);
 }
 
-.search-box input:focus {
+.search-box input:focus,
+.filter-group select:focus,
+.filter-group input:focus {
     outline: none;
-    border-color: #f06724;
-    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
-}
-
-.search-box select:focus {
-    outline: none;
-    border-color: #f06724;
-    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 0 3px rgba(127, 38, 119, 0.15);
 }
 
 .filter-group select,
 .filter-group input[type="date"] {
-    padding: 12px 20px;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    background: white;
-    min-width: 150px;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    background: var(--bg-surface);
+    color: var(--text-dark);
     cursor: pointer;
-}
-
-.filter-group input[type="date"]:focus {
-    outline: none;
-    border-color: #f06724;
-    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
-}
-
-.filter-group select:focus {
-    outline: none;
-    border-color: #f06724;
-    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
 }
 
 .filter-group.date-range {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .filter-group.date-range span {
-    color: #555;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 8px;
 }
 
 .btn-filter {
-    background: #7f2677;
+    background: var(--primary-purple);
     color: white;
     border: none;
-    padding: 12px 25px;
-    border-radius: 12px;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
     font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition);
 }
 
 .btn-filter:hover {
-    background: #f06724;
-    transform: translateY(-2px);
+    background: var(--accent-orange);
 }
 
 .btn-reset {
-    color: white;
-    background: #7f2677;
+    color: var(--text-muted);
+    background: #F1F5F9;
     text-decoration: none;
-    padding: 12px 20px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition);
 }
 
 .btn-reset:hover {
-    background: #f06724;
-    color: white;
+    background: #E2E8F0;
+    color: var(--text-dark);
 }
 
 .table-card {
-    background: white;
-    border-radius: 20px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .table-responsive {
@@ -489,23 +507,24 @@ $dateTo = $_GET['date_to'] ?? '';
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    text-align: left;
 }
 
 .data-table th {
     background: #F8FAFC;
-    color: #000;
+    color: var(--text-dark);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 16px 20px;
-    text-align: left;
-    border-bottom: 2px solid #E2E8F0;
+    padding: 14px 18px;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .data-table td {
-    padding: 16px 20px;
+    padding: 14px 18px;
     border-bottom: 1px solid #F1F5F9;
-    color: #000;
+    font-size: 0.9rem;
 }
 
 .data-table tr:hover td {
@@ -515,7 +534,7 @@ $dateTo = $_GET['date_to'] ?? '';
 .subscription-id {
     font-family: monospace;
     font-weight: 600;
-    color: #8B5CF6;
+    color: var(--primary-purple);
 }
 
 .user-cell .user-info {
@@ -525,42 +544,26 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .user-name {
     font-weight: 600;
-    margin-bottom: 3px;
 }
 
 .user-email {
     font-size: 0.8rem;
-    color: #555;
+    color: var(--text-muted);
 }
 
 .plan-badge {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 5px 12px;
+    gap: 6px;
+    padding: 4px 10px;
     border-radius: 50px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
-.plan-badge.monthly {
-    background: #EFF6FF;
-    color: #1E40AF;
-}
-
-.plan-badge.termly {
-    background: #FEF3C7;
-    color: #92400E;
-}
-
-.plan-badge.yearly {
-    background: #F0FDF4;
-    color: #166534;
-}
-
-.plan-badge i {
-    font-size: 0.7rem;
-}
+.plan-badge.monthly { background: #EFF6FF; color: #1E40AF; }
+.plan-badge.termly { background: #FEF3C7; color: #92400E; }
+.plan-badge.yearly { background: #F0FDF4; color: #166534; }
 
 .amount-cell {
     font-weight: 600;
@@ -574,98 +577,71 @@ $dateTo = $_GET['date_to'] ?? '';
 
 .status-badge {
     display: inline-block;
-    padding: 5px 12px;
+    padding: 4px 10px;
     border-radius: 50px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
-.status-badge.active {
-    background: #F0FDF4;
-    color: #166534;
-}
-
-.status-badge.expired {
-    background: #FEF2F2;
-    color: #B91C1C;
-}
-
-.status-badge.pending {
-    background: #FEF3C7;
-    color: #92400E;
-}
-
-.status-badge.cancelled {
-    background: #F1F5F9;
-    color: #555;
-}
+.status-badge.active { background: #F0FDF4; color: #166534; }
+.status-badge.expired { background: #FEF2F2; color: #B91C1C; }
+.status-badge.pending { background: #FEF3C7; color: #92400E; }
+.status-badge.cancelled { background: #F1F5F9; color: var(--text-muted); }
 
 .actions-cell {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 .action-btn {
-    width: 35px;
-    height: 35px;
-    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: var(--transition);
 }
 
-.action-btn.view {
-    background: #EFF6FF;
-    color: #7f2677;
-}
+.action-btn.view { background: #EFF6FF; color: var(--primary-purple); }
+.action-btn.view:hover { background: var(--accent-orange); color: white; }
 
-.action-btn.view:hover {
-    background: #f06724;
-    color: white;
-}
-
-.action-btn.cancel {
-    background: #FEF2F2;
-    color: #DC2626;
-}
-
-.action-btn.cancel:hover {
-    background: #DC2626;
-    color: white;
-}
+.action-btn.cancel { background: #FEF2F2; color: #DC2626; }
+.action-btn.cancel:hover { background: #DC2626; color: white; }
 
 .empty-message {
     text-align: center;
-    padding: 60px !important;
-    color: #555;
+    padding: 48px !important;
+    color: var(--text-muted);
 }
 
 .empty-message i {
-    font-size: 3rem;
-    margin-bottom: 15px;
+    font-size: 2.5rem;
+    margin-bottom: 12px;
     opacity: 0.5;
 }
 
 .pagination {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    padding: 20px;
-    border-top: 1px solid #E2E8F0;
+    gap: 6px;
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
 }
 
 .page-link {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     text-decoration: none;
-    color: #000;
-    transition: all 0.3s ease;
+    color: var(--text-dark);
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: var(--transition);
 }
 
 .page-link:hover {
@@ -673,53 +649,32 @@ $dateTo = $_GET['date_to'] ?? '';
 }
 
 .page-link.active {
-    background: #8B5CF6;
+    background: var(--primary-purple);
     color: white;
 }
 
 .alert {
-    padding: 16px 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
-    gap: 15px;
-    animation: slideDown 0.3s ease;
+    gap: 12px;
     position: relative;
+    font-size: 0.9rem;
 }
 
-.alert-success {
-    background: #F0FDF4;
-    color: #166534;
-    border: 1px solid #BBF7D0;
-}
-
-.alert-error {
-    background: #FEF2F2;
-    color: #B91C1C;
-    border: 1px solid #FECACA;
-}
+.alert-success { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+.alert-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
 
 .alert-close {
     background: none;
     border: none;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     cursor: pointer;
     color: currentColor;
     opacity: 0.7;
     margin-left: auto;
-    padding: 0 5px;
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
 }
 
 @media (max-width: 768px) {
@@ -733,8 +688,13 @@ $dateTo = $_GET['date_to'] ?? '';
         align-items: stretch;
     }
     
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .filter-actions {
+        width: 100%;
+    }
+    
+    .btn-filter, .btn-reset {
+        flex: 1;
+        text-align: center;
     }
 }
 
@@ -747,10 +707,6 @@ $dateTo = $_GET['date_to'] ?? '';
     .header-actions {
         width: 100%;
         flex-direction: column;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
     }
 }
 </style>

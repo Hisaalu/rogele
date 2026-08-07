@@ -3,19 +3,21 @@
 $pageTitle = 'Reports | ROGELE';
 require_once __DIR__ . '/../layouts/admin_header.php';
 
-$type = $_GET['type'] ?? 'overview';
-$start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
-$end_date = $_GET['end_date'] ?? date('Y-m-d');
-$days = $_GET['days'] ?? 30;
+$type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_SPECIAL_CHARS) ?? 'overview';
+$start_date = filter_input(INPUT_GET, 'start_date', FILTER_SANITIZE_SPECIAL_CHARS) ?? date('Y-m-d', strtotime('-30 days'));
+$end_date = filter_input(INPUT_GET, 'end_date', FILTER_SANITIZE_SPECIAL_CHARS) ?? date('Y-m-d');
+$days = filter_input(INPUT_GET, 'days', FILTER_VALIDATE_INT) ?: 30;
 
-$totalUsers = $totalUsers ?? 0;
-$totalTeachers = $totalTeachers ?? 0;
-$totalLearners = $totalLearners ?? 0;
-$totalExternal = $totalExternal ?? 0;
+$totalUsers = (int)($totalUsers ?? 0);
+$totalTeachers = (int)($totalTeachers ?? 0);
+$totalLearners = (int)($totalLearners ?? 0);
+$totalExternal = (int)($totalExternal ?? 0);
 $recentUsers = $recentUsers ?? [];
 $recentActivity = $recentActivity ?? [];
 $userGrowthData = $userGrowthData ?? [];
 $revenueData = $revenueData ?? [];
+$data = $data ?? [];
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -85,9 +87,7 @@ $revenueData = $revenueData ?? [];
     font-size: 0.9rem;
 }
 
-.date-range-indicator i {
-    color: var(--primary-orange);
-}
+.date-range-indicator i { color: var(--primary-orange); }
 
 .btn-refresh {
     width: 45px;
@@ -180,15 +180,6 @@ $revenueData = $revenueData ?? [];
     line-height: 1.2;
     margin-bottom: 3px;
 }
-
-.stat-trend {
-    font-size: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-}
-
-.stat-trend.positive { color: var(--success-green); }
 
 .charts-grid {
     display: grid;
@@ -364,14 +355,10 @@ $revenueData = $revenueData ?? [];
     text-align: center;
 }
 
-.stat-mini.highlight {  
-    background-color: var(--primary-orange);
-}
+.stat-mini.highlight { background-color: var(--primary-orange); }
 
 .stat-mini.highlight .stat-mini-label,
-.stat-mini.highlight .stat-mini-value {
-    color: white;
-}
+.stat-mini.highlight .stat-mini-value { color: white; }
 
 .stat-mini-label {
     display: block;
@@ -411,14 +398,6 @@ $revenueData = $revenueData ?? [];
     padding: 12px 10px;
     text-align: left;
     border-bottom: 2px solid var(--border-color);
-}
-
-.table-subhead th {
-    background: var(--bg-light);
-    color: var(--text-light);
-    font-weight: 400;
-    font-size: 0.7rem;
-    padding: 4px 10px 8px;
 }
 
 .data-table td {
@@ -496,7 +475,7 @@ $revenueData = $revenueData ?? [];
         <div class="header-actions">
             <div class="date-range-indicator">
                 <i class="fas fa-calendar-check"></i>
-                <span><?php echo date('M d, Y', strtotime($start_date)); ?> - <?php echo date('M d, Y', strtotime($end_date)); ?></span>
+                <span><?= date('M d, Y', strtotime($start_date)); ?> - <?= date('M d, Y', strtotime($end_date)); ?></span>
             </div>
             <button class="btn-refresh" onclick="location.reload()" title="Refresh Data">
                 <i class="fas fa-sync-alt"></i>
@@ -509,28 +488,28 @@ $revenueData = $revenueData ?? [];
             <div class="stat-icon"><i class="fas fa-users"></i></div>
             <div class="stat-content">
                 <span class="stat-label">Total Users</span>
-                <span class="stat-value"><?php echo number_format($totalUsers); ?></span>
+                <span class="stat-value"><?= number_format($totalUsers); ?></span>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
             <div class="stat-content">
                 <span class="stat-label">Teachers</span>
-                <span class="stat-value"><?php echo number_format($totalTeachers); ?></span>
+                <span class="stat-value"><?= number_format($totalTeachers); ?></span>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
             <div class="stat-content">
                 <span class="stat-label">Learners</span>
-                <span class="stat-value"><?php echo number_format($totalLearners); ?></span>
+                <span class="stat-value"><?= number_format($totalLearners); ?></span>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-globe"></i></div>
             <div class="stat-content">
                 <span class="stat-label">External</span>
-                <span class="stat-value"><?php echo number_format($totalExternal); ?></span>
+                <span class="stat-value"><?= number_format($totalExternal); ?></span>
             </div>
         </div>
     </div>
@@ -542,9 +521,9 @@ $revenueData = $revenueData ?? [];
                     <div class="chart-header">
                         <div class="chart-title"><i class="fas fa-chart-line"></i><h3>User Growth</h3></div>
                         <select class="chart-select" onchange="updateChartDays(this.value)">
-                            <option value="7" <?php echo $days == 7 ? 'selected' : ''; ?>>7 days</option>
-                            <option value="30" <?php echo $days == 30 ? 'selected' : ''; ?>>30 days</option>
-                            <option value="90" <?php echo $days == 90 ? 'selected' : ''; ?>>90 days</option>
+                            <option value="7" <?= $days === 7 ? 'selected' : ''; ?>>7 days</option>
+                            <option value="30" <?= $days === 30 ? 'selected' : ''; ?>>30 days</option>
+                            <option value="90" <?= $days === 90 ? 'selected' : ''; ?>>90 days</option>
                         </select>
                     </div>
                     <div class="chart-body"><canvas id="userGrowthChart"></canvas></div>
@@ -554,9 +533,9 @@ $revenueData = $revenueData ?? [];
                     <div class="chart-header">
                         <div class="chart-title"><i class="fas fa-chart-bar"></i><h3>Revenue Trend</h3></div>
                         <select class="chart-select" onchange="updateChartDays(this.value)">
-                            <option value="7" <?php echo $days == 7 ? 'selected' : ''; ?>>7 days</option>
-                            <option value="30" <?php echo $days == 30 ? 'selected' : ''; ?>>30 days</option>
-                            <option value="90" <?php echo $days == 90 ? 'selected' : ''; ?>>90 days</option>
+                            <option value="7" <?= $days === 7 ? 'selected' : ''; ?>>7 days</option>
+                            <option value="30" <?= $days === 30 ? 'selected' : ''; ?>>30 days</option>
+                            <option value="90" <?= $days === 90 ? 'selected' : ''; ?>>90 days</option>
                         </select>
                     </div>
                     <div class="chart-body"><canvas id="revenueChart"></canvas></div>
@@ -566,31 +545,32 @@ $revenueData = $revenueData ?? [];
             <div class="activity-feed">
                 <div class="feed-header">
                     <h3><i class="fas fa-clock"></i> Recent Activity</h3>
-                    <a href="<?php echo BASE_URL; ?>/admin/reports?type=activity" class="view-all"><span>View All</span><i class="fas fa-arrow-right"></i></a>
+                    <a href="<?= htmlspecialchars($baseUrl); ?>/admin/reports?type=activity" class="view-all"><span>View All</span><i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="feed-list">
                     <?php if (empty($recentActivity)): ?>
                         <div class="empty-feed"><i class="fas fa-inbox"></i><p>No recent activity</p></div>
                     <?php else: ?>
                         <?php 
-                        $count = 0;
-                        foreach ($recentActivity as $activity): 
-                            if ($count >= 5) break; $count++;
+                        $sliceActivity = array_slice($recentActivity, 0, 5);
+                        $actionIcons = [
+                            'LOGIN' => 'sign-in-alt',
+                            'REGISTRATION' => 'user-plus',
+                            'QUIZ_ATTEMPT' => 'pencil-alt'
+                        ];
+                        foreach ($sliceActivity as $activity): 
+                            $icon = $actionIcons[$activity['action'] ?? ''] ?? 'bell';
                         ?>
                         <div class="feed-item">
                             <div class="feed-icon">
-                                <i class="fas fa-<?php 
-                                    echo $activity['action'] === 'LOGIN' ? 'sign-in-alt' : 
-                                        ($activity['action'] === 'REGISTRATION' ? 'user-plus' : 
-                                        ($activity['action'] === 'QUIZ_ATTEMPT' ? 'pencil-alt' : 'bell')); 
-                                ?>"></i>
+                                <i class="fas fa-<?= $icon; ?>"></i>
                             </div>
                             <div class="feed-content">
                                 <p class="feed-text">
-                                    <strong><?php echo htmlspecialchars($activity['first_name'] . ' ' . $activity['last_name']); ?></strong>
-                                    <?php echo htmlspecialchars($activity['description']); ?>
+                                    <strong><?= htmlspecialchars(($activity['first_name'] ?? '') . ' ' . ($activity['last_name'] ?? '')); ?></strong>
+                                    <?= htmlspecialchars($activity['description'] ?? ''); ?>
                                 </p>
-                                <span class="feed-time"><i class="far fa-clock"></i><?php echo date('M d, H:i', strtotime($activity['created_at'])); ?></span>
+                                <span class="feed-time"><i class="far fa-clock"></i><?= date('M d, H:i', strtotime($activity['created_at'] ?? 'now')); ?></span>
                             </div>
                         </div>
                         <?php endforeach; ?>
@@ -602,7 +582,7 @@ $revenueData = $revenueData ?? [];
             <div class="report-card">
                 <div class="card-header">
                     <h2><i class="fas fa-users"></i> User Registration Report</h2>
-                    <span class="date-badge"><?php echo date('M d', strtotime($start_date)); ?> - <?php echo date('M d', strtotime($end_date)); ?></span>
+                    <span class="date-badge"><?= date('M d', strtotime($start_date)); ?> - <?= date('M d', strtotime($end_date)); ?></span>
                 </div>
                 
                 <?php if (empty($data)): ?>
@@ -611,11 +591,17 @@ $revenueData = $revenueData ?? [];
                         <p>There are no user registrations in the selected date range.</p>
                         <button class="btn-reset" onclick="resetFilters()">Reset Filters</button>
                     </div>
-                <?php else: ?>
+                <?php else: 
+                    $totals = array_column($data, 'total');
+                    $sumTotals = array_sum($totals);
+                    $rowCount = count($data);
+                    $dailyAvg = $rowCount > 0 ? round($sumTotals / $rowCount, 1) : 0;
+                    $peak = !empty($totals) ? max($totals) : 0;
+                ?>
                     <div class="stats-mini-grid">
-                        <div class="stat-mini"><span class="stat-mini-label">Total</span><span class="stat-mini-value"><?php echo number_format(array_sum(array_column($data, 'total'))); ?></span></div>
-                        <div class="stat-mini"><span class="stat-mini-label">Daily Avg</span><span class="stat-mini-value"><?php echo round(array_sum(array_column($data, 'total')) / count($data), 1); ?></span></div>
-                        <div class="stat-mini"><span class="stat-mini-label">Peak</span><span class="stat-mini-value"><?php echo max(array_column($data, 'total')); ?></span></div>
+                        <div class="stat-mini"><span class="stat-mini-label">Total</span><span class="stat-mini-value"><?= number_format($sumTotals); ?></span></div>
+                        <div class="stat-mini"><span class="stat-mini-label">Daily Avg</span><span class="stat-mini-value"><?= $dailyAvg; ?></span></div>
+                        <div class="stat-mini"><span class="stat-mini-label">Peak</span><span class="stat-mini-value"><?= number_format($peak); ?></span></div>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table">
@@ -625,12 +611,12 @@ $revenueData = $revenueData ?? [];
                             <tbody>
                                 <?php foreach ($data as $row): ?>
                                 <tr>
-                                    <td><strong><?php echo date('M j', strtotime($row['date'])); ?></strong></td>
-                                    <td class="number-cell"><?php echo number_format($row['total']); ?></td>
-                                    <td><?php echo number_format($row['admins']); ?></td>
-                                    <td><?php echo number_format($row['teachers']); ?></td>
-                                    <td><?php echo number_format($row['learners']); ?></td>
-                                    <td><?php echo number_format($row['external']); ?></td>
+                                    <td><strong><?= date('M j', strtotime($row['date'] ?? 'now')); ?></strong></td>
+                                    <td class="number-cell"><?= number_format($row['total'] ?? 0); ?></td>
+                                    <td><?= number_format($row['admins'] ?? 0); ?></td>
+                                    <td><?= number_format($row['teachers'] ?? 0); ?></td>
+                                    <td><?= number_format($row['learners'] ?? 0); ?></td>
+                                    <td><?= number_format($row['external'] ?? 0); ?></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -643,7 +629,7 @@ $revenueData = $revenueData ?? [];
             <div class="report-card">
                 <div class="card-header">
                     <h2><i class="fas fa-pencil-alt"></i> Quiz Performance</h2>
-                    <span class="date-badge"><?php echo date('M d', strtotime($start_date)); ?> - <?php echo date('M d', strtotime($end_date)); ?></span>
+                    <span class="date-badge"><?= date('M d', strtotime($start_date)); ?> - <?= date('M d', strtotime($end_date)); ?></span>
                 </div>
                 
                 <?php if (empty($data)): ?>
@@ -651,10 +637,16 @@ $revenueData = $revenueData ?? [];
                         <i class="fas fa-pencil-alt"></i><h3>No Quiz Data Available</h3>
                         <button class="btn-reset" onclick="resetFilters()">Reset Filters</button>
                     </div>
-                <?php else: ?>
+                <?php else: 
+                    $attempts = array_column($data, 'total_attempts');
+                    $scores = array_column($data, 'avg_score');
+                    $totalAttempts = array_sum($attempts);
+                    $rowCount = count($data);
+                    $avgScore = $rowCount > 0 ? round(array_sum($scores) / $rowCount, 1) : 0;
+                ?>
                     <div class="stats-mini-grid">
-                        <div class="stat-mini"><span class="stat-mini-label">Attempts</span><span class="stat-mini-value"><?php echo number_format(array_sum(array_column($data, 'total_attempts'))); ?></span></div>
-                        <div class="stat-mini"><span class="stat-mini-label">Avg Score</span><span class="stat-mini-value"><?php echo round(array_sum(array_column($data, 'avg_score')) / count($data), 1); ?>%</span></div>
+                        <div class="stat-mini"><span class="stat-mini-label">Attempts</span><span class="stat-mini-value"><?= number_format($totalAttempts); ?></span></div>
+                        <div class="stat-mini"><span class="stat-mini-label">Avg Score</span><span class="stat-mini-value"><?= $avgScore; ?>%</span></div>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table">
@@ -662,16 +654,20 @@ $revenueData = $revenueData ?? [];
                                 <tr><th>Quiz Title</th><th>Attempts</th><th>Unique Students</th><th>Avg Score</th><th>Pass Rate</th></tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($data as $row): ?>
+                                <?php foreach ($data as $row): 
+                                    $title = $row['title'] ?? '';
+                                    $truncatedTitle = (mb_strlen($title) > 25) ? mb_substr($title, 0, 25) . '...' : $title;
+                                    $rowAttempts = (int)($row['total_attempts'] ?? 0);
+                                    $passedCount = (int)($row['passed_count'] ?? 0);
+                                    $passRate = $rowAttempts > 0 ? round(($passedCount / $rowAttempts) * 100, 1) : 0;
+                                    $badgeClass = $passRate >= 70 ? 'badge-success' : ($passRate >= 50 ? 'badge-warning' : 'badge-danger');
+                                ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars(substr($row['title'], 0, 25)) . (strlen($row['title']) > 25 ? '...' : ''); ?></td>
-                                    <td class="number-cell"><?php echo number_format($row['total_attempts']); ?></td>
-                                    <td><?php echo number_format($row['unique_students']); ?></td>
-                                    <td><?php echo round($row['avg_score'], 1); ?>%</td>
-                                    <td>
-                                        <?php $passRate = $row['total_attempts'] > 0 ? round(($row['passed_count'] / $row['total_attempts']) * 100, 1) : 0; ?>
-                                        <span class="badge <?php echo $passRate >= 70 ? 'badge-success' : ($passRate >= 50 ? 'badge-warning' : 'badge-danger'); ?>"><?php echo $passRate; ?>%</span>
-                                    </td>
+                                    <td><?= htmlspecialchars($truncatedTitle); ?></td>
+                                    <td class="number-cell"><?= number_format($rowAttempts); ?></td>
+                                    <td><?= number_format($row['unique_students'] ?? 0); ?></td>
+                                    <td><?= round($row['avg_score'] ?? 0, 1); ?>%</td>
+                                    <td><span class="badge <?= $badgeClass; ?>"><?= $passRate; ?>%</span></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -684,7 +680,7 @@ $revenueData = $revenueData ?? [];
             <div class="report-card">
                 <div class="card-header">
                     <h2><i class="fas fa-credit-card"></i> Revenue Report</h2>
-                    <span class="date-badge"><?php echo date('M d', strtotime($start_date)); ?> - <?php echo date('M d', strtotime($end_date)); ?></span>
+                    <span class="date-badge"><?= date('M d', strtotime($start_date)); ?> - <?= date('M d', strtotime($end_date)); ?></span>
                 </div>
                 
                 <?php if (empty($data)): ?>
@@ -694,8 +690,8 @@ $revenueData = $revenueData ?? [];
                     </div>
                 <?php else: ?>
                     <div class="stats-mini-grid">
-                        <div class="stat-mini highlight"><span class="stat-mini-label">Total Revenue</span><span class="stat-mini-value">UGX <?php echo number_format(array_sum(array_column($data, 'total_amount'))); ?></span></div>
-                        <div class="stat-mini"><span class="stat-mini-label">Transactions</span><span class="stat-mini-value"><?php echo number_format(array_sum(array_column($data, 'transaction_count'))); ?></span></div>
+                        <div class="stat-mini highlight"><span class="stat-mini-label">Total Revenue</span><span class="stat-mini-value">UGX <?= number_format(array_sum(array_column($data, 'total_amount'))); ?></span></div>
+                        <div class="stat-mini"><span class="stat-mini-label">Transactions</span><span class="stat-mini-value"><?= number_format(array_sum(array_column($data, 'transaction_count'))); ?></span></div>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table">
@@ -705,10 +701,10 @@ $revenueData = $revenueData ?? [];
                             <tbody>
                                 <?php foreach ($data as $row): ?>
                                 <tr>
-                                    <td><?php echo date('M j, Y', strtotime($row['date'])); ?></td>
-                                    <td class="number-cell"><?php echo number_format($row['transaction_count']); ?></td>
-                                    <td class="number-cell">UGX <?php echo number_format($row['total_amount']); ?></td>
-                                    <td><span class="badge badge-info"><?php echo htmlspecialchars($row['payment_method']); ?></span></td>
+                                    <td><?= date('M j, Y', strtotime($row['date'] ?? 'now')); ?></td>
+                                    <td class="number-cell"><?= number_format($row['transaction_count'] ?? 0); ?></td>
+                                    <td class="number-cell">UGX <?= number_format($row['total_amount'] ?? 0); ?></td>
+                                    <td><span class="badge badge-info"><?= htmlspecialchars($row['payment_method'] ?? 'N/A'); ?></span></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -723,64 +719,77 @@ $revenueData = $revenueData ?? [];
 <script>
 <?php if ($type === 'overview'): ?>
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx1 = document.getElementById('userGrowthChart').getContext('2d');
-    <?php
-    $growthLabels = []; $growthValues = [];
-    if (!empty($userGrowthData)) {
-        foreach ($userGrowthData as $row) {
-            $growthLabels[] = date('M d', strtotime($row['date']));
-            $growthValues[] = (int)$row['new_users'];
+    const ctx1 = document.getElementById('userGrowthChart');
+    if (ctx1) {
+        <?php
+        $growthLabels = []; 
+        $growthValues = [];
+        if (!empty($userGrowthData)) {
+            foreach ($userGrowthData as $row) {
+                $growthLabels[] = date('M d', strtotime($row['date'] ?? 'now'));
+                $growthValues[] = (int)($row['new_users'] ?? 0);
+            }
+        } else { 
+            $growthLabels = ['No Data']; 
+            $growthValues = [0]; 
         }
-    } else { $growthLabels = ['No Data']; $growthValues = [0]; }
-    ?>
-    
-    new Chart(ctx1, {
-        type: 'line',
-        data: {
-            labels: <?php echo json_encode($growthLabels); ?>,
-            datasets: [{
-                data: <?php echo json_encode($growthValues); ?>,
-                borderColor: '#f06724',
-                backgroundColor: 'rgba(127, 38, 119, 0.05)',
-                tension: 0.3,
-                fill: true,
-                pointBackgroundColor: '#7f2677'
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
+        ?>
+        
+        new Chart(ctx1.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: <?= json_encode($growthLabels, JSON_HEX_TAG | JSON_HEX_AMP); ?>,
+                datasets: [{
+                    data: <?= json_encode($growthValues); ?>,
+                    borderColor: '#f06724',
+                    backgroundColor: 'rgba(127, 38, 119, 0.05)',
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#7f2677'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+    }
 
-    const ctx2 = document.getElementById('revenueChart').getContext('2d');
-    <?php
-    $revenueLabels = []; $revenueValues = [];
-    if (!empty($revenueData)) {
-        foreach ($revenueData as $row) {
-            $revenueLabels[] = date('M d', strtotime($row['date']));
-            $revenueValues[] = (int)$row['revenue'];
+    const ctx2 = document.getElementById('revenueChart');
+    if (ctx2) {
+        <?php
+        $revenueLabels = []; 
+        $revenueValues = [];
+        if (!empty($revenueData)) {
+            foreach ($revenueData as $row) {
+                $revenueLabels[] = date('M d', strtotime($row['date'] ?? 'now'));
+                $revenueValues[] = (int)($row['revenue'] ?? 0);
+            }
+        } else { 
+            $revenueLabels = ['No Data']; 
+            $revenueValues = [0]; 
         }
-    } else { $revenueLabels = ['No Data']; $revenueValues = [0]; }
-    ?>
-    
-    new Chart(ctx2, {
-        type: 'bar',
-        data: {
-            labels: <?php echo json_encode($revenueLabels); ?>,
-            datasets: [{
-                data: <?php echo json_encode($revenueValues); ?>,
-                backgroundColor: '#f06724',
-                borderRadius: 4
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
+        ?>
+        
+        new Chart(ctx2.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($revenueLabels, JSON_HEX_TAG | JSON_HEX_AMP); ?>,
+                datasets: [{
+                    data: <?= json_encode($revenueValues); ?>,
+                    backgroundColor: '#f06724',
+                    borderRadius: 4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+    }
 });
 <?php endif; ?>
 
 function updateChartDays(days) {
-    window.location.href = `<?php echo BASE_URL; ?>/admin/reports?type=overview&days=${days}`;
+    window.location.href = `<?= htmlspecialchars($baseUrl); ?>/admin/reports?type=overview&days=${encodeURIComponent(days)}`;
 }
+
 function resetFilters() {
-    window.location.href = `<?php echo BASE_URL; ?>/admin/reports?type=<?php echo $type; ?>`;
+    window.location.href = `<?= htmlspecialchars($baseUrl); ?>/admin/reports?type=<?= htmlspecialchars($type); ?>`;
 }
 </script>
 
