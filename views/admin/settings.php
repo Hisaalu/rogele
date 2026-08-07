@@ -8,6 +8,7 @@ $subscriptionSettings = $subscriptionSettings ?? [];
 $emailSettings = $emailSettings ?? [];
 $securitySettings = $securitySettings ?? [];
 $appearanceSettings = $appearanceSettings ?? [];
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
 ?>
 
 <style>
@@ -41,7 +42,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 }
 
 .page-title {
-    font-size: clamp(1.8rem, 4vw, 2.2rem);
+    font-size: clamp(1.4rem, 3.5vw, 2.1rem);
     font-weight: 700;
     color: var(--primary-purple);
     margin-bottom: 8px;
@@ -78,7 +79,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 
 .settings-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
     gap: 25px;
     margin-bottom: 35px;
 }
@@ -189,7 +190,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 .form-group select {
     width: 100%;
     padding: 12px 14px;
-    border: 1px solid var(--primary-orange);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     font-size: 0.95rem;
     transition: all 0.2s ease;
@@ -197,9 +198,7 @@ $appearanceSettings = $appearanceSettings ?? [];
 }
 
 .form-group input:focus,
-.input-wrapper input:focus,
 .form-group textarea:focus,
-.input-wrapper textarea:focus,
 .form-group select:focus {
     outline: none;
     border-color: var(--primary-orange);
@@ -365,7 +364,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
     font-family: monospace;
     font-size: 0.95rem;
     color: var(--text-dark);
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
 }
 
 .card-footer {
@@ -395,10 +394,10 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
 
 .btn-save:hover { background-color: var(--primary-orange); }
 
-.btn-test, .btn-preview {
+.btn-test {
     background: var(--bg-light);
     color: var(--text-dark);
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     padding: 12px 20px;
     border-radius: 10px;
     font-weight: 600;
@@ -410,7 +409,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
     transition: all 0.2s ease;
 }
 
-.btn-test:hover, .btn-preview:hover {
+.btn-test:hover {
     background: white;
     border-color: var(--primary-orange);
     color: var(--primary-orange);
@@ -537,7 +536,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
             <h1 class="page-title"><i class="fas fa-sliders-h"></i>System Configuration</h1>
             <p class="page-subtitle">Customize and manage your platform settings</p>
         </div>
-        <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/save-all">
+        <form method="POST" action="<?= htmlspecialchars($baseUrl); ?>/admin/settings/save-all">
             <button type="submit" class="btn-save-all"><i class="fas fa-save"></i>Save All Changes</button>
         </form>
     </div>
@@ -547,10 +546,11 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
             <i class="fas fa-check-circle"></i>
             <div class="alert-content">
                 <strong>Success!</strong>
-                <p><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></p>
+                <p><?= htmlspecialchars($_SESSION['success']); ?></p>
             </div>
             <button class="alert-close" onclick="this.parentElement.remove()">×</button>
         </div>
+        <?php unset($_SESSION['success']); ?>
     <?php endif; ?>
 
     <?php if (isset($_SESSION['error'])): ?>
@@ -558,14 +558,14 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
             <i class="fas fa-exclamation-circle"></i>
             <div class="alert-content">
                 <strong>Error!</strong>
-                <p><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></p>
+                <p><?= htmlspecialchars($_SESSION['error']); ?></p>
             </div>
             <button class="alert-close" onclick="this.parentElement.remove()">×</button>
         </div>
+        <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
     <div class="settings-grid">
-        <!-- General Settings Panel -->
         <div class="settings-card">
             <div class="card-header">
                 <div class="card-icon"><i class="fas fa-globe"></i></div>
@@ -576,21 +576,21 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                 <span class="card-badge">Required</span>
             </div>
             <div class="card-body">
-                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/general" class="settings-form">
+                <form method="POST" action="<?= htmlspecialchars($baseUrl); ?>/admin/settings/general" class="settings-form">
                     <div class="form-group">
                         <label for="site_name"><i class="fas fa-tag"></i>Site Name<span class="required">*</span></label>
-                        <input type="text" id="site_name" name="site_name" value="<?php echo htmlspecialchars($generalSettings['site_name'] ?? 'Rays of Grace E-Learning'); ?>" required>
+                        <input type="text" id="site_name" name="site_name" value="<?= htmlspecialchars($generalSettings['site_name'] ?? 'Rays of Grace E-Learning'); ?>" required>
                         <span class="input-hint">This will appear in the browser title</span>
                     </div>
 
                     <div class="form-group">
                         <label for="site_description"><i class="fas fa-align-left"></i>Site Description</label>
-                        <textarea id="site_description" name="site_description" rows="3"><?php echo htmlspecialchars($generalSettings['site_description'] ?? 'Quality education for every child, anywhere, anytime.'); ?></textarea>
+                        <textarea id="site_description" name="site_description" rows="3"><?= htmlspecialchars($generalSettings['site_description'] ?? 'Quality education for every child, anywhere, anytime.'); ?></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="contact_email"><i class="fas fa-envelope"></i>Contact Email<span class="required">*</span></label>
-                        <input type="email" id="contact_email" name="contact_email" value="<?php echo htmlspecialchars($generalSettings['contact_email'] ?? 'info@raysofgrace.com'); ?>" required>
+                        <input type="email" id="contact_email" name="contact_email" value="<?= htmlspecialchars($generalSettings['contact_email'] ?? 'info@raysofgrace.com'); ?>" required>
                     </div>
                     
                     <div class="card-footer">
@@ -600,7 +600,6 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
             </div>
         </div>
 
-        <!-- Subscription Settings Panel -->
         <div class="settings-card">
             <div class="card-header">
                 <div class="card-icon"><i class="fas fa-credit-card"></i></div>
@@ -611,13 +610,13 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                 <span class="card-badge success">Active</span>
             </div>
             <div class="card-body">
-                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/subscription" class="settings-form">
+                <form method="POST" action="<?= htmlspecialchars($baseUrl); ?>/admin/settings/subscription" class="settings-form">
                     <div class="price-inputs">
                         <div class="form-group price-group">
                             <label for="monthly_price"><i class="fas fa-calendar-alt"></i>Monthly</label>
                             <div class="currency-input">
                                 <span class="currency-symbol">UGX</span>
-                                <input type="number" id="monthly_price" name="monthly_price" value="<?php echo htmlspecialchars($subscriptionSettings['monthly_price'] ?? 15000); ?>" min="0" step="any">
+                                <input type="number" id="monthly_price" name="monthly_price" value="<?= htmlspecialchars($subscriptionSettings['monthly_price'] ?? 15000); ?>" min="0" step="any">
                             </div>
                         </div>
 
@@ -625,7 +624,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                             <label for="termly_price"><i class="fas fa-calendar-week"></i>Termly</label>
                             <div class="currency-input">
                                 <span class="currency-symbol">UGX</span>
-                                <input type="number" id="termly_price" name="termly_price" value="<?php echo htmlspecialchars($subscriptionSettings['termly_price'] ?? 40000); ?>" min="0" step="any">
+                                <input type="number" id="termly_price" name="termly_price" value="<?= htmlspecialchars($subscriptionSettings['termly_price'] ?? 40000); ?>" min="0" step="any">
                             </div>
                             <span class="save-badge">Save 17%</span>
                         </div>
@@ -634,7 +633,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                             <label for="yearly_price"><i class="fas fa-calendar"></i>Yearly</label>
                             <div class="currency-input">
                                 <span class="currency-symbol">UGX</span>
-                                <input type="number" id="yearly_price" name="yearly_price" value="<?php echo htmlspecialchars($subscriptionSettings['yearly_price'] ?? 120000); ?>" min="0" step="any">
+                                <input type="number" id="yearly_price" name="yearly_price" value="<?= htmlspecialchars($subscriptionSettings['yearly_price'] ?? 120000); ?>" min="0" step="any">
                             </div>
                             <span class="save-badge popular">Save 25%</span>
                         </div>
@@ -642,7 +641,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
 
                     <div class="form-group">
                         <label for="trial_days"><i class="fas fa-gift"></i>Free Trial Days</label>
-                        <input type="number" id="trial_days" name="trial_days" value="<?php echo htmlspecialchars($subscriptionSettings['trial_days'] ?? 60); ?>" min="0" max="365">
+                        <input type="number" id="trial_days" name="trial_days" value="<?= htmlspecialchars($subscriptionSettings['trial_days'] ?? 60); ?>" min="0" max="365">
                     </div>
                     
                     <div class="card-footer">
@@ -652,7 +651,6 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
             </div>
         </div>
 
-        <!-- Email Settings Panel -->
         <div class="settings-card">
             <div class="card-header">
                 <div class="card-icon"><i class="fas fa-mail-bulk"></i></div>
@@ -663,45 +661,44 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                 <span class="card-badge warning">Test Needed</span>
             </div>
             <div class="card-body">
-                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/email" class="settings-form">
+                <form method="POST" action="<?= htmlspecialchars($baseUrl); ?>/admin/settings/email" class="settings-form">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="smtp_host"><i class="fas fa-server"></i>SMTP Host</label>
-                            <input type="text" id="smtp_host" name="smtp_host" value="<?php echo htmlspecialchars($emailSettings['smtp_host'] ?? 'smtp.gmail.com'); ?>">
+                            <input type="text" id="smtp_host" name="smtp_host" value="<?= htmlspecialchars($emailSettings['smtp_host'] ?? 'smtp.gmail.com'); ?>">
                         </div>
                         <div class="form-group">
                             <label for="smtp_port"><i class="fas fa-plug"></i>SMTP Port</label>
-                            <input type="number" id="smtp_port" name="smtp_port" value="<?php echo htmlspecialchars($emailSettings['smtp_port'] ?? 587); ?>">
+                            <input type="number" id="smtp_port" name="smtp_port" value="<?= htmlspecialchars($emailSettings['smtp_port'] ?? 587); ?>">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="smtp_username"><i class="fas fa-user"></i>SMTP Username</label>
-                        <input type="email" id="smtp_username" name="smtp_username" value="<?php echo htmlspecialchars($emailSettings['smtp_username'] ?? 'noreply@raysofgrace.com'); ?>">
+                        <input type="email" id="smtp_username" name="smtp_username" value="<?= htmlspecialchars($emailSettings['smtp_username'] ?? 'noreply@raysofgrace.com'); ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="smtp_password"><i class="fas fa-lock"></i>SMTP Password</label>
                         <div class="password-wrapper">
-                            <input type="password" id="smtp_password" name="smtp_password" value="<?php echo htmlspecialchars($emailSettings['smtp_password'] ?? ''); ?>">
-                            <button type="button" class="toggle-password" onclick="togglePassword('smtp_password')"><i class="fas fa-eye"></i></button>
+                            <input type="password" id="smtp_password" name="smtp_password" value="<?= htmlspecialchars($emailSettings['smtp_password'] ?? ''); ?>">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePassword('smtp_password', this)"><i class="fas fa-eye"></i></button>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="from_email"><i class="fas fa-paper-plane"></i>From Email</label>
-                        <input type="email" id="from_email" name="from_email" value="<?php echo htmlspecialchars($emailSettings['from_email'] ?? 'noreply@raysofgrace.com'); ?>">
+                        <input type="email" id="from_email" name="from_email" value="<?= htmlspecialchars($emailSettings['from_email'] ?? 'noreply@raysofgrace.com'); ?>">
                     </div>
                     
                     <div class="card-footer">
                         <button type="submit" class="btn-save"><i class="fas fa-save"></i>Save Email</button>
-                        <button type="button" class="btn-test" onclick="window.location.href='<?php echo BASE_URL; ?>/admin/settings/test-email'"><i class="fas fa-vial"></i>Test Connection</button>
+                        <a href="<?= htmlspecialchars($baseUrl); ?>/admin/settings/test-email" class="btn-test"><i class="fas fa-vial"></i>Test Connection</a>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Security Settings Panel -->
         <div class="settings-card">
             <div class="card-header">
                 <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
@@ -711,7 +708,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                 </div>
             </div>
             <div class="card-body">
-                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/security" class="settings-form">
+                <form method="POST" action="<?= htmlspecialchars($baseUrl); ?>/admin/settings/security" class="settings-form">
                     <div class="form-group toggle-group">
                         <div class="toggle-label">
                             <i class="fas fa-lock"></i>
@@ -721,7 +718,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                             </div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="enable_2fa" <?php echo ($securitySettings['enable_2fa'] ?? true) ? 'checked' : ''; ?>>
+                            <input type="checkbox" name="enable_2fa" <?= (!empty($securitySettings['enable_2fa'])) ? 'checked' : ''; ?>>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -736,9 +733,9 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                         </div>
                         <div class="select-wrapper">
                             <select name="session_timeout">
-                                <option value="60" <?php echo ($securitySettings['session_timeout'] ?? 60) == 60 ? 'selected' : ''; ?>>1 hour</option>
-                                <option value="30" <?php echo ($securitySettings['session_timeout'] ?? 60) == 30 ? 'selected' : ''; ?>>30 mins</option>
-                                <option value="15" <?php echo ($securitySettings['session_timeout'] ?? 60) == 15 ? 'selected' : ''; ?>>15 mins</option>
+                                <option value="60" <?= (($securitySettings['session_timeout'] ?? 60) == 60) ? 'selected' : ''; ?>>1 hour</option>
+                                <option value="30" <?= (($securitySettings['session_timeout'] ?? 60) == 30) ? 'selected' : ''; ?>>30 mins</option>
+                                <option value="15" <?= (($securitySettings['session_timeout'] ?? 60) == 15) ? 'selected' : ''; ?>>15 mins</option>
                             </select>
                         </div>
                     </div>
@@ -752,7 +749,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                             </div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="strong_passwords" <?php echo ($securitySettings['strong_passwords'] ?? true) ? 'checked' : ''; ?>>
+                            <input type="checkbox" name="strong_passwords" <?= (!empty($securitySettings['strong_passwords'])) ? 'checked' : ''; ?>>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -764,7 +761,6 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
             </div>
         </div>
 
-        <!-- Appearance Settings Panel -->
         <div class="settings-card">
             <div class="card-header">
                 <div class="card-icon"><i class="fas fa-paint-brush"></i></div>
@@ -774,20 +770,20 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                 </div>
             </div>
             <div class="card-body">
-                <form method="POST" action="<?php echo BASE_URL; ?>/admin/settings/appearance" class="settings-form">
+                <form method="POST" action="<?= htmlspecialchars($baseUrl); ?>/admin/settings/appearance" class="settings-form">
                     <div class="form-group">
                         <label for="theme_color"><i class="fas fa-palette"></i>Theme Color</label>
                         <div class="color-input-wrapper">
-                            <input type="color" id="theme_color" name="theme_color" value="<?php echo htmlspecialchars($appearanceSettings['theme_color'] ?? '#7f2677'); ?>">
-                            <span class="color-value"><?php echo htmlspecialchars($appearanceSettings['theme_color'] ?? '#7f2677'); ?></span>
+                            <input type="color" id="theme_color" name="theme_color" value="<?= htmlspecialchars($appearanceSettings['theme_color'] ?? '#7f2677'); ?>" onchange="document.getElementById('theme_color_val').textContent = this.value">
+                            <span class="color-value" id="theme_color_val"><?= htmlspecialchars($appearanceSettings['theme_color'] ?? '#7f2677'); ?></span>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="accent_color"><i class="fas fa-palette"></i>Accent Color</label>
                         <div class="color-input-wrapper">
-                            <input type="color" id="accent_color" name="accent_color" value="<?php echo htmlspecialchars($appearanceSettings['accent_color'] ?? '#f06724'); ?>">
-                            <span class="color-value"><?php echo htmlspecialchars($appearanceSettings['accent_color'] ?? '#f06724'); ?></span>
+                            <input type="color" id="accent_color" name="accent_color" value="<?= htmlspecialchars($appearanceSettings['accent_color'] ?? '#f06724'); ?>" onchange="document.getElementById('accent_color_val').textContent = this.value">
+                            <span class="color-value" id="accent_color_val"><?= htmlspecialchars($appearanceSettings['accent_color'] ?? '#f06724'); ?></span>
                         </div>
                     </div>
 
@@ -800,7 +796,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                             </div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="dark_mode" <?php echo ($appearanceSettings['dark_mode'] ?? true) ? 'checked' : ''; ?>>
+                            <input type="checkbox" name="dark_mode" <?= (!empty($appearanceSettings['dark_mode'])) ? 'checked' : ''; ?>>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -813,7 +809,6 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
         </div>
     </div>
 
-    <!-- Danger Zone Panel -->
     <div class="danger-zone">
         <div class="danger-header">
             <i class="fas fa-exclamation-triangle"></i>
@@ -828,7 +823,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                         <p>Remove all cached data and temporary records</p>
                     </div>
                 </div>
-                <a href="<?php echo BASE_URL; ?>/admin/settings/clear-cache" class="btn-danger" onclick="return confirm('Clear system cache? Performance may drop temporarily.')"><i class="fas fa-broom"></i>Clear Cache</a>
+                <a href="<?= htmlspecialchars($baseUrl); ?>/admin/settings/clear-cache" class="btn-danger" onclick="return confirm('Clear system cache? Performance may drop temporarily.')"><i class="fas fa-broom"></i>Clear Cache</a>
             </div>
             
             <div class="danger-item">
@@ -839,16 +834,16 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                         <p>Restore all application settings to factory values</p>
                     </div>
                 </div>
-                <a href="<?php echo BASE_URL; ?>/admin/settings/reset-defaults" class="btn-danger" onclick="return confirm('WARNING: Reset ALL settings? This action cannot be reversed.')"><i class="fas fa-undo-alt"></i>Reset All</a>
+                <a href="<?= htmlspecialchars($baseUrl); ?>/admin/settings/reset-defaults" class="btn-danger" onclick="return confirm('WARNING: Reset ALL settings? This action cannot be reversed.')"><i class="fas fa-undo-alt"></i>Reset All</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-function togglePassword(inputId) {
+function togglePassword(inputId, btn) {
     const input = document.getElementById(inputId);
-    const icon = event.currentTarget.querySelector('i');
+    const icon = btn.querySelector('i');
     const isPassword = input.type === 'password';
     input.type = isPassword ? 'text' : 'password';
     icon.classList.toggle('fa-eye', !isPassword);

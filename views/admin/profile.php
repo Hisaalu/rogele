@@ -2,6 +2,18 @@
 // File: /views/admin/profile.php
 $pageTitle = 'Profile | ROGELE';
 require_once __DIR__ . '/../layouts/admin_header.php';
+
+$profile = $profile ?? [];
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+$userName = $_SESSION['user_name'] ?? 'Admin';
+$userEmail = $_SESSION['user_email'] ?? '';
+
+$nameParts = array_filter(explode(' ', trim($userName)));
+$initials = '';
+foreach ($nameParts as $part) {
+    $initials .= mb_strtoupper(mb_substr($part, 0, 1));
+}
+$displayInitials = !empty($initials) ? mb_substr($initials, 0, 2) : 'AD';
 ?>
 
 <style>
@@ -27,7 +39,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 }
 
 .page-title {
-    font-size: clamp(1.8rem, 4vw, 2.2rem);
+    font-size: clamp(1.4rem, 3.5vw, 2.1rem);
     font-weight: 700;
     color: var(--primary-purple);
     margin-bottom: 8px;
@@ -123,19 +135,6 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     font-size: 0.9rem;
     margin-bottom: 15px;
 }
-
-.photo-info {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text-light);
-    font-size: 0.8rem;
-    background: var(--bg-light);
-    padding: 6px 14px;
-    border-radius: 30px;
-}
-
-.photo-info i { color: var(--primary-orange); }
 
 .profile-stats {
     border-top: 1px solid var(--border-color);
@@ -292,6 +291,8 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 .alert-success { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
 .alert-error { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
 
+.hidden-file-input { display: none; }
+
 @media (max-width: 992px) {
     .profile-grid { grid-template-columns: 1fr; }
 }
@@ -311,15 +312,17 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+            <span><?= htmlspecialchars($_SESSION['success']); ?></span>
         </div>
+        <?php unset($_SESSION['success']); ?>
     <?php endif; ?>
     
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-error">
             <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+            <span><?= htmlspecialchars($_SESSION['error']); ?></span>
         </div>
+        <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
     <div class="profile-grid">
@@ -327,22 +330,14 @@ require_once __DIR__ . '/../layouts/admin_header.php';
             <div class="profile-photo-section">
                 <div class="profile-photo-wrapper" onclick="document.getElementById('profilePhotoInput').click()" title="Change Profile Photo">
                     <?php if (!empty($profile['profile_photo'])): ?>
-                        <img src="<?php echo BASE_URL; ?>/<?php echo $profile['profile_photo']; ?>" alt="Profile Photo" class="profile-photo">
+                        <img src="<?= htmlspecialchars($baseUrl); ?>/<?= htmlspecialchars($profile['profile_photo']); ?>" alt="Profile Photo" class="profile-photo">
                     <?php else: ?>
-                        <div class="profile-photo-placeholder">
-                            <?php 
-                            $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Admin');
-                            $initials = '';
-                            foreach ($nameParts as $part) {
-                                if (!empty($part)) $initials .= strtoupper(substr($part, 0, 1));
-                            }
-                            echo substr($initials, 0, 2);
-                            ?>
-                        </div>
+                        <div class="profile-photo-placeholder"><?= $displayInitials; ?></div>
                     <?php endif; ?>
+                    <div class="photo-upload-badge"><i class="fas fa-camera"></i></div>
                 </div>
                 
-                <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Admin'); ?></h2>
+                <h2 class="profile-name"><?= htmlspecialchars($userName); ?></h2>
                 <p class="profile-role">System Administrator</p>
             </div>
 
@@ -351,14 +346,14 @@ require_once __DIR__ . '/../layouts/admin_header.php';
                     <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
                     <div class="stat-content">
                         <span class="stat-label">Admin Since</span>
-                        <span class="stat-value"><?php echo isset($profile['created_at']) ? date('M Y', strtotime($profile['created_at'])) : date('M Y'); ?></span>
+                        <span class="stat-value"><?= isset($profile['created_at']) ? date('M Y', strtotime($profile['created_at'])) : date('M Y'); ?></span>
                     </div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-icon"><i class="fas fa-clock"></i></div>
                     <div class="stat-content">
                         <span class="stat-label">Last Login</span>
-                        <span class="stat-value"><?php echo isset($profile['last_login']) ? date('M d, Y', strtotime($profile['last_login'])) : 'Today'; ?></span>
+                        <span class="stat-value"><?= isset($profile['last_login']) ? date('M d, Y', strtotime($profile['last_login'])) : 'Today'; ?></span>
                     </div>
                 </div>
                 <div class="stat-item">
@@ -374,26 +369,28 @@ require_once __DIR__ . '/../layouts/admin_header.php';
         <div class="profile-card">
             <h3 class="card-title"><i class="fas fa-edit"></i>Personal Information</h3>
             
-            <form method="POST" action="<?php echo BASE_URL; ?>/admin/update-profile" class="profile-form">
+            <form method="POST" action="<?= htmlspecialchars($baseUrl); ?>/admin/update-profile" enctype="multipart/form-data" class="profile-form">
+                <input type="file" id="profilePhotoInput" name="profile_photo" class="hidden-file-input" accept="image/*" onchange="this.form.submit()">
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="first_name"><i class="fas fa-user"></i>First Name</label>
-                        <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($profile['first_name'] ?? ''); ?>" required placeholder="First name">
+                        <input type="text" id="first_name" name="first_name" value="<?= htmlspecialchars($profile['first_name'] ?? ''); ?>" required placeholder="First name">
                     </div>
                     <div class="form-group">
                         <label for="last_name"><i class="fas fa-user"></i>Last Name</label>
-                        <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($profile['last_name'] ?? ''); ?>" required placeholder="Last name">
+                        <input type="text" id="last_name" name="last_name" value="<?= htmlspecialchars($profile['last_name'] ?? ''); ?>" required placeholder="Last name">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="email"><i class="fas fa-envelope"></i>Email Address</label>
-                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($profile['email'] ?? $_SESSION['user_email'] ?? ''); ?>" required placeholder="Email address">
+                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($profile['email'] ?? $userEmail); ?>" required placeholder="Email address">
                 </div>
 
                 <div class="form-group">
                     <label for="phone"><i class="fas fa-phone"></i>Phone Number</label>
-                    <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($profile['phone'] ?? ''); ?>" placeholder="Phone number">
+                    <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($profile['phone'] ?? ''); ?>" placeholder="Phone number">
                 </div>
 
                 <div class="form-actions">
