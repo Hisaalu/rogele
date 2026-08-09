@@ -826,7 +826,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
                         <a href="<?php echo BASE_URL; ?>/admin/settings">
                             <i class="fas fa-sliders-h"></i> System Settings
                         </a>
-                        <a href="<?php echo BASE_URL; ?>/admin/login-activity">
+                        <a href="javascript:void(0);">
                             <i class="fas fa-history"></i> Login Activity
                         </a>
                         <div class="divider"></div>

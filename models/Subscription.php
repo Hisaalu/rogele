@@ -295,6 +295,16 @@ class Subscription {
         }
     }
 
+    public function getTotalRevenue() {
+        $stats = $this->getSubscriptionStats();
+        return (float)($stats['total_revenue'] ?? 0);
+    }
+
+    public function getTotalSubscriptions() {
+        $stats = $this->getSubscriptionStats();
+        return (int)($stats['active'] ?? 0);
+    }
+
     public function calculateUpgradePrice($currentPlan, $newPlan, $currentSubscription) {
         try {
             $settings = $this->getSubscriptionSettings();
