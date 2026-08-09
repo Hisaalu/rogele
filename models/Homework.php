@@ -370,22 +370,23 @@ class Homework {
     public function getByStudent($studentId, $classId = null, $status = null) {
         try {
             $sql = "SELECT h.*, 
-                           c.name as class_name,
-                           s.name as subject_name,
-                           u.first_name as teacher_first_name,
-                           u.last_name as teacher_last_name,
-                           hs.id as submission_id,
-                           hs.status as submission_status,
-                           hs.submitted_at,
-                           hs.grade,
-                           hs.feedback,
-                           hs.text_answer
+                        c.name as class_name,
+                        s.name as subject_name,
+                        u.first_name as teacher_first_name,
+                        u.last_name as teacher_last_name,
+                        hs.id as submission_id,
+                        hs.status as submission_status,
+                        hs.submitted_at,
+                        hs.grade,
+                        hs.feedback,
+                        hs.text_answer
                     FROM homework h
                     LEFT JOIN classes c ON h.class_id = c.id
                     LEFT JOIN subjects s ON h.subject_id = s.id
                     LEFT JOIN users u ON h.teacher_id = u.id
                     LEFT JOIN homework_submissions hs ON h.id = hs.homework_id AND hs.student_id = ?
-                    WHERE h.is_active = 1";
+                    WHERE h.is_active = 1
+                    AND h.due_date >= (NOW() - INTERVAL 1 DAY)"; // <--- Filters out homework older than 24h past due date
             
             $params = [$studentId];
             
@@ -936,7 +937,6 @@ class Homework {
 
     public function getUpcomingHomeworkDeadlines($studentId, $classId, $limit = 5) {
         try {
-            
             $limit = (int)$limit;
             
             $query = "
@@ -949,7 +949,7 @@ class Homework {
                 LEFT JOIN classes c ON h.class_id = c.id
                 LEFT JOIN subjects s ON h.subject_id = s.id
                 WHERE h.class_id = ?
-                AND h.due_date >= NOW()
+                AND h.due_date >= (NOW() - INTERVAL 1 DAY) -- <--- Shows active homework until 24h past due date
                 AND h.is_active = 1
                 ORDER BY h.due_date ASC
                 LIMIT ?

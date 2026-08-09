@@ -89,6 +89,12 @@ class ExternalHomeworkController {
             exit;
         }
         
+        if (strtotime($homework['due_date']) + 86400 < time()) {
+            $_SESSION['error'] = 'This homework is no longer available.';
+            header('Location: ' . BASE_URL . '/external/homework');
+            exit;
+        }
+        
         $user = $this->userModel->getById($studentId);
         if ($homework['class_id'] != ($user['class_id'] ?? null)) {
             $_SESSION['error'] = 'You do not have access to this homework';
