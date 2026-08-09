@@ -166,6 +166,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             justify-content: space-between;
             align-items: center;
             background: var(--white);
+            min-width: 0;
         }
 
         .mobile-brand-wrapper {
@@ -178,38 +179,6 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             height: 30px;
             width: auto;
             object-fit: contain;
-        }
-
-        .header-search-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--gray-100);
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid transparent;
-            transition: all 0.2s ease;
-            width: 280px;
-        }
-
-        .header-search-bar:focus-within {
-            background: var(--white);
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(240, 103, 36, 0.1);
-        }
-
-        .header-search-bar i {
-            color: var(--accent);
-            font-size: 0.85rem;
-        }
-
-        .header-search-bar input {
-            border: none;
-            background: transparent;
-            outline: none;
-            font-size: 0.82rem;
-            color: var(--dark);
-            width: 100%;
         }
 
         .header-actions {
@@ -232,6 +201,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             cursor: pointer;
             position: relative;
             transition: background 0.2s;
+            flex-shrink: 0;
         }
 
         .header-action-btn:hover {
@@ -251,6 +221,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             position: relative;
             transition: all 0.2s ease;
             user-select: none;
+            flex-shrink: 0;
         }
 
         .profile-trigger:hover {
@@ -269,6 +240,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             justify-content: center;
             font-size: 0.8rem;
             letter-spacing: 0.5px;
+            flex-shrink: 0;
         }
 
         .admin-meta {
@@ -363,7 +335,8 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             top: calc(100% + 12px);
             right: -10px;
             background: var(--white);
-            width: 320px;
+            width: 360px;
+            max-width: calc(100vw - 32px);
             border-radius: 12px;
             box-shadow: var(--shadow-lg);
             border: 1px solid var(--gray-300);
@@ -403,8 +376,9 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         }
 
         .notification-list {
-            max-height: 320px;
+            max-height: 350px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .notification-item {
@@ -444,6 +418,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
         .notification-content {
             flex: 1;
+            min-width: 0;
         }
 
         .notification-content p {
@@ -451,6 +426,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             color: var(--gray-900);
             line-height: 1.3;
             margin-bottom: 3px;
+            word-wrap: break-word;
         }
 
         .notification-content small {
@@ -678,7 +654,6 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
         @media (max-width: 992px) {
             .navbar-brand-block,
-            .header-search-bar,
             .admin-meta {
                 display: none;
             }
@@ -749,6 +724,39 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
                 padding: 16px;
             }
         }
+
+        @media (max-width: 576px) {
+            .header-actions {
+                gap: 8px;
+            }
+
+            .profile-trigger {
+                border: none;
+                padding: 0;
+            }
+
+            .profile-trigger .fa-chevron-down {
+                display: none;
+            }
+
+            .notification-dropdown-card {
+                position: fixed;
+                top: calc(var(--navbar-height) + 6px);
+                left: 12px;
+                right: 12px;
+                width: auto;
+                max-width: none;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            }
+
+            .profile-dropdown-card {
+                right: -4px;
+            }
+
+            .notification-list {
+                max-height: 60vh;
+            }
+        }
     </style>
 </head>
 <body>
@@ -776,11 +784,6 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
                     <i class="fas fa-bars"></i>
                 </button>
                 <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="School Logo" onerror="this.style.display='none';">
-            </div>
-
-            <div class="header-search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search system resources..." aria-label="Search">
             </div>
 
             <div class="header-actions">

@@ -148,6 +148,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
                                 type="password" 
                                 id="password" 
                                 name="password" 
+                                value="Password123"
                                 placeholder="Password123"
                                 autocomplete="new-password"
                             >
@@ -155,7 +156,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
                                 <i class="fas fa-eye" aria-hidden="true"></i>
                             </button>
                         </div>
-                        <span class="input-hint">Leave empty to use "Password123".</span>
+                        <span class="input-hint">Default password set to "Password123".</span>
                     </div>
 
                     <div class="form-group">
@@ -168,6 +169,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
                                 type="password" 
                                 id="confirm_password" 
                                 name="confirm_password" 
+                                value="Password123"
                                 placeholder="Password123"
                                 autocomplete="new-password"
                             >
