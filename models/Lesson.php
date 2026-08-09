@@ -49,6 +49,15 @@ class Lesson {
             }
             
             $this->conn->commit();
+
+            require_once __DIR__ . '/Notification.php';
+            Notification::create(
+                'lesson', 
+                'New Lesson Created', 
+                'A new lesson was published.', 
+                BASE_URL . '/admin/lessons/view/' . $lessonId
+            );
+
             return ['success' => true, 'lesson_id' => $lessonId];
             
         } catch (Exception $e) {

@@ -179,6 +179,8 @@ $routes = [
     '/admin/homework/view/{id}' => 'AdminHomeworkController@view',
     '/admin/homework/toggle-status/{id}' => 'AdminHomeworkController@toggleStatus',
     '/admin/homework/delete/{id}' => 'AdminHomeworkController@delete',
+    '/admin/api/notifications'      => 'AdminController@getNotificationsApi',
+    '/admin/api/notifications/read' => 'AdminController@markNotificationsReadApi',
 ];
 
 // Route matching

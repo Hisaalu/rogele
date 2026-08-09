@@ -1,11 +1,12 @@
 <?php
 // File: /views/layouts/admin_header.php
 $currentUri = $_SERVER['REQUEST_URI'] ?? '';
-$isActive = function ($route, $exact = false) use ($currentUri) {
+$isActive = static function (string $route, bool $exact = false) use ($currentUri): string {
+    $contains = strpos($currentUri, $route) !== false;
     if ($exact) {
-        return (strpos($currentUri, $route) !== false && $currentUri === $route) ? 'active' : '';
+        return ($contains && $currentUri === $route) ? 'active' : '';
     }
-    return (strpos($currentUri, $route) !== false) ? 'active' : '';
+    return $contains ? 'active' : '';
 };
 ?>
 <!DOCTYPE html>
@@ -14,8 +15,8 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Admin Panel'; ?> - ROGELE Platform</title>
-    <base href="<?php echo BASE_URL; ?>/">
+    <title><?php echo htmlspecialchars($pageTitle ?? 'Admin Panel', ENT_QUOTES, 'UTF-8'); ?> - ROGELE Platform</title>
+    <base href="<?php echo htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8'); ?>/">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +48,7 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
             --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -238,17 +239,6 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
             color: var(--dark);
         }
 
-        .notification-indicator {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            width: 8px;
-            height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            border: 2px solid var(--white);
-        }
-
         .profile-trigger {
             display: flex;
             align-items: center;
@@ -256,7 +246,7 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
             cursor: pointer;
             padding: 4px 8px 4px 4px;
             border-radius: 30px;
-            border: 1px solid var(--gray-200);
+            border: 1px solid var(--gray-300);
             background: var(--white);
             position: relative;
             transition: all 0.2s ease;
@@ -265,7 +255,6 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
 
         .profile-trigger:hover {
             background: var(--bg-light);
-            border-color: var(--gray-300);
         }
 
         .admin-avatar {
@@ -350,10 +339,6 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
             font-size: 0.9rem;
         }
 
-        .profile-dropdown-card a:hover i {
-            color: var(--primary);
-        }
-
         .profile-dropdown-card .divider {
             height: 1px;
             background: var(--gray-100);
@@ -371,6 +356,120 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
         .profile-dropdown-card a.logout-link:hover {
             background: #fef2f2;
             color: #dc2626;
+        }
+
+        .notification-dropdown-card {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: -10px;
+            background: var(--white);
+            width: 320px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-300);
+            display: none;
+            flex-direction: column;
+            z-index: 1100;
+            overflow: hidden;
+            animation: fadeIn 0.15s ease-out;
+        }
+
+        .notification-dropdown-card.show {
+            display: flex;
+        }
+
+        .notification-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .notification-header h4 {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .mark-read-btn {
+            font-size: 0.72rem;
+            color: var(--accent);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: 600;
+        }
+
+        .notification-list {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            border-bottom: 1px solid var(--gray-100);
+            transition: background 0.15s ease;
+        }
+
+        .notification-item:hover {
+            background: var(--bg-light);
+        }
+
+        .notification-item.unread {
+            background: #fcf4f0;
+        }
+
+        .notification-icon-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .icon-user { background: #e0f2fe; color: #0284c7; }
+        .icon-subscriber { background: #dcfce7; color: #15803d; }
+        .icon-homework { background: #fef3c7; color: #d97706; }
+        .icon-quiz { background: #f3e8ff; color: #7e22ce; }
+        .icon-lesson { background: #ffe4e6; color: #e11d48; }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-content p {
+            font-size: 0.8rem;
+            color: var(--gray-900);
+            line-height: 1.3;
+            margin-bottom: 3px;
+        }
+
+        .notification-content small {
+            font-size: 0.68rem;
+            color: var(--gray-700);
+        }
+
+        .notification-badge-count {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 1px 5px;
+            min-width: 16px;
+            text-align: center;
         }
 
         .admin-sidebar {
@@ -394,12 +493,12 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
             flex: 1;
             padding: 16px 10px;
             overflow-y: auto;
-            
-            &::-webkit-scrollbar {
-                display: none;
-            }
             -ms-overflow-style: none; 
             scrollbar-width: none; 
+        }
+
+        .sidebar-scroll-container::-webkit-scrollbar {
+            display: none;
         }
 
         .menu-group-label {
@@ -540,10 +639,7 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
 
         .sidebar-backdrop {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background: rgba(15, 23, 42, 0.5);
             backdrop-filter: blur(2px);
             z-index: 850;
@@ -581,11 +677,9 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
         }
 
         @media (max-width: 992px) {
-            .navbar-brand-block {
-                display: none;
-            }
-
-            .header-search-bar {
+            .navbar-brand-block,
+            .header-search-bar,
+            .admin-meta {
                 display: none;
             }
 
@@ -654,10 +748,6 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
             .view-content-wrapper {
                 padding: 16px;
             }
-
-            .admin-meta {
-                display: none;
-            }
         }
     </style>
 </head>
@@ -694,24 +784,37 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
             </div>
 
             <div class="header-actions">
-                <button class="header-action-btn" title="Notifications" aria-label="View notifications">
-                    <i class="far fa-bell"></i>
-                    <span class="notification-indicator"></span>
-                </button>
+                <div style="position: relative;">
+                    <button class="header-action-btn" id="notifTrigger" title="Notifications" aria-label="View notifications">
+                        <i class="far fa-bell"></i>
+                        <span class="notification-badge-count" id="notifBadge" style="display: none;">0</span>
+                    </button>
+
+                    <div class="notification-dropdown-card" id="notifDropdown">
+                        <div class="notification-header">
+                            <h4>Notifications</h4>
+                            <button class="mark-read-btn" id="markAllReadBtn">Mark all as read</button>
+                        </div>
+                        <div class="notification-list" id="notifList">
+                            <div style="padding: 20px; text-align: center; font-size: 0.8rem; color: #888;">Loading notifications...</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="profile-trigger" id="profileTrigger">
                     <div class="admin-avatar">
                         <?php 
-                        $nameParts = explode(' ', $_SESSION['user_name'] ?? 'Admin');
+                        $userName = $_SESSION['user_name'] ?? 'Admin';
+                        $nameParts = explode(' ', trim($userName));
                         $initials = '';
                         foreach ($nameParts as $part) {
-                            if (!empty($part)) $initials .= strtoupper(substr($part, 0, 1));
+                            if ($part !== '') $initials .= strtoupper(substr($part, 0, 1));
                         }
-                        echo substr($initials, 0, 2);
+                        echo htmlspecialchars(substr($initials, 0, 2), ENT_QUOTES, 'UTF-8');
                         ?>
                     </div>
                     <div class="admin-meta">
-                        <span><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Administrator'); ?></span>
+                        <span><?php echo htmlspecialchars($userName, ENT_QUOTES, 'UTF-8'); ?></span>
                         <small>System Admin</small>
                     </div>
                     <i class="fas fa-chevron-down" style="font-size: 0.65rem; color: var(--gray-700); margin-left: 2px;"></i>
@@ -827,23 +930,25 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
         <div class="view-content-wrapper">
             
             <div class="toast-container">
-                <?php if (isset($_SESSION['success'])): ?>
+                <?php if (!empty($_SESSION['success'])): ?>
                     <div class="alert-toast alert-success">
                         <i class="fas fa-check-circle"></i>
-                        <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
+                        <span><?php echo htmlspecialchars($_SESSION['success'], ENT_QUOTES, 'UTF-8'); unset($_SESSION['success']); ?></span>
                     </div>
                 <?php endif; ?>
                 
-                <?php if (isset($_SESSION['error'])): ?>
+                <?php if (!empty($_SESSION['error'])): ?>
                     <div class="alert-toast alert-error">
                         <i class="fas fa-exclamation-circle"></i>
-                        <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+                        <span><?php echo htmlspecialchars($_SESSION['error'], ENT_QUOTES, 'UTF-8'); unset($_SESSION['error']); ?></span>
                     </div>
                 <?php endif; ?>
             </div>
 
             <script>
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', () => {
+                const BASE_URL = '<?php echo BASE_URL; ?>';
+
                 if (localStorage.getItem('admin_sidebar_collapsed') === 'true') {
                     document.body.classList.add('sidebar-collapsed');
                 }
@@ -852,25 +957,19 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
                 const profileDropdown = document.getElementById('profileDropdown');
 
                 if (profileTrigger && profileDropdown) {
-                    profileTrigger.addEventListener('click', function(e) {
+                    profileTrigger.addEventListener('click', (e) => {
                         e.stopPropagation();
+                        if (notifDropdown) notifDropdown.classList.remove('show');
                         profileDropdown.classList.toggle('show');
-                    });
-
-                    document.addEventListener('click', function(e) {
-                        if (!profileDropdown.contains(e.target)) {
-                            profileDropdown.classList.remove('show');
-                        }
                     });
                 }
 
                 const menuToggleDesktop = document.getElementById('menuToggleDesktop');
                 if (menuToggleDesktop) {
-                    menuToggleDesktop.addEventListener('click', function(e) {
+                    menuToggleDesktop.addEventListener('click', (e) => {
                         e.stopPropagation();
                         document.body.classList.toggle('sidebar-collapsed');
-                        const isCollapsed = document.body.classList.contains('sidebar-collapsed');
-                        localStorage.setItem('admin_sidebar_collapsed', isCollapsed);
+                        localStorage.setItem('admin_sidebar_collapsed', document.body.classList.contains('sidebar-collapsed'));
                     });
                 }
 
@@ -878,29 +977,144 @@ $isActive = function ($route, $exact = false) use ($currentUri) {
                 const sidebarBackdrop = document.getElementById('sidebarBackdrop');
 
                 if (menuToggleMobile) {
-                    menuToggleMobile.addEventListener('click', function(e) {
+                    menuToggleMobile.addEventListener('click', (e) => {
                         e.stopPropagation();
                         document.body.classList.add('sidebar-open');
                     });
                 }
 
                 if (sidebarBackdrop) {
-                    sidebarBackdrop.addEventListener('click', function() {
+                    sidebarBackdrop.addEventListener('click', () => {
                         document.body.classList.remove('sidebar-open');
                     });
                 }
 
-                const submenuToggles = document.querySelectorAll('.submenu-toggle-trigger');
-                submenuToggles.forEach(toggle => {
+                document.querySelectorAll('.submenu-toggle-trigger').forEach(toggle => {
                     toggle.addEventListener('click', function(e) {
                         e.preventDefault();
                         if (document.body.classList.contains('sidebar-collapsed')) {
                             document.body.classList.remove('sidebar-collapsed');
                             localStorage.setItem('admin_sidebar_collapsed', 'false');
                         }
-                        const nodeWrapper = this.parentElement;
-                        nodeWrapper.classList.toggle('expanded');
+                        this.parentElement.classList.toggle('expanded');
                     });
                 });
+
+                document.addEventListener('click', (e) => {
+                    if (profileDropdown && !profileDropdown.contains(e.target) && !profileTrigger.contains(e.target)) {
+                        profileDropdown.classList.remove('show');
+                    }
+                    if (notifDropdown && !notifDropdown.contains(e.target) && !notifTrigger.contains(e.target)) {
+                        notifDropdown.classList.remove('show');
+                    }
+                });
+
+                const notifTrigger = document.getElementById('notifTrigger');
+                const notifDropdown = document.getElementById('notifDropdown');
+                const notifBadge = document.getElementById('notifBadge');
+                const notifList = document.getElementById('notifList');
+                const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+                const getIconMeta = (type) => {
+                    const icons = {
+                        user: { icon: 'fas fa-user-plus', class: 'icon-user' },
+                        subscriber: { icon: 'fas fa-credit-card', class: 'icon-subscriber' },
+                        homework: { icon: 'fas fa-tasks', class: 'icon-homework' },
+                        quiz: { icon: 'fas fa-graduation-cap', class: 'icon-quiz' },
+                        lesson: { icon: 'fas fa-book-open', class: 'icon-lesson' }
+                    };
+                    return icons[type] || { icon: 'fas fa-bell', class: 'icon-user' };
+                };
+
+                const fetchNotifications = async () => {
+                    try {
+                        const res = await fetch(`${BASE_URL}/admin/api/notifications`);
+                        const data = await res.json();
+
+                        if (data.status === 'success') {
+                            if (data.unread_count > 0) {
+                                notifBadge.textContent = data.unread_count;
+                                notifBadge.style.display = 'block';
+                            } else {
+                                notifBadge.style.display = 'none';
+                            }
+
+                            if (!data.notifications || data.notifications.length === 0) {
+                                notifList.innerHTML = '<div style="padding: 20px; text-align: center; font-size: 0.8rem; color: #888;">No notifications yet.</div>';
+                                return;
+                            }
+
+                            notifList.innerHTML = data.notifications.map(item => {
+                                const meta = getIconMeta(item.type);
+                                const unreadClass = item.is_read == 0 ? 'unread' : '';
+                                return `
+                                    <a href="${item.link || '#'}" 
+                                    class="notification-item ${unreadClass}" 
+                                    data-id="${item.id}" 
+                                    data-unread="${item.is_read == 0}">
+                                        <div class="notification-icon-box ${meta.class}">
+                                            <i class="${meta.icon}"></i>
+                                        </div>
+                                        <div class="notification-content">
+                                            <p>${item.message}</p>
+                                            <small>${new Date(item.created_at).toLocaleString()}</small>
+                                        </div>
+                                    </a>
+                                `;
+                            }).join('');
+                        }
+                    } catch (err) {
+                        console.error('Failed to update notifications:', err);
+                    }
+                };
+
+                if (notifTrigger && notifDropdown) {
+                    notifTrigger.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (profileDropdown) profileDropdown.classList.remove('show');
+                        notifDropdown.classList.toggle('show');
+                        fetchNotifications();
+                    });
+                }
+
+                if (markAllReadBtn) {
+                    markAllReadBtn.addEventListener('click', async () => {
+                        try {
+                            await fetch(`${BASE_URL}/admin/api/notifications/read`, { method: 'POST' });
+                            fetchNotifications();
+                        } catch (err) {
+                            console.error('Failed marking notifications read:', err);
+                        }
+                    });
+                }
+                
+                fetchNotifications();
+                notifList.addEventListener('click', async (e) => {
+                    const item = e.target.closest('.notification-item');
+                    if (!item) return;
+
+                    const notifId = item.getAttribute('data-id');
+                    const isUnread = item.getAttribute('data-unread') === 'true';
+
+                    if (isUnread && notifId) {
+                        e.preventDefault();
+                        const targetUrl = item.getAttribute('href');
+
+                        try {
+                            await fetch(`${BASE_URL}/admin/api/notifications/read`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: notifId })
+                            });
+                        } catch (err) {
+                            console.error('Failed to mark notification as read:', err);
+                        } finally {
+                            if (targetUrl && targetUrl !== '#') {
+                                window.location.href = targetUrl;
+                            }
+                        }
+                    }
+                });
+                setInterval(fetchNotifications, 30000);
             });
             </script>

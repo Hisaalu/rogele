@@ -315,6 +315,14 @@ class User {
             
             $userData = $this->getById($userId);
             unset($userData['password']);
+
+            require_once __DIR__ . '/Notification.php';
+            Notification::create(
+                'user', 
+                'New User Registered', 
+                $data['first_name'] . ' ' . $data['last_name'] . ' joined ROGELE.', 
+                BASE_URL . '/admin/users/edit/' . $userId
+            );
             
             return [
                 'success' => true, 

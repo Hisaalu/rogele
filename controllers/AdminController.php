@@ -7,6 +7,7 @@ require_once __DIR__ . '/../models/Subscription.php';
 require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../models/Lesson.php'; 
 require_once __DIR__ . '/../models/Classes.php';
+require_once __DIR__ . '/../models/Notification.php';
 
 class AdminController {
     private $userModel;
@@ -635,6 +636,30 @@ class AdminController {
         } else {
             $this->redirectWithError($result['error'] ?? 'Failed to delete quiz.', BASE_URL . '/admin/quizzes');
         }
+    }
+
+    public function getNotificationsApi() {
+        header('Content-Type: application/json');
+        $notifModel = new Notification();
+        
+        $notifications = $notifModel->getLatestNotifications(10);
+        $unreadCount = $notifModel->getUnreadCount();
+        
+        echo json_encode([
+            'status' => 'success',
+            'unread_count' => $unreadCount,
+            'notifications' => $notifications
+        ]);
+        exit;
+    }
+
+    public function markNotificationsReadApi() {
+        header('Content-Type: application/json');
+        $notifModel = new Notification();
+        $notifModel->markAllAsRead();
+        
+        echo json_encode(['status' => 'success']);
+        exit;
     }
 }
 ?>

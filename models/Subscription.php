@@ -601,6 +601,14 @@ class Subscription {
 
             $this->conn->commit();
 
+            require_once __DIR__ . '/Notification.php';
+            Notification::create(
+                'subscriber', 
+                'New Subscription Activated', 
+                'A new subscriber activated their plan.', 
+                BASE_URL . '/admin/subscriptions/view/' . $newSubscriptionId
+            );
+
             return [
                 'success'         => true,
                 'subscription_id' => $newSubscriptionId,

@@ -1218,6 +1218,14 @@ class Quiz {
             
             $quizId = $this->conn->lastInsertId();
             $this->invalidateQuizCache($quizId);
+
+            require_once __DIR__ . '/Notification.php';
+            Notification::create(
+                'quiz', 
+                'New Quiz Created', 
+                'A new quiz was added to the platform.', 
+                BASE_URL . '/admin/quizzes/view/' . $quizId,
+            );
             
             return [
                 'success' => true,

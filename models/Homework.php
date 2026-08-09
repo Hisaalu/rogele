@@ -167,6 +167,14 @@ class Homework {
             if ($files && isset($files['name'][0]) && $files['name'][0] !== '' && $files['error'][0] === UPLOAD_ERR_OK) {
                 $this->uploadFiles($homeworkId, $files, false);
             }
+
+            require_once __DIR__ . '/Notification.php';
+            Notification::create(
+                'homework', 
+                'New Homework Created', 
+                'Homework "' . htmlspecialchars($data['title']) . '" was posted.', 
+                BASE_URL . '/admin/homework/view/' . $homeworkId
+            );
             
             return ['success' => true, 'homework_id' => $homeworkId];
             
