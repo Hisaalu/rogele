@@ -697,6 +697,10 @@ if (!empty($quizzes)) {
     .page-title {
         font-size: 2rem;
     }
+
+    .btn-start, .btn-resume {
+        width: 100%;
+    }
     
     .progress-header {
         flex-direction: column;
