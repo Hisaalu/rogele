@@ -9,7 +9,6 @@ $stats = $stats ?? [];
 ?>
 
 <div class="results-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
@@ -36,7 +35,6 @@ $stats = $stats ?? [];
         </div>
     </div>
 
-    <!-- Stats Overview -->
     <?php if (!empty($stats)): ?>
     <div class="stats-grid">
         <div class="stat-card">
@@ -80,7 +78,6 @@ $stats = $stats ?? [];
         </div>
     </div>
 
-    <!-- Score Distribution -->
     <?php if (!empty($stats['distribution'])): ?>
     <div class="chart-card">
         <div class="card-header">
@@ -93,7 +90,6 @@ $stats = $stats ?? [];
     <?php endif; ?>
     <?php endif; ?>
 
-    <!-- Results Table -->
     <div class="results-card">
         <div class="card-header">
             <h3><i class="fas fa-list"></i> Student Attempts</h3>
@@ -152,7 +148,6 @@ $stats = $stats ?? [];
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -224,7 +219,6 @@ $stats = $stats ?? [];
     font-size: 0.95rem;
 }
 
-/* Download Buttons */
 .download-actions {
     display: flex;
     gap: 12px;
@@ -294,7 +288,6 @@ $stats = $stats ?? [];
     transform: scale(1.05);
 }
 
-/* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -329,7 +322,7 @@ $stats = $stats ?? [];
 
 .stat-label {
     display: block;
-    color: #64748B;
+    color: #555;
     font-size: 0.8rem;
     margin-bottom: 3px;
 }
@@ -342,7 +335,6 @@ $stats = $stats ?? [];
     line-height: 1.2;
 }
 
-/* Chart Card */
 .chart-card {
     background: white;
     border-radius: 16px;
@@ -392,7 +384,6 @@ $stats = $stats ?? [];
     position: relative;
 }
 
-/* Results Card */
 .results-card {
     background: white;
     border-radius: 16px;
@@ -471,7 +462,6 @@ $stats = $stats ?? [];
     color: #B91C1C;
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -490,10 +480,9 @@ $stats = $stats ?? [];
 }
 
 .empty-state p {
-    color: #64748B;
+    color: #555;
 }
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -649,7 +638,6 @@ $stats = $stats ?? [];
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .page-header {
         flex-direction: column;
@@ -677,7 +665,6 @@ $stats = $stats ?? [];
 
 </style>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -717,14 +704,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 <?php endif; ?>
 
-// Modal elements
 const modal = document.getElementById('deleteModal');
 const confirmInput = document.getElementById('confirmDeleteInput');
 const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 const closeModalBtn = document.querySelector('.modal-close');
 const cancelModalBtn = document.querySelector('.btn-cancel-modal');
 
-// Confirm delete function
 function confirmDeleteAttempts() {
     if (modal) {
         modal.style.display = 'flex';
@@ -746,14 +731,12 @@ function closeModal() {
     }
 }
 
-// Close modal handlers
 if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
 if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
 window.addEventListener('click', function(e) {
     if (e.target === modal) closeModal();
 });
 
-// Enable delete button when "DELETE" is typed
 if (confirmInput) {
     confirmInput.addEventListener('input', function() {
         if (confirmDeleteBtn) {
@@ -762,7 +745,6 @@ if (confirmInput) {
     });
 }
 
-// Confirm delete action
 if (confirmDeleteBtn) {
     confirmDeleteBtn.addEventListener('click', function() {
         const quizId = <?php echo $quiz['id'] ?? 0; ?>;
@@ -793,7 +775,6 @@ if (confirmDeleteBtn) {
     });
 }
 
-// Download results as CSV
 function downloadResults(format) {
     const table = document.getElementById('resultsTable');
     const rows = table.querySelectorAll('tr');
@@ -846,7 +827,6 @@ function downloadResults(format) {
     showToast('Results downloaded successfully!', 'success');
 }
 
-// Copy table to clipboard
 async function copyTableToClipboard() {
     const table = document.getElementById('resultsTable');
     const range = document.createRange();
@@ -865,7 +845,6 @@ async function copyTableToClipboard() {
     window.getSelection().removeAllRanges();
 }
 
-// Toast notification
 function showToast(message, type = 'success') {
     let toast = document.getElementById('toast');
     if (!toast) {
@@ -905,7 +884,6 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && e.key === 'd') {
         e.preventDefault();

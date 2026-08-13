@@ -621,7 +621,7 @@ class Quiz {
                     FROM quiz_attempts qa
                     JOIN users u ON qa.user_id = u.id
                     WHERE qa.quiz_id = :quiz_id AND qa.status = 'completed'
-                    ORDER BY qa.score DESC, qa.completed_at DESC";
+                    ORDER BY first_name ASC, last_name ASC;";
             
             $stmt = $this->conn->prepare($query);
             $stmt->execute([':quiz_id' => $quizId]);
