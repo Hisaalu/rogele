@@ -172,6 +172,8 @@ class Subscription {
 
     public function getSubscriptionById($subscriptionId) {
         try {
+            $this->expirePastSubscriptions();
+
             if (isset($this->subscriptionCache[$subscriptionId])) {
                 return $this->subscriptionCache[$subscriptionId];
             }
@@ -192,6 +194,8 @@ class Subscription {
 
     public function getAllSubscriptions($filters = [], $limit = 20, $offset = 0) {
         try {
+            $this->expirePastSubscriptions();
+
             $sql = "SELECT s.*, u.first_name, u.last_name, u.email, u.role as user_role
                     FROM subscriptions s
                     LEFT JOIN users u ON s.user_id = u.id
@@ -346,21 +350,22 @@ class Subscription {
     public function expireSubscriptions() {
         return $this->expirePastSubscriptions();
     }
-    
+
     public function expirePastSubscriptions() {
         try {
-            $sql = "UPDATE subscriptions SET status = 'expired', updated_at = NOW() 
-                    WHERE status = 'active' AND end_date < NOW()";
+            $sql = "UPDATE subscriptions 
+                    SET status = 'expired' 
+                    WHERE status IN ('active', 'pending') 
+                    AND end_date IS NOT NULL 
+                    AND end_date < NOW()";
+                    
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
             
-            $affectedRows = $stmt->rowCount();
-            if ($affectedRows > 0) {
-                error_log("Expired $affectedRows subscription(s) that passed their end date");
-            }
-            return ['success' => true, 'affected' => $affectedRows];
+            return ['success' => true, 'affected' => $stmt->rowCount()];
         } catch (PDOException $e) {
-            return ['success' => false, 'error' => 'Failed to expire subscriptions'];
+            error_log("Expire subscriptions error: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 

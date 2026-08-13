@@ -66,6 +66,9 @@ class AdminSubscriptionController {
     public function index() {
         $hideFooter = true;
         
+        // Automatically run the expiration check first
+        $this->subscriptionModel->expirePastSubscriptions();
+        
         $pagination = $this->getPaginationParams();
         $filters = $this->getFilters();
         
