@@ -704,7 +704,7 @@ $exportUrl = BASE_URL . '/admin/subscriptions/export' . ($queryString ? '?' . $q
         align-items: flex-start;
     }
     
-    .header-actions {
+    .page-header .header-actions {
         width: 100%;
         flex-direction: column;
     }

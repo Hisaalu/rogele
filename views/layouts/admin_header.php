@@ -162,9 +162,9 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         .navbar-right-block {
             flex: 1;
             padding: 0 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
             background: var(--white);
             min-width: 0;
         }
@@ -181,11 +181,13 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             object-fit: contain;
         }
 
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-left: auto;
+        .admin-top-navbar .header-actions {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 16px !important;
+            margin-left: auto !important;
+            width: auto !important;
         }
 
         .header-action-btn {
@@ -726,10 +728,6 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         }
 
         @media (max-width: 576px) {
-            .header-actions {
-                gap: 8px;
-            }
-
             .profile-trigger {
                 border: none;
                 padding: 0;
