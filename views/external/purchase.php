@@ -25,91 +25,6 @@ $selectedName = $planNames[$plan] ?? 'Monthly';
 $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 ?>
 
-<div class="purchase-container">
-    <div class="back-link">
-        <a href="<?php echo BASE_URL; ?>/external/subscription">
-            <i class="fas fa-arrow-left"></i> Back to Plans
-        </a>
-    </div>
-
-    <div class="purchase-card">
-        <h1 class="page-title">Complete Your Purchase</h1>
-        <p class="page-subtitle">You're about to purchase the <strong><?php echo $selectedName; ?></strong> plan</p>
-
-        <?php if ($trialDays > 0): ?>
-        <div class="trial-notice">
-            <i class="fas fa-gift"></i>
-            <span>Your <?php echo $trialDays; ?>-day free trial starts immediately after payment</span>
-        </div>
-        <?php endif; ?>
-
-        <div class="order-summary">
-            <h3>Order Summary</h3>
-            <div class="summary-item">
-                <span><?php echo $selectedName; ?> Plan</span>
-                <span class="price">UGX <?php echo number_format($selectedPrice); ?></span>
-            </div>
-            <div class="summary-item">
-                <span>Tax</span>
-                <span class="price">UGX 0</span>
-            </div>
-            <div class="summary-total">
-                <span>Total</span>
-                <span class="total-price">UGX <?php echo number_format($selectedPrice); ?></span>
-            </div>
-        </div>
-
-        <form method="POST" action="<?php echo BASE_URL; ?>/external/process-payment" class="payment-form">
-            <input type="hidden" name="plan" value="<?php echo $plan; ?>">
-            
-            <div class="form-group">
-                <label for="phone_number">
-                    <i class="fas fa-mobile-alt"></i>
-                    Mobile Money Number
-                </label>
-                <input 
-                    type="tel" 
-                    id="phone_number" 
-                    name="phone_number" 
-                    required 
-                    placeholder="e.g., 0772XXXXXX"
-                    pattern="[0-9]{10}"
-                >
-                <small class="input-hint">Enter your MTN or Airtel mobile money number</small>
-            </div>
-
-            <div class="form-group">
-                <label for="payment_method">
-                    <i class="fas fa-credit-card"></i>
-                    Payment Method
-                </label>
-                <select id="payment_method" name="payment_method" required>
-                    <option value="mtn">MTN Mobile Money</option>
-                    <option value="airtel">Airtel Money</option>
-                </select>
-            </div>
-
-            <div class="terms-group">
-                <input type="checkbox" id="terms" required>
-                <label for="terms">
-                    I agree to the <a href="/terms" target="_blank">Terms of Service</a> and 
-                    <a href="/privacy" target="_blank">Privacy Policy</a>
-                </label>
-            </div>
-
-            <button type="submit" class="btn-pay">
-                <i class="fas fa-lock"></i>
-                Pay UGX <?php echo number_format($selectedPrice); ?>
-            </button>
-
-            <div class="secure-note">
-                <i class="fas fa-shield-alt"></i>
-                <span>Your payment information is secure and encrypted</span>
-            </div>
-        </form>
-    </div>
-</div>
-
 <style>
 .purchase-container {
     max-width: 600px;
@@ -335,5 +250,90 @@ $trialDays = $subscriptionSettings['trial_days'] ?? 60;
 }
 
 </style>
+
+<div class="purchase-container">
+    <div class="back-link">
+        <a href="<?php echo BASE_URL; ?>/external/subscription">
+            <i class="fas fa-arrow-left"></i> Back to Plans
+        </a>
+    </div>
+
+    <div class="purchase-card">
+        <h1 class="page-title">Complete Your Purchase</h1>
+        <p class="page-subtitle">You're about to purchase the <strong><?php echo $selectedName; ?></strong> plan</p>
+
+        <?php if ($trialDays > 0): ?>
+        <div class="trial-notice">
+            <i class="fas fa-gift"></i>
+            <span>Your <?php echo $trialDays; ?>-day free trial starts immediately after payment</span>
+        </div>
+        <?php endif; ?>
+
+        <div class="order-summary">
+            <h3>Order Summary</h3>
+            <div class="summary-item">
+                <span><?php echo $selectedName; ?> Plan</span>
+                <span class="price">UGX <?php echo number_format($selectedPrice); ?></span>
+            </div>
+            <div class="summary-item">
+                <span>Tax</span>
+                <span class="price">UGX 0</span>
+            </div>
+            <div class="summary-total">
+                <span>Total</span>
+                <span class="total-price">UGX <?php echo number_format($selectedPrice); ?></span>
+            </div>
+        </div>
+
+        <form method="POST" action="<?php echo BASE_URL; ?>/external/process-payment" class="payment-form">
+            <input type="hidden" name="plan" value="<?php echo $plan; ?>">
+            
+            <div class="form-group">
+                <label for="phone_number">
+                    <i class="fas fa-mobile-alt"></i>
+                    Mobile Money Number
+                </label>
+                <input 
+                    type="tel" 
+                    id="phone_number" 
+                    name="phone_number" 
+                    required 
+                    placeholder="e.g., 0772XXXXXX"
+                    pattern="[0-9]{10}"
+                >
+                <small class="input-hint">Enter your MTN or Airtel mobile money number</small>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_method">
+                    <i class="fas fa-credit-card"></i>
+                    Payment Method
+                </label>
+                <select id="payment_method" name="payment_method" required>
+                    <option value="mtn">MTN Mobile Money</option>
+                    <option value="airtel">Airtel Money</option>
+                </select>
+            </div>
+
+            <div class="terms-group">
+                <input type="checkbox" id="terms" required>
+                <label for="terms">
+                    I agree to the <a href="/terms" target="_blank">Terms of Service</a> and 
+                    <a href="/privacy" target="_blank">Privacy Policy</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-pay">
+                <i class="fas fa-lock"></i>
+                Pay UGX <?php echo number_format($selectedPrice); ?>
+            </button>
+
+            <div class="secure-note">
+                <i class="fas fa-shield-alt"></i>
+                <span>Your payment information is secure and encrypted</span>
+            </div>
+        </form>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

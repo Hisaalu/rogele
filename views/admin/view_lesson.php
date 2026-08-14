@@ -13,115 +13,6 @@ if (!function_exists('getYoutubeId')) {
 }
 ?>
 
-<div class="view-lesson-container">
-    <header class="page-header">
-        <div class="header-text">
-            <h1 class="page-title">
-                <i class="fas fa-book-open" aria-hidden="true"></i>
-                <span>View Lesson</span>
-            </h1>
-        </div>
-    </header>
-
-    <main class="lesson-card">
-        <div class="lesson-header">
-            <h2><?php echo htmlspecialchars($lesson['title'] ?? 'Untitled Lesson'); ?></h2>
-            
-            <div class="lesson-meta">
-                <span class="meta-item">
-                    <i class="fas fa-user" aria-hidden="true"></i>
-                    <strong>Teacher:</strong> <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Unknown'); ?>
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
-                    <strong>Class:</strong> <?php echo htmlspecialchars($lesson['class_name'] ?? 'All Levels'); ?>
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-book" aria-hidden="true"></i>
-                    <strong>Subject:</strong> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?>
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-calendar" aria-hidden="true"></i>
-                    <strong>Created:</strong> <?php echo !empty($lesson['created_at']) ? date('M d, Y h:i A', strtotime($lesson['created_at'])) : 'N/A'; ?>
-                </span>
-            </div>
-
-            <div class="lesson-status">
-                <span class="status-badge <?php echo !empty($lesson['is_published']) ? 'published' : 'draft'; ?>">
-                    <i class="fas <?php echo !empty($lesson['is_published']) ? 'fa-globe' : 'fa-pencil-alt'; ?>" aria-hidden="true"></i>
-                    <?php echo !empty($lesson['is_published']) ? 'Published' : 'Draft'; ?>
-                </span>
-                <span class="status-badge <?php echo !empty($lesson['is_approved']) ? 'approved' : 'pending'; ?>">
-                    <i class="fas <?php echo !empty($lesson['is_approved']) ? 'fa-check-circle' : 'fa-clock'; ?>" aria-hidden="true"></i>
-                    <?php echo !empty($lesson['is_approved']) ? 'Approved' : 'Pending Approval'; ?>
-                </span>
-            </div>
-        </div>
-
-        <section class="lesson-section">
-            <h3 class="section-title"><i class="fas fa-align-left" aria-hidden="true"></i> Lesson Content</h3>
-            <div class="content-body">
-                <?php echo nl2br(htmlspecialchars($lesson['content'] ?? 'No content available.')); ?>
-            </div>
-        </section>
-
-        <?php if (!empty($lesson['video_url'])): ?>
-            <?php $youtubeId = getYoutubeId($lesson['video_url']); ?>
-            <?php if (!empty($youtubeId)): ?>
-                <section class="lesson-section">
-                    <h3 class="section-title"><i class="fas fa-video" aria-hidden="true"></i> Video Lesson</h3>
-                    <div class="video-wrapper">
-                        <iframe 
-                            src="https://www.youtube.com/embed/<?php echo htmlspecialchars($youtubeId); ?>" 
-                            title="Lesson Video"
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                </section>
-            <?php endif; ?>
-        <?php endif; ?>
-
-        <?php if (!empty($lesson['materials']) && is_array($lesson['materials'])): ?>
-            <section class="lesson-section">
-                <h3 class="section-title"><i class="fas fa-paperclip" aria-hidden="true"></i> Learning Materials</h3>
-                <div class="materials-list">
-                    <?php foreach ($lesson['materials'] as $material): ?>
-                        <a href="<?php echo BASE_URL; ?>/public/<?php echo htmlspecialchars(ltrim($material['file_path'] ?? '', '/')); ?>" 
-                           target="_blank" 
-                           rel="noopener noreferrer" 
-                           class="material-item">
-                            <i class="fas fa-file-alt" aria-hidden="true"></i>
-                            <span><?php echo htmlspecialchars($material['file_name'] ?? 'Download Material'); ?></span>
-                            <i class="fas fa-download download-icon" aria-hidden="true"></i>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
-        <div class="admin-actions">
-            <?php if (empty($lesson['is_approved'])): ?>
-                <a href="<?php echo BASE_URL; ?>/admin/lessons/approve/<?php echo urlencode($lesson['id'] ?? ''); ?>" 
-                   class="btn-action btn-approve" 
-                   onclick="return confirm('Approve this lesson?')">
-                    <i class="fas fa-check-circle" aria-hidden="true"></i> Approve Lesson
-                </a>
-                <a href="<?php echo BASE_URL; ?>/admin/lessons/reject/<?php echo urlencode($lesson['id'] ?? ''); ?>" 
-                   class="btn-action btn-reject" 
-                   onclick="return confirm('Reject this lesson?')">
-                    <i class="fas fa-times-circle" aria-hidden="true"></i> Reject Lesson
-                </a>
-            <?php else: ?>
-                <div class="already-approved">
-                    <i class="fas fa-check-circle" aria-hidden="true"></i> Lesson Already Approved
-                </div>
-            <?php endif; ?>
-        </div>
-    </main>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -399,5 +290,114 @@ if (!function_exists('getYoutubeId')) {
     }
 }
 </style>
+
+<div class="view-lesson-container">
+    <header class="page-header">
+        <div class="header-text">
+            <h1 class="page-title">
+                <i class="fas fa-book-open" aria-hidden="true"></i>
+                <span>View Lesson</span>
+            </h1>
+        </div>
+    </header>
+
+    <main class="lesson-card">
+        <div class="lesson-header">
+            <h2><?php echo htmlspecialchars($lesson['title'] ?? 'Untitled Lesson'); ?></h2>
+            
+            <div class="lesson-meta">
+                <span class="meta-item">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    <strong>Teacher:</strong> <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Unknown'); ?>
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                    <strong>Class:</strong> <?php echo htmlspecialchars($lesson['class_name'] ?? 'All Levels'); ?>
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-book" aria-hidden="true"></i>
+                    <strong>Subject:</strong> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?>
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-calendar" aria-hidden="true"></i>
+                    <strong>Created:</strong> <?php echo !empty($lesson['created_at']) ? date('M d, Y h:i A', strtotime($lesson['created_at'])) : 'N/A'; ?>
+                </span>
+            </div>
+
+            <div class="lesson-status">
+                <span class="status-badge <?php echo !empty($lesson['is_published']) ? 'published' : 'draft'; ?>">
+                    <i class="fas <?php echo !empty($lesson['is_published']) ? 'fa-globe' : 'fa-pencil-alt'; ?>" aria-hidden="true"></i>
+                    <?php echo !empty($lesson['is_published']) ? 'Published' : 'Draft'; ?>
+                </span>
+                <span class="status-badge <?php echo !empty($lesson['is_approved']) ? 'approved' : 'pending'; ?>">
+                    <i class="fas <?php echo !empty($lesson['is_approved']) ? 'fa-check-circle' : 'fa-clock'; ?>" aria-hidden="true"></i>
+                    <?php echo !empty($lesson['is_approved']) ? 'Approved' : 'Pending Approval'; ?>
+                </span>
+            </div>
+        </div>
+
+        <section class="lesson-section">
+            <h3 class="section-title"><i class="fas fa-align-left" aria-hidden="true"></i> Lesson Content</h3>
+            <div class="content-body">
+                <?php echo nl2br(htmlspecialchars($lesson['content'] ?? 'No content available.')); ?>
+            </div>
+        </section>
+
+        <?php if (!empty($lesson['video_url'])): ?>
+            <?php $youtubeId = getYoutubeId($lesson['video_url']); ?>
+            <?php if (!empty($youtubeId)): ?>
+                <section class="lesson-section">
+                    <h3 class="section-title"><i class="fas fa-video" aria-hidden="true"></i> Video Lesson</h3>
+                    <div class="video-wrapper">
+                        <iframe 
+                            src="https://www.youtube.com/embed/<?php echo htmlspecialchars($youtubeId); ?>" 
+                            title="Lesson Video"
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </section>
+            <?php endif; ?>
+        <?php endif; ?>
+
+        <?php if (!empty($lesson['materials']) && is_array($lesson['materials'])): ?>
+            <section class="lesson-section">
+                <h3 class="section-title"><i class="fas fa-paperclip" aria-hidden="true"></i> Learning Materials</h3>
+                <div class="materials-list">
+                    <?php foreach ($lesson['materials'] as $material): ?>
+                        <a href="<?php echo BASE_URL; ?>/public/<?php echo htmlspecialchars(ltrim($material['file_path'] ?? '', '/')); ?>" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="material-item">
+                            <i class="fas fa-file-alt" aria-hidden="true"></i>
+                            <span><?php echo htmlspecialchars($material['file_name'] ?? 'Download Material'); ?></span>
+                            <i class="fas fa-download download-icon" aria-hidden="true"></i>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <div class="admin-actions">
+            <?php if (empty($lesson['is_approved'])): ?>
+                <a href="<?php echo BASE_URL; ?>/admin/lessons/approve/<?php echo urlencode($lesson['id'] ?? ''); ?>" 
+                   class="btn-action btn-approve" 
+                   onclick="return confirm('Approve this lesson?')">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i> Approve Lesson
+                </a>
+                <a href="<?php echo BASE_URL; ?>/admin/lessons/reject/<?php echo urlencode($lesson['id'] ?? ''); ?>" 
+                   class="btn-action btn-reject" 
+                   onclick="return confirm('Reject this lesson?')">
+                    <i class="fas fa-times-circle" aria-hidden="true"></i> Reject Lesson
+                </a>
+            <?php else: ?>
+                <div class="already-approved">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i> Lesson Already Approved
+                </div>
+            <?php endif; ?>
+        </div>
+    </main>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

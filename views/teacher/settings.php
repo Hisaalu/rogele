@@ -6,187 +6,6 @@ require_once __DIR__ . '/../layouts/header.php';
 $activeTab = $_GET['tab'] ?? 'password';
 ?>
 
-<div class="settings-container">
-    <!-- Header -->
-    <div class="settings-header">
-        <h1 class="page-title">
-            <i class="fas fa-cog"></i>
-            Settings
-        </h1>
-        <p class="page-subtitle">Manage your account settings and preferences</p>
-    </div>
-
-    <!-- Alert Messages -->
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <!-- Settings Tabs -->
-    <div class="settings-tabs">
-        <a href="?tab=password" class="tab <?php echo $activeTab === 'password' ? 'active' : ''; ?>">
-            <i class="fas fa-lock"></i>
-            <span>Change Password</span>
-        </a>
-        <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
-            <i class="fas fa-shield-alt"></i>
-            <span>Privacy</span>
-        </a>
-    </div>
-
-    <!-- Tab Content -->
-    <div class="tab-content">
-        <?php if ($activeTab === 'password'): ?>
-            <!-- Change Password Tab -->
-            <div class="settings-card">
-                <h3 class="card-title">
-                    <i class="fas fa-key"></i>
-                    Change Password
-                </h3>
-                <p class="card-description">Ensure your account is secure by using a strong password</p>
-                
-                <form method="POST" action="<?php echo BASE_URL; ?>/teacher/change-password" class="settings-form" id="passwordForm">
-                    <div class="form-group">
-                        <label for="current_password">
-                            <i class="fas fa-lock"></i>
-                            Current Password
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="current_password" name="current_password" required placeholder="Enter your current password">
-                            <button type="button" class="toggle-password" onclick="togglePassword('current_password')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="new_password">
-                            <i class="fas fa-key"></i>
-                            New Password
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="new_password" name="new_password" required placeholder="Enter new password" onkeyup="checkPasswordStrength()">
-                            <button type="button" class="toggle-password" onclick="togglePassword('new_password')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <div class="password-strength" id="passwordStrength">
-                            <div class="strength-bar">
-                                <div class="strength-segment"></div>
-                                <div class="strength-segment"></div>
-                                <div class="strength-segment"></div>
-                                <div class="strength-segment"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirm_password">
-                            <i class="fas fa-check-circle"></i>
-                            Confirm New Password
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm new password" onkeyup="checkPasswordMatch()">
-                            <button type="button" class="toggle-password" onclick="togglePassword('confirm_password')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i>
-                        Update Password
-                    </button>
-                </form>
-            </div>
-
-        <?php elseif ($activeTab === 'privacy'): ?>
-            <!-- Privacy Tab -->
-            <div class="settings-card">
-                <h3 class="card-title">
-                    <i class="fas fa-shield-alt"></i>
-                    Privacy Settings
-                </h3>
-                <p class="card-description">Control your privacy and data sharing preferences</p>
-                
-                <form method="POST" action="<?php echo BASE_URL; ?>/teacher/update-privacy" class="settings-form">
-                    <div class="privacy-group">
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-globe"></i>
-                                <div>
-                                    <strong>Public Profile</strong>
-                                    <p>Allow students to see your profile</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="public_profile" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-chart-line"></i>
-                                <div>
-                                    <strong>Show Contact Info</strong>
-                                    <p>Display your email to students</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="show_contact" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-trophy"></i>
-                                <div>
-                                    <strong>Leaderboard</strong>
-                                    <p>Include your students in public leaderboards</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="leaderboard" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-analytics"></i>
-                                <div>
-                                    <strong>Data Collection</strong>
-                                    <p>Allow anonymous usage data collection</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="data_collection" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i>
-                        Save Privacy Settings
-                    </button>
-                </form>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
-
 <style>
 .settings-container {
     max-width: 800px;
@@ -215,7 +34,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     font-size: 0.95rem;
 }
 
-/* Alerts */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -249,7 +67,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     }
 }
 
-/* Settings Tabs */
 .settings-tabs {
     display: flex;
     gap: 10px;
@@ -296,7 +113,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     color: white;
 }
 
-/* Settings Card */
 .settings-card {
     background: white;
     border-radius: 24px;
@@ -321,7 +137,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     border-bottom: 2px solid #F1F5F9;
 }
 
-/* Forms */
 .settings-form {
     display: flex;
     flex-direction: column;
@@ -383,7 +198,6 @@ $activeTab = $_GET['tab'] ?? 'password';
     color: #f06724;
 }
 
-/* Toggle Switches */
 .toggle-item {
     display: flex;
     align-items: center;
@@ -475,7 +289,6 @@ input:checked + .slider:before {
     transform: translateX(24px);
 }
 
-/* Button */
 .btn-save {
     background-color: #7f2677;
     color: white;
@@ -497,7 +310,6 @@ input:checked + .slider:before {
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .settings-card {
         padding: 25px;
@@ -523,6 +335,181 @@ input:checked + .slider:before {
 }
 
 </style>
+
+<div class="settings-container">
+    <div class="settings-header">
+        <h1 class="page-title">
+            <i class="fas fa-cog"></i>
+            Settings
+        </h1>
+        <p class="page-subtitle">Manage your account settings and preferences</p>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="settings-tabs">
+        <a href="?tab=password" class="tab <?php echo $activeTab === 'password' ? 'active' : ''; ?>">
+            <i class="fas fa-lock"></i>
+            <span>Change Password</span>
+        </a>
+        <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
+            <i class="fas fa-shield-alt"></i>
+            <span>Privacy</span>
+        </a>
+    </div>
+
+    <div class="tab-content">
+        <?php if ($activeTab === 'password'): ?>
+            <div class="settings-card">
+                <h3 class="card-title">
+                    <i class="fas fa-key"></i>
+                    Change Password
+                </h3>
+                <p class="card-description">Ensure your account is secure by using a strong password</p>
+                
+                <form method="POST" action="<?php echo BASE_URL; ?>/teacher/change-password" class="settings-form" id="passwordForm">
+                    <div class="form-group">
+                        <label for="current_password">
+                            <i class="fas fa-lock"></i>
+                            Current Password
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="current_password" name="current_password" required placeholder="Enter your current password">
+                            <button type="button" class="toggle-password" onclick="togglePassword('current_password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new_password">
+                            <i class="fas fa-key"></i>
+                            New Password
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="new_password" name="new_password" required placeholder="Enter new password" onkeyup="checkPasswordStrength()">
+                            <button type="button" class="toggle-password" onclick="togglePassword('new_password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-segment"></div>
+                                <div class="strength-segment"></div>
+                                <div class="strength-segment"></div>
+                                <div class="strength-segment"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">
+                            <i class="fas fa-check-circle"></i>
+                            Confirm New Password
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm new password" onkeyup="checkPasswordMatch()">
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirm_password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Update Password
+                    </button>
+                </form>
+            </div>
+
+        <?php elseif ($activeTab === 'privacy'): ?>
+            <div class="settings-card">
+                <h3 class="card-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Privacy Settings
+                </h3>
+                <p class="card-description">Control your privacy and data sharing preferences</p>
+                
+                <form method="POST" action="<?php echo BASE_URL; ?>/teacher/update-privacy" class="settings-form">
+                    <div class="privacy-group">
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-globe"></i>
+                                <div>
+                                    <strong>Public Profile</strong>
+                                    <p>Allow students to see your profile</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="public_profile" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-chart-line"></i>
+                                <div>
+                                    <strong>Show Contact Info</strong>
+                                    <p>Display your email to students</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="show_contact" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-trophy"></i>
+                                <div>
+                                    <strong>Leaderboard</strong>
+                                    <p>Include your students in public leaderboards</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="leaderboard" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-analytics"></i>
+                                <div>
+                                    <strong>Data Collection</strong>
+                                    <p>Allow anonymous usage data collection</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="data_collection" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Save Privacy Settings
+                    </button>
+                </form>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
 
 <script>
 function togglePassword(inputId) {
@@ -567,7 +554,6 @@ function checkPasswordStrength() {
     strengthText.textContent = strength > 0 ? texts[strength - 1] : 'Enter a password';
     strengthText.style.color = strength <= 2 ? '#EF4444' : strength <= 3 ? '#F97316' : strength <= 4 ? '#EAB308' : '#10B981';
     
-    // Update requirements
     document.getElementById('req-length').className = password.length >= 8 ? 'valid' : '';
     document.getElementById('req-uppercase').className = /[A-Z]/.test(password) ? 'valid' : '';
     document.getElementById('req-lowercase').className = /[a-z]/.test(password) ? 'valid' : '';
@@ -598,7 +584,6 @@ function checkPasswordMatch() {
     }
 }
 
-// Form validation
 document.getElementById('passwordForm')?.addEventListener('submit', function(e) {
     const password = document.getElementById('new_password').value;
     const confirm = document.getElementById('confirm_password').value;

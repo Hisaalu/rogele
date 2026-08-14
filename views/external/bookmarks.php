@@ -6,113 +6,6 @@ require_once __DIR__ . '/../layouts/header.php';
 $bookmarks = $bookmarks ?? [];
 ?>
 
-<div class="bookmarks-container">
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">
-                <i class="fas fa-bookmark"></i>
-                Bookmarks
-            </h1>
-            <p class="page-subtitle">Your saved lessons for quick access</p>
-        </div>
-        <div class="header-stats">
-            <div class="stat-badge">
-                <i class="fas fa-book-open"></i>
-                <span><?php echo count($bookmarks); ?> Bookmarked Lessons</span>
-            </div>
-        </div>
-    </div>
-
-    <?php if (empty($bookmarks)): ?>
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="fas fa-bookmark"></i>
-            </div>
-            <h3>No Bookmarks Yet</h3>
-            <p>Save your favorite lessons by clicking the bookmark icon on any lesson.</p>
-            <a href="<?php echo BASE_URL; ?>/external/materials" class="btn-explore">
-                <i class="fas fa-search"></i> Explore Lessons
-            </a>
-        </div>
-    <?php else: ?>
-        <div class="bookmarks-grid">
-            <?php foreach ($bookmarks as $bookmark): ?>
-                <div class="bookmark-card" data-lesson-id="<?php echo $bookmark['id']; ?>">
-                    <div class="bookmark-header">
-                        <div class="lesson-type">
-                            <i class="fas fa-file-alt"></i>
-                            Lesson
-                        </div>
-                        <button class="btn-remove-bookmark" onclick="removeBookmark(<?php echo $bookmark['id']; ?>, this)" title="Remove Bookmark">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="bookmark-content">
-                        <h3 class="lesson-title">
-                            <?php echo htmlspecialchars($bookmark['title']); ?>
-                        </h3>
-                        
-                        <p class="lesson-description">
-                            <?php 
-                            $description = strip_tags($bookmark['content'] ?? '');
-                            echo htmlspecialchars(substr($description, 0, 110)) . (strlen($description) > 110 ? '...' : ''); 
-                            ?>
-                        </p>
-                        
-                        <div class="lesson-meta">
-                            <?php if (!empty($bookmark['subject_name'])): ?>
-                                <span class="meta-tag subject">
-                                    <i class="fas fa-book"></i>
-                                    <?php echo htmlspecialchars($bookmark['subject_name']); ?>
-                                </span>
-                            <?php endif; ?>
-                            
-                            <?php if (!empty($bookmark['class_name'])): ?>
-                                <span class="meta-tag class">
-                                    <i class="fas fa-graduation-cap"></i>
-                                    <?php echo htmlspecialchars($bookmark['class_name']); ?>
-                                </span>
-                            <?php endif; ?>
-                            
-                            <span class="meta-tag date">
-                                <i class="fas fa-calendar-alt"></i>
-                                <?php echo date('M d, Y', strtotime($bookmark['bookmarked_at'])); ?>
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="bookmark-footer">
-                        <a href="<?php echo BASE_URL; ?>/external/view-lesson/<?php echo $bookmark['id']; ?>" class="btn-view-lesson">
-                            <i class="fas fa-eye"></i> View Lesson
-                        </a>
-                        <button class="btn-share" onclick="shareLesson('<?php echo htmlspecialchars($bookmark['title'], ENT_QUOTES); ?>', <?php echo $bookmark['id']; ?>)" title="Share Lesson">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-</div>
-
-<div id="removeModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-exclamation-triangle"></i> Remove Bookmark</h3>
-            <span class="modal-close">&times;</span>
-        </div>
-        <div class="modal-body">
-            <p>Are you sure you want to remove this lesson from your bookmarks?</p>
-            <div class="warning-text">You can always bookmark it again later if needed.</div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel">Cancel</button>
-            <button id="confirmRemoveBtn" class="btn-confirm-remove">Remove Bookmark</button>
-        </div>
-    </div>
-</div>
-
 <style>
 :root {
     --color-purple: #7f2677;
@@ -525,13 +418,11 @@ $bookmarks = $bookmarks ?? [];
     background: #dc2626;
 }
 
-/* Animations */
 @keyframes modalSlideUp {
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* Responsive Styles */
 @media (max-width: 768px) {
     .bookmarks-container { padding: 24px 16px; }
     .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
@@ -540,6 +431,113 @@ $bookmarks = $bookmarks ?? [];
     .bookmark-footer { padding: 12px 16px 20px; }
 }
 </style>
+
+<div class="bookmarks-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-bookmark"></i>
+                Bookmarks
+            </h1>
+            <p class="page-subtitle">Your saved lessons for quick access</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-badge">
+                <i class="fas fa-book-open"></i>
+                <span><?php echo count($bookmarks); ?> Bookmarked Lessons</span>
+            </div>
+        </div>
+    </div>
+
+    <?php if (empty($bookmarks)): ?>
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-bookmark"></i>
+            </div>
+            <h3>No Bookmarks Yet</h3>
+            <p>Save your favorite lessons by clicking the bookmark icon on any lesson.</p>
+            <a href="<?php echo BASE_URL; ?>/external/materials" class="btn-explore">
+                <i class="fas fa-search"></i> Explore Lessons
+            </a>
+        </div>
+    <?php else: ?>
+        <div class="bookmarks-grid">
+            <?php foreach ($bookmarks as $bookmark): ?>
+                <div class="bookmark-card" data-lesson-id="<?php echo $bookmark['id']; ?>">
+                    <div class="bookmark-header">
+                        <div class="lesson-type">
+                            <i class="fas fa-file-alt"></i>
+                            Lesson
+                        </div>
+                        <button class="btn-remove-bookmark" onclick="removeBookmark(<?php echo $bookmark['id']; ?>, this)" title="Remove Bookmark">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="bookmark-content">
+                        <h3 class="lesson-title">
+                            <?php echo htmlspecialchars($bookmark['title']); ?>
+                        </h3>
+                        
+                        <p class="lesson-description">
+                            <?php 
+                            $description = strip_tags($bookmark['content'] ?? '');
+                            echo htmlspecialchars(substr($description, 0, 110)) . (strlen($description) > 110 ? '...' : ''); 
+                            ?>
+                        </p>
+                        
+                        <div class="lesson-meta">
+                            <?php if (!empty($bookmark['subject_name'])): ?>
+                                <span class="meta-tag subject">
+                                    <i class="fas fa-book"></i>
+                                    <?php echo htmlspecialchars($bookmark['subject_name']); ?>
+                                </span>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($bookmark['class_name'])): ?>
+                                <span class="meta-tag class">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <?php echo htmlspecialchars($bookmark['class_name']); ?>
+                                </span>
+                            <?php endif; ?>
+                            
+                            <span class="meta-tag date">
+                                <i class="fas fa-calendar-alt"></i>
+                                <?php echo date('M d, Y', strtotime($bookmark['bookmarked_at'])); ?>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="bookmark-footer">
+                        <a href="<?php echo BASE_URL; ?>/external/view-lesson/<?php echo $bookmark['id']; ?>" class="btn-view-lesson">
+                            <i class="fas fa-eye"></i> View Lesson
+                        </a>
+                        <button class="btn-share" onclick="shareLesson('<?php echo htmlspecialchars($bookmark['title'], ENT_QUOTES); ?>', <?php echo $bookmark['id']; ?>)" title="Share Lesson">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
+
+<div id="removeModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Remove Bookmark</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to remove this lesson from your bookmarks?</p>
+            <div class="warning-text">You can always bookmark it again later if needed.</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel">Cancel</button>
+            <button id="confirmRemoveBtn" class="btn-confirm-remove">Remove Bookmark</button>
+        </div>
+    </div>
+</div>
 
 <script>
 let lessonToRemove = null;

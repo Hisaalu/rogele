@@ -29,6 +29,69 @@ $questions = isset($attemptDetails['questions']) ? $attemptDetails['questions'] 
 $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_answers'] : [];
 ?>
 
+<style>
+    @keyframes fillCircle {
+        from { stroke-dasharray: 0 283; }
+        to { stroke-dasharray: <?php echo ($score / 100) * 283; ?> 283; }
+    }
+    circle:last-of-type {
+        animation: fillCircle 1s ease forwards;
+    }
+    
+    .toggle-btn:hover {
+        background: #E2E8F0;
+        transform: translateY(-1px);
+    }
+    
+    .review-option {
+        transition: all 0.2s ease;
+    }
+    
+    .review-option:hover {
+        transform: translateX(5px);
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .answer-summary {
+            flex-direction: column;
+            gap: 8px;
+        }
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .review-question {
+            background: #1E293B;
+        }
+        
+        .question-text {
+            color: #F1F5F9;
+        }
+        
+        .option-text {
+            color: #F1F5F9;
+        }
+        
+        .toggle-btn {
+            background: #334155;
+            color: #F1F5F9;
+        }
+        
+        .toggle-btn:hover {
+            background: #475569;
+        }
+    }
+</style>
+
 <div style="padding: 40px 20px; max-width: 900px; margin: 0 auto;">
     <div style="background: white; border-radius: 30px; padding: 40px; margin-bottom: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); text-align: center;">
         <div style="margin-bottom: 30px;">
@@ -97,68 +160,5 @@ $userAnswers = isset($attemptDetails['user_answers']) ? $attemptDetails['user_an
         </div>
     </div>
 </div>
-
-<style>
-    @keyframes fillCircle {
-        from { stroke-dasharray: 0 283; }
-        to { stroke-dasharray: <?php echo ($score / 100) * 283; ?> 283; }
-    }
-    circle:last-of-type {
-        animation: fillCircle 1s ease forwards;
-    }
-    
-    .toggle-btn:hover {
-        background: #E2E8F0;
-        transform: translateY(-1px);
-    }
-    
-    .review-option {
-        transition: all 0.2s ease;
-    }
-    
-    .review-option:hover {
-        transform: translateX(5px);
-    }
-    
-    @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-        
-        .action-buttons {
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .answer-summary {
-            flex-direction: column;
-            gap: 8px;
-        }
-    }
-    
-    @media (prefers-color-scheme: dark) {
-        .review-question {
-            background: #1E293B;
-        }
-        
-        .question-text {
-            color: #F1F5F9;
-        }
-        
-        .option-text {
-            color: #F1F5F9;
-        }
-        
-        .toggle-btn {
-            background: #334155;
-            color: #F1F5F9;
-        }
-        
-        .toggle-btn:hover {
-            background: #475569;
-        }
-    }
-</style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

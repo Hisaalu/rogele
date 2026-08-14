@@ -9,160 +9,6 @@ $selectedSubject = $_GET['subject'] ?? '';
 $search = $_GET['search'] ?? '';
 ?>
 
-<div class="materials-container">
-    <div class="materials-header">
-        <div class="header-left">
-            <h1 class="page-title">
-                <i class="fas fa-book-open"></i>
-                Learning Materials
-            </h1>
-            <p class="page-subtitle">Explore lessons and resources to enhance your knowledge</p>
-        </div>
-        <div class="header-actions">
-            <a href="<?php echo BASE_URL; ?>/external/bookmarks" class="bookmark-link">
-                <i class="fas fa-bookmark"></i>
-                <span>Bookmarks</span>
-                <span class="bookmark-count" id="bookmarkCount">0</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- Alert Messages -->
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
-        </div>
-    <?php endif; ?>
-
-    <!-- Search & Filter Controls -->
-    <div class="search-section">
-        <form method="GET" class="search-form">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input 
-                    type="text" 
-                    name="search" 
-                    placeholder="Search lessons by title or description..." 
-                    value="<?php echo htmlspecialchars($search); ?>"
-                >
-            </div>
-            
-            <div class="filter-group">
-                <select name="subject" onchange="this.form.submit()">
-                    <option value="">All Subjects</option>
-                    <?php foreach ($subjects as $subject): ?>
-                        <option value="<?php echo $subject['id']; ?>" <?php echo $selectedSubject == $subject['id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($subject['name']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <button type="submit" class="btn-search">
-                <i class="fas fa-search"></i> Search
-            </button>
-            
-            <?php if ($search || $selectedSubject): ?>
-                <a href="<?php echo BASE_URL; ?>/external/materials" class="btn-clear">
-                    <i class="fas fa-times"></i> Clear
-                </a>
-            <?php endif; ?>
-        </form>
-    </div>
-
-    <?php if (empty($lessons)): ?>
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="fas fa-book-open"></i>
-            </div>
-            <h3>No Lessons Found</h3>
-            <p>We couldn't find any lessons matching your criteria. Try adjusting your search or check back later!</p>
-            <a href="<?php echo BASE_URL; ?>/external/bookmarks" class="btn-view-bookmarks">
-                <i class="fas fa-bookmark"></i> View Bookmarks
-            </a>
-        </div>
-    <?php else: ?>
-        <div class="lessons-grid">
-            <?php foreach ($lessons as $lesson): ?>
-                <div class="lesson-card" data-lesson-id="<?php echo $lesson['id']; ?>">
-                    <div class="lesson-thumbnail">
-                        <?php if (!empty($lesson['video_url'])): ?>
-                            <img src="https://img.youtube.com/vi/<?php echo getYoutubeId($lesson['video_url']); ?>/0.jpg" alt="Lesson thumbnail">
-                            <span class="duration-badge">
-                                <i class="fas fa-clock"></i> <?php echo $lesson['duration'] ?? '30'; ?> min
-                            </span>
-                        <?php else: ?>
-                            <div class="thumbnail-placeholder">
-                                <i class="fas fa-book-open"></i>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <button type="button" class="card-bookmark-btn <?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'bookmarked' : ''; ?>" 
-                                onclick="toggleCardBookmark(<?php echo $lesson['id']; ?>, this)"
-                                title="<?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'Remove from bookmarks' : 'Add to bookmarks'; ?>">
-                            <i class="fas fa-bookmark"></i>
-                        </button>
-                    </div>
-
-                    <div class="lesson-content">
-                        <h3 class="lesson-title"><?php echo htmlspecialchars($lesson['title']); ?></h3>
-                        
-                        <div class="lesson-meta">
-                            <span>
-                                <i class="fas fa-graduation-cap"></i>
-                                <?php echo htmlspecialchars($lesson['class_name'] ?? 'All Levels'); ?>
-                            </span>
-                            <span>
-                                <i class="fas fa-book"></i>
-                                <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?>
-                            </span>
-                            <span>
-                                <i class="fas fa-user"></i>
-                                Tr. <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?>
-                            </span>
-                        </div>
-
-                        <p class="lesson-description">
-                            <?php echo substr(htmlspecialchars($lesson['content'] ?? ''), 0, 150); ?>...
-                        </p>
-
-                        <div class="lesson-stats">
-                            <span title="Views">
-                                <i class="fas fa-eye"></i> <?php echo number_format($lesson['views'] ?? 0); ?>
-                            </span>
-                            <span title="Materials">
-                                <i class="fas fa-paperclip"></i> <?php echo $lesson['materials_count'] ?? 0; ?> file(s)
-                            </span>
-                        </div>
-
-                        <a href="<?php echo BASE_URL; ?>/external/view-lesson/<?php echo $lesson['id']; ?>" class="btn-view">
-                            <span>Start Learning</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-</div>
-
-<?php
-function getYoutubeId($url) {
-    preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $url, $matches);
-    return $matches[1] ?? '';
-}
-?>
-
 <style>
 .materials-container {
     max-width: 1400px;
@@ -556,7 +402,6 @@ function getYoutubeId($url) {
     transform: translateX(5px);
 }
 
-/* Empty State Styling */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -614,7 +459,6 @@ function getYoutubeId($url) {
     box-shadow: 0 10px 20px rgba(240, 103, 36, 0.3);
 }
 
-/* Animations */
 @keyframes slideDown {
     from {
         transform: translateY(-20px);
@@ -648,7 +492,6 @@ function getYoutubeId($url) {
     }
 }
 
-/* Responsive Media Queries */
 @media (max-width: 768px) {
     .materials-header {
         flex-direction: column;
@@ -687,6 +530,158 @@ function getYoutubeId($url) {
     }
 }
 </style>
+
+<div class="materials-container">
+    <div class="materials-header">
+        <div class="header-left">
+            <h1 class="page-title">
+                <i class="fas fa-book-open"></i>
+                Learning Materials
+            </h1>
+            <p class="page-subtitle">Explore lessons and resources to enhance your knowledge</p>
+        </div>
+        <div class="header-actions">
+            <a href="<?php echo BASE_URL; ?>/external/bookmarks" class="bookmark-link">
+                <i class="fas fa-bookmark"></i>
+                <span>Bookmarks</span>
+                <span class="bookmark-count" id="bookmarkCount">0</span>
+            </a>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+    <?php endif; ?>
+
+    <div class="search-section">
+        <form method="GET" class="search-form">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search lessons by title or description..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                >
+            </div>
+            
+            <div class="filter-group">
+                <select name="subject" onchange="this.form.submit()">
+                    <option value="">All Subjects</option>
+                    <?php foreach ($subjects as $subject): ?>
+                        <option value="<?php echo $subject['id']; ?>" <?php echo $selectedSubject == $subject['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($subject['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn-search">
+                <i class="fas fa-search"></i> Search
+            </button>
+            
+            <?php if ($search || $selectedSubject): ?>
+                <a href="<?php echo BASE_URL; ?>/external/materials" class="btn-clear">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            <?php endif; ?>
+        </form>
+    </div>
+
+    <?php if (empty($lessons)): ?>
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <h3>No Lessons Found</h3>
+            <p>We couldn't find any lessons matching your criteria. Try adjusting your search or check back later!</p>
+            <a href="<?php echo BASE_URL; ?>/external/bookmarks" class="btn-view-bookmarks">
+                <i class="fas fa-bookmark"></i> View Bookmarks
+            </a>
+        </div>
+    <?php else: ?>
+        <div class="lessons-grid">
+            <?php foreach ($lessons as $lesson): ?>
+                <div class="lesson-card" data-lesson-id="<?php echo $lesson['id']; ?>">
+                    <div class="lesson-thumbnail">
+                        <?php if (!empty($lesson['video_url'])): ?>
+                            <img src="https://img.youtube.com/vi/<?php echo getYoutubeId($lesson['video_url']); ?>/0.jpg" alt="Lesson thumbnail">
+                            <span class="duration-badge">
+                                <i class="fas fa-clock"></i> <?php echo $lesson['duration'] ?? '30'; ?> min
+                            </span>
+                        <?php else: ?>
+                            <div class="thumbnail-placeholder">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <button type="button" class="card-bookmark-btn <?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'bookmarked' : ''; ?>" 
+                                onclick="toggleCardBookmark(<?php echo $lesson['id']; ?>, this)"
+                                title="<?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'Remove from bookmarks' : 'Add to bookmarks'; ?>">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="lesson-content">
+                        <h3 class="lesson-title"><?php echo htmlspecialchars($lesson['title']); ?></h3>
+                        
+                        <div class="lesson-meta">
+                            <span>
+                                <i class="fas fa-graduation-cap"></i>
+                                <?php echo htmlspecialchars($lesson['class_name'] ?? 'All Levels'); ?>
+                            </span>
+                            <span>
+                                <i class="fas fa-book"></i>
+                                <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?>
+                            </span>
+                            <span>
+                                <i class="fas fa-user"></i>
+                                Tr. <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Rays of Grace'); ?>
+                            </span>
+                        </div>
+
+                        <p class="lesson-description">
+                            <?php echo substr(htmlspecialchars($lesson['content'] ?? ''), 0, 150); ?>...
+                        </p>
+
+                        <div class="lesson-stats">
+                            <span title="Views">
+                                <i class="fas fa-eye"></i> <?php echo number_format($lesson['views'] ?? 0); ?>
+                            </span>
+                            <span title="Materials">
+                                <i class="fas fa-paperclip"></i> <?php echo $lesson['materials_count'] ?? 0; ?> file(s)
+                            </span>
+                        </div>
+
+                        <a href="<?php echo BASE_URL; ?>/external/view-lesson/<?php echo $lesson['id']; ?>" class="btn-view">
+                            <span>Start Learning</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
+
+<?php
+function getYoutubeId($url) {
+    preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $url, $matches);
+    return $matches[1] ?? '';
+}
+?>
 
 <script>
 function toggleCardBookmark(lessonId, buttonElement) {

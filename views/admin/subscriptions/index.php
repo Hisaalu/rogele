@@ -20,234 +20,6 @@ $queryString = http_build_query($queryParams);
 $exportUrl = BASE_URL . '/admin/subscriptions/export' . ($queryString ? '?' . $queryString : '');
 ?>
 
-<div class="subscriptions-container">
-    <header class="page-header">
-        <div>
-            <h1 class="page-title">
-                <i class="fas fa-credit-card" aria-hidden="true"></i>
-                Manage Subscriptions
-            </h1>
-            <p class="page-subtitle">View and manage all user subscriptions on the platform</p>
-        </div>
-        <div class="header-actions">
-            <a href="<?php echo htmlspecialchars($exportUrl); ?>" class="btn-export">
-                <i class="fas fa-download" aria-hidden="true"></i>
-                Export CSV
-            </a>
-            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/reports" class="btn-reports">
-                <i class="fas fa-chart-bar" aria-hidden="true"></i>
-                View Reports
-            </a>
-        </div>
-    </header>
-
-    <?php if (!empty($stats)): ?>
-    <section class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon active">
-                <i class="fas fa-check-circle" aria-hidden="true"></i>
-            </div>
-            <div class="stat-info">
-                <h3>Active</h3>
-                <p class="stat-number"><?php echo number_format($stats['active'] ?? 0); ?></p>
-            </div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon expired">
-                <i class="fas fa-clock" aria-hidden="true"></i>
-            </div>
-            <div class="stat-info">
-                <h3>Expired</h3>
-                <p class="stat-number"><?php echo number_format($stats['expired'] ?? 0); ?></p>
-            </div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon pending">
-                <i class="fas fa-hourglass-half" aria-hidden="true"></i>
-            </div>
-            <div class="stat-info">
-                <h3>Pending</h3>
-                <p class="stat-number"><?php echo number_format($stats['pending'] ?? 0); ?></p>
-            </div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon revenue">
-                <i class="fas fa-coins" aria-hidden="true"></i>
-            </div>
-            <div class="stat-info">
-                <h3>Revenue</h3>
-                <p class="stat-number">UGX <?php echo number_format($stats['total_revenue'] ?? 0); ?></p>
-            </div>
-        </div>
-    </section>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success" role="status">
-            <i class="fas fa-check-circle" aria-hidden="true"></i>
-            <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error" role="alert">
-            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
-            <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
-        </div>
-    <?php endif; ?>
-
-    <section class="filters-card">
-        <form method="GET" action="<?php echo BASE_URL; ?>/admin/subscriptions" class="filters-form">
-            <div class="search-box">
-                <i class="fas fa-search" aria-hidden="true"></i>
-                <input 
-                    type="text" 
-                    name="search" 
-                    placeholder="Search by user name, email, or transaction ID..." 
-                    value="<?php echo htmlspecialchars($search); ?>"
-                >
-            </div>
-            
-            <div class="filter-group">
-                <select name="status" aria-label="Filter by Status">
-                    <option value="">All Status</option>
-                    <option value="active" <?php echo $status === 'active' ? 'selected' : ''; ?>>Active</option>
-                    <option value="expired" <?php echo $status === 'expired' ? 'selected' : ''; ?>>Expired</option>
-                    <option value="pending" <?php echo $status === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                    <option value="cancelled" <?php echo $status === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <select name="plan_type" aria-label="Filter by Plan Type">
-                    <option value="">All Plans</option>
-                    <option value="monthly" <?php echo $planType === 'monthly' ? 'selected' : ''; ?>>Monthly</option>
-                    <option value="termly" <?php echo $planType === 'termly' ? 'selected' : ''; ?>>Termly</option>
-                    <option value="yearly" <?php echo $planType === 'yearly' ? 'selected' : ''; ?>>Yearly</option>
-                </select>
-            </div>
-            
-            <div class="filter-group date-range">
-                <input type="date" name="date_from" aria-label="From Date" value="<?php echo htmlspecialchars($dateFrom); ?>">
-                <span>to</span>
-                <input type="date" name="date_to" aria-label="To Date" value="<?php echo htmlspecialchars($dateTo); ?>">
-            </div>
-            
-            <div class="filter-actions">
-                <button type="submit" class="btn-filter">Apply Filters</button>
-                <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="btn-reset">Reset</a>
-            </div>
-        </form>
-    </section>
-
-    <main class="table-card">
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Plan</th>
-                        <th>Amount</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($subscriptions)): ?>
-                        <tr>
-                            <td colspan="8" class="empty-message">
-                                <i class="fas fa-credit-card" aria-hidden="true"></i>
-                                <p>No subscriptions found</p>
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($subscriptions as $sub): ?>
-                        <tr>
-                            <td class="user-cell">
-                                <div class="user-info">
-                                    <div class="user-name"><?php echo htmlspecialchars(trim(($sub['first_name'] ?? '') . ' ' . ($sub['last_name'] ?? ''))); ?></div>
-                                    <div class="user-email"><?php echo htmlspecialchars($sub['email'] ?? ''); ?></div>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="plan-badge <?php echo htmlspecialchars($sub['plan_type'] ?? ''); ?>">
-                                    <?php echo htmlspecialchars(ucfirst($sub['plan_type'] ?? '')); ?>
-                                    <?php if (!empty($sub['is_upgrade'])): ?>
-                                        <i class="fas fa-arrow-up" title="Upgraded" aria-hidden="true"></i>
-                                    <?php endif; ?>
-                                </span>
-                            </td>
-                            <td class="amount-cell">UGX <?php echo number_format($sub['amount'] ?? 0); ?></td>
-                            <td><?php echo !empty($sub['start_date']) ? date('M d, Y', strtotime($sub['start_date'])) : '—'; ?></td>
-                            <td>
-                                <?php 
-                                $isExpired = !empty($sub['end_date']) && strtotime($sub['end_date']) < time();
-                                ?>
-                                <span class="end-date <?php echo $isExpired ? 'expired' : ''; ?>">
-                                    <?php echo !empty($sub['end_date']) ? date('M d, Y', strtotime($sub['end_date'])) : '—'; ?>
-                                </span>
-                            </td>
-                            <td>
-                                <span class="status-badge <?php echo htmlspecialchars($sub['status'] ?? ''); ?>">
-                                    <?php echo htmlspecialchars(ucfirst($sub['status'] ?? '')); ?>
-                                </span>
-                            </td>
-                            <td class="actions-cell">
-                                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($sub['id']); ?>" class="action-btn view" title="View Details">
-                                    <i class="fas fa-eye" aria-hidden="true"></i>
-                                </a>
-                                
-                                <?php if (($sub['status'] ?? '') === 'active'): ?>
-                                    <a href="<?php echo BASE_URL; ?>/admin/subscriptions/cancel/<?php echo urlencode($sub['id']); ?>" 
-                                       class="action-btn cancel" 
-                                       title="Cancel Subscription"
-                                       onclick="return confirm('Are you sure you want to cancel this subscription?')">
-                                        <i class="fas fa-ban" aria-hidden="true"></i>
-                                    </a>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <?php if (!empty($subscriptions) && isset($totalPages) && $totalPages > 1): ?>
-        <nav class="pagination" aria-label="Subscription Pagination">
-            <?php if ($page > 1): ?>
-                <?php $prevParams = array_merge($queryParams, ['page' => $page - 1]); ?>
-                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?<?php echo http_build_query($prevParams); ?>" class="page-link" aria-label="Previous Page">
-                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
-                </a>
-            <?php endif; ?>
-
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <?php $pageParams = array_merge($queryParams, ['page' => $i]); ?>
-                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?<?php echo http_build_query($pageParams); ?>" 
-                   class="page-link <?php echo $i === $page ? 'active' : ''; ?>">
-                    <?php echo $i; ?>
-                </a>
-            <?php endfor; ?>
-
-            <?php if ($page < $totalPages): ?>
-                <?php $nextParams = array_merge($queryParams, ['page' => $page + 1]); ?>
-                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?<?php echo http_build_query($nextParams); ?>" class="page-link" aria-label="Next Page">
-                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                </a>
-            <?php endif; ?>
-        </nav>
-        <?php endif; ?>
-    </main>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -710,5 +482,233 @@ $exportUrl = BASE_URL . '/admin/subscriptions/export' . ($queryString ? '?' . $q
     }
 }
 </style>
+
+<div class="subscriptions-container">
+    <header class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-credit-card" aria-hidden="true"></i>
+                Manage Subscriptions
+            </h1>
+            <p class="page-subtitle">View and manage all user subscriptions on the platform</p>
+        </div>
+        <div class="header-actions">
+            <a href="<?php echo htmlspecialchars($exportUrl); ?>" class="btn-export">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                Export CSV
+            </a>
+            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/reports" class="btn-reports">
+                <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                View Reports
+            </a>
+        </div>
+    </header>
+
+    <?php if (!empty($stats)): ?>
+    <section class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon active">
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Active</h3>
+                <p class="stat-number"><?php echo number_format($stats['active'] ?? 0); ?></p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon expired">
+                <i class="fas fa-clock" aria-hidden="true"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Expired</h3>
+                <p class="stat-number"><?php echo number_format($stats['expired'] ?? 0); ?></p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon pending">
+                <i class="fas fa-hourglass-half" aria-hidden="true"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Pending</h3>
+                <p class="stat-number"><?php echo number_format($stats['pending'] ?? 0); ?></p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon revenue">
+                <i class="fas fa-coins" aria-hidden="true"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Revenue</h3>
+                <p class="stat-number">UGX <?php echo number_format($stats['total_revenue'] ?? 0); ?></p>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success" role="status">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error" role="alert">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
+        </div>
+    <?php endif; ?>
+
+    <section class="filters-card">
+        <form method="GET" action="<?php echo BASE_URL; ?>/admin/subscriptions" class="filters-form">
+            <div class="search-box">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search by user name, email, or transaction ID..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                >
+            </div>
+            
+            <div class="filter-group">
+                <select name="status" aria-label="Filter by Status">
+                    <option value="">All Status</option>
+                    <option value="active" <?php echo $status === 'active' ? 'selected' : ''; ?>>Active</option>
+                    <option value="expired" <?php echo $status === 'expired' ? 'selected' : ''; ?>>Expired</option>
+                    <option value="pending" <?php echo $status === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                    <option value="cancelled" <?php echo $status === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <select name="plan_type" aria-label="Filter by Plan Type">
+                    <option value="">All Plans</option>
+                    <option value="monthly" <?php echo $planType === 'monthly' ? 'selected' : ''; ?>>Monthly</option>
+                    <option value="termly" <?php echo $planType === 'termly' ? 'selected' : ''; ?>>Termly</option>
+                    <option value="yearly" <?php echo $planType === 'yearly' ? 'selected' : ''; ?>>Yearly</option>
+                </select>
+            </div>
+            
+            <div class="filter-group date-range">
+                <input type="date" name="date_from" aria-label="From Date" value="<?php echo htmlspecialchars($dateFrom); ?>">
+                <span>to</span>
+                <input type="date" name="date_to" aria-label="To Date" value="<?php echo htmlspecialchars($dateTo); ?>">
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">Apply Filters</button>
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions" class="btn-reset">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <main class="table-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Plan</th>
+                        <th>Amount</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($subscriptions)): ?>
+                        <tr>
+                            <td colspan="8" class="empty-message">
+                                <i class="fas fa-credit-card" aria-hidden="true"></i>
+                                <p>No subscriptions found</p>
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($subscriptions as $sub): ?>
+                        <tr>
+                            <td class="user-cell">
+                                <div class="user-info">
+                                    <div class="user-name"><?php echo htmlspecialchars(trim(($sub['first_name'] ?? '') . ' ' . ($sub['last_name'] ?? ''))); ?></div>
+                                    <div class="user-email"><?php echo htmlspecialchars($sub['email'] ?? ''); ?></div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="plan-badge <?php echo htmlspecialchars($sub['plan_type'] ?? ''); ?>">
+                                    <?php echo htmlspecialchars(ucfirst($sub['plan_type'] ?? '')); ?>
+                                    <?php if (!empty($sub['is_upgrade'])): ?>
+                                        <i class="fas fa-arrow-up" title="Upgraded" aria-hidden="true"></i>
+                                    <?php endif; ?>
+                                </span>
+                            </td>
+                            <td class="amount-cell">UGX <?php echo number_format($sub['amount'] ?? 0); ?></td>
+                            <td><?php echo !empty($sub['start_date']) ? date('M d, Y', strtotime($sub['start_date'])) : '—'; ?></td>
+                            <td>
+                                <?php 
+                                $isExpired = !empty($sub['end_date']) && strtotime($sub['end_date']) < time();
+                                ?>
+                                <span class="end-date <?php echo $isExpired ? 'expired' : ''; ?>">
+                                    <?php echo !empty($sub['end_date']) ? date('M d, Y', strtotime($sub['end_date'])) : '—'; ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge <?php echo htmlspecialchars($sub['status'] ?? ''); ?>">
+                                    <?php echo htmlspecialchars(ucfirst($sub['status'] ?? '')); ?>
+                                </span>
+                            </td>
+                            <td class="actions-cell">
+                                <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($sub['id']); ?>" class="action-btn view" title="View Details">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </a>
+                                
+                                <?php if (($sub['status'] ?? '') === 'active'): ?>
+                                    <a href="<?php echo BASE_URL; ?>/admin/subscriptions/cancel/<?php echo urlencode($sub['id']); ?>" 
+                                       class="action-btn cancel" 
+                                       title="Cancel Subscription"
+                                       onclick="return confirm('Are you sure you want to cancel this subscription?')">
+                                        <i class="fas fa-ban" aria-hidden="true"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php if (!empty($subscriptions) && isset($totalPages) && $totalPages > 1): ?>
+        <nav class="pagination" aria-label="Subscription Pagination">
+            <?php if ($page > 1): ?>
+                <?php $prevParams = array_merge($queryParams, ['page' => $page - 1]); ?>
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?<?php echo http_build_query($prevParams); ?>" class="page-link" aria-label="Previous Page">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                </a>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <?php $pageParams = array_merge($queryParams, ['page' => $i]); ?>
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?<?php echo http_build_query($pageParams); ?>" 
+                   class="page-link <?php echo $i === $page ? 'active' : ''; ?>">
+                    <?php echo $i; ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $totalPages): ?>
+                <?php $nextParams = array_merge($queryParams, ['page' => $page + 1]); ?>
+                <a href="<?php echo BASE_URL; ?>/admin/subscriptions?<?php echo http_build_query($nextParams); ?>" class="page-link" aria-label="Next Page">
+                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                </a>
+            <?php endif; ?>
+        </nav>
+        <?php endif; ?>
+    </main>
+</div>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>

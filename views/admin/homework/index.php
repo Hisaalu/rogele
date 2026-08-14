@@ -14,170 +14,6 @@ $statusFilter  = $_GET['status'] ?? '';
 $classFilter   = $_GET['class_id'] ?? '';
 ?>
 
-<div class="admin-homework-container">
-    <header class="page-header">
-        <div class="header-text">
-            <h1 class="page-title">
-                <i class="fas fa-tasks" aria-hidden="true"></i>
-                <span>Manage Homework</span>
-            </h1>
-            <p class="page-subtitle">View, review, and moderate all homework assignments across the platform</p>
-        </div>
-    </header>
-
-    <section class="filters-section">
-        <form method="GET" class="filters-form" id="filterForm">
-            <div class="search-box">
-                <i class="fas fa-search" aria-hidden="true"></i>
-                <input 
-                    type="text" 
-                    name="search" 
-                    placeholder="Search homework title or description..." 
-                    value="<?php echo htmlspecialchars($search); ?>"
-                    aria-label="Search homework"
-                >
-            </div>
-            
-            <div class="filter-group">
-                <select name="teacher" aria-label="Filter by teacher">
-                    <option value="">All Teachers</option>
-                    <?php foreach ($teachers as $teacher): ?>
-                        <option value="<?php echo htmlspecialchars($teacher['id'] ?? ''); ?>" <?php echo $teacherFilter == ($teacher['id'] ?? '') ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars(explode(' ', trim($teacher['first_name'] ?? ''))[0]); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <select name="class_id" aria-label="Filter by class">
-                    <option value="">All Classes</option>
-                    <?php foreach ($classes as $class): ?>
-                        <option value="<?php echo htmlspecialchars($class['id'] ?? ''); ?>" <?php echo $classFilter == ($class['id'] ?? '') ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($class['name'] ?? ''); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <select name="status" aria-label="Filter by status">
-                    <option value="">All Statuses</option>
-                    <option value="active" <?php echo $statusFilter === 'active' ? 'selected' : ''; ?>>Active</option>
-                    <option value="expired" <?php echo $statusFilter === 'expired' ? 'selected' : ''; ?>>Expired</option>
-                    <option value="disabled" <?php echo $statusFilter === 'disabled' ? 'selected' : ''; ?>>Disabled</option>
-                </select>
-            </div>
-            
-            <div class="filter-actions">
-                <button type="submit" class="btn-filter">Apply Filters</button>
-                <a href="<?php echo BASE_URL; ?>/admin/homework" class="btn-clear">Reset</a>
-            </div>
-        </form>
-    </section>
-
-    <main class="table-card">
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Teacher</th>
-                        <th>Class</th>
-                        <th>Subject</th>
-                        <th class="text-center">Submissions</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th class="text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($homeworks)): ?>
-                        <tr>
-                            <td colspan="8" class="empty-message">
-                                <i class="fas fa-tasks" aria-hidden="true"></i>
-                                <p>No homework found</p>
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($homeworks as $hw): ?>
-                            <?php 
-                                $dueDate   = !empty($hw['due_date']) ? strtotime($hw['due_date']) : 0;
-                                $isExpired = $dueDate < time();
-                                $isActive  = !empty($hw['is_active']);
-                                
-                                $rawName    = $hw['teacher_name'] ?? 'Unknown';
-                                $firstName  = explode(' ', trim($rawName))[0];
-                            ?>
-                        <tr>
-                            <td class="title-cell">
-                                <span class="homework-title">
-                                    <?php echo htmlspecialchars($hw['title'] ?? 'Untitled Homework'); ?>
-                                </span>
-                            </td>
-                            <td><?php echo htmlspecialchars($firstName); ?></td>
-                            <td><span class="meta-tag"><?php echo htmlspecialchars($hw['class_name'] ?? 'N/A'); ?></span></td>
-                            <td><span class="meta-tag"><?php echo htmlspecialchars($hw['subject_name'] ?? 'N/A'); ?></span></td>
-                            <td class="text-center">
-                                <span class="count-badge submissions">
-                                    <i class="fas fa-file-upload" aria-hidden="true"></i> <?php echo htmlspecialchars((string)($hw['submissions_count'] ?? 0)); ?>
-                                </span>
-                            </td>
-                            <td class="date-cell">
-                                <?php echo $dueDate ? date('M d, Y h:i A', $dueDate) : 'N/A'; ?>
-                            </td>
-                            <td>
-                                <?php if (!$isActive): ?>
-                                    <span class="status-badge draft">Disabled</span>
-                                <?php elseif ($isExpired): ?>
-                                    <span class="status-badge pending">Expired</span>
-                                <?php else: ?>
-                                    <span class="status-badge published">Active</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="actions-cell">
-                                <a href="<?php echo BASE_URL; ?>/admin/homework/view/<?php echo $hw['id']; ?>" class="action-btn view" title="View Submissions & Details">
-                                    <i class="fas fa-eye" aria-hidden="true"></i>
-                                </a>
-                                <a href="<?php echo BASE_URL; ?>/admin/homework/toggle-status/<?php echo $hw['id']; ?>" class="action-btn toggle" title="<?php echo $isActive ? 'Disable Homework' : 'Enable Homework'; ?>" onclick="return confirm('Change status for this homework?')">
-                                    <i class="fas <?php echo $isActive ? 'fa-ban' : 'fa-check-circle'; ?>" aria-hidden="true"></i>
-                                </a>
-                                <a href="<?php echo BASE_URL; ?>/admin/homework/delete/<?php echo $hw['id']; ?>" class="action-btn delete" title="Delete Homework" onclick="return confirm('Are you sure you want to permanently delete this homework and associated files?')">
-                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <?php if (!empty($homeworks) && $totalPages > 1): ?>
-            <nav class="pagination" aria-label="Homework pagination">
-                <?php if ($currentPage > 1): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&class_id=<?php echo urlencode($classFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Previous Page">
-                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&class_id=<?php echo urlencode($classFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" 
-                       class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-
-                <?php if ($currentPage < $totalPages): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&class_id=<?php echo urlencode($classFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Next Page">
-                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
-            </nav>
-        <?php endif; ?>
-    </main>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -546,5 +382,169 @@ $classFilter   = $_GET['class_id'] ?? '';
     }
 }
 </style>
+
+<div class="admin-homework-container">
+    <header class="page-header">
+        <div class="header-text">
+            <h1 class="page-title">
+                <i class="fas fa-tasks" aria-hidden="true"></i>
+                <span>Manage Homework</span>
+            </h1>
+            <p class="page-subtitle">View, review, and moderate all homework assignments across the platform</p>
+        </div>
+    </header>
+
+    <section class="filters-section">
+        <form method="GET" class="filters-form" id="filterForm">
+            <div class="search-box">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search homework title or description..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                    aria-label="Search homework"
+                >
+            </div>
+            
+            <div class="filter-group">
+                <select name="teacher" aria-label="Filter by teacher">
+                    <option value="">All Teachers</option>
+                    <?php foreach ($teachers as $teacher): ?>
+                        <option value="<?php echo htmlspecialchars($teacher['id'] ?? ''); ?>" <?php echo $teacherFilter == ($teacher['id'] ?? '') ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars(explode(' ', trim($teacher['first_name'] ?? ''))[0]); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <select name="class_id" aria-label="Filter by class">
+                    <option value="">All Classes</option>
+                    <?php foreach ($classes as $class): ?>
+                        <option value="<?php echo htmlspecialchars($class['id'] ?? ''); ?>" <?php echo $classFilter == ($class['id'] ?? '') ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($class['name'] ?? ''); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <select name="status" aria-label="Filter by status">
+                    <option value="">All Statuses</option>
+                    <option value="active" <?php echo $statusFilter === 'active' ? 'selected' : ''; ?>>Active</option>
+                    <option value="expired" <?php echo $statusFilter === 'expired' ? 'selected' : ''; ?>>Expired</option>
+                    <option value="disabled" <?php echo $statusFilter === 'disabled' ? 'selected' : ''; ?>>Disabled</option>
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">Apply Filters</button>
+                <a href="<?php echo BASE_URL; ?>/admin/homework" class="btn-clear">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <main class="table-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Teacher</th>
+                        <th>Class</th>
+                        <th>Subject</th>
+                        <th class="text-center">Submissions</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($homeworks)): ?>
+                        <tr>
+                            <td colspan="8" class="empty-message">
+                                <i class="fas fa-tasks" aria-hidden="true"></i>
+                                <p>No homework found</p>
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($homeworks as $hw): ?>
+                            <?php 
+                                $dueDate   = !empty($hw['due_date']) ? strtotime($hw['due_date']) : 0;
+                                $isExpired = $dueDate < time();
+                                $isActive  = !empty($hw['is_active']);
+                                
+                                $rawName    = $hw['teacher_name'] ?? 'Unknown';
+                                $firstName  = explode(' ', trim($rawName))[0];
+                            ?>
+                        <tr>
+                            <td class="title-cell">
+                                <span class="homework-title">
+                                    <?php echo htmlspecialchars($hw['title'] ?? 'Untitled Homework'); ?>
+                                </span>
+                            </td>
+                            <td><?php echo htmlspecialchars($firstName); ?></td>
+                            <td><span class="meta-tag"><?php echo htmlspecialchars($hw['class_name'] ?? 'N/A'); ?></span></td>
+                            <td><span class="meta-tag"><?php echo htmlspecialchars($hw['subject_name'] ?? 'N/A'); ?></span></td>
+                            <td class="text-center">
+                                <span class="count-badge submissions">
+                                    <i class="fas fa-file-upload" aria-hidden="true"></i> <?php echo htmlspecialchars((string)($hw['submissions_count'] ?? 0)); ?>
+                                </span>
+                            </td>
+                            <td class="date-cell">
+                                <?php echo $dueDate ? date('M d, Y h:i A', $dueDate) : 'N/A'; ?>
+                            </td>
+                            <td>
+                                <?php if (!$isActive): ?>
+                                    <span class="status-badge draft">Disabled</span>
+                                <?php elseif ($isExpired): ?>
+                                    <span class="status-badge pending">Expired</span>
+                                <?php else: ?>
+                                    <span class="status-badge published">Active</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="actions-cell">
+                                <a href="<?php echo BASE_URL; ?>/admin/homework/view/<?php echo $hw['id']; ?>" class="action-btn view" title="View Submissions & Details">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </a>
+                                <a href="<?php echo BASE_URL; ?>/admin/homework/toggle-status/<?php echo $hw['id']; ?>" class="action-btn toggle" title="<?php echo $isActive ? 'Disable Homework' : 'Enable Homework'; ?>" onclick="return confirm('Change status for this homework?')">
+                                    <i class="fas <?php echo $isActive ? 'fa-ban' : 'fa-check-circle'; ?>" aria-hidden="true"></i>
+                                </a>
+                                <a href="<?php echo BASE_URL; ?>/admin/homework/delete/<?php echo $hw['id']; ?>" class="action-btn delete" title="Delete Homework" onclick="return confirm('Are you sure you want to permanently delete this homework and associated files?')">
+                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php if (!empty($homeworks) && $totalPages > 1): ?>
+            <nav class="pagination" aria-label="Homework pagination">
+                <?php if ($currentPage > 1): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&class_id=<?php echo urlencode($classFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Previous Page">
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                    </a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&class_id=<?php echo urlencode($classFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" 
+                       class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/homework?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&class_id=<?php echo urlencode($classFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Next Page">
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                <?php endif; ?>
+            </nav>
+        <?php endif; ?>
+    </main>
+</div>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>

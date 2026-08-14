@@ -12,210 +12,6 @@ $canResubmit      = (!$submission || ($submission['status'] ?? '') !== 'graded')
 $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'graded';
 ?>
 
-<div class="hw-container">
-    <header class="hw-header">
-        <a href="<?php echo BASE_URL; ?>/external/homework" class="hw-back-btn">
-            <i class="fas fa-arrow-left"></i> <span>Back to Homework</span>
-        </a>
-        <h1 class="hw-title"><?php echo htmlspecialchars($homework['title'] ?? 'Homework Details'); ?></h1>
-    </header>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="hw-alert hw-alert-success" role="alert">
-            <i class="fas fa-check-circle hw-alert-icon"></i>
-            <div><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
-        </div>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="hw-alert hw-alert-error" role="alert">
-            <i class="fas fa-exclamation-circle hw-alert-icon"></i>
-            <div><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
-        </div>
-    <?php endif; ?>
-
-    <main class="hw-card">
-        
-        <section class="hw-section">
-            <h2 class="hw-section-title"><i class="fas fa-info-circle"></i> Assignment Details</h2>
-            <div class="hw-grid">
-                <div class="hw-meta-item">
-                    <span class="hw-meta-label">Subject</span>
-                    <span class="hw-meta-value"><?php echo htmlspecialchars($homework['subject_name'] ?? 'N/A'); ?></span>
-                </div>
-                <div class="hw-meta-item">
-                    <span class="hw-meta-label">Class</span>
-                    <span class="hw-meta-value"><?php echo htmlspecialchars($homework['class_name'] ?? 'N/A'); ?></span>
-                </div>
-                <div class="hw-meta-item">
-                    <span class="hw-meta-label">Due Date</span>
-                    <span class="hw-meta-value <?php echo $isLate ? 'text-danger' : ''; ?>">
-                        <?php echo $dueDateTimestamp ? date('F j, Y \a\t h:i A', $dueDateTimestamp) : 'No due date'; ?>
-                        <?php if ($isLate): ?>
-                            <span class="hw-badge hw-badge-danger">Overdue</span>
-                        <?php endif; ?>
-                    </span>
-                </div>
-                <div class="hw-meta-item">
-                    <span class="hw-meta-label">Teacher</span>
-                    <span class="hw-meta-value">Tr. <?php echo htmlspecialchars(trim(($homework['teacher_first_name'] ?? '') . ' ' . ($homework['teacher_last_name'] ?? ''))); ?></span>
-                </div>
-            </div>
-        </section>
-
-        <section class="hw-section">
-            <h2 class="hw-section-title"><i class="fas fa-align-left"></i> Description</h2>
-            <div class="hw-description-box">
-                <?php echo nl2br(htmlspecialchars($homework['description'] ?? 'No description provided.')); ?>
-            </div>
-        </section>
-
-        <?php if (!empty($homework['attachments'])): ?>
-            <section class="hw-section">
-                <h2 class="hw-section-title"><i class="fas fa-paperclip"></i> Reference Attachments</h2>
-                <div class="hw-attachments-grid">
-                    <?php foreach ($homework['attachments'] as $attachment): ?>
-                        <?php
-                            $cleanFileName = basename($attachment['file_path']); 
-                            $officialDownloadUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/homework/" . $cleanFileName;
-                        ?>
-                        <a href="<?php echo htmlspecialchars($officialDownloadUrl); ?>" target="_blank" rel="noopener noreferrer" class="hw-attachment-card">
-                            <div class="hw-file-icon"><i class="fas fa-file-download"></i></div>
-                            <div class="hw-file-info">
-                                <span class="hw-file-name"><?php echo htmlspecialchars($attachment['file_name']); ?></span>
-                                <span class="hw-file-size"><?php echo round(($attachment['file_size'] ?? 0) / 1024, 2); ?> KB</span>
-                            </div>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
-        <?php if (!empty($submission) && ($submission['status'] ?? '') === 'graded'): ?>
-            <section class="hw-section hw-feedback-wrapper">
-                <h2 class="hw-section-title text-success"><i class="fas fa-award"></i> Grade & Feedback</h2>
-                <div class="hw-grade-card">
-                    <div class="hw-grade-badge">
-                        <span class="hw-grade-score"><?php echo htmlspecialchars($submission['grade'] ?? '0'); ?>%</span>
-                        <span class="hw-grade-label">Your Score</span>
-                    </div>
-                    <?php if (!empty($submission['feedback'])): ?>
-                        <div class="hw-feedback-body">
-                            <strong></i> Teacher's Comment</strong>
-                            <p><?php echo nl2br(htmlspecialchars($submission['feedback'])); ?></p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
-        <?php if (!empty($submission) && ($submission['status'] ?? '') !== 'graded'): ?>
-            <section class="hw-section hw-submission-wrapper">
-                <div class="hw-submission-header">
-                    <h2 class="hw-section-title text-primary"><i class="fas fa-check-circle"></i> Your Submission</h2>
-                    <?php if ($canDelete): ?>
-                        <button type="button" class="hw-btn hw-btn-danger-outline" onclick="confirmDeleteSubmission(<?php echo (int)$submission['id']; ?>, <?php echo (int)$homework['id']; ?>)">
-                            <i class="fas fa-trash-alt"></i> Delete Submission
-                        </button>
-                    <?php endif; ?>
-                </div>
-
-                <div class="hw-submission-details">
-                    <div class="hw-meta-bar">
-                        <span><i class="fas fa-clock"></i> Submitted on <?php echo date('F j, Y \a\t h:i A', strtotime($submission['submitted_at'])); ?></span>
-                        <?php if (($submission['status'] ?? '') === 'late'): ?>
-                            <span class="hw-badge hw-badge-warning"><i class="fas fa-exclamation-triangle"></i> Submitted Late</span>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <?php if (!empty($submission['text_answer'])): ?>
-                        <div class="hw-submitted-block">
-                            <label class="hw-input-label">Submitted Response</label>
-                            <div class="hw-read-box"><?php echo nl2br(htmlspecialchars($submission['text_answer'])); ?></div>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <?php if (!empty($submission['files'])): ?>
-                        <div class="hw-submitted-block">
-                            <label class="hw-input-label">Attached Files</label>
-                            <div class="hw-attachments-grid">
-                                <?php foreach ($submission['files'] as $file): ?>
-                                    <?php 
-                                        $cleanSubmissionFile = basename($file['file_path']); 
-                                        $officialSubmissionUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubmissionFile;
-                                    ?>
-                                    <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" rel="noopener noreferrer" class="hw-attachment-card">
-                                        <div class="hw-file-icon"><i class="fas fa-file-alt"></i></div>
-                                        <div class="hw-file-info">
-                                            <span class="hw-file-name"><?php echo htmlspecialchars($file['file_name']); ?></span>
-                                            <span class="hw-file-size"><?php echo round(($file['file_size'] ?? 0) / 1024, 2); ?> KB</span>
-                                        </div>
-                                    </a>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
-        <?php if ($canResubmit): ?>
-            <section class="hw-section hw-form-wrapper">
-                <h2 class="hw-section-title"><i class="fas fa-upload"></i> <?php echo $submission ? 'Resubmit Your Work' : 'Submit Your Work'; ?></h2>
-                <form id="homeworkForm" method="POST" enctype="multipart/form-data" action="<?php echo BASE_URL; ?>/external/homework/submit/<?php echo (int)($homework['id'] ?? 0); ?>">
-                    <div class="hw-form-group">
-                        <label for="text_answer" class="hw-input-label">Your Answer</label>
-                        <textarea id="text_answer" name="text_answer" rows="5" class="hw-textarea" placeholder="Type your answer or response here..."><?php echo htmlspecialchars($submission['text_answer'] ?? ''); ?></textarea>
-                    </div>
-                    
-                    <div class="hw-form-group">
-                        <label class="hw-input-label">Attach Files (Max 5MB per file)</label>
-                        <div class="hw-file-dropzone" onclick="document.getElementById('submission_files').click()">
-                            <i class="fas fa-cloud-upload-alt hw-dropzone-icon"></i>
-                            <p class="hw-dropzone-text">Click or drag files here to upload</p>
-                            <span id="file-chosen-text" class="hw-dropzone-sub">No file chosen</span>
-                            <input type="file" id="submission_files" name="submission_files[]" multiple class="hw-file-input" onchange="updateFileNameDisplay(this)">
-                        </div>
-                    </div>
-                    
-                    <?php if ($isLate): ?>
-                        <div class="hw-alert hw-alert-warning">
-                            <i class="fas fa-exclamation-triangle hw-alert-icon"></i>
-                            <span>This assignment is past its due date. Late submissions may incur penalties.</span>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <button type="submit" class="hw-btn hw-btn-primary hw-btn-full">
-                        <i class="fas fa-paper-plane"></i> <span><?php echo $submission ? 'Resubmit Homework' : 'Submit Homework'; ?></span>
-                    </button>
-                </form>
-            </section>
-        <?php endif; ?>
-
-    </main>
-</div>
-
-<div id="deleteModal" class="hw-modal" aria-hidden="true">
-    <div class="hw-modal-card">
-        <div class="hw-modal-header">
-            <h3><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h3>
-            <button type="button" class="hw-modal-close" onclick="closeModal()">&times;</button>
-        </div>
-        <div class="hw-modal-body">
-            <p>Are you sure you want to delete your submission?</p>
-            <div class="hw-alert hw-alert-error compact">
-                This action cannot be undone. You will need to submit your work again.
-            </div>
-        </div>
-        <div class="hw-modal-footer">
-            <button type="button" class="hw-btn hw-btn-secondary" onclick="closeModal()">Cancel</button>
-            <button type="button" id="confirmDeleteBtn" class="hw-btn hw-btn-danger">
-                <i class="fas fa-trash-alt"></i> Delete Submission
-            </button>
-        </div>
-    </div>
-</div>
-
 <style>
 :root {
     --hw-primary: #7f2677;
@@ -703,6 +499,210 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
     .hw-btn-danger-outline { width: 100%; text-align: center; }
 }
 </style>
+
+<div class="hw-container">
+    <header class="hw-header">
+        <a href="<?php echo BASE_URL; ?>/external/homework" class="hw-back-btn">
+            <i class="fas fa-arrow-left"></i> <span>Back to Homework</span>
+        </a>
+        <h1 class="hw-title"><?php echo htmlspecialchars($homework['title'] ?? 'Homework Details'); ?></h1>
+    </header>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="hw-alert hw-alert-success" role="alert">
+            <i class="fas fa-check-circle hw-alert-icon"></i>
+            <div><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="hw-alert hw-alert-error" role="alert">
+            <i class="fas fa-exclamation-circle hw-alert-icon"></i>
+            <div><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        </div>
+    <?php endif; ?>
+
+    <main class="hw-card">
+        
+        <section class="hw-section">
+            <h2 class="hw-section-title"><i class="fas fa-info-circle"></i> Assignment Details</h2>
+            <div class="hw-grid">
+                <div class="hw-meta-item">
+                    <span class="hw-meta-label">Subject</span>
+                    <span class="hw-meta-value"><?php echo htmlspecialchars($homework['subject_name'] ?? 'N/A'); ?></span>
+                </div>
+                <div class="hw-meta-item">
+                    <span class="hw-meta-label">Class</span>
+                    <span class="hw-meta-value"><?php echo htmlspecialchars($homework['class_name'] ?? 'N/A'); ?></span>
+                </div>
+                <div class="hw-meta-item">
+                    <span class="hw-meta-label">Due Date</span>
+                    <span class="hw-meta-value <?php echo $isLate ? 'text-danger' : ''; ?>">
+                        <?php echo $dueDateTimestamp ? date('F j, Y \a\t h:i A', $dueDateTimestamp) : 'No due date'; ?>
+                        <?php if ($isLate): ?>
+                            <span class="hw-badge hw-badge-danger">Overdue</span>
+                        <?php endif; ?>
+                    </span>
+                </div>
+                <div class="hw-meta-item">
+                    <span class="hw-meta-label">Teacher</span>
+                    <span class="hw-meta-value">Tr. <?php echo htmlspecialchars(trim(($homework['teacher_first_name'] ?? '') . ' ' . ($homework['teacher_last_name'] ?? ''))); ?></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="hw-section">
+            <h2 class="hw-section-title"><i class="fas fa-align-left"></i> Description</h2>
+            <div class="hw-description-box">
+                <?php echo nl2br(htmlspecialchars($homework['description'] ?? 'No description provided.')); ?>
+            </div>
+        </section>
+
+        <?php if (!empty($homework['attachments'])): ?>
+            <section class="hw-section">
+                <h2 class="hw-section-title"><i class="fas fa-paperclip"></i> Reference Attachments</h2>
+                <div class="hw-attachments-grid">
+                    <?php foreach ($homework['attachments'] as $attachment): ?>
+                        <?php
+                            $cleanFileName = basename($attachment['file_path']); 
+                            $officialDownloadUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/homework/" . $cleanFileName;
+                        ?>
+                        <a href="<?php echo htmlspecialchars($officialDownloadUrl); ?>" target="_blank" rel="noopener noreferrer" class="hw-attachment-card">
+                            <div class="hw-file-icon"><i class="fas fa-file-download"></i></div>
+                            <div class="hw-file-info">
+                                <span class="hw-file-name"><?php echo htmlspecialchars($attachment['file_name']); ?></span>
+                                <span class="hw-file-size"><?php echo round(($attachment['file_size'] ?? 0) / 1024, 2); ?> KB</span>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if (!empty($submission) && ($submission['status'] ?? '') === 'graded'): ?>
+            <section class="hw-section hw-feedback-wrapper">
+                <h2 class="hw-section-title text-success"><i class="fas fa-award"></i> Grade & Feedback</h2>
+                <div class="hw-grade-card">
+                    <div class="hw-grade-badge">
+                        <span class="hw-grade-score"><?php echo htmlspecialchars($submission['grade'] ?? '0'); ?>%</span>
+                        <span class="hw-grade-label">Your Score</span>
+                    </div>
+                    <?php if (!empty($submission['feedback'])): ?>
+                        <div class="hw-feedback-body">
+                            <strong></i> Teacher's Comment</strong>
+                            <p><?php echo nl2br(htmlspecialchars($submission['feedback'])); ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if (!empty($submission) && ($submission['status'] ?? '') !== 'graded'): ?>
+            <section class="hw-section hw-submission-wrapper">
+                <div class="hw-submission-header">
+                    <h2 class="hw-section-title text-primary"><i class="fas fa-check-circle"></i> Your Submission</h2>
+                    <?php if ($canDelete): ?>
+                        <button type="button" class="hw-btn hw-btn-danger-outline" onclick="confirmDeleteSubmission(<?php echo (int)$submission['id']; ?>, <?php echo (int)$homework['id']; ?>)">
+                            <i class="fas fa-trash-alt"></i> Delete Submission
+                        </button>
+                    <?php endif; ?>
+                </div>
+
+                <div class="hw-submission-details">
+                    <div class="hw-meta-bar">
+                        <span><i class="fas fa-clock"></i> Submitted on <?php echo date('F j, Y \a\t h:i A', strtotime($submission['submitted_at'])); ?></span>
+                        <?php if (($submission['status'] ?? '') === 'late'): ?>
+                            <span class="hw-badge hw-badge-warning"><i class="fas fa-exclamation-triangle"></i> Submitted Late</span>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <?php if (!empty($submission['text_answer'])): ?>
+                        <div class="hw-submitted-block">
+                            <label class="hw-input-label">Submitted Response</label>
+                            <div class="hw-read-box"><?php echo nl2br(htmlspecialchars($submission['text_answer'])); ?></div>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($submission['files'])): ?>
+                        <div class="hw-submitted-block">
+                            <label class="hw-input-label">Attached Files</label>
+                            <div class="hw-attachments-grid">
+                                <?php foreach ($submission['files'] as $file): ?>
+                                    <?php 
+                                        $cleanSubmissionFile = basename($file['file_path']); 
+                                        $officialSubmissionUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubmissionFile;
+                                    ?>
+                                    <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" rel="noopener noreferrer" class="hw-attachment-card">
+                                        <div class="hw-file-icon"><i class="fas fa-file-alt"></i></div>
+                                        <div class="hw-file-info">
+                                            <span class="hw-file-name"><?php echo htmlspecialchars($file['file_name']); ?></span>
+                                            <span class="hw-file-size"><?php echo round(($file['file_size'] ?? 0) / 1024, 2); ?> KB</span>
+                                        </div>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if ($canResubmit): ?>
+            <section class="hw-section hw-form-wrapper">
+                <h2 class="hw-section-title"><i class="fas fa-upload"></i> <?php echo $submission ? 'Resubmit Your Work' : 'Submit Your Work'; ?></h2>
+                <form id="homeworkForm" method="POST" enctype="multipart/form-data" action="<?php echo BASE_URL; ?>/external/homework/submit/<?php echo (int)($homework['id'] ?? 0); ?>">
+                    <div class="hw-form-group">
+                        <label for="text_answer" class="hw-input-label">Your Answer</label>
+                        <textarea id="text_answer" name="text_answer" rows="5" class="hw-textarea" placeholder="Type your answer or response here..."><?php echo htmlspecialchars($submission['text_answer'] ?? ''); ?></textarea>
+                    </div>
+                    
+                    <div class="hw-form-group">
+                        <label class="hw-input-label">Attach Files (Max 5MB per file)</label>
+                        <div class="hw-file-dropzone" onclick="document.getElementById('submission_files').click()">
+                            <i class="fas fa-cloud-upload-alt hw-dropzone-icon"></i>
+                            <p class="hw-dropzone-text">Click or drag files here to upload</p>
+                            <span id="file-chosen-text" class="hw-dropzone-sub">No file chosen</span>
+                            <input type="file" id="submission_files" name="submission_files[]" multiple class="hw-file-input" onchange="updateFileNameDisplay(this)">
+                        </div>
+                    </div>
+                    
+                    <?php if ($isLate): ?>
+                        <div class="hw-alert hw-alert-warning">
+                            <i class="fas fa-exclamation-triangle hw-alert-icon"></i>
+                            <span>This assignment is past its due date. Late submissions may incur penalties.</span>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <button type="submit" class="hw-btn hw-btn-primary hw-btn-full">
+                        <i class="fas fa-paper-plane"></i> <span><?php echo $submission ? 'Resubmit Homework' : 'Submit Homework'; ?></span>
+                    </button>
+                </form>
+            </section>
+        <?php endif; ?>
+
+    </main>
+</div>
+
+<div id="deleteModal" class="hw-modal" aria-hidden="true">
+    <div class="hw-modal-card">
+        <div class="hw-modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h3>
+            <button type="button" class="hw-modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="hw-modal-body">
+            <p>Are you sure you want to delete your submission?</p>
+            <div class="hw-alert hw-alert-error compact">
+                This action cannot be undone. You will need to submit your work again.
+            </div>
+        </div>
+        <div class="hw-modal-footer">
+            <button type="button" class="hw-btn hw-btn-secondary" onclick="closeModal()">Cancel</button>
+            <button type="button" id="confirmDeleteBtn" class="hw-btn hw-btn-danger">
+                <i class="fas fa-trash-alt"></i> Delete Submission
+            </button>
+        </div>
+    </div>
+</div>
 
 <script>
 let submissionToDelete = null;

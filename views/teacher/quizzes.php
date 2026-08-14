@@ -11,201 +11,6 @@ $search = $_GET['search'] ?? '';
 $selectedClass = $_GET['class_id'] ?? '';
 ?>
 
-<div class="quizzes-container">
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">
-                <i class="fas fa-pencil-alt"></i>
-                My Quizzes
-            </h1>
-            <p class="page-subtitle">Create and manage quizzes for your students</p>
-        </div>
-        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-primary">
-            <i class="fas fa-plus-circle"></i>
-            Create New Quiz
-        </a>
-    </div>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <div class="search-section">
-        <form method="GET" action="<?php echo BASE_URL; ?>/teacher/quizzes" class="search-form">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input 
-                    type="text" 
-                    name="search" 
-                    placeholder="Search quizzes by title..." 
-                    value="<?php echo htmlspecialchars($search); ?>"
-                >
-            </div>
-
-            <div class="filter-box">
-                <select name="class_id" class="class-select" onchange="this.form.submit()">
-                    <option value="">All Classes</option>
-                    <?php foreach ($classes as $class): ?>
-                        <option value="<?php echo $class['id']; ?>" <?php echo ($selectedClass == $class['id']) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($class['name']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-search">
-                <i class="fas fa-search"></i> Search
-            </button>
-            <?php if ($search || $selectedClass): ?>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-clear">
-                    <i class="fas fa-times"></i> Clear
-                </a>
-            <?php endif; ?>
-        </form>
-    </div>
-
-    <?php if (empty($quizzes)): ?>
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="fas fa-pencil-alt"></i>
-            </div>
-            <h3>No Quizzes Found</h3>
-            <p>No quizzes matching your criteria. Try adjusting your search filters!</p>
-            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-primary">
-                <i class="fas fa-plus-circle"></i>
-                Create New Quiz
-            </a>
-        </div>
-    <?php else: ?>
-        <div class="quizzes-grid">
-            <?php foreach ($quizzes as $quiz): ?>
-                <?php 
-                    $deadlineRaw = $quiz['end_date'] ?? $quiz['deadline'] ?? $quiz['due_date'] ?? null;
-                    $isExpired = false;
-                    $formattedDeadline = 'No Deadline';
-
-                    if (!empty($deadlineRaw)) {
-                        $deadlineTime = strtotime($deadlineRaw);
-                        $isExpired = $deadlineTime < time();
-                        $formattedDeadline = date('M d, h:i A', $deadlineTime);
-                    }
-
-                    $isPublished = $quiz['is_published'] && !$isExpired;
-                ?>
-                <div class="quiz-card">
-                    <div class="quiz-header">
-                        <div class="quiz-status <?php echo $quiz['is_published'] ? 'published' : 'draft'; ?>">
-                            <?php echo $quiz['is_published'] ? 'Published' : 'Draft'; ?>
-                        </div>
-                        <h3 class="quiz-title"><?php echo htmlspecialchars($quiz['title']); ?></h3>
-                    </div>
-
-                    <div class="quiz-meta">
-                        <span>
-                            <i class="fas fa-graduation-cap"></i>
-                            <?php echo htmlspecialchars($quiz['class_name'] ?? 'All Classes'); ?>
-                        </span>
-                        <span>
-                            <i class="fas fa-book"></i>
-                            <?php echo htmlspecialchars($quiz['subject_name'] ?? 'General'); ?>
-                        </span>
-                        <span>
-                            <i class="fas fa-clock"></i>
-                            <?php echo $quiz['time_limit'] ?? 30; ?> min
-                        </span>
-                    </div>
-
-                    <p class="quiz-description">
-                        <?php echo substr(htmlspecialchars($quiz['description'] ?? ''), 0, 100); ?>...
-                    </p>
-
-                    <div class="quiz-stats">
-                        <span title="Questions">
-                            <i class="fas fa-question-circle"></i> 
-                            <?php echo $quiz['question_count'] ?? 0; ?> questions
-                        </span>
-                        <span title="Attempts">
-                            <i class="fas fa-users"></i> 
-                            <?php echo $quiz['attempt_count'] ?? 0; ?> attempts
-                        </span>
-                        <span title="Passing Score">
-                            <i class="fas fa-trophy"></i> 
-                            <?php echo $quiz['passing_score'] ?? 50; ?>% to pass
-                        </span>
-                        <?php if (!empty($deadlineRaw)): ?>
-                            <span title="Quiz Deadline" class="deadline-status <?php echo $isExpired ? 'expired' : 'active'; ?>">
-                                <i class="fas <?php echo $isExpired ? 'fa-calendar-times' : 'fa-calendar-check'; ?>"></i>
-                                <?php echo $formattedDeadline; ?>
-                            </span>
-                        <?php else: ?>
-                            <span title="Quiz Deadline" class="deadline-status none">
-                                <i class="fas fa-calendar-alt"></i> No Deadline
-                            </span>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="quiz-actions">
-                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="action-btn questions" title="Add Questions">
-                            <i class="fas fa-plus-circle"></i>
-                        </a>
-                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="action-btn edit" title="Edit Quiz">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="action-btn results" title="View Results">
-                            <i class="fas fa-chart-bar"></i>
-                        </a>
-                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/preview/<?php echo $quiz['id']; ?>" class="action-btn preview" title="Preview Quiz">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/delete/<?php echo $quiz['id']; ?>" class="action-btn delete" title="Delete Quiz" onclick="return confirm('Are you sure you want to delete this quiz? All associated questions and results will be lost.')">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-
-        <?php if ($totalPages > 1): ?>
-            <div class="pagination">
-                <?php 
-                $queryParams = [];
-                if ($search) $queryParams['search'] = $search;
-                if ($selectedClass) $queryParams['class_id'] = $selectedClass;
-                ?>
-
-                <?php if ($currentPage > 1): ?>
-                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?<?php echo http_build_query(array_merge($queryParams, ['page' => $currentPage - 1])); ?>" class="page-link">
-                        <i class="fas fa-chevron-left"></i>
-                    </a>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?<?php echo http_build_query(array_merge($queryParams, ['page' => $i])); ?>"
-                    class="page-link <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-
-                <?php if ($currentPage < $totalPages): ?>
-                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?<?php echo http_build_query(array_merge($queryParams, ['page' => $currentPage + 1])); ?>" class="page-link">
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-    <?php endif; ?>
-</div>
-
 <style>
 .quizzes-container {
     max-width: 1400px;
@@ -651,6 +456,201 @@ $selectedClass = $_GET['class_id'] ?? '';
         justify-content: center;
     }
 }
-</style>
+</style
+
+<div class="quizzes-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-pencil-alt"></i>
+                My Quizzes
+            </h1>
+            <p class="page-subtitle">Create and manage quizzes for your students</p>
+        </div>
+        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-primary">
+            <i class="fas fa-plus-circle"></i>
+            Create New Quiz
+        </a>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="search-section">
+        <form method="GET" action="<?php echo BASE_URL; ?>/teacher/quizzes" class="search-form">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search quizzes by title..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                >
+            </div>
+
+            <div class="filter-box">
+                <select name="class_id" class="class-select" onchange="this.form.submit()">
+                    <option value="">All Classes</option>
+                    <?php foreach ($classes as $class): ?>
+                        <option value="<?php echo $class['id']; ?>" <?php echo ($selectedClass == $class['id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($class['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-search">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <?php if ($search || $selectedClass): ?>
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-clear">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            <?php endif; ?>
+        </form>
+    </div>
+
+    <?php if (empty($quizzes)): ?>
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-pencil-alt"></i>
+            </div>
+            <h3>No Quizzes Found</h3>
+            <p>No quizzes matching your criteria. Try adjusting your search filters!</p>
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Create New Quiz
+            </a>
+        </div>
+    <?php else: ?>
+        <div class="quizzes-grid">
+            <?php foreach ($quizzes as $quiz): ?>
+                <?php 
+                    $deadlineRaw = $quiz['end_date'] ?? $quiz['deadline'] ?? $quiz['due_date'] ?? null;
+                    $isExpired = false;
+                    $formattedDeadline = 'No Deadline';
+
+                    if (!empty($deadlineRaw)) {
+                        $deadlineTime = strtotime($deadlineRaw);
+                        $isExpired = $deadlineTime < time();
+                        $formattedDeadline = date('M d, h:i A', $deadlineTime);
+                    }
+
+                    $isPublished = $quiz['is_published'] && !$isExpired;
+                ?>
+                <div class="quiz-card">
+                    <div class="quiz-header">
+                        <div class="quiz-status <?php echo $quiz['is_published'] ? 'published' : 'draft'; ?>">
+                            <?php echo $quiz['is_published'] ? 'Published' : 'Draft'; ?>
+                        </div>
+                        <h3 class="quiz-title"><?php echo htmlspecialchars($quiz['title']); ?></h3>
+                    </div>
+
+                    <div class="quiz-meta">
+                        <span>
+                            <i class="fas fa-graduation-cap"></i>
+                            <?php echo htmlspecialchars($quiz['class_name'] ?? 'All Classes'); ?>
+                        </span>
+                        <span>
+                            <i class="fas fa-book"></i>
+                            <?php echo htmlspecialchars($quiz['subject_name'] ?? 'General'); ?>
+                        </span>
+                        <span>
+                            <i class="fas fa-clock"></i>
+                            <?php echo $quiz['time_limit'] ?? 30; ?> min
+                        </span>
+                    </div>
+
+                    <p class="quiz-description">
+                        <?php echo substr(htmlspecialchars($quiz['description'] ?? ''), 0, 100); ?>...
+                    </p>
+
+                    <div class="quiz-stats">
+                        <span title="Questions">
+                            <i class="fas fa-question-circle"></i> 
+                            <?php echo $quiz['question_count'] ?? 0; ?> questions
+                        </span>
+                        <span title="Attempts">
+                            <i class="fas fa-users"></i> 
+                            <?php echo $quiz['attempt_count'] ?? 0; ?> attempts
+                        </span>
+                        <span title="Passing Score">
+                            <i class="fas fa-trophy"></i> 
+                            <?php echo $quiz['passing_score'] ?? 50; ?>% to pass
+                        </span>
+                        <?php if (!empty($deadlineRaw)): ?>
+                            <span title="Quiz Deadline" class="deadline-status <?php echo $isExpired ? 'expired' : 'active'; ?>">
+                                <i class="fas <?php echo $isExpired ? 'fa-calendar-times' : 'fa-calendar-check'; ?>"></i>
+                                <?php echo $formattedDeadline; ?>
+                            </span>
+                        <?php else: ?>
+                            <span title="Quiz Deadline" class="deadline-status none">
+                                <i class="fas fa-calendar-alt"></i> No Deadline
+                            </span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="quiz-actions">
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quiz['id']; ?>" class="action-btn questions" title="Add Questions">
+                            <i class="fas fa-plus-circle"></i>
+                        </a>
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="action-btn edit" title="Edit Quiz">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="action-btn results" title="View Results">
+                            <i class="fas fa-chart-bar"></i>
+                        </a>
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/preview/<?php echo $quiz['id']; ?>" class="action-btn preview" title="Preview Quiz">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/delete/<?php echo $quiz['id']; ?>" class="action-btn delete" title="Delete Quiz" onclick="return confirm('Are you sure you want to delete this quiz? All associated questions and results will be lost.')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <?php if ($totalPages > 1): ?>
+            <div class="pagination">
+                <?php 
+                $queryParams = [];
+                if ($search) $queryParams['search'] = $search;
+                if ($selectedClass) $queryParams['class_id'] = $selectedClass;
+                ?>
+
+                <?php if ($currentPage > 1): ?>
+                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?<?php echo http_build_query(array_merge($queryParams, ['page' => $currentPage - 1])); ?>" class="page-link">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?<?php echo http_build_query(array_merge($queryParams, ['page' => $i])); ?>"
+                    class="page-link <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                    <a href="<?php echo BASE_URL; ?>/teacher/quizzes?<?php echo http_build_query(array_merge($queryParams, ['page' => $currentPage + 1])); ?>" class="page-link">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

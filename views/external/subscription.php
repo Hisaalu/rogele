@@ -70,162 +70,6 @@ $plans = [
 ];
 ?>
 
-<div class="subscription-container">
-    <div class="subscription-header">
-        <div class="badge">ROGELE</div>
-        <h1 class="page-title">Choose Your Learning Path</h1>
-        <p class="page-subtitle">Select the perfect plan for your educational journey</p>
-    </div>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($currentSubscription)): ?>
-        <div class="active-subscription">
-            <div class="active-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="active-content">
-                <h3>You're on the <?= htmlspecialchars(ucfirst($currentSubscription['plan_type'])); ?> Plan!</h3>
-                <p>Valid until <?= date('F j, Y', strtotime($currentSubscription['end_date'])); ?></p>
-            </div>
-            <?php
-            $currentPlan = $currentSubscription['plan_type'];
-            $nextPlan    = $currentPlan === 'monthly' ? 'termly' : ($currentPlan === 'termly' ? 'yearly' : null);
-            if ($nextPlan):
-            ?>
-            <a href="<?= BASE_URL ?>/external/upgrade-confirmation?from=<?= urlencode($currentPlan) ?>&to=<?= urlencode($nextPlan) ?>" class="btn-upgrade">
-                <i class="fas fa-rocket"></i> Upgrade to <?= ucfirst($nextPlan) ?>
-            </a>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
-
-    <div class="pricing-grid">
-        <?php foreach ($plans as $key => $plan): ?>
-            <div class="pricing-card <?= $plan['popular'] ? 'popular' : '' ?>" data-plan="<?= $key ?>" data-price="<?= $plan['price'] ?>">
-                <?php if ($plan['badge']): ?>
-                    <div class="popular-badge"><?= $plan['badge'] ?></div>
-                <?php endif; ?>
-                <div class="plan-icon"><i class="<?= $plan['icon'] ?>"></i></div>
-                <h3 class="plan-name"><?= $plan['name'] ?></h3>
-                <div class="price-wrapper">
-                    <span class="currency">UGX</span>
-                    <span class="amount"><?= number_format($plan['price']) ?></span>
-                </div>
-                <p class="period"><?= $plan['period'] ?></p>
-
-                <?php if (!empty($plan['savings'])): ?>
-                    <div class="savings-tag <?= $plan['savings_class'] ?? '' ?>"><?= $plan['savings'] ?></div>
-                <?php endif; ?>
-
-                <ul class="features-list">
-                    <?php foreach ($plan['features'] as $feature): ?>
-                        <li><i class="fas fa-check-circle"></i> <?= htmlspecialchars($feature) ?></li>
-                    <?php endforeach; ?>
-                </ul>
-
-                <?php if (empty($currentSubscription)): ?>
-                <button type="button" class="btn-select <?= $plan['popular'] ? 'btn-primary' : '' ?> open-payment-modal" data-plan="<?= $key ?>" data-price="<?= $plan['price'] ?>">
-                    <i class="fas <?= $key === 'yearly' ? 'fa-crown' : ($key === 'termly' ? 'fa-rocket' : 'fa-shopping-cart') ?>"></i> Select Plan
-                </button>
-                <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
-
-    <!-- Payment History -->
-    <?php if (!empty($paymentHistory)): ?>
-        <?php $recentPaymentHistory = array_slice($paymentHistory, 0, 5); ?>
-        <div class="history-section">
-            <h2 class="section-title"><i class="fas fa-history"></i> Payment History</h2>
-            <div class="table-responsive">
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Plan</th>
-                            <th>Amount</th>
-                            <th>Method</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($recentPaymentHistory as $payment): ?>
-                        <tr>
-                            <td><?= date('M d, Y', strtotime($payment['created_at'])) ?></td>
-                            <td><strong><?= htmlspecialchars(ucfirst($payment['plan_type'] ?? 'N/A')) ?></strong></td>
-                            <td>UGX <?= number_format($payment['amount']) ?></td>
-                            <td>
-                                <i class="fas fa-mobile-alt"></i>
-                                <?= htmlspecialchars(ucfirst(str_replace('_', ' ', $payment['payment_method'] ?? 'Mobile Money'))) ?>
-                            </td>
-                            <td>
-                                <span class="status-badge <?= htmlspecialchars($payment['status']) ?>">
-                                    <?= htmlspecialchars(ucfirst($payment['status'])) ?>
-                                </span>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
-
-<!-- Modal -->
-<div id="paymentModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-credit-card"></i> Complete Payment</h3>
-            <span class="close">&times;</span>
-        </div>
-        
-        <form id="paymentForm" action="<?= BASE_URL ?>/external/process-mobile-money-payment" method="POST">
-            <input type="hidden" name="plan_type" id="selectedPlan">
-            
-            <div class="plan-summary">
-                <p>You're subscribing to: <strong id="planNameDisplay"></strong></p>
-                <p class="amount-display">Total: <span id="planAmountDisplay"></span></p>
-            </div>
-
-            <div class="input-group">
-                <label for="provider">Payment Network</label>
-                <select id="provider" name="provider" required>
-                    <option value="">Select Network</option>
-                    <option value="mtn">MTN Mobile Money</option>
-                    <option value="airtel">Airtel Money</option>
-                </select>
-            </div>
-            
-            <div class="payment-fields">
-                <div class="input-group" style="margin-bottom:0;">
-                    <label for="phoneNumber">Mobile Money Phone Number</label>
-                    <input type="tel" id="phoneNumber" name="phone_number" placeholder="0772 123 456" required>
-                    <small>Enter your MTN or Airtel Mobile Money number</small>
-                </div>
-            </div>
-            
-            <div class="modal-buttons">
-                <button type="button" class="btn-cancel">Cancel</button>
-                <button type="submit" class="btn-submit">Pay Now</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <style>
 .subscription-container {
     max-width: 1280px;
@@ -541,6 +385,160 @@ $plans = [
     .active-subscription { flex-direction: column; text-align: center; }
 }
 </style>
+
+<div class="subscription-container">
+    <div class="subscription-header">
+        <div class="badge">ROGELE</div>
+        <h1 class="page-title">Choose Your Learning Path</h1>
+        <p class="page-subtitle">Select the perfect plan for your educational journey</p>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($currentSubscription)): ?>
+        <div class="active-subscription">
+            <div class="active-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="active-content">
+                <h3>You're on the <?= htmlspecialchars(ucfirst($currentSubscription['plan_type'])); ?> Plan!</h3>
+                <p>Valid until <?= date('F j, Y', strtotime($currentSubscription['end_date'])); ?></p>
+            </div>
+            <?php
+            $currentPlan = $currentSubscription['plan_type'];
+            $nextPlan    = $currentPlan === 'monthly' ? 'termly' : ($currentPlan === 'termly' ? 'yearly' : null);
+            if ($nextPlan):
+            ?>
+            <a href="<?= BASE_URL ?>/external/upgrade-confirmation?from=<?= urlencode($currentPlan) ?>&to=<?= urlencode($nextPlan) ?>" class="btn-upgrade">
+                <i class="fas fa-rocket"></i> Upgrade to <?= ucfirst($nextPlan) ?>
+            </a>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="pricing-grid">
+        <?php foreach ($plans as $key => $plan): ?>
+            <div class="pricing-card <?= $plan['popular'] ? 'popular' : '' ?>" data-plan="<?= $key ?>" data-price="<?= $plan['price'] ?>">
+                <?php if ($plan['badge']): ?>
+                    <div class="popular-badge"><?= $plan['badge'] ?></div>
+                <?php endif; ?>
+                <div class="plan-icon"><i class="<?= $plan['icon'] ?>"></i></div>
+                <h3 class="plan-name"><?= $plan['name'] ?></h3>
+                <div class="price-wrapper">
+                    <span class="currency">UGX</span>
+                    <span class="amount"><?= number_format($plan['price']) ?></span>
+                </div>
+                <p class="period"><?= $plan['period'] ?></p>
+
+                <?php if (!empty($plan['savings'])): ?>
+                    <div class="savings-tag <?= $plan['savings_class'] ?? '' ?>"><?= $plan['savings'] ?></div>
+                <?php endif; ?>
+
+                <ul class="features-list">
+                    <?php foreach ($plan['features'] as $feature): ?>
+                        <li><i class="fas fa-check-circle"></i> <?= htmlspecialchars($feature) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+
+                <?php if (empty($currentSubscription)): ?>
+                <button type="button" class="btn-select <?= $plan['popular'] ? 'btn-primary' : '' ?> open-payment-modal" data-plan="<?= $key ?>" data-price="<?= $plan['price'] ?>">
+                    <i class="fas <?= $key === 'yearly' ? 'fa-crown' : ($key === 'termly' ? 'fa-rocket' : 'fa-shopping-cart') ?>"></i> Select Plan
+                </button>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <?php if (!empty($paymentHistory)): ?>
+        <?php $recentPaymentHistory = array_slice($paymentHistory, 0, 5); ?>
+        <div class="history-section">
+            <h2 class="section-title"><i class="fas fa-history"></i> Payment History</h2>
+            <div class="table-responsive">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Plan</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($recentPaymentHistory as $payment): ?>
+                        <tr>
+                            <td><?= date('M d, Y', strtotime($payment['created_at'])) ?></td>
+                            <td><strong><?= htmlspecialchars(ucfirst($payment['plan_type'] ?? 'N/A')) ?></strong></td>
+                            <td>UGX <?= number_format($payment['amount']) ?></td>
+                            <td>
+                                <i class="fas fa-mobile-alt"></i>
+                                <?= htmlspecialchars(ucfirst(str_replace('_', ' ', $payment['payment_method'] ?? 'Mobile Money'))) ?>
+                            </td>
+                            <td>
+                                <span class="status-badge <?= htmlspecialchars($payment['status']) ?>">
+                                    <?= htmlspecialchars(ucfirst($payment['status'])) ?>
+                                </span>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
+
+<div id="paymentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-credit-card"></i> Complete Payment</h3>
+            <span class="close">&times;</span>
+        </div>
+        
+        <form id="paymentForm" action="<?= BASE_URL ?>/external/process-mobile-money-payment" method="POST">
+            <input type="hidden" name="plan_type" id="selectedPlan">
+            
+            <div class="plan-summary">
+                <p>You're subscribing to: <strong id="planNameDisplay"></strong></p>
+                <p class="amount-display">Total: <span id="planAmountDisplay"></span></p>
+            </div>
+
+            <div class="input-group">
+                <label for="provider">Payment Network</label>
+                <select id="provider" name="provider" required>
+                    <option value="">Select Network</option>
+                    <option value="mtn">MTN Mobile Money</option>
+                    <option value="airtel">Airtel Money</option>
+                </select>
+            </div>
+            
+            <div class="payment-fields">
+                <div class="input-group" style="margin-bottom:0;">
+                    <label for="phoneNumber">Mobile Money Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phone_number" placeholder="0772 123 456" required>
+                    <small>Enter your MTN or Airtel Mobile Money number</small>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel">Cancel</button>
+                <button type="submit" class="btn-submit">Pay Now</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
 const modal = document.getElementById('paymentModal');

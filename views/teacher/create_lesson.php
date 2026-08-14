@@ -3,209 +3,9 @@
 $pageTitle = 'Create Lesson | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Get subjects and classes from controller
 $subjects = $subjects ?? [];
 $classes = $classes ?? [];
 ?>
-
-<div class="create-lesson-container">
-    <!-- Header -->
-    <div class="page-header">
-        <div>
-            <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Lessons
-            </a>
-            <h1 class="page-title">
-                <i class="fas fa-plus-circle"></i>
-                Create New Lesson
-            </h1>
-            <p class="page-subtitle">Create engaging content for your students</p>
-        </div>
-    </div>
-
-    <!-- Alert Messages -->
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <!-- Create Lesson Form -->
-    <div class="form-card">
-        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/lessons/create" enctype="multipart/form-data" class="lesson-form" id="lessonForm">
-            <!-- Basic Information -->
-            <div class="form-section">
-                <h3 class="section-title">
-                    <i class="fas fa-info-circle"></i>
-                    Basic Information
-                </h3>
-                
-                <div class="form-group">
-                    <label for="title">
-                        <i class="fas fa-heading"></i>
-                        Lesson Title <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="title" 
-                        name="title" 
-                        required 
-                        placeholder="e.g., Introduction to Fractions"
-                    >
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="class_id">
-                            <i class="fas fa-graduation-cap"></i>
-                            Class <span class="required">*</span>
-                        </label>
-                        <select id="class_id" name="class_id" required onchange="filterSubjects()">
-                            <option value="">Select a class</option>
-                            <?php if (!empty($classes)): ?>
-                                <?php foreach ($classes as $class): ?>
-                                    <option value="<?php echo $class['id']; ?>">
-                                        <?php echo htmlspecialchars($class['name']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <option value="" disabled>No classes available</option>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="subject_id">
-                            <i class="fas fa-book"></i>
-                            Subject <span class="required">*</span>
-                        </label>
-                        <select id="subject_id" name="subject_id" required>
-                            <option value="">First select a class</option>
-                            <?php if (!empty($subjects)): ?>
-                                <?php foreach ($subjects as $subject): ?>
-                                    <option value="<?php echo $subject['id']; ?>" 
-                                            data-class="<?php echo $subject['class_id']; ?>"
-                                            class="subject-option" style="display: none;">
-                                        <?php echo htmlspecialchars($subject['name']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lesson Content -->
-            <div class="form-section">
-                <h3 class="section-title">
-                    <i class="fas fa-align-left"></i>
-                    Lesson Content
-                </h3>
-                
-                <div class="form-group">
-                    <label for="content">
-                        <i class="fas fa-file-alt"></i>
-                        Content
-                    </label>
-                    <textarea 
-                        id="content" 
-                        name="content" 
-                        rows="8" 
-                        placeholder="Write your lesson content here..."
-                    ></textarea>
-                </div>
-            </div>
-
-            <!-- Media Section -->
-            <div class="form-section">
-                <h3 class="section-title">
-                    <i class="fas fa-video"></i>
-                    Media & Materials
-                </h3>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="video_url">
-                            <i class="fab fa-youtube"></i>
-                            YouTube Video URL
-                        </label>
-                        <input 
-                            type="url" 
-                            id="video_url" 
-                            name="video_url" 
-                            placeholder="https://www.youtube.com/watch?v=..."
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="duration">
-                            <i class="fas fa-clock"></i>
-                            Duration (minutes)
-                        </label>
-                        <input 
-                            type="number" 
-                            id="duration" 
-                            name="duration" 
-                            min="1" 
-                            max="300" 
-                            placeholder="e.g., 45"
-                        >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="materials">
-                        <i class="fas fa-file-upload"></i>
-                        Upload Materials
-                    </label>
-                    <div class="file-upload-area" id="fileUploadArea">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Drag & drop files here or click to browse</p>
-                        <input 
-                            type="file" 
-                            id="materials" 
-                            name="materials[]" 
-                            multiple 
-                            accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png"
-                        >
-                    </div>
-                    <div id="fileList" class="file-list"></div>
-                </div>
-            </div>
-
-            <!-- Publishing Options -->
-            <div class="form-section">
-                <h3 class="section-title">
-                    <i class="fas fa-globe"></i>
-                    Publishing Options
-                </h3>
-                
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="is_published" value="1" checked>
-                        <span>Publish immediately</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-save"></i>
-                    Create Lesson
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 
 <style>
 .create-lesson-container {
@@ -247,7 +47,6 @@ $classes = $classes ?? [];
     margin-bottom: 30px;
 }
 
-/* Form Card */
 .form-card {
     background: white;
     border-radius: 24px;
@@ -280,7 +79,6 @@ $classes = $classes ?? [];
     color: #f06724;
 }
 
-/* Form Groups */
 .form-group {
     margin-bottom: 20px;
 }
@@ -349,7 +147,6 @@ $classes = $classes ?? [];
     margin-top: 5px;
 }
 
-/* File Upload */
 .file-upload-area {
     border: 2px dashed #E2E8F0;
     border-radius: 12px;
@@ -420,7 +217,6 @@ $classes = $classes ?? [];
     cursor: pointer;
 }
 
-/* Checkbox */
 .checkbox-group {
     margin-top: 10px;
 }
@@ -443,7 +239,6 @@ $classes = $classes ?? [];
     color: #000;
 }
 
-/* Form Actions */
 .form-actions {
     display: flex;
     gap: 15px;
@@ -496,7 +291,6 @@ $classes = $classes ?? [];
     color: white;
 }
 
-/* Alerts */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -530,7 +324,6 @@ $classes = $classes ?? [];
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .form-card {
         padding: 25px;
@@ -551,8 +344,198 @@ $classes = $classes ?? [];
 
 </style>
 
+<div class="create-lesson-container">
+    <div class="page-header">
+        <div>
+            <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Lessons
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-plus-circle"></i>
+                Create New Lesson
+            </h1>
+            <p class="page-subtitle">Create engaging content for your students</p>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="form-card">
+        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/lessons/create" enctype="multipart/form-data" class="lesson-form" id="lessonForm">
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Basic Information
+                </h3>
+                
+                <div class="form-group">
+                    <label for="title">
+                        <i class="fas fa-heading"></i>
+                        Lesson Title <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title" 
+                        required 
+                        placeholder="e.g., Introduction to Fractions"
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="class_id">
+                            <i class="fas fa-graduation-cap"></i>
+                            Class <span class="required">*</span>
+                        </label>
+                        <select id="class_id" name="class_id" required onchange="filterSubjects()">
+                            <option value="">Select a class</option>
+                            <?php if (!empty($classes)): ?>
+                                <?php foreach ($classes as $class): ?>
+                                    <option value="<?php echo $class['id']; ?>">
+                                        <?php echo htmlspecialchars($class['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>No classes available</option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject_id">
+                            <i class="fas fa-book"></i>
+                            Subject <span class="required">*</span>
+                        </label>
+                        <select id="subject_id" name="subject_id" required>
+                            <option value="">First select a class</option>
+                            <?php if (!empty($subjects)): ?>
+                                <?php foreach ($subjects as $subject): ?>
+                                    <option value="<?php echo $subject['id']; ?>" 
+                                            data-class="<?php echo $subject['class_id']; ?>"
+                                            class="subject-option" style="display: none;">
+                                        <?php echo htmlspecialchars($subject['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-align-left"></i>
+                    Lesson Content
+                </h3>
+                
+                <div class="form-group">
+                    <label for="content">
+                        <i class="fas fa-file-alt"></i>
+                        Content
+                    </label>
+                    <textarea 
+                        id="content" 
+                        name="content" 
+                        rows="8" 
+                        placeholder="Write your lesson content here..."
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-video"></i>
+                    Media & Materials
+                </h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="video_url">
+                            <i class="fab fa-youtube"></i>
+                            YouTube Video URL
+                        </label>
+                        <input 
+                            type="url" 
+                            id="video_url" 
+                            name="video_url" 
+                            placeholder="https://www.youtube.com/watch?v=..."
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">
+                            <i class="fas fa-clock"></i>
+                            Duration (minutes)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="duration" 
+                            name="duration" 
+                            min="1" 
+                            max="300" 
+                            placeholder="e.g., 45"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="materials">
+                        <i class="fas fa-file-upload"></i>
+                        Upload Materials
+                    </label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop files here or click to browse</p>
+                        <input 
+                            type="file" 
+                            id="materials" 
+                            name="materials[]" 
+                            multiple 
+                            accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png"
+                        >
+                    </div>
+                    <div id="fileList" class="file-list"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-globe"></i>
+                    Publishing Options
+                </h3>
+                
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_published" value="1" checked>
+                        <span>Publish immediately</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i>
+                    Create Lesson
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
-// File upload handling
 document.getElementById('materials').addEventListener('change', function(e) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '';
@@ -571,7 +554,6 @@ document.getElementById('materials').addEventListener('change', function(e) {
     });
 });
 
-// Drag and drop highlight
 const uploadArea = document.getElementById('fileUploadArea');
 if (uploadArea) {
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -600,18 +582,15 @@ if (uploadArea) {
         const files = dt.files;
         document.getElementById('materials').files = files;
         
-        // Trigger change event
         const event = new Event('change');
         document.getElementById('materials').dispatchEvent(event);
     });
 }
 
-// Subject filtering based on selected class
 function filterSubjects() {
     const classId = document.getElementById('class_id').value;
     const subjectSelect = document.getElementById('subject_id');
     
-    // Clear current options
     subjectSelect.innerHTML = '';
     
     if (!classId) {
@@ -619,16 +598,13 @@ function filterSubjects() {
         return;
     }
     
-    // Add default option
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
     defaultOption.textContent = 'Select a subject';
     subjectSelect.appendChild(defaultOption);
     
-    // Add subjects for selected class
     let hasSubjects = false;
     <?php 
-    // Organize subjects by class for JavaScript
     $subjectsByClass = [];
     foreach ($subjects as $subject) {
         $classId = $subject['class_id'];
@@ -639,7 +615,6 @@ function filterSubjects() {
     }
     ?>
     
-    // Create a JavaScript object with subjects by class
     const subjectsByClass = <?php echo json_encode($subjectsByClass); ?>;
     
     if (subjectsByClass[classId] && subjectsByClass[classId].length > 0) {
@@ -654,7 +629,6 @@ function filterSubjects() {
     }
 }
 
-// Form validation before submit
 document.getElementById('lessonForm').addEventListener('submit', function(e) {
     const title = document.getElementById('title').value.trim();
     const classId = document.getElementById('class_id').value;
@@ -681,14 +655,11 @@ document.getElementById('lessonForm').addEventListener('submit', function(e) {
     return true;
 });
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Set up class change event
     const classSelect = document.getElementById('class_id');
     if (classSelect) {
         classSelect.addEventListener('change', filterSubjects);
         
-        // If a class is pre-selected, filter subjects
         if (classSelect.value) {
             filterSubjects();
         }

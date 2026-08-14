@@ -4,197 +4,6 @@ $pageTitle = 'Profile | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 
-<div class="profile-container">
-    <div class="profile-header">
-        <h1 class="page-title">
-            <i class="fas fa-user-circle"></i>
-            My Profile
-        </h1>
-        <p class="page-subtitle">Manage your personal information and account settings</p>
-    </div>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <div class="profile-grid">
-        <div class="profile-card profile-card-left">
-            <div class="profile-photo-section">
-                <div class="profile-photo-wrapper">
-                    <?php if (!empty($profile['profile_photo'])): ?>
-                        <img src="<?php echo BASE_URL; ?>/<?php echo $profile['profile_photo']; ?>" alt="Profile Photo" class="profile-photo">
-                    <?php else: ?>
-                        <div class="profile-photo-placeholder">
-                            <?php 
-                            $nameParts = explode(' ', $_SESSION['user_name'] ?? 'User');
-                            $initials = '';
-                            foreach ($nameParts as $part) {
-                                if (!empty($part)) {
-                                    $initials .= strtoupper(substr($part, 0, 1));
-                                }
-                            }
-                            echo substr($initials, 0, 2);
-                            ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-                <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></h2>
-                <p class="profile-role"><?php echo ucfirst($_SESSION[''] ?? 'Student'); ?></p>
-                
-                <form method="POST" action="<?php echo BASE_URL; ?>/external/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
-                    <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" style="display: none;" onchange="document.getElementById('photoUploadForm').submit()">
-                </form>
-            </div>
-
-            <div class="profile-stats">
-                <div class="stat-item">
-                    <i class="fas fa-calendar-alt stat-icon"></i>
-                    <div class="stat-content">
-                        <span class="stat-label">Member Since</span>
-                        <span class="stat-value"><?php echo isset($profile['created_at']) ? date('M Y', strtotime($profile['created_at'])) : date('M Y'); ?></span>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-clock stat-icon"></i>
-                    <div class="stat-content">
-                        <span class="stat-label">Last Login</span>
-                        <span class="stat-value"><?php echo isset($profile['last_login']) ? date('M d, Y', strtotime($profile['last_login'])) : 'Today'; ?></span>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-gift stat-icon"></i>
-                    <div class="stat-content">
-                        <span class="stat-label">Trial Status</span>
-                        <?php 
-                        $trialDays = $settings['trial_days'] ?? 60;
-                        $trialEndDate = $profile['trial_end'] ?? null;
-                        $remainingDays = $profile['trial_days_remaining'] ?? 0;
-                        $hasActiveSubscription = $profile['has_subscription'] ?? false;
-                        ?>
-                        
-                        <?php if ($hasActiveSubscription): ?>
-                            <span class="stat-value" style="color: #10B981;">Active Subscription</span>
-                            <span class="stat-sub">No trial needed</span>
-                        <?php elseif ($remainingDays > 0): ?>
-                            <span class="stat-value"><?php echo $remainingDays; ?> days left</span>
-                            <span class="stat-sub">Ends <?php echo $trialEndDate ? date('M d, Y', strtotime($trialEndDate)) : 'NA'; ?></span>
-                        <?php else: ?>
-                            <span class="stat-value" style="color: #EF4444;">Trial Ended</span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="profile-card profile-card-right">
-            <h3 class="card-title">
-                <i class="fas fa-edit"></i>
-                Edit Personal Information
-            </h3>
-            
-            <form method="POST" action="<?php echo BASE_URL; ?>/external/update-profile" class="profile-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="first_name">
-                            <i class="fas fa-user"></i>
-                            First Name
-                        </label>
-                        <input 
-                            type="text" 
-                            id="first_name" 
-                            name="first_name" 
-                            value="<?php echo htmlspecialchars($profile['first_name'] ?? ''); ?>" 
-                            required
-                            placeholder="Enter your first name"
-                        >
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="last_name">
-                            <i class="fas fa-user"></i>
-                            Last Name
-                        </label>
-                        <input 
-                            type="text" 
-                            id="last_name" 
-                            name="last_name" 
-                            value="<?php echo htmlspecialchars($profile['last_name'] ?? ''); ?>" 
-                            required
-                            placeholder="Enter your last name"
-                        >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">
-                        <i class="fas fa-envelope"></i>
-                        Email Address
-                    </label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        value="<?php echo htmlspecialchars($profile['email'] ?? $_SESSION['user_email'] ?? ''); ?>" 
-                        required
-                        placeholder="Enter your email address"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="phone">
-                        <i class="fas fa-phone"></i>
-                        Phone Number
-                    </label>
-                    <input 
-                        type="tel" 
-                        id="phone" 
-                        name="phone" 
-                        value="<?php echo htmlspecialchars($profile['phone'] ?? ''); ?>" 
-                        placeholder="Enter your phone number"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="class_id">
-                        <i class="fas fa-graduation-cap"></i>
-                        Class/Club
-                    </label>
-                    <select id="class_id" name="class_id" class="class-select">
-                        <option value="">Select your class</option>
-                        <?php foreach ($classes as $class): ?>
-                            <option value="<?php echo $class['id']; ?>" 
-                                <?php echo ($profile['class_id'] == $class['id']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($class['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <small class="form-hint">
-                        <i class="fas fa-info-circle"></i>
-                        Update your class when you move to the next grade level.
-                    </small>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i>
-                        Save Changes
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <style>
 .profile-container {
     max-width: 1200px;
@@ -633,5 +442,196 @@ require_once __DIR__ . '/../layouts/header.php';
 }
 
 </style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h1 class="page-title">
+            <i class="fas fa-user-circle"></i>
+            My Profile
+        </h1>
+        <p class="page-subtitle">Manage your personal information and account settings</p>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="profile-grid">
+        <div class="profile-card profile-card-left">
+            <div class="profile-photo-section">
+                <div class="profile-photo-wrapper">
+                    <?php if (!empty($profile['profile_photo'])): ?>
+                        <img src="<?php echo BASE_URL; ?>/<?php echo $profile['profile_photo']; ?>" alt="Profile Photo" class="profile-photo">
+                    <?php else: ?>
+                        <div class="profile-photo-placeholder">
+                            <?php 
+                            $nameParts = explode(' ', $_SESSION['user_name'] ?? 'User');
+                            $initials = '';
+                            foreach ($nameParts as $part) {
+                                if (!empty($part)) {
+                                    $initials .= strtoupper(substr($part, 0, 1));
+                                }
+                            }
+                            echo substr($initials, 0, 2);
+                            ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <h2 class="profile-name"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></h2>
+                <p class="profile-role"><?php echo ucfirst($_SESSION[''] ?? 'Student'); ?></p>
+                
+                <form method="POST" action="<?php echo BASE_URL; ?>/external/update-profile-photo" enctype="multipart/form-data" id="photoUploadForm">
+                    <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" style="display: none;" onchange="document.getElementById('photoUploadForm').submit()">
+                </form>
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <i class="fas fa-calendar-alt stat-icon"></i>
+                    <div class="stat-content">
+                        <span class="stat-label">Member Since</span>
+                        <span class="stat-value"><?php echo isset($profile['created_at']) ? date('M Y', strtotime($profile['created_at'])) : date('M Y'); ?></span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-clock stat-icon"></i>
+                    <div class="stat-content">
+                        <span class="stat-label">Last Login</span>
+                        <span class="stat-value"><?php echo isset($profile['last_login']) ? date('M d, Y', strtotime($profile['last_login'])) : 'Today'; ?></span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-gift stat-icon"></i>
+                    <div class="stat-content">
+                        <span class="stat-label">Trial Status</span>
+                        <?php 
+                        $trialDays = $settings['trial_days'] ?? 60;
+                        $trialEndDate = $profile['trial_end'] ?? null;
+                        $remainingDays = $profile['trial_days_remaining'] ?? 0;
+                        $hasActiveSubscription = $profile['has_subscription'] ?? false;
+                        ?>
+                        
+                        <?php if ($hasActiveSubscription): ?>
+                            <span class="stat-value" style="color: #10B981;">Active Subscription</span>
+                            <span class="stat-sub">No trial needed</span>
+                        <?php elseif ($remainingDays > 0): ?>
+                            <span class="stat-value"><?php echo $remainingDays; ?> days left</span>
+                            <span class="stat-sub">Ends <?php echo $trialEndDate ? date('M d, Y', strtotime($trialEndDate)) : 'NA'; ?></span>
+                        <?php else: ?>
+                            <span class="stat-value" style="color: #EF4444;">Trial Ended</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card profile-card-right">
+            <h3 class="card-title">
+                <i class="fas fa-edit"></i>
+                Edit Personal Information
+            </h3>
+            
+            <form method="POST" action="<?php echo BASE_URL; ?>/external/update-profile" class="profile-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">
+                            <i class="fas fa-user"></i>
+                            First Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="first_name" 
+                            name="first_name" 
+                            value="<?php echo htmlspecialchars($profile['first_name'] ?? ''); ?>" 
+                            required
+                            placeholder="Enter your first name"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_name">
+                            <i class="fas fa-user"></i>
+                            Last Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="last_name" 
+                            name="last_name" 
+                            value="<?php echo htmlspecialchars($profile['last_name'] ?? ''); ?>" 
+                            required
+                            placeholder="Enter your last name"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        Email Address
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        value="<?php echo htmlspecialchars($profile['email'] ?? $_SESSION['user_email'] ?? ''); ?>" 
+                        required
+                        placeholder="Enter your email address"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">
+                        <i class="fas fa-phone"></i>
+                        Phone Number
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        value="<?php echo htmlspecialchars($profile['phone'] ?? ''); ?>" 
+                        placeholder="Enter your phone number"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="class_id">
+                        <i class="fas fa-graduation-cap"></i>
+                        Class/Club
+                    </label>
+                    <select id="class_id" name="class_id" class="class-select">
+                        <option value="">Select your class</option>
+                        <?php foreach ($classes as $class): ?>
+                            <option value="<?php echo $class['id']; ?>" 
+                                <?php echo ($profile['class_id'] == $class['id']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($class['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="form-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Update your class when you move to the next grade level.
+                    </small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

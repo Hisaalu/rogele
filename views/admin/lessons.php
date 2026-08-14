@@ -12,150 +12,6 @@ $teacherFilter = $_GET['teacher'] ?? '';
 $statusFilter  = $_GET['status'] ?? '';
 ?>
 
-<div class="admin-lessons-container">
-    <header class="page-header">
-        <div class="header-text">
-            <h1 class="page-title">
-                <i class="fas fa-book-open" aria-hidden="true"></i>
-                <span>Manage Lessons</span>
-            </h1>
-            <p class="page-subtitle">View, moderate, and manage all lessons on the platform</p>
-        </div>
-    </header>
-
-    <section class="filters-section">
-        <form method="GET" class="filters-form" id="filterForm">
-            <div class="search-box">
-                <i class="fas fa-search" aria-hidden="true"></i>
-                <input 
-                    type="text" 
-                    name="search" 
-                    placeholder="Search lessons by title..." 
-                    value="<?php echo htmlspecialchars($search); ?>"
-                    aria-label="Search lessons"
-                >
-            </div>
-            
-            <div class="filter-group">
-                <select name="teacher" aria-label="Filter by teacher">
-                    <option value="">All Teachers</option>
-                    <?php foreach ($teachers as $teacher): ?>
-                        <option value="<?php echo htmlspecialchars($teacher['id'] ?? ''); ?>" <?php echo $teacherFilter == ($teacher['id'] ?? '') ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars(($teacher['first_name'] ?? '') . ' ' . ($teacher['last_name'] ?? '')); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <select name="status" aria-label="Filter by status">
-                    <option value="">All Statuses</option>
-                    <option value="published" <?php echo $statusFilter === 'published' ? 'selected' : ''; ?>>Published</option>
-                    <option value="draft" <?php echo $statusFilter === 'draft' ? 'selected' : ''; ?>>Draft</option>
-                    <option value="approved" <?php echo $statusFilter === 'approved' ? 'selected' : ''; ?>>Approved</option>
-                    <option value="pending" <?php echo $statusFilter === 'pending' ? 'selected' : ''; ?>>Pending Approval</option>
-                </select>
-            </div>
-            
-            <div class="filter-actions">
-                <button type="submit" class="btn-filter">Apply Filters</button>
-                <a href="<?php echo BASE_URL; ?>/admin/lessons" class="btn-clear">Reset</a>
-            </div>
-        </form>
-    </section>
-
-    <main class="table-card">
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Teacher</th>
-                        <th>Class</th>
-                        <th>Subject</th>
-                        <th>Visibility</th>
-                        <th>Approval</th>
-                        <th>Created</th>
-                        <th class="text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($lessons)): ?>
-                        <tr>
-                            <td colspan="8" class="empty-message">
-                                <i class="fas fa-book-reader" aria-hidden="true"></i>
-                                <p>No lessons found</p>
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($lessons as $lesson): ?>
-                        <tr>
-                            <td class="title-cell">
-                                <span class="lesson-title">
-                                    <?php echo htmlspecialchars($lesson['title'] ?? 'Untitled Lesson'); ?>
-                                </span>
-                            </td>
-                            <td><?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Unknown'); ?></td>
-                            <td><span class="meta-tag"><?php echo htmlspecialchars($lesson['class_name'] ?? 'N/A'); ?></span></td>
-                            <td><span class="meta-tag"><?php echo htmlspecialchars($lesson['subject_name'] ?? 'N/A'); ?></span></td>
-                            <td>
-                                <span class="status-badge <?php echo !empty($lesson['is_published']) ? 'published' : 'draft'; ?>">
-                                    <?php echo !empty($lesson['is_published']) ? 'Published' : 'Draft'; ?>
-                                </span>
-                            </td>
-                            <td>
-                                <span class="status-badge <?php echo !empty($lesson['is_approved']) ? 'approved' : 'pending'; ?>">
-                                    <?php echo !empty($lesson['is_approved']) ? 'Approved' : 'Pending'; ?>
-                                </span>
-                            </td>
-                            <td class="date-cell">
-                                <?php echo !empty($lesson['created_at']) ? date('M d, Y', strtotime($lesson['created_at'])) : 'N/A'; ?>
-                            </td>
-                            <td class="actions-cell">
-                                <a href="<?php echo BASE_URL; ?>/admin/lessons/view/<?php echo $lesson['id']; ?>" class="action-btn view" title="View Lesson">
-                                    <i class="fas fa-eye" aria-hidden="true"></i>
-                                </a>
-                                <?php if (empty($lesson['is_approved'])): ?>
-                                    <a href="<?php echo BASE_URL; ?>/admin/lessons/approve/<?php echo $lesson['id']; ?>" class="action-btn approve" title="Approve Lesson" onclick="return confirm('Approve this lesson?')">
-                                        <i class="fas fa-check-circle" aria-hidden="true"></i>
-                                    </a>
-                                    <a href="<?php echo BASE_URL; ?>/admin/lessons/reject/<?php echo $lesson['id']; ?>" class="action-btn reject" title="Reject Lesson" onclick="return confirm('Reject this lesson?')">
-                                        <i class="fas fa-times-circle" aria-hidden="true"></i>
-                                    </a>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <?php if (!empty($lessons) && $totalPages > 1): ?>
-            <nav class="pagination" aria-label="Lessons pagination">
-                <?php if ($currentPage > 1): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/lessons?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Previous Page">
-                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/lessons?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" 
-                    class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-
-                <?php if ($currentPage < $totalPages): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/lessons?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Next Page">
-                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
-            </nav>
-        <?php endif; ?>
-    </main>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -505,5 +361,149 @@ $statusFilter  = $_GET['status'] ?? '';
     }
 }
 </style>
+
+<div class="admin-lessons-container">
+    <header class="page-header">
+        <div class="header-text">
+            <h1 class="page-title">
+                <i class="fas fa-book-open" aria-hidden="true"></i>
+                <span>Manage Lessons</span>
+            </h1>
+            <p class="page-subtitle">View, moderate, and manage all lessons on the platform</p>
+        </div>
+    </header>
+
+    <section class="filters-section">
+        <form method="GET" class="filters-form" id="filterForm">
+            <div class="search-box">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search lessons by title..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                    aria-label="Search lessons"
+                >
+            </div>
+            
+            <div class="filter-group">
+                <select name="teacher" aria-label="Filter by teacher">
+                    <option value="">All Teachers</option>
+                    <?php foreach ($teachers as $teacher): ?>
+                        <option value="<?php echo htmlspecialchars($teacher['id'] ?? ''); ?>" <?php echo $teacherFilter == ($teacher['id'] ?? '') ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars(($teacher['first_name'] ?? '') . ' ' . ($teacher['last_name'] ?? '')); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <select name="status" aria-label="Filter by status">
+                    <option value="">All Statuses</option>
+                    <option value="published" <?php echo $statusFilter === 'published' ? 'selected' : ''; ?>>Published</option>
+                    <option value="draft" <?php echo $statusFilter === 'draft' ? 'selected' : ''; ?>>Draft</option>
+                    <option value="approved" <?php echo $statusFilter === 'approved' ? 'selected' : ''; ?>>Approved</option>
+                    <option value="pending" <?php echo $statusFilter === 'pending' ? 'selected' : ''; ?>>Pending Approval</option>
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">Apply Filters</button>
+                <a href="<?php echo BASE_URL; ?>/admin/lessons" class="btn-clear">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <main class="table-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Teacher</th>
+                        <th>Class</th>
+                        <th>Subject</th>
+                        <th>Visibility</th>
+                        <th>Approval</th>
+                        <th>Created</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($lessons)): ?>
+                        <tr>
+                            <td colspan="8" class="empty-message">
+                                <i class="fas fa-book-reader" aria-hidden="true"></i>
+                                <p>No lessons found</p>
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($lessons as $lesson): ?>
+                        <tr>
+                            <td class="title-cell">
+                                <span class="lesson-title">
+                                    <?php echo htmlspecialchars($lesson['title'] ?? 'Untitled Lesson'); ?>
+                                </span>
+                            </td>
+                            <td><?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Unknown'); ?></td>
+                            <td><span class="meta-tag"><?php echo htmlspecialchars($lesson['class_name'] ?? 'N/A'); ?></span></td>
+                            <td><span class="meta-tag"><?php echo htmlspecialchars($lesson['subject_name'] ?? 'N/A'); ?></span></td>
+                            <td>
+                                <span class="status-badge <?php echo !empty($lesson['is_published']) ? 'published' : 'draft'; ?>">
+                                    <?php echo !empty($lesson['is_published']) ? 'Published' : 'Draft'; ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge <?php echo !empty($lesson['is_approved']) ? 'approved' : 'pending'; ?>">
+                                    <?php echo !empty($lesson['is_approved']) ? 'Approved' : 'Pending'; ?>
+                                </span>
+                            </td>
+                            <td class="date-cell">
+                                <?php echo !empty($lesson['created_at']) ? date('M d, Y', strtotime($lesson['created_at'])) : 'N/A'; ?>
+                            </td>
+                            <td class="actions-cell">
+                                <a href="<?php echo BASE_URL; ?>/admin/lessons/view/<?php echo $lesson['id']; ?>" class="action-btn view" title="View Lesson">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </a>
+                                <?php if (empty($lesson['is_approved'])): ?>
+                                    <a href="<?php echo BASE_URL; ?>/admin/lessons/approve/<?php echo $lesson['id']; ?>" class="action-btn approve" title="Approve Lesson" onclick="return confirm('Approve this lesson?')">
+                                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                                    </a>
+                                    <a href="<?php echo BASE_URL; ?>/admin/lessons/reject/<?php echo $lesson['id']; ?>" class="action-btn reject" title="Reject Lesson" onclick="return confirm('Reject this lesson?')">
+                                        <i class="fas fa-times-circle" aria-hidden="true"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php if (!empty($lessons) && $totalPages > 1): ?>
+            <nav class="pagination" aria-label="Lessons pagination">
+                <?php if ($currentPage > 1): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/lessons?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Previous Page">
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                    </a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/lessons?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" 
+                    class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/lessons?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Next Page">
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                <?php endif; ?>
+            </nav>
+        <?php endif; ?>
+    </main>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

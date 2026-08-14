@@ -17,238 +17,6 @@ if ($gradedCount > 0) {
 }
 ?>
 
-<div class="submissions-container">
-    <div class="page-header">
-        <div>
-            <a href="<?php echo BASE_URL; ?>/teacher/homework" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Homework
-            </a>
-            <h1 class="page-title">
-                <i class="fas fa-users"></i>
-                Homework Submissions
-            </h1>
-            <p class="page-subtitle"><?php echo htmlspecialchars($homework['title'] ?? ''); ?></p>
-        </div>
-        
-        <div class="header-actions">
-            <div class="submission-toggle">
-                <span class="toggle-label">
-                    <i class="fas fa-door-open"></i>
-                    Accepting Submissions
-                </span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="toggleSubmissions" <?php echo $isAcceptingSubmissions ? 'checked' : ''; ?> 
-                           data-homework-id="<?php echo $homework['id']; ?>">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            
-            <?php if (!empty($submissions)): ?>
-                <button onclick="exportGrades()" class="btn-export">
-                    <i class="fas fa-download"></i>
-                    Export Grades (CSV)
-                </button>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!$isAcceptingSubmissions): ?>
-        <div class="status-banner closed">
-            <i class="fas fa-ban"></i>
-            <div>
-                <strong>Submissions Closed</strong>
-                <p>This homework is no longer accepting submissions. Students cannot submit or resubmit their work.</p>
-            </div>
-        </div>
-    <?php else: ?>
-        <div class="status-banner open">
-            <i class="fas fa-check-circle"></i>
-            <div>
-                <strong>Submissions Open</strong>
-                <p>This homework is currently accepting submissions from students.</p>
-            </div>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($submissions)): ?>
-        <div class="stats-cards">
-            <div class="stat-card">
-                <div class="stat-icon" style="background-color: #f06724;">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value"><?php echo $totalSubmissions; ?></span>
-                    <span class="stat-label">Total Submissions</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background-color: #f06724;">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value"><?php echo $gradedCount; ?></span>
-                    <span class="stat-label">Graded</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background-color: #f06724;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value"><?php echo $lateCount; ?></span>
-                    <span class="stat-label">Late</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background-color: #f06724;">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value"><?php echo $averageGrade; ?>%</span>
-                    <span class="stat-label">Average Grade</span>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-
-    <?php if (empty($submissions)): ?>
-        <div class="empty-state">
-            <i class="fas fa-inbox"></i>
-            <h3>No Submissions Yet</h3>
-            <p>Students haven't submitted this homework yet.</p>
-        </div>
-    <?php else: ?>
-        <div class="submissions-grid">
-            <?php foreach ($submissions as $index => $submission): ?>
-                <div class="submission-card" data-submission-id="<?php echo $submission['id']; ?>">
-                    <div class="submission-header">
-                        <div class="student-info">
-                            <div>
-                                <h3><?php echo htmlspecialchars($submission['first_name'] . ' ' . $submission['last_name']); ?></h3>
-                                <p><?php echo htmlspecialchars($submission['email']); ?></p>
-                            </div>
-                        </div>
-                        <div class="submission-status">
-                            <?php if ($submission['status'] === 'graded'): ?>
-                                <span class="badge graded"><i class="fas fa-check-circle"></i> Graded</span>
-                            <?php elseif ($submission['status'] === 'late'): ?>
-                                <span class="badge late"><i class="fas fa-exclamation-triangle"></i> Late</span>
-                            <?php else: ?>
-                                <span class="badge submitted"><i class="fas fa-clock"></i> Submitted</span>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="submission-details">
-                        <div class="detail-item">
-                            <span class="detail-label">Submitted:</span>
-                            <span class="detail-value"><?php echo date('M d, Y h:i A', strtotime($submission['submitted_at'])); ?></span>
-                        </div>
-                        
-                        <?php if (!empty($submission['text_answer'])): ?>
-                            <div class="detail-item">
-                                <span class="detail-label">Answer:</span>
-                                <div class="answer-text"><?php echo nl2br(htmlspecialchars($submission['text_answer'])); ?></div>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if (!empty($submission['files'])): ?>
-                            <div class="detail-item">
-                                <span class="detail-label">Attachments:</span>
-                                <div class="file-list">
-                                    <?php foreach ($submission['files'] as $file): ?>
-                                        <?php
-                                            $cleanSubName = basename($file['file_path']); 
-                                            $officialSubmissionUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubName;
-                                        ?>
-                                        <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" class="file-link">
-                                            <i class="fas fa-download"></i>
-                                            <?php echo htmlspecialchars($file['file_name']); ?>
-                                            <span class="file-size">(<?php echo round($file['file_size'] / 1024, 2); ?> KB)</span>
-                                        </a>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <div class="grade-feedback-section">
-                            <h4><i class="fas fa-star"></i> Grade & Feedback</h4>
-                            
-                            <?php if ($submission['status'] === 'graded'): ?>
-                                <div class="grade-display-mode" id="display-mode-<?php echo $submission['id']; ?>">
-                                    <div class="grade-info">
-                                        <div class="grade-row">
-                                            <span class="grade-label">Grade:</span>
-                                            <span class="grade-value"><?php echo $submission['grade']; ?>%</span>
-                                            <button class="btn-edit-grade" onclick="toggleEditMode(<?php echo $submission['id']; ?>)">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
-                                        </div>
-                                        <?php if (!empty($submission['feedback'])): ?>
-                                            <div class="feedback-row">
-                                                <span class="feedback-label">Feedback:</span>
-                                                <p><?php echo nl2br(htmlspecialchars($submission['feedback'])); ?></p>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                
-                                <div class="grade-edit-mode" id="edit-mode-<?php echo $submission['id']; ?>" style="display: none;">
-                                    <div class="form-group">
-                                        <label>Grade (%)</label>
-                                        <input type="number" id="grade_<?php echo $submission['id']; ?>" class="grade-input" 
-                                            value="<?php echo $submission['grade']; ?>" min="0" max="100" step="0.01">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Feedback</label>
-                                        <textarea id="feedback_<?php echo $submission['id']; ?>" class="feedback-input" rows="3"><?php echo htmlspecialchars($submission['feedback'] ?? ''); ?></textarea>
-                                    </div>
-                                    <div class="edit-actions">
-                                        <button onclick="updateGrade(<?php echo $submission['id']; ?>)" class="btn-save-grade">
-                                            <i class="fas fa-save"></i> Save Changes
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                            <?php else: ?>
-                                <div class="grade-form">
-                                    <div class="form-group">
-                                        <label>Grade (%)</label>
-                                        <input type="number" id="grade_<?php echo $submission['id']; ?>" class="grade-input" 
-                                            placeholder="Enter grade" min="0" max="100" step="0.01">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Feedback</label>
-                                        <textarea id="feedback_<?php echo $submission['id']; ?>" class="feedback-input" rows="3" 
-                                                placeholder="Provide feedback to the student..."></textarea>
-                                    </div>
-                                    <button onclick="gradeSubmission(<?php echo $submission['id']; ?>)" class="btn-grade">
-                                        <i class="fas fa-check-circle"></i> Submit Grade
-                                    </button>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-</div>
-
 <style>
 .submissions-container {
     max-width: 1000px;
@@ -910,8 +678,239 @@ input:checked + .toggle-slider:before {
 }
 </style>
 
+<div class="submissions-container">
+    <div class="page-header">
+        <div>
+            <a href="<?php echo BASE_URL; ?>/teacher/homework" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Homework
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-users"></i>
+                Homework Submissions
+            </h1>
+            <p class="page-subtitle"><?php echo htmlspecialchars($homework['title'] ?? ''); ?></p>
+        </div>
+        
+        <div class="header-actions">
+            <div class="submission-toggle">
+                <span class="toggle-label">
+                    <i class="fas fa-door-open"></i>
+                    Accepting Submissions
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleSubmissions" <?php echo $isAcceptingSubmissions ? 'checked' : ''; ?> 
+                           data-homework-id="<?php echo $homework['id']; ?>">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <?php if (!empty($submissions)): ?>
+                <button onclick="exportGrades()" class="btn-export">
+                    <i class="fas fa-download"></i>
+                    Export Grades (CSV)
+                </button>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!$isAcceptingSubmissions): ?>
+        <div class="status-banner closed">
+            <i class="fas fa-ban"></i>
+            <div>
+                <strong>Submissions Closed</strong>
+                <p>This homework is no longer accepting submissions. Students cannot submit or resubmit their work.</p>
+            </div>
+        </div>
+    <?php else: ?>
+        <div class="status-banner open">
+            <i class="fas fa-check-circle"></i>
+            <div>
+                <strong>Submissions Open</strong>
+                <p>This homework is currently accepting submissions from students.</p>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($submissions)): ?>
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #f06724;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value"><?php echo $totalSubmissions; ?></span>
+                    <span class="stat-label">Total Submissions</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #f06724;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value"><?php echo $gradedCount; ?></span>
+                    <span class="stat-label">Graded</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #f06724;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value"><?php echo $lateCount; ?></span>
+                    <span class="stat-label">Late</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #f06724;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value"><?php echo $averageGrade; ?>%</span>
+                    <span class="stat-label">Average Grade</span>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (empty($submissions)): ?>
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h3>No Submissions Yet</h3>
+            <p>Students haven't submitted this homework yet.</p>
+        </div>
+    <?php else: ?>
+        <div class="submissions-grid">
+            <?php foreach ($submissions as $index => $submission): ?>
+                <div class="submission-card" data-submission-id="<?php echo $submission['id']; ?>">
+                    <div class="submission-header">
+                        <div class="student-info">
+                            <div>
+                                <h3><?php echo htmlspecialchars($submission['first_name'] . ' ' . $submission['last_name']); ?></h3>
+                                <p><?php echo htmlspecialchars($submission['email']); ?></p>
+                            </div>
+                        </div>
+                        <div class="submission-status">
+                            <?php if ($submission['status'] === 'graded'): ?>
+                                <span class="badge graded"><i class="fas fa-check-circle"></i> Graded</span>
+                            <?php elseif ($submission['status'] === 'late'): ?>
+                                <span class="badge late"><i class="fas fa-exclamation-triangle"></i> Late</span>
+                            <?php else: ?>
+                                <span class="badge submitted"><i class="fas fa-clock"></i> Submitted</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="submission-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Submitted:</span>
+                            <span class="detail-value"><?php echo date('M d, Y h:i A', strtotime($submission['submitted_at'])); ?></span>
+                        </div>
+                        
+                        <?php if (!empty($submission['text_answer'])): ?>
+                            <div class="detail-item">
+                                <span class="detail-label">Answer:</span>
+                                <div class="answer-text"><?php echo nl2br(htmlspecialchars($submission['text_answer'])); ?></div>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if (!empty($submission['files'])): ?>
+                            <div class="detail-item">
+                                <span class="detail-label">Attachments:</span>
+                                <div class="file-list">
+                                    <?php foreach ($submission['files'] as $file): ?>
+                                        <?php
+                                            $cleanSubName = basename($file['file_path']); 
+                                            $officialSubmissionUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . $cleanSubName;
+                                        ?>
+                                        <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" class="file-link">
+                                            <i class="fas fa-download"></i>
+                                            <?php echo htmlspecialchars($file['file_name']); ?>
+                                            <span class="file-size">(<?php echo round($file['file_size'] / 1024, 2); ?> KB)</span>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="grade-feedback-section">
+                            <h4><i class="fas fa-star"></i> Grade & Feedback</h4>
+                            
+                            <?php if ($submission['status'] === 'graded'): ?>
+                                <div class="grade-display-mode" id="display-mode-<?php echo $submission['id']; ?>">
+                                    <div class="grade-info">
+                                        <div class="grade-row">
+                                            <span class="grade-label">Grade:</span>
+                                            <span class="grade-value"><?php echo $submission['grade']; ?>%</span>
+                                            <button class="btn-edit-grade" onclick="toggleEditMode(<?php echo $submission['id']; ?>)">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </div>
+                                        <?php if (!empty($submission['feedback'])): ?>
+                                            <div class="feedback-row">
+                                                <span class="feedback-label">Feedback:</span>
+                                                <p><?php echo nl2br(htmlspecialchars($submission['feedback'])); ?></p>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="grade-edit-mode" id="edit-mode-<?php echo $submission['id']; ?>" style="display: none;">
+                                    <div class="form-group">
+                                        <label>Grade (%)</label>
+                                        <input type="number" id="grade_<?php echo $submission['id']; ?>" class="grade-input" 
+                                            value="<?php echo $submission['grade']; ?>" min="0" max="100" step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Feedback</label>
+                                        <textarea id="feedback_<?php echo $submission['id']; ?>" class="feedback-input" rows="3"><?php echo htmlspecialchars($submission['feedback'] ?? ''); ?></textarea>
+                                    </div>
+                                    <div class="edit-actions">
+                                        <button onclick="updateGrade(<?php echo $submission['id']; ?>)" class="btn-save-grade">
+                                            <i class="fas fa-save"></i> Save Changes
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                            <?php else: ?>
+                                <div class="grade-form">
+                                    <div class="form-group">
+                                        <label>Grade (%)</label>
+                                        <input type="number" id="grade_<?php echo $submission['id']; ?>" class="grade-input" 
+                                            placeholder="Enter grade" min="0" max="100" step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Feedback</label>
+                                        <textarea id="feedback_<?php echo $submission['id']; ?>" class="feedback-input" rows="3" 
+                                                placeholder="Provide feedback to the student..."></textarea>
+                                    </div>
+                                    <button onclick="gradeSubmission(<?php echo $submission['id']; ?>)" class="btn-grade">
+                                        <i class="fas fa-check-circle"></i> Submit Grade
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
+
 <script>
-// Toggle submissions (stop/start receiving submissions)
 const toggleSwitch = document.getElementById('toggleSubmissions');
 if (toggleSwitch) {
     toggleSwitch.addEventListener('change', function() {
@@ -946,12 +945,10 @@ if (toggleSwitch) {
     });
 }
 
-// Export grades to CSV
 function exportGrades() {
     const submissions = <?php echo json_encode($submissions); ?>;
     const homeworkTitle = "<?php echo htmlspecialchars($homework['title'] ?? 'Homework'); ?>";
     
-    // Prepare CSV data
     const headers = ['Student Name', 'Email', 'Status', 'Submitted At', 'Grade (%)', 'Feedback'];
     const rows = [];
     
@@ -966,7 +963,6 @@ function exportGrades() {
         ]);
     });
     
-    // Create CSV content
     let csvContent = headers.join(',') + '\n';
     rows.forEach(row => {
         const escapedRow = row.map(cell => {
@@ -978,7 +974,6 @@ function exportGrades() {
         csvContent += escapedRow.join(',') + '\n';
     });
     
-    // Download file
     const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -991,11 +986,9 @@ function exportGrades() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    // Show success message
     showToast('Grades exported successfully!', 'success');
 }
 
-// Toast notification
 function showToast(message, type = 'success') {
     let toast = document.getElementById('customToast');
     if (!toast) {
@@ -1033,13 +1026,11 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// Function to toggle edit mode
 function toggleEditMode(submissionId) {
     document.getElementById('display-mode-' + submissionId).style.display = 'none';
     document.getElementById('edit-mode-' + submissionId).style.display = 'block';
 }
 
-// Function to update grade (for editing existing grades)
 function updateGrade(submissionId) {
     const grade = document.getElementById('grade_' + submissionId).value;
     const feedback = document.getElementById('feedback_' + submissionId).value;
@@ -1075,7 +1066,6 @@ function updateGrade(submissionId) {
     });
 }
 
-// Function to grade new submission
 function gradeSubmission(submissionId) {
     const grade = document.getElementById('grade_' + submissionId).value;
     const feedback = document.getElementById('feedback_' + submissionId).value;

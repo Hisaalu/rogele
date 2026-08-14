@@ -6,307 +6,6 @@ require_once __DIR__ . '/../layouts/header.php';
 $activeTab = $_GET['tab'] ?? 'password';
 ?>
 
-<div class="settings-container">
-    <div class="settings-header">
-        <h1 class="page-title">
-            <i class="fas fa-cog"></i>
-            Settings
-        </h1>
-        <p class="page-subtitle">Manage your account settings and preferences</p>
-    </div>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <div class="settings-tabs">
-        <a href="<?php echo BASE_URL; ?>/external/settings" class="tab <?php echo $activeTab === 'password' ? 'active' : ''; ?>">
-            <i class="fas fa-lock"></i>
-            <span>Change Password</span>
-        </a>
-        <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
-            <i class="fas fa-shield-alt"></i>
-            <span>Privacy</span>
-        </a>
-        <a href="javascript:void(0);"
-            class="tab disabled <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
-                <i class="fas fa-trash"></i>
-                <span>Delete Account</span>
-        </a>
-    </div>
-
-    <div class="tab-content">
-        <?php if ($activeTab === 'password'): ?>
-            <div class="settings-card">
-                <h3 class="card-title">
-                    <i class="fas fa-key"></i>
-                    Change Password
-                </h3>
-                <p class="card-description">Ensure your account is secure by using a strong password</p>
-                
-                <form method="POST" action="<?php echo BASE_URL; ?>/external/change-password" class="settings-form" id="passwordForm">
-                    <div class="form-group">
-                        <label for="current_password">
-                            <i class="fas fa-lock"></i>
-                            Current Password
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="current_password" name="current_password" required placeholder="Enter your current password">
-                            <button type="button" class="toggle-password" onclick="togglePassword('current_password')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="new_password">
-                            <i class="fas fa-key"></i>
-                            New Password
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="new_password" name="new_password" required placeholder="Enter new password" onkeyup="checkPasswordStrength()">
-                            <button type="button" class="toggle-password" onclick="togglePassword('new_password')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirm_password">
-                            <i class="fas fa-check-circle"></i>
-                            Confirm New Password
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm new password" onkeyup="checkPasswordMatch()">
-                            <button type="button" class="toggle-password" onclick="togglePassword('confirm_password')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-save" id="submitBtn">
-                        <i class="fas fa-save"></i>
-                        Update Password
-                    </button>
-                </form>
-            </div>
-
-        <?php elseif ($activeTab === 'notifications'): ?>
-            <div class="settings-card">
-                <h3 class="card-title">
-                    <i class="fas fa-bell"></i>
-                    Notification Preferences
-                </h3>
-                <p class="card-description">Choose what updates you want to receive</p>
-                
-                <form method="POST" action="<?php echo BASE_URL; ?>/external/update-notifications" class="settings-form">
-                    <div class="notification-group">
-                        <h4>Email Notifications</h4>
-                        
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-envelope"></i>
-                                <div>
-                                    <strong>New Lessons</strong>
-                                    <p>Get notified when new lessons are added</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="notify_new_lessons" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-pencil-alt"></i>
-                                <div>
-                                    <strong>Quiz Reminders</strong>
-                                    <p>Get reminders about upcoming quizzes</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="notify_quizzes" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-star"></i>
-                                <div>
-                                    <strong>Learning Tips</strong>
-                                    <p>Receive weekly learning tips and resources</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="notify_tips">
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-gift"></i>
-                                <div>
-                                    <strong>Promotions & Updates</strong>
-                                    <p>Get updates about new features and offers</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="notify_promotions">
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i>
-                        Save Preferences
-                    </button>
-                </form>
-            </div>
-
-        <?php elseif ($activeTab === 'privacy'): ?>
-            <div class="settings-card">
-                <h3 class="card-title">
-                    <i class="fas fa-shield-alt"></i>
-                    Privacy Settings
-                </h3>
-                <p class="card-description">Control your privacy and data sharing preferences</p>
-                
-                <form method="POST" action="<?php echo BASE_URL; ?>/external/update-privacy" class="settings-form">
-                    <div class="privacy-group">
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-globe"></i>
-                                <div>
-                                    <strong>Public Profile</strong>
-                                    <p>Allow other users to see your profile</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="public_profile" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-chart-line"></i>
-                                <div>
-                                    <strong>Show Progress</strong>
-                                    <p>Display your learning progress publicly</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="show_progress">
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-trophy"></i>
-                                <div>
-                                    <strong>Leaderboard</strong>
-                                    <p>Include me in public leaderboards</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="leaderboard" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-
-                        <label class="toggle-item">
-                            <div class="toggle-info">
-                                <i class="fas fa-analytics"></i>
-                                <div>
-                                    <strong>Data Collection</strong>
-                                    <p>Allow anonymous usage data collection</p>
-                                </div>
-                            </div>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="data_collection" checked>
-                                <span class="slider"></span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i>
-                        Save Privacy Settings
-                    </button>
-                </form>
-            </div>
-
-        <?php elseif ($activeTab === 'delete'): ?>
-            <div class="settings-card delete-card">
-                <div class="delete-header">
-                    <div class="delete-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <h3 class="card-title" style="color: #EF4444;">Delete Account</h3>
-                    <p class="card-description">This action is permanent and cannot be undone</p>
-                </div>
-                
-                <div class="warning-box">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <div>
-                        <strong>Warning:</strong> Deleting your account will:
-                        <ul>
-                            <li>Permanently remove all your personal information</li>
-                            <li>Delete your quiz history and progress</li>
-                            <li>Remove all bookmarked lessons</li>
-                            <li>Cancel any active subscriptions (no refunds)</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <form method="POST" action="<?php echo BASE_URL; ?>/external/delete-account" class="delete-form" id="deleteForm">
-                    <div class="form-group">
-                        <label for="delete_password">
-                            <i class="fas fa-lock"></i>
-                            Enter your password to confirm
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input 
-                                type="password" 
-                                id="delete_password" 
-                                name="password" 
-                                required 
-                                placeholder="Enter your current password"
-                                autocomplete="off"
-                            >
-                        </div>
-                    </div>
-
-                    <label class="confirm-checkbox">
-                        <input type="checkbox" name="confirm_delete" required>
-                        <span>I understand that this action is permanent and cannot be undone</span>
-                    </label>
-
-                    <button type="submit" class="btn-delete" id="deleteAccountBtn">
-                        <i class="fas fa-trash"></i>
-                        Permanently Delete My Account
-                    </button>
-                </form>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
-
 <style>
 .settings-container {
     max-width: 800px;
@@ -808,6 +507,307 @@ input:checked + .slider:before {
 }
 
 </style>
+
+<div class="settings-container">
+    <div class="settings-header">
+        <h1 class="page-title">
+            <i class="fas fa-cog"></i>
+            Settings
+        </h1>
+        <p class="page-subtitle">Manage your account settings and preferences</p>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="settings-tabs">
+        <a href="<?php echo BASE_URL; ?>/external/settings" class="tab <?php echo $activeTab === 'password' ? 'active' : ''; ?>">
+            <i class="fas fa-lock"></i>
+            <span>Change Password</span>
+        </a>
+        <a href="<?php echo BASE_URL; ?>/privacy-policy" target="_blank" class="tab <?php echo $activeTab === 'privacy' ? 'active' : ''; ?>">
+            <i class="fas fa-shield-alt"></i>
+            <span>Privacy</span>
+        </a>
+        <a href="javascript:void(0);"
+            class="tab disabled <?php echo $activeTab === 'delete' ? 'active' : ''; ?>">
+                <i class="fas fa-trash"></i>
+                <span>Delete Account</span>
+        </a>
+    </div>
+
+    <div class="tab-content">
+        <?php if ($activeTab === 'password'): ?>
+            <div class="settings-card">
+                <h3 class="card-title">
+                    <i class="fas fa-key"></i>
+                    Change Password
+                </h3>
+                <p class="card-description">Ensure your account is secure by using a strong password</p>
+                
+                <form method="POST" action="<?php echo BASE_URL; ?>/external/change-password" class="settings-form" id="passwordForm">
+                    <div class="form-group">
+                        <label for="current_password">
+                            <i class="fas fa-lock"></i>
+                            Current Password
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="current_password" name="current_password" required placeholder="Enter your current password">
+                            <button type="button" class="toggle-password" onclick="togglePassword('current_password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new_password">
+                            <i class="fas fa-key"></i>
+                            New Password
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="new_password" name="new_password" required placeholder="Enter new password" onkeyup="checkPasswordStrength()">
+                            <button type="button" class="toggle-password" onclick="togglePassword('new_password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">
+                            <i class="fas fa-check-circle"></i>
+                            Confirm New Password
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm new password" onkeyup="checkPasswordMatch()">
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirm_password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-save" id="submitBtn">
+                        <i class="fas fa-save"></i>
+                        Update Password
+                    </button>
+                </form>
+            </div>
+
+        <?php elseif ($activeTab === 'notifications'): ?>
+            <div class="settings-card">
+                <h3 class="card-title">
+                    <i class="fas fa-bell"></i>
+                    Notification Preferences
+                </h3>
+                <p class="card-description">Choose what updates you want to receive</p>
+                
+                <form method="POST" action="<?php echo BASE_URL; ?>/external/update-notifications" class="settings-form">
+                    <div class="notification-group">
+                        <h4>Email Notifications</h4>
+                        
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-envelope"></i>
+                                <div>
+                                    <strong>New Lessons</strong>
+                                    <p>Get notified when new lessons are added</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="notify_new_lessons" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-pencil-alt"></i>
+                                <div>
+                                    <strong>Quiz Reminders</strong>
+                                    <p>Get reminders about upcoming quizzes</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="notify_quizzes" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-star"></i>
+                                <div>
+                                    <strong>Learning Tips</strong>
+                                    <p>Receive weekly learning tips and resources</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="notify_tips">
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-gift"></i>
+                                <div>
+                                    <strong>Promotions & Updates</strong>
+                                    <p>Get updates about new features and offers</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="notify_promotions">
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Save Preferences
+                    </button>
+                </form>
+            </div>
+
+        <?php elseif ($activeTab === 'privacy'): ?>
+            <div class="settings-card">
+                <h3 class="card-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Privacy Settings
+                </h3>
+                <p class="card-description">Control your privacy and data sharing preferences</p>
+                
+                <form method="POST" action="<?php echo BASE_URL; ?>/external/update-privacy" class="settings-form">
+                    <div class="privacy-group">
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-globe"></i>
+                                <div>
+                                    <strong>Public Profile</strong>
+                                    <p>Allow other users to see your profile</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="public_profile" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-chart-line"></i>
+                                <div>
+                                    <strong>Show Progress</strong>
+                                    <p>Display your learning progress publicly</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="show_progress">
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-trophy"></i>
+                                <div>
+                                    <strong>Leaderboard</strong>
+                                    <p>Include me in public leaderboards</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="leaderboard" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <i class="fas fa-analytics"></i>
+                                <div>
+                                    <strong>Data Collection</strong>
+                                    <p>Allow anonymous usage data collection</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="data_collection" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Save Privacy Settings
+                    </button>
+                </form>
+            </div>
+
+        <?php elseif ($activeTab === 'delete'): ?>
+            <div class="settings-card delete-card">
+                <div class="delete-header">
+                    <div class="delete-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="card-title" style="color: #EF4444;">Delete Account</h3>
+                    <p class="card-description">This action is permanent and cannot be undone</p>
+                </div>
+                
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>Warning:</strong> Deleting your account will:
+                        <ul>
+                            <li>Permanently remove all your personal information</li>
+                            <li>Delete your quiz history and progress</li>
+                            <li>Remove all bookmarked lessons</li>
+                            <li>Cancel any active subscriptions (no refunds)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <form method="POST" action="<?php echo BASE_URL; ?>/external/delete-account" class="delete-form" id="deleteForm">
+                    <div class="form-group">
+                        <label for="delete_password">
+                            <i class="fas fa-lock"></i>
+                            Enter your password to confirm
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input 
+                                type="password" 
+                                id="delete_password" 
+                                name="password" 
+                                required 
+                                placeholder="Enter your current password"
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+
+                    <label class="confirm-checkbox">
+                        <input type="checkbox" name="confirm_delete" required>
+                        <span>I understand that this action is permanent and cannot be undone</span>
+                    </label>
+
+                    <button type="submit" class="btn-delete" id="deleteAccountBtn">
+                        <i class="fas fa-trash"></i>
+                        Permanently Delete My Account
+                    </button>
+                </form>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
 
 <script>
 function togglePassword(inputId) {

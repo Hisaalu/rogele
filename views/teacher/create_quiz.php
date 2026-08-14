@@ -7,213 +7,6 @@ $classes = $classes ?? [];
 $subjects = $subjects ?? [];
 ?>
 
-<div class="create-quiz-container">
-    <!-- Header -->
-    <div class="page-header">
-        <div>
-            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Quizzes
-            </a>
-            <h1 class="page-title">
-                <i class="fas fa-plus-circle"></i>
-                Create New Quiz
-            </h1>
-            <p class="page-subtitle">Design a quiz for your students</p>
-        </div>
-    </div>
-
-    <!-- Alert Messages -->
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <!-- Create Quiz Form -->
-    <div class="form-card">
-        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="quiz-form" id="quizForm">
-            <!-- Basic Information -->
-            <div class="form-section">
-                <h3 class="section-title">
-                    <i class="fas fa-info-circle"></i>
-                    Basic Information
-                </h3>
-                
-                <div class="form-group">
-                    <label for="title">
-                        <i class="fas fa-heading"></i>
-                        Quiz Title <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="title" 
-                        name="title" 
-                        required 
-                        placeholder="e.g., Mathematics Quiz 1"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="description">
-                        <i class="fas fa-align-left"></i>
-                        Description
-                    </label>
-                    <textarea 
-                        id="description" 
-                        name="description" 
-                        rows="3" 
-                        placeholder="Brief description of the quiz..."
-                    ></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="class_id">
-                            <i class="fas fa-graduation-cap"></i>
-                            Class <span class="required">*</span>
-                        </label>
-                        <select id="class_id" name="class_id" required onchange="filterSubjects()">
-                            <option value="">Select a class</option>
-                            <?php foreach ($classes as $class): ?>
-                                <option value="<?php echo $class['id']; ?>">
-                                    <?php echo htmlspecialchars($class['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="subject_id">
-                            <i class="fas fa-book"></i>
-                            Subject <span class="required">*</span>
-                        </label>
-                        <select id="subject_id" name="subject_id" required>
-                            <option value="">Select a subject</option>
-                            <?php foreach ($subjects as $subject): ?>
-                                <option value="<?php echo $subject['id']; ?>" 
-                                        data-class="<?php echo $subject['class_id']; ?>"
-                                        class="subject-option" style="display: none;">
-                                    <?php echo htmlspecialchars($subject['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quiz Settings -->
-            <div class="form-section">
-                <h3 class="section-title">
-                    <i class="fas fa-cog"></i>
-                    Quiz Settings
-                </h3>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="time_limit">
-                            <i class="fas fa-clock"></i>
-                            Time Limit (minutes)
-                        </label>
-                        <input 
-                            type="number" 
-                            id="time_limit" 
-                            name="time_limit" 
-                            value="30" 
-                            min="1" 
-                            max="180"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="passing_score">
-                            <i class="fas fa-trophy"></i>
-                            Passing Score (%)
-                        </label>
-                        <input 
-                            type="number" 
-                            id="passing_score" 
-                            name="passing_score" 
-                            value="70" 
-                            min="0" 
-                            max="100"
-                        >
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="max_attempts">
-                            <i class="fas fa-redo"></i>
-                            Maximum Attempts
-                        </label>
-                        <input 
-                            type="number" 
-                            id="max_attempts" 
-                            name="max_attempts" 
-                            value="1" 
-                            min="1" 
-                            max="10"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="end_date">
-                            <i class="fas fa-calendar-times"></i>
-                            Quiz Deadline <span style="color: red;">*</span>
-                        </label>
-                        <input 
-                            type="datetime-local" 
-                            id="end_date" 
-                            name="end_date"
-                            value="<?php echo !empty($quiz['end_date']) ? date('Y-m-d\TH:i', strtotime($quiz['end_date'])) : ''; ?>"
-                            required
-                        >
-                        <small class="input-hint">
-                            <?php if (!empty($quiz['end_date'])): ?>
-                                Current deadline: <?php echo date('F j, Y \a\t g:i A', strtotime($quiz['end_date'])); ?>
-                                <?php if (strtotime($quiz['end_date']) < time()): ?>
-                                    <span class="text-warning">This quiz has expired!</span>
-                                <?php endif; ?>
-                            <?php else: ?>
-                            <?php endif; ?>
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Publishing Options -->
-            <div class="form-section">
-                <h3 class="section-title">
-                    <i class="fas fa-globe"></i>
-                    Publishing Options
-                </h3>
-                
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="is_published" id="is_published" value="1" checked>
-                        <span><i class="fas fa-globe"></i> Publish immediately</span>
-                    </label>
-                </div>
-                
-                <!-- Warning for publishing without questions -->
-                <div class="alert alert-info" id="publishWarning" style="display: none; margin-top: 15px;">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Don't forget to add questions after creating the quiz. Students will only see the quiz once you've added questions and published it.</span>
-                </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-save"></i>
-                    Create Quiz
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <style>
 .create-quiz-container {
     max-width: 900px;
@@ -254,7 +47,6 @@ $subjects = $subjects ?? [];
     margin-bottom: 30px;
 }
 
-/* Form Card */
 .form-card {
     background: white;
     border-radius: 24px;
@@ -352,7 +144,6 @@ $subjects = $subjects ?? [];
     color: #F59E0B;
 }
 
-/* Checkbox */
 .checkbox-group {
     margin-top: 10px;
 }
@@ -378,7 +169,6 @@ $subjects = $subjects ?? [];
     gap: 8px;
 }
 
-/* Alerts */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -401,7 +191,6 @@ $subjects = $subjects ?? [];
     border: 1px solid #BFDBFE;
 }
 
-/* Form Actions */
 .form-actions {
     display: flex;
     gap: 15px;
@@ -465,7 +254,6 @@ $subjects = $subjects ?? [];
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .form-card {
         padding: 25px;
@@ -482,13 +270,211 @@ $subjects = $subjects ?? [];
 
 </style>
 
+<div class="create-quiz-container">
+    <div class="page-header">
+        <div>
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Quizzes
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-plus-circle"></i>
+                Create New Quiz
+            </h1>
+            <p class="page-subtitle">Design a quiz for your students</p>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="form-card">
+        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="quiz-form" id="quizForm">
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Basic Information
+                </h3>
+                
+                <div class="form-group">
+                    <label for="title">
+                        <i class="fas fa-heading"></i>
+                        Quiz Title <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title" 
+                        required 
+                        placeholder="e.g., Mathematics Quiz 1"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="description">
+                        <i class="fas fa-align-left"></i>
+                        Description
+                    </label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        rows="3" 
+                        placeholder="Brief description of the quiz..."
+                    ></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="class_id">
+                            <i class="fas fa-graduation-cap"></i>
+                            Class <span class="required">*</span>
+                        </label>
+                        <select id="class_id" name="class_id" required onchange="filterSubjects()">
+                            <option value="">Select a class</option>
+                            <?php foreach ($classes as $class): ?>
+                                <option value="<?php echo $class['id']; ?>">
+                                    <?php echo htmlspecialchars($class['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject_id">
+                            <i class="fas fa-book"></i>
+                            Subject <span class="required">*</span>
+                        </label>
+                        <select id="subject_id" name="subject_id" required>
+                            <option value="">Select a subject</option>
+                            <?php foreach ($subjects as $subject): ?>
+                                <option value="<?php echo $subject['id']; ?>" 
+                                        data-class="<?php echo $subject['class_id']; ?>"
+                                        class="subject-option" style="display: none;">
+                                    <?php echo htmlspecialchars($subject['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    Quiz Settings
+                </h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="time_limit">
+                            <i class="fas fa-clock"></i>
+                            Time Limit (minutes)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="time_limit" 
+                            name="time_limit" 
+                            value="30" 
+                            min="1" 
+                            max="180"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="passing_score">
+                            <i class="fas fa-trophy"></i>
+                            Passing Score (%)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="passing_score" 
+                            name="passing_score" 
+                            value="70" 
+                            min="0" 
+                            max="100"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="max_attempts">
+                            <i class="fas fa-redo"></i>
+                            Maximum Attempts
+                        </label>
+                        <input 
+                            type="number" 
+                            id="max_attempts" 
+                            name="max_attempts" 
+                            value="1" 
+                            min="1" 
+                            max="10"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end_date">
+                            <i class="fas fa-calendar-times"></i>
+                            Quiz Deadline <span style="color: red;">*</span>
+                        </label>
+                        <input 
+                            type="datetime-local" 
+                            id="end_date" 
+                            name="end_date"
+                            value="<?php echo !empty($quiz['end_date']) ? date('Y-m-d\TH:i', strtotime($quiz['end_date'])) : ''; ?>"
+                            required
+                        >
+                        <small class="input-hint">
+                            <?php if (!empty($quiz['end_date'])): ?>
+                                Current deadline: <?php echo date('F j, Y \a\t g:i A', strtotime($quiz['end_date'])); ?>
+                                <?php if (strtotime($quiz['end_date']) < time()): ?>
+                                    <span class="text-warning">This quiz has expired!</span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                            <?php endif; ?>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-globe"></i>
+                    Publishing Options
+                </h3>
+                
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_published" id="is_published" value="1" checked>
+                        <span><i class="fas fa-globe"></i> Publish immediately</span>
+                    </label>
+                </div>
+                
+                <div class="alert alert-info" id="publishWarning" style="display: none; margin-top: 15px;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Don't forget to add questions after creating the quiz. Students will only see the quiz once you've added questions and published it.</span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i>
+                    Create Quiz
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function filterSubjects() {
     const classId = document.getElementById('class_id').value;
     const subjectSelect = document.getElementById('subject_id');
     const options = subjectSelect.querySelectorAll('.subject-option');
     
-    // Reset subject select
     subjectSelect.value = '';
     
     if (!classId) {
@@ -496,7 +482,6 @@ function filterSubjects() {
         return;
     }
     
-    // Show only subjects for selected class
     options.forEach(opt => {
         if (opt.getAttribute('data-class') == classId) {
             opt.style.display = 'block';
@@ -506,7 +491,6 @@ function filterSubjects() {
     });
 }
 
-// Handle publish/draft toggle
 const publishCheckbox = document.getElementById('is_published');
 const publishHint = document.getElementById('publishHint');
 const draftHint = document.getElementById('draftHint');
@@ -526,7 +510,6 @@ if (publishCheckbox) {
     });
 }
 
-// Form validation
 document.getElementById('quizForm').addEventListener('submit', function(e) {
     const title = document.getElementById('title').value.trim();
     const classId = document.getElementById('class_id').value;
@@ -550,7 +533,6 @@ document.getElementById('quizForm').addEventListener('submit', function(e) {
         return false;
     }
     
-    // Show confirmation for draft saves
     const isPublished = document.getElementById('is_published').checked;
     if (!isPublished) {
         return confirm('This quiz will be saved as a draft. Students will not see it until you publish it.\n\nClick OK to continue.');

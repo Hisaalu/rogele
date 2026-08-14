@@ -7,8 +7,300 @@ $quiz = $quiz ?? [];
 $quizId = $quiz['id'] ?? 0;
 ?>
 
+<style>
+.add-questions-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #000;
+    text-decoration: none;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: #f06724;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    background-color: #7f2677;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-subtitle {
+    color: #555;
+    font-size: 0.95rem;
+    margin-bottom: 30px;
+}
+
+.form-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+}
+
+.question-card {
+    background: #F8FAFC;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 2px solid #E2E8F0;
+    transition: all 0.3s ease;
+}
+
+.question-card:hover {
+    border-color: #f06724;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.question-title {
+    color: #000;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.question-title i {
+    color: #f06724;
+}
+
+.remove-question {
+    background: #FEF2F2;
+    color: #EF4444;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.remove-question:hover {
+    background: #EF4444;
+    color: white;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #000;
+    margin-bottom: 5px;
+}
+
+.form-group label i {
+    color: #8B5CF6;
+}
+
+.required {
+    color: #EF4444;
+    margin-left: 3px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #f06724;
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
+}
+
+.add-question-btn-container {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.btn-add-question {
+    background: white;
+    color: #7f2677;
+    border: 2px dashed #f06724;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-add-question:hover {
+    background: #f06724;
+    color: white;
+    border-style: solid;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-primary {
+    flex: 1;
+    background-color: #7f2677;
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+}
+
+.btn-secondary {
+    padding: 14px 30px;
+    background: #7f2677;
+    color: white;
+    border: 2px solid #E2E8F0;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background: #f06724;
+    border-color: #f06724;
+    color: whiteB;
+}
+
+.alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.3s ease;
+}
+
+.alert-success {
+    background: #F0FDF4;
+    color: #166534;
+    border: 1px solid #BBF7D0;
+}
+
+.alert-error {
+    background: #FEF2F2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-card {
+        padding: 25px;
+    }
+    
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+}
+
+</style>
+
 <div class="add-questions-container">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
@@ -22,7 +314,6 @@ $quizId = $quiz['id'] ?? 0;
         </div>
     </div>
 
-    <!-- Alert Messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -37,11 +328,9 @@ $quizId = $quiz['id'] ?? 0;
         </div>
     <?php endif; ?>
 
-    <!-- Questions Form -->
     <div class="form-card">
         <form method="POST" action="<?php echo BASE_URL; ?>/teacher/quizzes/add-questions/<?php echo $quizId; ?>" class="questions-form" id="questionsForm">
             <div id="questions-container">
-                <!-- Question 1 (default) -->
                 <div class="question-card" id="question-1">
                     <div class="question-header">
                         <h3 class="question-title">
@@ -135,7 +424,6 @@ $quizId = $quiz['id'] ?? 0;
                 </div>
             </div>
 
-            <!-- Add Question Button -->
             <div class="add-question-btn-container">
                 <button type="button" class="btn-add-question" onclick="addQuestion()">
                     <i class="fas fa-plus-circle"></i>
@@ -143,7 +431,6 @@ $quizId = $quiz['id'] ?? 0;
                 </button>
             </div>
 
-            <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-primary">
                     <i class="fas fa-save"></i>
@@ -153,306 +440,6 @@ $quizId = $quiz['id'] ?? 0;
         </form>
     </div>
 </div>
-
-<style>
-.add-questions-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 30px 20px;
-}
-
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #000;
-    text-decoration: none;
-    font-size: 0.95rem;
-    margin-bottom: 15px;
-    transition: color 0.3s ease;
-}
-
-.back-link:hover {
-    color: #f06724;
-}
-
-.page-title {
-    font-size: 2rem;
-    font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.page-subtitle {
-    color: #555;
-    font-size: 0.95rem;
-    margin-bottom: 30px;
-}
-
-/* Form Card */
-.form-card {
-    background: white;
-    border-radius: 24px;
-    padding: 40px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-}
-
-/* Question Card */
-.question-card {
-    background: #F8FAFC;
-    border-radius: 16px;
-    padding: 25px;
-    margin-bottom: 25px;
-    border: 2px solid #E2E8F0;
-    transition: all 0.3s ease;
-}
-
-.question-card:hover {
-    border-color: #f06724;
-}
-
-.question-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.question-title {
-    color: #000;
-    font-size: 0.95rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.question-title i {
-    color: #f06724;
-}
-
-.remove-question {
-    background: #FEF2F2;
-    color: #EF4444;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.remove-question:hover {
-    background: #EF4444;
-    color: white;
-}
-
-/* Form Groups */
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 15px;
-}
-
-.options-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #000;
-    margin-bottom: 5px;
-}
-
-.form-group label i {
-    color: #8B5CF6;
-}
-
-.required {
-    color: #EF4444;
-    margin-left: 3px;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #E2E8F0;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    font-family: 'Inter', sans-serif;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #f06724;
-    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.25);
-}
-
-/* Add Question Button */
-.add-question-btn-container {
-    text-align: center;
-    margin: 30px 0;
-}
-
-.btn-add-question {
-    background: white;
-    color: #7f2677;
-    border: 2px dashed #f06724;
-    padding: 15px 30px;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-}
-
-.btn-add-question:hover {
-    background: #f06724;
-    color: white;
-    border-style: solid;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
-}
-
-/* Form Actions */
-.form-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.btn-primary {
-    flex: 1;
-    background-color: #7f2677;
-    color: white;
-    border: none;
-    padding: 14px 30px;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
-}
-
-.btn-secondary {
-    padding: 14px 30px;
-    background: #7f2677;
-    color: white;
-    border: 2px solid #E2E8F0;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.btn-secondary:hover {
-    background: #f06724;
-    border-color: #f06724;
-    color: whiteB;
-}
-
-/* Alerts */
-.alert {
-    padding: 16px 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    animation: slideDown 0.3s ease;
-}
-
-.alert-success {
-    background: #F0FDF4;
-    color: #166534;
-    border: 1px solid #BBF7D0;
-}
-
-.alert-error {
-    background: #FEF2F2;
-    color: #B91C1C;
-    border: 1px solid #FECACA;
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .form-card {
-        padding: 25px;
-    }
-    
-    .options-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .page-title {
-        font-size: 1.5rem;
-    }
-}
-
-</style>
 
 <script>
 let questionCount = 1;
@@ -559,7 +546,6 @@ function addQuestion() {
     
     container.appendChild(newQuestion);
     
-    // Show remove button on first question if there are multiple
     if (questionCount > 1) {
         document.querySelector('#question-1 .remove-question').style.display = 'flex';
     }
@@ -570,15 +556,12 @@ function removeQuestion(id) {
         const question = document.getElementById(`question-${id}`);
         question.remove();
         
-        // Update question count
         questionCount--;
         
-        // Hide remove button on first question if only one remains
         if (questionCount === 1) {
             document.querySelector('#question-1 .remove-question').style.display = 'none';
         }
         
-        // Renumber remaining questions
         renumberQuestions();
     }
 }
@@ -589,13 +572,11 @@ function renumberQuestions() {
         const newNumber = index + 1;
         q.id = `question-${newNumber}`;
         
-        // Update title
         q.querySelector('.question-title').innerHTML = `
             <i class="fas fa-question-circle"></i>
             Question ${newNumber}
         `;
         
-        // Update all input names and ids
         const inputs = q.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
             const name = input.getAttribute('name');
@@ -611,7 +592,6 @@ function renumberQuestions() {
             }
         });
         
-        // Update labels' for attributes
         const labels = q.querySelectorAll('label');
         labels.forEach(label => {
             const htmlFor = label.getAttribute('for');
@@ -621,7 +601,6 @@ function renumberQuestions() {
             }
         });
         
-        // Update remove button onclick
         const removeBtn = q.querySelector('.remove-question');
         if (removeBtn) {
             removeBtn.setAttribute('onclick', `removeQuestion(${newNumber})`);
@@ -629,7 +608,6 @@ function renumberQuestions() {
     });
 }
 
-// Form validation
 document.getElementById('questionsForm').addEventListener('submit', function(e) {
     const questions = document.querySelectorAll('.question-card');
     let isValid = true;

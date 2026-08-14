@@ -29,109 +29,6 @@ $comparisonPlans = [
 ];
 ?>
 
-<div class="upgrade-container">
-    <div class="upgrade-card">
-        <div class="card-header">
-            <div class="header-icon">
-                <i class="fas fa-rocket"></i>
-            </div>
-            <h1>Upgrade Your Plan</h1>
-            <p>Review your upgrade details below</p>
-        </div>
-
-        <div class="plan-comparison">
-            <?php foreach ($comparisonPlans as $type => $plan): ?>
-                <div class="plan-card <?= $plan['badge_class'] ?>">
-                    <div class="plan-badge"><?= $plan['badge'] ?></div>
-                    <div class="plan-icon">
-                        <i class="fas fa-<?= $plan['icon'] ?>"></i>
-                    </div>
-                    <h3><?= htmlspecialchars($plan['name']) ?></h3>
-                    <div class="plan-price">
-                        <small>UGX</small>
-                        <span><?= number_format($plan['price']) ?></span>
-                    </div>
-                    <ul class="plan-features">
-                        <?php foreach ($plan['features'] as $feature): ?>
-                            <li><i class="fas fa-check"></i> <?= htmlspecialchars($feature) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-                <?php if ($type === 'current'): ?>
-                    <div class="upgrade-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                <?php endif; ?>
-            <?php endforeach; ?>
-        </div>
-
-        <div class="price-breakdown">
-            <h3>Payment Summary</h3>
-            
-            <div class="breakdown-item">
-                <span>New Plan Price:</span>
-                <strong>UGX <?= number_format($priceCalculation['new_price'] ?? 0) ?></strong>
-            </div>
-            
-            <div class="breakdown-item">
-                <span>Remaining Value (<?= (int)($priceCalculation['days_remaining'] ?? 0) ?> days):</span>
-                <strong class="text-success">- UGX <?= number_format($priceCalculation['remaining_value'] ?? 0) ?></strong>
-            </div>
-            
-            <div class="breakdown-divider"></div>
-            
-            <div class="breakdown-item total">
-                <span>You Pay Today:</span>
-                <strong class="total-amount">UGX <?= number_format($priceCalculation['upgrade_price'] ?? 0) ?></strong>
-            </div>
-            
-            <div class="savings-note">
-                <i class="fas fa-info-circle"></i>
-                <span>You're only paying the difference! Your remaining subscription value has been credited.</span>
-            </div>
-        </div>
-
-        <form action="<?= BASE_URL ?>/external/process-upgrade" method="POST" class="payment-form">
-            <input type="hidden" name="from_plan" value="<?= htmlspecialchars($fromPlan) ?>">
-            <input type="hidden" name="to_plan" value="<?= htmlspecialchars($toPlan) ?>">
-            <input type="hidden" name="amount" value="<?= (float)($priceCalculation['upgrade_price'] ?? 0) ?>">
-            <input type="hidden" name="payment_method" value="mobile_money">
-            
-            <h3>Payment Details</h3>
-
-            <div class="payment-details">
-                <div class="form-group">
-                    <label for="provider">Mobile Network</label>
-                    <select name="provider" id="provider" required>
-                        <option value="mtn">MTN Mobile Money</option>
-                        <option value="airtel">Airtel Money</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="phone_number">Mobile Money Number</label>
-                    <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 0772 123 456" required>
-                </div>
-            </div>
-
-            <div class="terms-section">
-                <label class="checkbox-label">
-                    <span>By continuing you agree to our <a href="<?= BASE_URL ?>/terms-of-service" target="_blank">Terms of Service</a></span>
-                </label>
-            </div>
-
-            <div class="form-actions">
-                <a href="<?= BASE_URL ?>/external/subscription" class="btn-cancel">
-                    <i class="fas fa-arrow-left"></i> Cancel
-                </a>
-                <button type="submit" class="btn-pay">
-                    Pay UGX <?= number_format($priceCalculation['upgrade_price'] ?? 0) ?>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <style>
 .upgrade-container {
     max-width: 1000px;
@@ -444,6 +341,109 @@ $comparisonPlans = [
     }
 }
 </style>
+
+<div class="upgrade-container">
+    <div class="upgrade-card">
+        <div class="card-header">
+            <div class="header-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h1>Upgrade Your Plan</h1>
+            <p>Review your upgrade details below</p>
+        </div>
+
+        <div class="plan-comparison">
+            <?php foreach ($comparisonPlans as $type => $plan): ?>
+                <div class="plan-card <?= $plan['badge_class'] ?>">
+                    <div class="plan-badge"><?= $plan['badge'] ?></div>
+                    <div class="plan-icon">
+                        <i class="fas fa-<?= $plan['icon'] ?>"></i>
+                    </div>
+                    <h3><?= htmlspecialchars($plan['name']) ?></h3>
+                    <div class="plan-price">
+                        <small>UGX</small>
+                        <span><?= number_format($plan['price']) ?></span>
+                    </div>
+                    <ul class="plan-features">
+                        <?php foreach ($plan['features'] as $feature): ?>
+                            <li><i class="fas fa-check"></i> <?= htmlspecialchars($feature) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php if ($type === 'current'): ?>
+                    <div class="upgrade-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="price-breakdown">
+            <h3>Payment Summary</h3>
+            
+            <div class="breakdown-item">
+                <span>New Plan Price:</span>
+                <strong>UGX <?= number_format($priceCalculation['new_price'] ?? 0) ?></strong>
+            </div>
+            
+            <div class="breakdown-item">
+                <span>Remaining Value (<?= (int)($priceCalculation['days_remaining'] ?? 0) ?> days):</span>
+                <strong class="text-success">- UGX <?= number_format($priceCalculation['remaining_value'] ?? 0) ?></strong>
+            </div>
+            
+            <div class="breakdown-divider"></div>
+            
+            <div class="breakdown-item total">
+                <span>You Pay Today:</span>
+                <strong class="total-amount">UGX <?= number_format($priceCalculation['upgrade_price'] ?? 0) ?></strong>
+            </div>
+            
+            <div class="savings-note">
+                <i class="fas fa-info-circle"></i>
+                <span>You're only paying the difference! Your remaining subscription value has been credited.</span>
+            </div>
+        </div>
+
+        <form action="<?= BASE_URL ?>/external/process-upgrade" method="POST" class="payment-form">
+            <input type="hidden" name="from_plan" value="<?= htmlspecialchars($fromPlan) ?>">
+            <input type="hidden" name="to_plan" value="<?= htmlspecialchars($toPlan) ?>">
+            <input type="hidden" name="amount" value="<?= (float)($priceCalculation['upgrade_price'] ?? 0) ?>">
+            <input type="hidden" name="payment_method" value="mobile_money">
+            
+            <h3>Payment Details</h3>
+
+            <div class="payment-details">
+                <div class="form-group">
+                    <label for="provider">Mobile Network</label>
+                    <select name="provider" id="provider" required>
+                        <option value="mtn">MTN Mobile Money</option>
+                        <option value="airtel">Airtel Money</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="phone_number">Mobile Money Number</label>
+                    <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 0772 123 456" required>
+                </div>
+            </div>
+
+            <div class="terms-section">
+                <label class="checkbox-label">
+                    <span>By continuing you agree to our <a href="<?= BASE_URL ?>/terms-of-service" target="_blank">Terms of Service</a></span>
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <a href="<?= BASE_URL ?>/external/subscription" class="btn-cancel">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn-pay">
+                    Pay UGX <?= number_format($priceCalculation['upgrade_price'] ?? 0) ?>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
 const phoneInput = document.getElementById('phone_number');

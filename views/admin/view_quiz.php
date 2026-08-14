@@ -8,108 +8,6 @@ $questions = $quiz['questions'] ?? [];
 $optionsList = ['A' => 'option_a', 'B' => 'option_b', 'C' => 'option_c', 'D' => 'option_d'];
 ?>
 
-<div class="view-quiz-container">
-    <header class="page-header">
-        <div class="header-text">
-            <h1 class="page-title">
-                <i class="fas fa-pencil-alt" aria-hidden="true"></i>
-                <span>View Quiz</span>
-            </h1>
-        </div>
-    </header>
-
-    <main class="quiz-card">
-        <div class="quiz-header">
-            <h2><?php echo htmlspecialchars($quiz['title'] ?? 'Untitled Quiz'); ?></h2>
-            <div class="quiz-meta">
-                <span class="meta-item">
-                    <i class="fas fa-user" aria-hidden="true"></i>
-                    <strong>Teacher:</strong> <?php echo htmlspecialchars($quiz['teacher_name'] ?? 'Unknown'); ?>
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
-                    <strong>Class:</strong> <?php echo htmlspecialchars($quiz['class_name'] ?? 'All Levels'); ?>
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-book" aria-hidden="true"></i>
-                    <strong>Subject:</strong> <?php echo htmlspecialchars($quiz['subject_name'] ?? 'General'); ?>
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-clock" aria-hidden="true"></i>
-                    <strong>Time Limit:</strong> <?php echo htmlspecialchars((string)($quiz['time_limit'] ?? 30)); ?> minutes
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-trophy" aria-hidden="true"></i>
-                    <strong>Pass Score:</strong> <?php echo htmlspecialchars((string)($quiz['passing_score'] ?? 50)); ?>%
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-calendar" aria-hidden="true"></i>
-                    <strong>Created:</strong> <?php echo !empty($quiz['created_at']) ? date('M d, Y h:i A', strtotime($quiz['created_at'])) : 'N/A'; ?>
-                </span>
-            </div>
-            <div class="quiz-status">
-                <span class="status-badge <?php echo !empty($quiz['is_published']) ? 'published' : 'draft'; ?>">
-                    <i class="fas <?php echo !empty($quiz['is_published']) ? 'fa-globe' : 'fa-pencil-alt'; ?>" aria-hidden="true"></i>
-                    <?php echo !empty($quiz['is_published']) ? 'Published' : 'Draft'; ?>
-                </span>
-            </div>
-        </div>
-
-        <?php if (!empty($quiz['description'])): ?>
-        <section class="quiz-description">
-            <h3><i class="fas fa-align-left" aria-hidden="true"></i> Description</h3>
-            <p><?php echo nl2br(htmlspecialchars($quiz['description'])); ?></p>
-        </section>
-        <?php endif; ?>
-
-        <section class="questions-section">
-            <h3 class="section-title">Questions (<?php echo count($questions); ?>)</h3>
-            
-            <?php if (empty($questions)): ?>
-                <div class="no-questions">
-                    <i class="fas fa-folder-open" aria-hidden="true"></i>
-                    <p>No questions added to this quiz yet.</p>
-                </div>
-            <?php else: ?>
-                <div class="questions-list">
-                    <?php foreach ($questions as $index => $question): ?>
-                        <article class="question-item">
-                            <div class="question-header">
-                                <span class="question-number">Question <?php echo $index + 1; ?></span>
-                                <span class="question-points"><?php echo htmlspecialchars((string)($question['points'] ?? 1)); ?> pts</span>
-                            </div>
-                            <p class="question-text"><?php echo htmlspecialchars($question['question'] ?? ''); ?></p>
-                            
-                            <div class="options-list">
-                                <?php foreach ($optionsList as $letter => $key): ?>
-                                    <?php if (!empty($question[$key])): ?>
-                                        <?php $isCorrect = strtoupper($question['correct_answer'] ?? '') === $letter; ?>
-                                        <div class="option <?php echo $isCorrect ? 'correct' : ''; ?>">
-                                            <span class="option-letter"><?php echo $letter; ?></span>
-                                            <span class="option-text"><?php echo htmlspecialchars($question[$key]); ?></span>
-                                            <?php if ($isCorrect): ?>
-                                                <span class="correct-badge"><i class="fas fa-check-circle" aria-hidden="true"></i> Correct</span>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </div>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </section>
-
-        <div class="admin-actions">
-            <a href="<?php echo BASE_URL; ?>/admin/quizzes/delete/<?php echo urlencode($quiz['id'] ?? ''); ?>" 
-               class="btn-delete" 
-               onclick="return confirm('Are you sure you want to delete this quiz? This action cannot be undone.')">
-                <i class="fas fa-trash-alt" aria-hidden="true"></i> Delete Quiz
-            </a>
-        </div>
-    </main>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -215,7 +113,6 @@ $optionsList = ['A' => 'option_a', 'B' => 'option_b', 'C' => 'option_c', 'D' => 
 .status-badge.published { background: #F0FDF4; color: #166534; }
 .status-badge.draft { background: #F1F5F9; color: var(--text-muted); }
 
-/* Description */
 .quiz-description {
     margin-bottom: clamp(20px, 3vw, 30px);
     padding: clamp(16px, 2.5vw, 20px);
@@ -245,7 +142,6 @@ $optionsList = ['A' => 'option_a', 'B' => 'option_b', 'C' => 'option_c', 'D' => 
     font-size: 0.95rem;
 }
 
-/* Questions Section */
 .section-title {
     color: var(--text-dark);
     font-size: 1.2rem;
@@ -378,7 +274,6 @@ $optionsList = ['A' => 'option_a', 'B' => 'option_b', 'C' => 'option_c', 'D' => 
     flex-shrink: 0;
 }
 
-/* Actions Footer */
 .admin-actions {
     display: flex;
     gap: 15px;
@@ -411,7 +306,6 @@ $optionsList = ['A' => 'option_a', 'B' => 'option_b', 'C' => 'option_c', 'D' => 
     box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
 }
 
-/* Responsive Rules */
 @media (max-width: 600px) {
     .quiz-meta {
         flex-direction: column;
@@ -423,5 +317,107 @@ $optionsList = ['A' => 'option_a', 'B' => 'option_b', 'C' => 'option_c', 'D' => 
     }
 }
 </style>
+
+<div class="view-quiz-container">
+    <header class="page-header">
+        <div class="header-text">
+            <h1 class="page-title">
+                <i class="fas fa-pencil-alt" aria-hidden="true"></i>
+                <span>View Quiz</span>
+            </h1>
+        </div>
+    </header>
+
+    <main class="quiz-card">
+        <div class="quiz-header">
+            <h2><?php echo htmlspecialchars($quiz['title'] ?? 'Untitled Quiz'); ?></h2>
+            <div class="quiz-meta">
+                <span class="meta-item">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    <strong>Teacher:</strong> <?php echo htmlspecialchars($quiz['teacher_name'] ?? 'Unknown'); ?>
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                    <strong>Class:</strong> <?php echo htmlspecialchars($quiz['class_name'] ?? 'All Levels'); ?>
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-book" aria-hidden="true"></i>
+                    <strong>Subject:</strong> <?php echo htmlspecialchars($quiz['subject_name'] ?? 'General'); ?>
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-clock" aria-hidden="true"></i>
+                    <strong>Time Limit:</strong> <?php echo htmlspecialchars((string)($quiz['time_limit'] ?? 30)); ?> minutes
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-trophy" aria-hidden="true"></i>
+                    <strong>Pass Score:</strong> <?php echo htmlspecialchars((string)($quiz['passing_score'] ?? 50)); ?>%
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-calendar" aria-hidden="true"></i>
+                    <strong>Created:</strong> <?php echo !empty($quiz['created_at']) ? date('M d, Y h:i A', strtotime($quiz['created_at'])) : 'N/A'; ?>
+                </span>
+            </div>
+            <div class="quiz-status">
+                <span class="status-badge <?php echo !empty($quiz['is_published']) ? 'published' : 'draft'; ?>">
+                    <i class="fas <?php echo !empty($quiz['is_published']) ? 'fa-globe' : 'fa-pencil-alt'; ?>" aria-hidden="true"></i>
+                    <?php echo !empty($quiz['is_published']) ? 'Published' : 'Draft'; ?>
+                </span>
+            </div>
+        </div>
+
+        <?php if (!empty($quiz['description'])): ?>
+        <section class="quiz-description">
+            <h3><i class="fas fa-align-left" aria-hidden="true"></i> Description</h3>
+            <p><?php echo nl2br(htmlspecialchars($quiz['description'])); ?></p>
+        </section>
+        <?php endif; ?>
+
+        <section class="questions-section">
+            <h3 class="section-title">Questions (<?php echo count($questions); ?>)</h3>
+            
+            <?php if (empty($questions)): ?>
+                <div class="no-questions">
+                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                    <p>No questions added to this quiz yet.</p>
+                </div>
+            <?php else: ?>
+                <div class="questions-list">
+                    <?php foreach ($questions as $index => $question): ?>
+                        <article class="question-item">
+                            <div class="question-header">
+                                <span class="question-number">Question <?php echo $index + 1; ?></span>
+                                <span class="question-points"><?php echo htmlspecialchars((string)($question['points'] ?? 1)); ?> pts</span>
+                            </div>
+                            <p class="question-text"><?php echo htmlspecialchars($question['question'] ?? ''); ?></p>
+                            
+                            <div class="options-list">
+                                <?php foreach ($optionsList as $letter => $key): ?>
+                                    <?php if (!empty($question[$key])): ?>
+                                        <?php $isCorrect = strtoupper($question['correct_answer'] ?? '') === $letter; ?>
+                                        <div class="option <?php echo $isCorrect ? 'correct' : ''; ?>">
+                                            <span class="option-letter"><?php echo $letter; ?></span>
+                                            <span class="option-text"><?php echo htmlspecialchars($question[$key]); ?></span>
+                                            <?php if ($isCorrect): ?>
+                                                <span class="correct-badge"><i class="fas fa-check-circle" aria-hidden="true"></i> Correct</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </section>
+
+        <div class="admin-actions">
+            <a href="<?php echo BASE_URL; ?>/admin/quizzes/delete/<?php echo urlencode($quiz['id'] ?? ''); ?>" 
+               class="btn-delete" 
+               onclick="return confirm('Are you sure you want to delete this quiz? This action cannot be undone.')">
+                <i class="fas fa-trash-alt" aria-hidden="true"></i> Delete Quiz
+            </a>
+        </div>
+    </main>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

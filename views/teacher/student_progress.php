@@ -7,186 +7,9 @@ $student = $student ?? [];
 $quizResults = $quizResults ?? [];
 $quizStats = $quizStats ?? [];
 
-// Get only last 5 quizzes for the chart
 $lastFiveQuizzes = array_slice($quizResults, 0, 5);
 $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 ?>
-
-<div class="progress-container">
-    <!-- Header -->
-    <div class="page-header">
-        <div>
-            <a href="<?php echo BASE_URL; ?>/teacher/students" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Students
-            </a>
-            <h1 class="page-title">
-                <i class="fas fa-chart-line"></i>
-                Student Performance
-            </h1>
-            <p class="page-subtitle">
-                Quiz performance for <?php echo htmlspecialchars(mb_convert_case($student['first_name'] . ' ' . $student['last_name'], MB_CASE_TITLE, "UTF-8")); ?>
-            </p>
-        </div>
-    </div>
-
-    <!-- Student Info Card -->
-    <div class="student-info-card">
-        <div class="student-avatar-large">
-            <?php if (!empty($student['profile_photo'])): ?>
-                <img src="<?php echo BASE_URL; ?>/<?php echo $student['profile_photo']; ?>" alt="">
-            <?php else: ?>
-                <div class="avatar-placeholder-large">
-                    <?php echo strtoupper(substr($student['first_name'] ?? 'S', 0, 1)); ?>
-                </div>
-            <?php endif; ?>
-        </div>
-        <div class="student-details">
-            <h3 class="student-name">
-                <?php 
-                    $full_name = $student['first_name'] . ' ' . $student['last_name'];
-                    $formatted_name = mb_convert_case($full_name, MB_CASE_TITLE, "UTF-8"); 
-                    echo htmlspecialchars($formatted_name); 
-                ?>
-            </h3>
-            <p><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($student['email']); ?></p>
-            <p><i class="fas fa-graduation-cap"></i> <?php echo $student['class_name'] ?? 'No Class'; ?></p>
-        </div>
-        <div class="student-stats-quick">
-            <div class="quick-stat">
-                <span class="quick-value"><?php echo $quizStats['total_quizzes'] ?? 0; ?></span>
-                <span class="quick-label">Quizzes Taken</span>
-            </div>
-            <div class="quick-stat">
-                <span class="quick-value"><?php echo $quizStats['average_score'] ?? 0; ?>%</span>
-                <span class="quick-label">Average Score</span>
-            </div>
-            <div class="quick-stat">
-                <span class="quick-value"><?php echo $quizStats['highest_score'] ?? 0; ?>%</span>
-                <span class="quick-label">Highest Score</span>
-            </div>
-            <div class="quick-stat">
-                <span class="quick-value"><?php echo $quizStats['lowest_score'] ?? 0; ?>%</span>
-                <span class="quick-label">Lowest Score</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Performance Chart - Last 5 Quizzes -->
-    <?php if (!empty($lastFiveQuizzes)): ?>
-    <div class="section-card">
-        <div class="section-header">
-            <h3><i class="fas fa-chart-line"></i> Quiz Performance for only the Last 5 Quizzes</h3>
-        </div>
-        <div class="chart-container">
-            <canvas id="performanceChart"></canvas>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- All Quiz Results Table -->
-    <div class="section-card">
-        <div class="section-header">
-            <h3><i class="fas fa-pencil-alt"></i> All Quiz Results</h3>
-            <?php if (!empty($quizResults)): ?>
-                <button onclick="exportQuizResults()" class="btn-export">
-                    <i class="fas fa-download"></i> Export Results
-                </button>
-            <?php endif; ?>
-        </div>
-
-        <?php if (empty($quizResults)): ?>
-            <div class="empty-mini">
-                <i class="fas fa-inbox"></i>
-                <p>No quiz attempts yet.</p>
-                <p class="empty-hint">Quizzes will appear here once the student takes them.</p>
-            </div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="progress-table" id="quizResultsTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Quiz</th>
-                            <th>Score</th>
-                            <th>Result</th>
-                            <th>Date</th>
-                        </thead>
-                    <tbody>
-                        <?php $counter = 1; ?>
-                        <?php foreach ($quizResults as $result): ?>
-                            <td><?php echo $counter++; ?></td>
-                            <td class="quiz-title">
-                                <strong><?php echo htmlspecialchars($result['quiz_title']); ?></strong>
-                            </td>
-                            <td class="score <?php echo $result['score'] >= 50 ? 'passed' : 'failed'; ?>">
-                                <div class="score-circle">
-                                    <?php echo $result['score']; ?>%
-                                </div>
-                            </td>
-                            <td>
-                                <?php if ($result['score'] >= 50): ?>
-                                    <span class="badge passed">
-                                        <i class="fas fa-check-circle"></i> Passed
-                                    </span>
-                                <?php else: ?>
-                                    <span class="badge failed">
-                                        <i class="fas fa-times-circle"></i> Failed
-                                    </span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="date-cell">
-                                <?php echo date('M d, Y', strtotime($result['completed_at'])); ?>
-                                <span class="time"><?php echo date('h:i A', strtotime($result['completed_at'])); ?></span>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-    </div>
-
-    <!-- Performance Summary -->
-    <?php if (!empty($quizResults)): ?>
-    <div class="section-card">
-        <div class="section-header">
-            <h3><i class="fas fa-chart-pie"></i> Performance Summary</h3>
-        </div>
-        <div class="summary-stats">
-            <div class="summary-stat">
-                <div class="summary-icon">
-                    <i class="fas fa-trophy"></i>
-                </div>
-                <div class="summary-info">
-                    <span class="summary-label">Best Performance</span>
-                    <span class="summary-value"><?php echo $quizStats['highest_score']; ?>%</span>
-                    <span class="summary-sub"><?php echo $quizStats['best_quiz'] ?? 'NA'; ?></span>
-                </div>
-            </div>
-            <div class="summary-stat">
-                <div class="summary-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="summary-info">
-                    <span class="summary-label">Average Score</span>
-                    <span class="summary-value"><?php echo $quizStats['average_score']; ?>%</span>
-                    <span class="summary-sub">over <?php echo count($quizResults); ?> quizzes</span>
-                </div>
-            </div>
-            <div class="summary-stat">
-                <div class="summary-icon">
-                    <i class="fas fa-arrow-up"></i>
-                </div>
-                <div class="summary-info">
-                    <span class="summary-label">Improvement Trend</span>
-                    <span class="summary-value"><?php echo $quizStats['trend'] ?? 'Stable'; ?></span>
-                    <span class="summary-sub"><?php echo $quizStats['trend_direction'] ?? ''; ?></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-</div>
 
 <style>
 .progress-container {
@@ -228,7 +51,6 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     margin-bottom: 30px;
 }
 
-/* Student Info Card */
 .student-info-card {
     background: white;
     border-radius: 20px;
@@ -323,7 +145,6 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     letter-spacing: 0.5px;
 }
 
-/* Section Cards */
 .section-card {
     background: white;
     border-radius: 20px;
@@ -375,14 +196,12 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     transform: translateY(-2px);
 }
 
-/* Chart Container */
 .chart-container {
     height: 300px;
     position: relative;
     margin-bottom: 10px;
 }
 
-/* Table */
 .table-responsive {
     overflow-x: auto;
 }
@@ -479,7 +298,6 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     margin-top: 2px;
 }
 
-/* Summary Stats */
 .summary-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -533,7 +351,6 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     margin-top: 3px;
 }
 
-/* Empty State */
 .empty-mini {
     text-align: center;
     padding: 60px 20px;
@@ -557,7 +374,6 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
     color: #000;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .student-info-card {
         flex-direction: column;
@@ -587,12 +403,181 @@ $lastFiveQuizzes = array_reverse($lastFiveQuizzes);
 }
 </style>
 
-<!-- Chart.js -->
+<div class="progress-container">
+    <div class="page-header">
+        <div>
+            <a href="<?php echo BASE_URL; ?>/teacher/students" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Students
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-chart-line"></i>
+                Student Performance
+            </h1>
+            <p class="page-subtitle">
+                Quiz performance for <?php echo htmlspecialchars(mb_convert_case($student['first_name'] . ' ' . $student['last_name'], MB_CASE_TITLE, "UTF-8")); ?>
+            </p>
+        </div>
+    </div>
+
+    <div class="student-info-card">
+        <div class="student-avatar-large">
+            <?php if (!empty($student['profile_photo'])): ?>
+                <img src="<?php echo BASE_URL; ?>/<?php echo $student['profile_photo']; ?>" alt="">
+            <?php else: ?>
+                <div class="avatar-placeholder-large">
+                    <?php echo strtoupper(substr($student['first_name'] ?? 'S', 0, 1)); ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <div class="student-details">
+            <h3 class="student-name">
+                <?php 
+                    $full_name = $student['first_name'] . ' ' . $student['last_name'];
+                    $formatted_name = mb_convert_case($full_name, MB_CASE_TITLE, "UTF-8"); 
+                    echo htmlspecialchars($formatted_name); 
+                ?>
+            </h3>
+            <p><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($student['email']); ?></p>
+            <p><i class="fas fa-graduation-cap"></i> <?php echo $student['class_name'] ?? 'No Class'; ?></p>
+        </div>
+        <div class="student-stats-quick">
+            <div class="quick-stat">
+                <span class="quick-value"><?php echo $quizStats['total_quizzes'] ?? 0; ?></span>
+                <span class="quick-label">Quizzes Taken</span>
+            </div>
+            <div class="quick-stat">
+                <span class="quick-value"><?php echo $quizStats['average_score'] ?? 0; ?>%</span>
+                <span class="quick-label">Average Score</span>
+            </div>
+            <div class="quick-stat">
+                <span class="quick-value"><?php echo $quizStats['highest_score'] ?? 0; ?>%</span>
+                <span class="quick-label">Highest Score</span>
+            </div>
+            <div class="quick-stat">
+                <span class="quick-value"><?php echo $quizStats['lowest_score'] ?? 0; ?>%</span>
+                <span class="quick-label">Lowest Score</span>
+            </div>
+        </div>
+    </div>
+
+    <?php if (!empty($lastFiveQuizzes)): ?>
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-chart-line"></i> Quiz Performance for only the Last 5 Quizzes</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-pencil-alt"></i> All Quiz Results</h3>
+            <?php if (!empty($quizResults)): ?>
+                <button onclick="exportQuizResults()" class="btn-export">
+                    <i class="fas fa-download"></i> Export Results
+                </button>
+            <?php endif; ?>
+        </div>
+
+        <?php if (empty($quizResults)): ?>
+            <div class="empty-mini">
+                <i class="fas fa-inbox"></i>
+                <p>No quiz attempts yet.</p>
+                <p class="empty-hint">Quizzes will appear here once the student takes them.</p>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="progress-table" id="quizResultsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Quiz</th>
+                            <th>Score</th>
+                            <th>Result</th>
+                            <th>Date</th>
+                        </thead>
+                    <tbody>
+                        <?php $counter = 1; ?>
+                        <?php foreach ($quizResults as $result): ?>
+                            <td><?php echo $counter++; ?></td>
+                            <td class="quiz-title">
+                                <strong><?php echo htmlspecialchars($result['quiz_title']); ?></strong>
+                            </td>
+                            <td class="score <?php echo $result['score'] >= 50 ? 'passed' : 'failed'; ?>">
+                                <div class="score-circle">
+                                    <?php echo $result['score']; ?>%
+                                </div>
+                            </td>
+                            <td>
+                                <?php if ($result['score'] >= 50): ?>
+                                    <span class="badge passed">
+                                        <i class="fas fa-check-circle"></i> Passed
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge failed">
+                                        <i class="fas fa-times-circle"></i> Failed
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="date-cell">
+                                <?php echo date('M d, Y', strtotime($result['completed_at'])); ?>
+                                <span class="time"><?php echo date('h:i A', strtotime($result['completed_at'])); ?></span>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <?php if (!empty($quizResults)): ?>
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-chart-pie"></i> Performance Summary</h3>
+        </div>
+        <div class="summary-stats">
+            <div class="summary-stat">
+                <div class="summary-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="summary-info">
+                    <span class="summary-label">Best Performance</span>
+                    <span class="summary-value"><?php echo $quizStats['highest_score']; ?>%</span>
+                    <span class="summary-sub"><?php echo $quizStats['best_quiz'] ?? 'NA'; ?></span>
+                </div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="summary-info">
+                    <span class="summary-label">Average Score</span>
+                    <span class="summary-value"><?php echo $quizStats['average_score']; ?>%</span>
+                    <span class="summary-sub">over <?php echo count($quizResults); ?> quizzes</span>
+                </div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-icon">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="summary-info">
+                    <span class="summary-label">Improvement Trend</span>
+                    <span class="summary-value"><?php echo $quizStats['trend'] ?? 'Stable'; ?></span>
+                    <span class="summary-sub"><?php echo $quizStats['trend_direction'] ?? ''; ?></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 <?php if (!empty($lastFiveQuizzes)): ?>
-// Create performance chart with last 5 quizzes
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('performanceChart').getContext('2d');
     
@@ -692,13 +677,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 <?php endif; ?>
 
-// Export quiz results to CSV
 function exportQuizResults() {
     const table = document.getElementById('quizResultsTable');
     const rows = table.querySelectorAll('tr');
     let csvContent = [];
     
-    // Get headers
     const headers = [];
     const headerCells = rows[0].querySelectorAll('th');
     headerCells.forEach(cell => {
@@ -706,7 +689,6 @@ function exportQuizResults() {
     });
     csvContent.push(headers.join(','));
     
-    // Get data rows
     for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
         const cells = row.querySelectorAll('td');
@@ -714,11 +696,9 @@ function exportQuizResults() {
         
         cells.forEach((cell, index) => {
             let content = cell.innerText.trim();
-            // Remove special formatting for score column
-            if (index === 2) { // Score column
+            if (index === 2) { 
                 content = content.replace('%', '');
             }
-            // Escape quotes and wrap in quotes if contains comma
             if (content.includes(',') || content.includes('"') || content.includes('\n')) {
                 content = content.replace(/"/g, '""');
                 content = `"${content}"`;
@@ -742,7 +722,6 @@ function exportQuizResults() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    // Show success message
     alert('Quiz results exported successfully!');
 }
 </script>

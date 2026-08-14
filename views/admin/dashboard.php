@@ -11,191 +11,6 @@ $recentUsers    = $recentUsers ?? [];
 $recentActivity = $recentActivity ?? [];
 ?>
 
-<div class="admin-dashboard">
-    <header class="dashboard-header">
-        <div class="header-text">
-            <h1 class="page-title">
-                <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
-                <span>Admin Dashboard</span>
-            </h1>
-            <p class="page-subtitle">
-                Welcome back, <?php 
-                    $fullName  = $_SESSION['user_name'] ?? '';
-                    $firstName = explode(' ', trim($fullName))[0];
-                    echo htmlspecialchars($firstName); 
-                ?>! Here's what's happening with ROGELE.
-            </p>
-        </div>
-        <div class="date-display">
-            <i class="fas fa-calendar" aria-hidden="true"></i>
-            <span><?php echo date('l, F j, Y'); ?></span>
-        </div>
-    </header>
-
-    <section class="stats-grid" aria-label="Key Performance Statistics">
-        <article class="stat-card">
-            <div class="stat-icon" style="background-color: #f06724;">
-                <i class="fas fa-users" aria-hidden="true"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-value"><?php echo number_format($totalUsers); ?></span>
-                <span class="stat-label">Total Users</span>
-            </div>
-        </article>
-
-        <article class="stat-card">
-            <div class="stat-icon" style="background-color: #f06724;">
-                <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-value"><?php echo number_format($totalTeachers); ?></span>
-                <span class="stat-label">Teachers</span>
-            </div>
-        </article>
-
-        <article class="stat-card">
-            <div class="stat-icon" style="background-color: #f06724;">
-                <i class="fas fa-user-graduate" aria-hidden="true"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-value"><?php echo number_format($totalLearners); ?></span>
-                <span class="stat-label">Learners</span>
-            </div>
-        </article>
-
-        <article class="stat-card">
-            <div class="stat-icon" style="background-color: #f06724;">
-                <i class="fas fa-globe" aria-hidden="true"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-value"><?php echo number_format($totalExternal); ?></span>
-                <span class="stat-label">External Users</span>
-            </div>
-        </article>
-    </section>
-
-    <section class="quick-actions">
-        <h2 class="section-title">Quick Actions</h2>
-        <div class="actions-grid">
-            <a href="<?php echo BASE_URL; ?>/admin/users/create" class="action-card">
-                <div class="action-icon">
-                    <i class="fas fa-user-plus" aria-hidden="true"></i>
-                </div>
-                <div class="action-content">
-                    <h3>Add New User</h3>
-                    <p>Create a new user account</p>
-                </div>
-                <i class="fas fa-arrow-right action-arrow" aria-hidden="true"></i>
-            </a>
-
-            <a href="<?php echo BASE_URL; ?>/admin/reports" class="action-card">
-                <div class="action-icon">
-                    <i class="fas fa-chart-bar" aria-hidden="true"></i>
-                </div>
-                <div class="action-content">
-                    <h3>Generate Report</h3>
-                    <p>View system analytics</p>
-                </div>
-                <i class="fas fa-arrow-right action-arrow" aria-hidden="true"></i>
-            </a>
-
-            <a href="<?php echo BASE_URL; ?>/admin/settings" class="action-card">
-                <div class="action-icon">
-                    <i class="fas fa-cog" aria-hidden="true"></i>
-                </div>
-                <div class="action-content">
-                    <h3>System Settings</h3>
-                    <p>Configure platform</p>
-                </div>
-                <i class="fas fa-arrow-right action-arrow" aria-hidden="true"></i>
-            </a>
-
-            <a href="<?php echo BASE_URL; ?>/admin/users" class="action-card">
-                <div class="action-icon">
-                    <i class="fas fa-users-cog" aria-hidden="true"></i>
-                </div>
-                <div class="action-content">
-                    <h3>Manage Users</h3>
-                    <p>View all users</p>
-                </div>
-                <i class="fas fa-arrow-right action-arrow" aria-hidden="true"></i>
-            </a>
-        </div>
-    </section>
-
-    <div class="dashboard-grid">
-        <section class="dashboard-card">
-            <div class="card-header">
-                <h3><i class="fas fa-user-plus" aria-hidden="true"></i> Recent Users</h3>
-                <a href="<?php echo BASE_URL; ?>/admin/users" class="view-all">View All</a>
-            </div>
-            <div class="card-body">
-                <?php if (empty($recentUsers)): ?>
-                    <p class="empty-message">No recent users</p>
-                <?php else: ?>
-                    <div class="user-list">
-                        <?php 
-                        $displayUsers = array_slice($recentUsers, 0, 4);
-                        foreach ($displayUsers as $user): 
-                        ?>
-                            <div class="user-item">
-                                <div class="user-avatar">
-                                    <?php if (!empty($user['profile_photo'])): ?>
-                                        <img src="<?php echo BASE_URL; ?>/<?php echo $user['profile_photo']; ?>" alt="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>">
-                                    <?php else: ?>
-                                        <div class="avatar-placeholder" style="background-color: #f06724;">
-                                            <?php echo strtoupper(substr($user['first_name'] ?? 'U', 0, 1) . substr($user['last_name'] ?? 'S', 0, 1)); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="user-info">
-                                    <h4><?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')); ?></h4>
-                                    <p><?php echo htmlspecialchars($user['email'] ?? ''); ?> • <?php echo ucfirst($user['role'] ?? ''); ?></p>
-                                </div>
-                                <span class="user-date"><?php echo !empty($user['created_at']) ? date('M d', strtotime($user['created_at'])) : ''; ?></span>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </section>
-
-        <section class="dashboard-card">
-            <div class="card-header">
-                <h3><i class="fas fa-history" aria-hidden="true"></i> Recent Activity</h3>
-                <a href="<?php echo BASE_URL; ?>/admin/reports?type=activity" class="view-all">View All</a>
-            </div>
-            <div class="card-body">
-                <?php if (empty($recentActivity)): ?>
-                    <p class="empty-message">No recent activity</p>
-                <?php else: ?>
-                    <div class="activity-list">
-                        <?php 
-                        $count = 0;
-                        foreach ($recentActivity as $activity): 
-                            if ($count >= 4) break;
-                            $count++;
-                        ?>
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-circle" style="color: <?php 
-                                        echo $activity['action'] == 'LOGIN' ? '#10B981' : 
-                                            ($activity['action'] == 'REGISTRATION' ? '#8B5CF6' : '#F97316'); 
-                                    ?>;"></i>
-                                </div>
-                                <div class="activity-info">
-                                    <p><?php echo htmlspecialchars($activity['description']); ?></p>
-                                    <small><?php echo date('M d, Y H:i', strtotime($activity['created_at'])); ?></small>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </section>
-    </div>
-</div>
-
 <style>
 :root {
     --primary-color: #7f2677;
@@ -623,5 +438,190 @@ $recentActivity = $recentActivity ?? [];
     }
 }
 </style>
+
+<div class="admin-dashboard">
+    <header class="dashboard-header">
+        <div class="header-text">
+            <h1 class="page-title">
+                <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                <span>Admin Dashboard</span>
+            </h1>
+            <p class="page-subtitle">
+                Welcome back, <?php 
+                    $fullName  = $_SESSION['user_name'] ?? '';
+                    $firstName = explode(' ', trim($fullName))[0];
+                    echo htmlspecialchars($firstName); 
+                ?>! Here's what's happening with ROGELE.
+            </p>
+        </div>
+        <div class="date-display">
+            <i class="fas fa-calendar" aria-hidden="true"></i>
+            <span><?php echo date('l, F j, Y'); ?></span>
+        </div>
+    </header>
+
+    <section class="stats-grid" aria-label="Key Performance Statistics">
+        <article class="stat-card">
+            <div class="stat-icon" style="background-color: #f06724;">
+                <i class="fas fa-users" aria-hidden="true"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value"><?php echo number_format($totalUsers); ?></span>
+                <span class="stat-label">Total Users</span>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-icon" style="background-color: #f06724;">
+                <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value"><?php echo number_format($totalTeachers); ?></span>
+                <span class="stat-label">Teachers</span>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-icon" style="background-color: #f06724;">
+                <i class="fas fa-user-graduate" aria-hidden="true"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value"><?php echo number_format($totalLearners); ?></span>
+                <span class="stat-label">Learners</span>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-icon" style="background-color: #f06724;">
+                <i class="fas fa-globe" aria-hidden="true"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value"><?php echo number_format($totalExternal); ?></span>
+                <span class="stat-label">External Users</span>
+            </div>
+        </article>
+    </section>
+
+    <section class="quick-actions">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="actions-grid">
+            <a href="<?php echo BASE_URL; ?>/admin/users/create" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-user-plus" aria-hidden="true"></i>
+                </div>
+                <div class="action-content">
+                    <h3>Add New User</h3>
+                    <p>Create a new user account</p>
+                </div>
+                <i class="fas fa-arrow-right action-arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="<?php echo BASE_URL; ?>/admin/reports" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                </div>
+                <div class="action-content">
+                    <h3>Generate Report</h3>
+                    <p>View system analytics</p>
+                </div>
+                <i class="fas fa-arrow-right action-arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="<?php echo BASE_URL; ?>/admin/settings" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                </div>
+                <div class="action-content">
+                    <h3>System Settings</h3>
+                    <p>Configure platform</p>
+                </div>
+                <i class="fas fa-arrow-right action-arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="<?php echo BASE_URL; ?>/admin/users" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-users-cog" aria-hidden="true"></i>
+                </div>
+                <div class="action-content">
+                    <h3>Manage Users</h3>
+                    <p>View all users</p>
+                </div>
+                <i class="fas fa-arrow-right action-arrow" aria-hidden="true"></i>
+            </a>
+        </div>
+    </section>
+
+    <div class="dashboard-grid">
+        <section class="dashboard-card">
+            <div class="card-header">
+                <h3><i class="fas fa-user-plus" aria-hidden="true"></i> Recent Users</h3>
+                <a href="<?php echo BASE_URL; ?>/admin/users" class="view-all">View All</a>
+            </div>
+            <div class="card-body">
+                <?php if (empty($recentUsers)): ?>
+                    <p class="empty-message">No recent users</p>
+                <?php else: ?>
+                    <div class="user-list">
+                        <?php 
+                        $displayUsers = array_slice($recentUsers, 0, 4);
+                        foreach ($displayUsers as $user): 
+                        ?>
+                            <div class="user-item">
+                                <div class="user-avatar">
+                                    <?php if (!empty($user['profile_photo'])): ?>
+                                        <img src="<?php echo BASE_URL; ?>/<?php echo $user['profile_photo']; ?>" alt="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>">
+                                    <?php else: ?>
+                                        <div class="avatar-placeholder" style="background-color: #f06724;">
+                                            <?php echo strtoupper(substr($user['first_name'] ?? 'U', 0, 1) . substr($user['last_name'] ?? 'S', 0, 1)); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="user-info">
+                                    <h4><?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')); ?></h4>
+                                    <p><?php echo htmlspecialchars($user['email'] ?? ''); ?> • <?php echo ucfirst($user['role'] ?? ''); ?></p>
+                                </div>
+                                <span class="user-date"><?php echo !empty($user['created_at']) ? date('M d', strtotime($user['created_at'])) : ''; ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </section>
+
+        <section class="dashboard-card">
+            <div class="card-header">
+                <h3><i class="fas fa-history" aria-hidden="true"></i> Recent Activity</h3>
+                <a href="<?php echo BASE_URL; ?>/admin/reports?type=activity" class="view-all">View All</a>
+            </div>
+            <div class="card-body">
+                <?php if (empty($recentActivity)): ?>
+                    <p class="empty-message">No recent activity</p>
+                <?php else: ?>
+                    <div class="activity-list">
+                        <?php 
+                        $count = 0;
+                        foreach ($recentActivity as $activity): 
+                            if ($count >= 4) break;
+                            $count++;
+                        ?>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-circle" style="color: <?php 
+                                        echo $activity['action'] == 'LOGIN' ? '#10B981' : 
+                                            ($activity['action'] == 'REGISTRATION' ? '#8B5CF6' : '#F97316'); 
+                                    ?>;"></i>
+                                </div>
+                                <div class="activity-info">
+                                    <p><?php echo htmlspecialchars($activity['description']); ?></p>
+                                    <small><?php echo date('M d, Y H:i', strtotime($activity['created_at'])); ?></small>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </section>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

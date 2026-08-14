@@ -4,196 +4,6 @@ $pageTitle = 'Create User | ROGELE';
 require_once __DIR__ . '/../layouts/admin_header.php';
 ?>
 
-<div class="admin-container">
-    <div class="page-header">
-        <div class="header-content">
-            <h1 class="page-title">
-                <i class="fas fa-user-plus" aria-hidden="true"></i>
-                <span>Create New User</span>
-            </h1>
-            <p class="page-subtitle">Add a new user account to the platform</p>
-        </div>
-    </div>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error" role="alert">
-            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
-            <div class="alert-content">
-                <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
-            </div>
-            <button type="button" class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
-        </div>
-    <?php endif; ?>
-
-    <div class="form-card">
-        <form method="POST" action="<?php echo BASE_URL; ?>/admin/users/create" class="admin-form" id="createUserForm">
-            <div class="form-section">
-                <h2 class="section-title">
-                    <i class="fas fa-user-circle" aria-hidden="true"></i>
-                    Basic Information
-                </h2>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="first_name">
-                            <i class="fas fa-user" aria-hidden="true"></i>
-                            First Name <span class="required">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            id="first_name" 
-                            name="first_name" 
-                            required 
-                            placeholder="Enter first name"
-                            autocomplete="given-name"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="last_name">
-                            <i class="fas fa-user" aria-hidden="true"></i>
-                            Last Name <span class="required">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            id="last_name" 
-                            name="last_name" 
-                            required 
-                            placeholder="Enter last name"
-                            autocomplete="family-name"
-                        >
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="email">
-                            <i class="fas fa-envelope" aria-hidden="true"></i>
-                            Email Address <span class="required">*</span>
-                        </label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            required 
-                            placeholder="user@example.com"
-                            autocomplete="email"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">
-                            <i class="fas fa-phone" aria-hidden="true"></i>
-                            Phone Number
-                        </label>
-                        <input 
-                            type="tel" 
-                            id="phone" 
-                            name="phone" 
-                            placeholder="+256 XXX XXX XXX"
-                            autocomplete="tel"
-                        >
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h2 class="section-title">
-                    <i class="fas fa-sliders-h" aria-hidden="true"></i>
-                    Account Settings
-                </h2>
-
-                <div class="form-row" id="role-class-row">
-                    <div class="form-group" id="role-group">
-                        <label for="role">
-                            <i class="fas fa-user-tag" aria-hidden="true"></i>
-                            User Role <span class="required">*</span>
-                        </label>
-                        <select id="role" name="role" required onchange="toggleClassField()">
-                            <option value="">Select a role</option>
-                            <option value="admin">Administrator</option>
-                            <option value="teacher">Teacher</option>
-                            <option value="learner">Learner</option>
-                            <option value="external">External User</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group class-field-hidden" id="class-field">
-                        <label for="class">
-                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
-                            Class Assignment
-                        </label>
-                        <select id="class" name="class">
-                            <option value="">Select a class</option>
-                            <option value="p1">Primary 1</option>
-                            <option value="p2">Primary 2</option>
-                            <option value="p3">Primary 3</option>
-                            <option value="p4">Primary 4</option>
-                            <option value="p5">Primary 5</option>
-                            <option value="p6">Primary 6</option>
-                            <option value="p7">Primary 7</option>
-                            <option value="comp">Computer Club</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="password">
-                            <i class="fas fa-lock" aria-hidden="true"></i>
-                            Password
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                value="Password123"
-                                placeholder="Password123"
-                                autocomplete="new-password"
-                            >
-                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password', this)" aria-label="Toggle password visibility">
-                                <i class="fas fa-eye" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                        <span class="input-hint">Default password set to "Password123".</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirm_password">
-                            <i class="fas fa-lock" aria-hidden="true"></i>
-                            Confirm Password
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input 
-                                type="password" 
-                                id="confirm_password" 
-                                name="confirm_password" 
-                                value="Password123"
-                                placeholder="Password123"
-                                autocomplete="new-password"
-                            >
-                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('confirm_password', this)" aria-label="Toggle confirm password visibility">
-                                <i class="fas fa-eye" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-check-circle" aria-hidden="true"></i>
-                    <span>Create User</span>
-                </button>
-                <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-secondary">
-                    Cancel
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -485,6 +295,196 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     }
 }
 </style>
+
+<div class="admin-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="fas fa-user-plus" aria-hidden="true"></i>
+                <span>Create New User</span>
+            </h1>
+            <p class="page-subtitle">Add a new user account to the platform</p>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error" role="alert">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <div class="alert-content">
+                <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+            </div>
+            <button type="button" class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
+        </div>
+    <?php endif; ?>
+
+    <div class="form-card">
+        <form method="POST" action="<?php echo BASE_URL; ?>/admin/users/create" class="admin-form" id="createUserForm">
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-user-circle" aria-hidden="true"></i>
+                    Basic Information
+                </h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            First Name <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="first_name" 
+                            name="first_name" 
+                            required 
+                            placeholder="Enter first name"
+                            autocomplete="given-name"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            Last Name <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="last_name" 
+                            name="last_name" 
+                            required 
+                            placeholder="Enter last name"
+                            autocomplete="family-name"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            Email Address <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required 
+                            placeholder="user@example.com"
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">
+                            <i class="fas fa-phone" aria-hidden="true"></i>
+                            Phone Number
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            placeholder="+256 XXX XXX XXX"
+                            autocomplete="tel"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-sliders-h" aria-hidden="true"></i>
+                    Account Settings
+                </h2>
+
+                <div class="form-row" id="role-class-row">
+                    <div class="form-group" id="role-group">
+                        <label for="role">
+                            <i class="fas fa-user-tag" aria-hidden="true"></i>
+                            User Role <span class="required">*</span>
+                        </label>
+                        <select id="role" name="role" required onchange="toggleClassField()">
+                            <option value="">Select a role</option>
+                            <option value="admin">Administrator</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="learner">Learner</option>
+                            <option value="external">External User</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group class-field-hidden" id="class-field">
+                        <label for="class">
+                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                            Class Assignment
+                        </label>
+                        <select id="class" name="class">
+                            <option value="">Select a class</option>
+                            <option value="p1">Primary 1</option>
+                            <option value="p2">Primary 2</option>
+                            <option value="p3">Primary 3</option>
+                            <option value="p4">Primary 4</option>
+                            <option value="p5">Primary 5</option>
+                            <option value="p6">Primary 6</option>
+                            <option value="p7">Primary 7</option>
+                            <option value="comp">Computer Club</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock" aria-hidden="true"></i>
+                            Password
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                value="Password123"
+                                placeholder="Password123"
+                                autocomplete="new-password"
+                            >
+                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password', this)" aria-label="Toggle password visibility">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <span class="input-hint">Default password set to "Password123".</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">
+                            <i class="fas fa-lock" aria-hidden="true"></i>
+                            Confirm Password
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input 
+                                type="password" 
+                                id="confirm_password" 
+                                name="confirm_password" 
+                                value="Password123"
+                                placeholder="Password123"
+                                autocomplete="new-password"
+                            >
+                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('confirm_password', this)" aria-label="Toggle confirm password visibility">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i>
+                    <span>Create User</span>
+                </button>
+                <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
 function togglePasswordVisibility(inputId, button) {

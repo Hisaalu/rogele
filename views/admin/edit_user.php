@@ -13,222 +13,6 @@ $currentRole = $user['role'] ?? 'learner';
 $fullName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
 ?>
 
-<div class="edit-user-container">
-    <header class="page-header">
-        <div>
-            <h1 class="page-title">
-                <i class="fas fa-user-edit" aria-hidden="true"></i>
-                Edit User
-            </h1>
-            <p class="page-subtitle">Editing: <strong><?php echo htmlspecialchars($fullName ?: 'User'); ?></strong></p>
-        </div>
-    </header>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error" role="alert">
-            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
-            <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success" role="status">
-            <i class="fas fa-check-circle" aria-hidden="true"></i>
-            <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <main class="form-card">
-        <form method="POST" class="edit-form" action="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo urlencode($user['id']); ?>">
-            
-            <section class="form-section">
-                <h2 class="section-title">
-                    <i class="fas fa-user" aria-hidden="true"></i>
-                    Personal Information
-                </h2>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="first_name">
-                            <i class="fas fa-user" aria-hidden="true"></i>
-                            First Name <span class="required">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            id="first_name" 
-                            name="first_name" 
-                            value="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>" 
-                            required
-                            placeholder="Enter first name"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="last_name">
-                            <i class="fas fa-user" aria-hidden="true"></i>
-                            Last Name <span class="required">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            id="last_name" 
-                            name="last_name" 
-                            value="<?php echo htmlspecialchars($user['last_name'] ?? ''); ?>" 
-                            required
-                            placeholder="Enter last name"
-                        >
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="email">
-                            <i class="fas fa-envelope" aria-hidden="true"></i>
-                            Email Address <span class="required">*</span>
-                        </label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" 
-                            required
-                            placeholder="user@example.com"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">
-                            <i class="fas fa-phone" aria-hidden="true"></i>
-                            Phone Number
-                        </label>
-                        <input 
-                            type="tel" 
-                            id="phone" 
-                            name="phone" 
-                            value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" 
-                            placeholder="+256 XXX XXX XXX"
-                        >
-                    </div>
-                </div>
-            </section>
-
-            <section class="form-section">
-                <h2 class="section-title">
-                    <i class="fas fa-cog" aria-hidden="true"></i>
-                    Account Settings
-                </h2>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="role">
-                            <i class="fas fa-user-tag" aria-hidden="true"></i>
-                            User Role <span class="required">*</span>
-                        </label>
-                        <select id="role" name="role" required onchange="toggleClassSection(this.value)">
-                            <option value="admin" <?php echo $currentRole === 'admin' ? 'selected' : ''; ?>>Administrator</option>
-                            <option value="teacher" <?php echo $currentRole === 'teacher' ? 'selected' : ''; ?>>Teacher</option>
-                            <option value="learner" <?php echo $currentRole === 'learner' ? 'selected' : ''; ?>>Learner</option>
-                            <option value="external" <?php echo $currentRole === 'external' ? 'selected' : ''; ?>>External User</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="status">
-                            <i class="fas fa-toggle-on" aria-hidden="true"></i>
-                            Account Status
-                        </label>
-                        <select id="status" name="status">
-                            <option value="active" <?php echo (!($user['is_suspended'] ?? false) && ($user['is_active'] ?? true)) ? 'selected' : ''; ?>>Active</option>
-                            <option value="suspended" <?php echo ($user['is_suspended'] ?? false) ? 'selected' : ''; ?>>Suspended</option>
-                            <option value="inactive" <?php echo !($user['is_active'] ?? true) ? 'selected' : ''; ?>>Inactive</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <section class="form-section" id="class-section" style="<?php echo in_array($currentRole, ['learner', 'external']) ? '' : 'display: none;'; ?>">
-                <h2 class="section-title">
-                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
-                    Class Assignment
-                </h2>
-
-                <div class="form-group">
-                    <label for="class_id">
-                        <i class="fas fa-graduation-cap" aria-hidden="true"></i>
-                        Assigned Class
-                    </label>
-                    <select id="class_id" name="class_id">
-                        <option value="">No Class Assigned</option>
-                        <?php foreach ($classes as $class): ?>
-                            <option value="<?php echo htmlspecialchars($class['id']); ?>" <?php echo (($user['class_id'] ?? '') == $class['id']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($class['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <small class="form-hint">Select the class this student belongs to</small>
-                </div>
-            </section>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-save">
-                    <i class="fas fa-save" aria-hidden="true"></i>
-                    Update User
-                </button>
-                <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-cancel">
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                    Cancel
-                </a>
-            </div>
-        </form>
-    </main>
-
-    <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] != $user['id']): ?>
-    <section class="danger-zone">
-        <div class="danger-header">
-            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-            <h3>Danger Zone</h3>
-        </div>
-        <div class="danger-content">
-            <div class="danger-item">
-                <div class="danger-info">
-                    <i class="fas fa-ban" aria-hidden="true"></i>
-                    <div>
-                        <strong>Suspend User</strong>
-                        <p>Temporarily disable this user's access to the platform</p>
-                    </div>
-                </div>
-                <?php if ($user['is_suspended'] ?? false): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/users/activate/<?php echo urlencode($user['id']); ?>" class="btn-action btn-activate" onclick="return confirm('Activate this user?')">
-                        <i class="fas fa-check-circle" aria-hidden="true"></i>
-                        Activate User
-                    </a>
-                <?php else: ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/users/suspend/<?php echo urlencode($user['id']); ?>" class="btn-action btn-suspend" onclick="return confirm('Suspend this user? They will not be able to log in.')">
-                        <i class="fas fa-ban" aria-hidden="true"></i>
-                        Suspend User
-                    </a>
-                <?php endif; ?>
-            </div>
-            
-            <div class="danger-item">
-                <div class="danger-info">
-                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                    <div>
-                        <strong>Delete User</strong>
-                        <p>Permanently delete this user and all associated data</p>
-                    </div>
-                </div>
-                <a href="<?php echo BASE_URL; ?>/admin/users/delete/<?php echo urlencode($user['id']); ?>" 
-                   class="btn-action btn-delete" 
-                   onclick="return confirmDelete('<?php echo htmlspecialchars(addslashes($fullName), ENT_QUOTES); ?>')">
-                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                    Delete User
-                </a>
-            </div>
-        </div>
-    </section>
-    <?php endif; ?>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -603,6 +387,222 @@ $fullName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))
     }
 }
 </style>
+
+<div class="edit-user-container">
+    <header class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-user-edit" aria-hidden="true"></i>
+                Edit User
+            </h1>
+            <p class="page-subtitle">Editing: <strong><?php echo htmlspecialchars($fullName ?: 'User'); ?></strong></p>
+        </div>
+    </header>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error" role="alert">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success" role="status">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <main class="form-card">
+        <form method="POST" class="edit-form" action="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo urlencode($user['id']); ?>">
+            
+            <section class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    Personal Information
+                </h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            First Name <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="first_name" 
+                            name="first_name" 
+                            value="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>" 
+                            required
+                            placeholder="Enter first name"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            Last Name <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="last_name" 
+                            name="last_name" 
+                            value="<?php echo htmlspecialchars($user['last_name'] ?? ''); ?>" 
+                            required
+                            placeholder="Enter last name"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            Email Address <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" 
+                            required
+                            placeholder="user@example.com"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">
+                            <i class="fas fa-phone" aria-hidden="true"></i>
+                            Phone Number
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" 
+                            placeholder="+256 XXX XXX XXX"
+                        >
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    Account Settings
+                </h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="role">
+                            <i class="fas fa-user-tag" aria-hidden="true"></i>
+                            User Role <span class="required">*</span>
+                        </label>
+                        <select id="role" name="role" required onchange="toggleClassSection(this.value)">
+                            <option value="admin" <?php echo $currentRole === 'admin' ? 'selected' : ''; ?>>Administrator</option>
+                            <option value="teacher" <?php echo $currentRole === 'teacher' ? 'selected' : ''; ?>>Teacher</option>
+                            <option value="learner" <?php echo $currentRole === 'learner' ? 'selected' : ''; ?>>Learner</option>
+                            <option value="external" <?php echo $currentRole === 'external' ? 'selected' : ''; ?>>External User</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">
+                            <i class="fas fa-toggle-on" aria-hidden="true"></i>
+                            Account Status
+                        </label>
+                        <select id="status" name="status">
+                            <option value="active" <?php echo (!($user['is_suspended'] ?? false) && ($user['is_active'] ?? true)) ? 'selected' : ''; ?>>Active</option>
+                            <option value="suspended" <?php echo ($user['is_suspended'] ?? false) ? 'selected' : ''; ?>>Suspended</option>
+                            <option value="inactive" <?php echo !($user['is_active'] ?? true) ? 'selected' : ''; ?>>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section" id="class-section" style="<?php echo in_array($currentRole, ['learner', 'external']) ? '' : 'display: none;'; ?>">
+                <h2 class="section-title">
+                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                    Class Assignment
+                </h2>
+
+                <div class="form-group">
+                    <label for="class_id">
+                        <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                        Assigned Class
+                    </label>
+                    <select id="class_id" name="class_id">
+                        <option value="">No Class Assigned</option>
+                        <?php foreach ($classes as $class): ?>
+                            <option value="<?php echo htmlspecialchars($class['id']); ?>" <?php echo (($user['class_id'] ?? '') == $class['id']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($class['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="form-hint">Select the class this student belongs to</small>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save" aria-hidden="true"></i>
+                    Update User
+                </button>
+                <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-cancel">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </main>
+
+    <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] != $user['id']): ?>
+    <section class="danger-zone">
+        <div class="danger-header">
+            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+            <h3>Danger Zone</h3>
+        </div>
+        <div class="danger-content">
+            <div class="danger-item">
+                <div class="danger-info">
+                    <i class="fas fa-ban" aria-hidden="true"></i>
+                    <div>
+                        <strong>Suspend User</strong>
+                        <p>Temporarily disable this user's access to the platform</p>
+                    </div>
+                </div>
+                <?php if ($user['is_suspended'] ?? false): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/users/activate/<?php echo urlencode($user['id']); ?>" class="btn-action btn-activate" onclick="return confirm('Activate this user?')">
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        Activate User
+                    </a>
+                <?php else: ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/users/suspend/<?php echo urlencode($user['id']); ?>" class="btn-action btn-suspend" onclick="return confirm('Suspend this user? They will not be able to log in.')">
+                        <i class="fas fa-ban" aria-hidden="true"></i>
+                        Suspend User
+                    </a>
+                <?php endif; ?>
+            </div>
+            
+            <div class="danger-item">
+                <div class="danger-info">
+                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                    <div>
+                        <strong>Delete User</strong>
+                        <p>Permanently delete this user and all associated data</p>
+                    </div>
+                </div>
+                <a href="<?php echo BASE_URL; ?>/admin/users/delete/<?php echo urlencode($user['id']); ?>" 
+                   class="btn-action btn-delete" 
+                   onclick="return confirmDelete('<?php echo htmlspecialchars(addslashes($fullName), ENT_QUOTES); ?>')">
+                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                    Delete User
+                </a>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+</div>
 
 <script>
 function toggleClassSection(role) {

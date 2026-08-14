@@ -3,144 +3,8 @@
 $pageTitle = 'Preview: ' . ($quiz['title'] ?? 'Quiz') . ' | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Retrieve deadline with proper fallback
 $deadlineRaw = $quiz['end_date'] ?? $quiz['deadline'] ?? $quiz['due_date'] ?? null;
 ?>
-
-<div class="preview-container">
-    <div class="preview-header">
-        <div class="header-content">
-            <h1><i class="fas fa-eye"></i> Preview: <?php echo htmlspecialchars($quiz['title'] ?? 'Quiz'); ?></h1>
-            <p class="subtitle">This is how students will see the quiz</p>
-        </div>
-        <div class="header-actions">
-            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-back">
-                <i class="fas fa-arrow-left"></i> Back to Quizzes
-            </a>
-            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-edit">
-                <i class="fas fa-edit"></i> Edit Quiz
-            </a>
-        </div>
-    </div>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <?php if (empty($questions)): ?>
-        <div class="no-questions">
-            <div class="no-questions-icon">
-                <i class="fas fa-question-circle"></i>
-            </div>
-            <h3>No Questions Added Yet</h3>
-            <p>This quiz doesn't have any questions. Add questions to preview.</p>
-            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-add-questions">
-                <i class="fas fa-plus"></i> Add Questions
-            </a>
-        </div>
-    <?php else: ?>
-        <!-- Quiz Info Card -->
-        <div class="quiz-info-card">
-            <div class="quiz-stats">
-                <div class="stat">
-                    <i class="fas fa-question-circle"></i>
-                    <span><?php echo count($questions); ?> Questions</span>
-                </div>
-                <div class="stat">
-                    <i class="fas fa-clock"></i>
-                    <span><?php echo $quiz['time_limit'] ?? 'NA'; ?> minutes</span>
-                </div>
-                <div class="stat">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>
-                        <?php if ($deadlineRaw): ?>
-                            Deadline: <?php echo date('M d, Y h:i A', strtotime($deadlineRaw)); ?>
-                        <?php else: ?>
-                            No Deadline
-                        <?php endif; ?>
-                    </span>
-                </div>
-                <div class="stat">
-                    <i class="fas fa-trophy"></i>
-                    <span><?php echo $quiz['passing_score'] ?? 'NA'; ?>% to pass</span>
-                </div>
-                <div class="stat">
-                    <i class="fas fa-redo-alt"></i>
-                    <span><?php echo $quiz['max_attempts'] ?? 'NA'; ?> attempts allowed</span>
-                </div>
-            </div>
-            <?php if (!empty($quiz['description'])): ?>
-                <div class="quiz-description">
-                    <strong>Description:</strong>
-                    <p><?php echo nl2br(htmlspecialchars($quiz['description'])); ?></p>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Questions Preview -->
-        <div class="questions-preview">
-            <h2><i class="fas fa-list"></i> Questions (<?php echo count($questions); ?>)</h2>
-            
-            <?php foreach ($questions as $index => $question): ?>
-                <div class="question-preview-card">
-                    <div class="question-header">
-                        <span class="question-number">Question <?php echo $index + 1; ?></span>
-                        <span class="question-points"><?php echo $question['points'] ?? 1; ?> point(s)</span>
-                    </div>
-                    
-                    <div class="question-text">
-                        <?php echo htmlspecialchars($question['question_text']); ?>
-                    </div>
-                    
-                    <div class="options-preview">
-                        <?php 
-                        $letters = ['A', 'B', 'C', 'D'];
-                        $options = $question['options'] ?? [];
-                        $correctIndex = $question['correct_option'] ?? 0;
-                        
-                        foreach ($options as $optIndex => $option):
-                            $isCorrect = ($optIndex == $correctIndex);
-                        ?>
-                            <div class="option-preview <?php echo $isCorrect ? 'correct-option' : ''; ?>">
-                                <span class="option-letter"><?php echo $letters[$optIndex]; ?></span>
-                                <span class="option-text"><?php echo htmlspecialchars($option); ?></span>
-                                <?php if ($isCorrect): ?>
-                                    <span class="correct-badge"><i class="fas fa-check-circle"></i> Correct Answer</span>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                    
-                    <?php if (!empty($question['explanation'])): ?>
-                        <div class="explanation">
-                            <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
-                            <p><?php echo htmlspecialchars($question['explanation']); ?></p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        
-        <!-- Preview Actions -->
-        <div class="preview-actions">
-            <div class="preview-note">
-                <i class="fas fa-info-circle"></i>
-                <span>This is a preview. Students will see the quiz in a similar format but with interactive elements and timer.</span>
-            </div>
-            <div class="action-buttons">
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-edit-questions">
-                    <i class="fas fa-edit"></i> Edit Questions
-                </a>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-done">
-                    <i class="fas fa-check"></i> Done
-                </a>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
 
 <style>
 .preview-container {
@@ -502,5 +366,137 @@ $deadlineRaw = $quiz['end_date'] ?? $quiz['deadline'] ?? $quiz['due_date'] ?? nu
     }
 }
 </style>
+
+<div class="preview-container">
+    <div class="preview-header">
+        <div class="header-content">
+            <h1><i class="fas fa-eye"></i> Preview: <?php echo htmlspecialchars($quiz['title'] ?? 'Quiz'); ?></h1>
+            <p class="subtitle">This is how students will see the quiz</p>
+        </div>
+        <div class="header-actions">
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Quizzes
+            </a>
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-edit">
+                <i class="fas fa-edit"></i> Edit Quiz
+            </a>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <?php if (empty($questions)): ?>
+        <div class="no-questions">
+            <div class="no-questions-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h3>No Questions Added Yet</h3>
+            <p>This quiz doesn't have any questions. Add questions to preview.</p>
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-add-questions">
+                <i class="fas fa-plus"></i> Add Questions
+            </a>
+        </div>
+    <?php else: ?>
+        <div class="quiz-info-card">
+            <div class="quiz-stats">
+                <div class="stat">
+                    <i class="fas fa-question-circle"></i>
+                    <span><?php echo count($questions); ?> Questions</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-clock"></i>
+                    <span><?php echo $quiz['time_limit'] ?? 'NA'; ?> minutes</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>
+                        <?php if ($deadlineRaw): ?>
+                            Deadline: <?php echo date('M d, Y h:i A', strtotime($deadlineRaw)); ?>
+                        <?php else: ?>
+                            No Deadline
+                        <?php endif; ?>
+                    </span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-trophy"></i>
+                    <span><?php echo $quiz['passing_score'] ?? 'NA'; ?>% to pass</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-redo-alt"></i>
+                    <span><?php echo $quiz['max_attempts'] ?? 'NA'; ?> attempts allowed</span>
+                </div>
+            </div>
+            <?php if (!empty($quiz['description'])): ?>
+                <div class="quiz-description">
+                    <strong>Description:</strong>
+                    <p><?php echo nl2br(htmlspecialchars($quiz['description'])); ?></p>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="questions-preview">
+            <h2><i class="fas fa-list"></i> Questions (<?php echo count($questions); ?>)</h2>
+            
+            <?php foreach ($questions as $index => $question): ?>
+                <div class="question-preview-card">
+                    <div class="question-header">
+                        <span class="question-number">Question <?php echo $index + 1; ?></span>
+                        <span class="question-points"><?php echo $question['points'] ?? 1; ?> point(s)</span>
+                    </div>
+                    
+                    <div class="question-text">
+                        <?php echo htmlspecialchars($question['question_text']); ?>
+                    </div>
+                    
+                    <div class="options-preview">
+                        <?php 
+                        $letters = ['A', 'B', 'C', 'D'];
+                        $options = $question['options'] ?? [];
+                        $correctIndex = $question['correct_option'] ?? 0;
+                        
+                        foreach ($options as $optIndex => $option):
+                            $isCorrect = ($optIndex == $correctIndex);
+                        ?>
+                            <div class="option-preview <?php echo $isCorrect ? 'correct-option' : ''; ?>">
+                                <span class="option-letter"><?php echo $letters[$optIndex]; ?></span>
+                                <span class="option-text"><?php echo htmlspecialchars($option); ?></span>
+                                <?php if ($isCorrect): ?>
+                                    <span class="correct-badge"><i class="fas fa-check-circle"></i> Correct Answer</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <?php if (!empty($question['explanation'])): ?>
+                        <div class="explanation">
+                            <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
+                            <p><?php echo htmlspecialchars($question['explanation']); ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="preview-actions">
+            <div class="preview-note">
+                <i class="fas fa-info-circle"></i>
+                <span>This is a preview. Students will see the quiz in a similar format but with interactive elements and timer.</span>
+            </div>
+            <div class="action-buttons">
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="btn-edit-questions">
+                    <i class="fas fa-edit"></i> Edit Questions
+                </a>
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="btn-done">
+                    <i class="fas fa-check"></i> Done
+                </a>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

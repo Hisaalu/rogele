@@ -8,169 +8,6 @@ $results = $results ?? [];
 $stats = $stats ?? [];
 ?>
 
-<div class="results-container">
-    <div class="page-header">
-        <div>
-            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Quizzes
-            </a>
-            <h1 class="page-title">
-                <i class="fas fa-chart-bar"></i>
-                Quiz Results: <?php echo htmlspecialchars($quiz['title'] ?? ''); ?>
-            </h1>
-            <p class="page-subtitle">View student performance and statistics</p>
-        </div>
-        
-        <!-- Download Buttons -->
-        <div class="download-actions">
-            <!-- <button onclick="downloadResults('csv')" class="btn-download csv">
-                <i class="fas fa-file-csv"></i> Download CSV
-            </button> -->
-            <button onclick="downloadResults('excel')" class="btn-download excel">
-                <i class="fas fa-file-excel"></i> Download Excel
-            </button>
-            <button onclick="confirmDeleteAttempts()" class="btn-download delete">
-                <i class="fas fa-trash-alt"></i> Delete All Attempts
-            </button>
-        </div>
-    </div>
-
-    <?php if (!empty($stats)): ?>
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Total Attempts</span>
-                <span class="stat-value"><?php echo $stats['overall']['total_attempts'] ?? 0; ?></span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                <i class="fas fa-user-graduate"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Unique Students</span>
-                <span class="stat-value"><?php echo $stats['overall']['unique_students'] ?? 0; ?></span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: #f06724; ">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Average Score</span>
-                <span class="stat-value"><?php echo round($stats['overall']['average_score'] ?? 0, 1); ?>%</span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: #7f2677;">
-                <i class="fas fa-trophy"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Passing Rate</span>
-                <span class="stat-value"><?php echo round($stats['overall']['pass_rate'] ?? 0, 1); ?>%</span>
-            </div>
-        </div>
-    </div>
-
-    <?php if (!empty($stats['distribution'])): ?>
-    <div class="chart-card">
-        <div class="card-header">
-            <h3><i class="fas fa-chart-pie"></i> Score Distribution</h3>
-        </div>
-        <div class="card-body">
-            <canvas id="distributionChart"></canvas>
-        </div>
-    </div>
-    <?php endif; ?>
-    <?php endif; ?>
-
-    <div class="results-card">
-        <div class="card-header">
-            <h3><i class="fas fa-list"></i> Student Attempts</h3>
-            <div class="header-actions">
-                <span class="result-count"><?php echo count($results); ?> attempts</span>
-                <button onclick="copyTableToClipboard()" class="btn-icon" title="Copy to clipboard">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </div>
-        </div>
-
-        <?php if (empty($results)): ?>
-            <div class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h3>No Results Yet</h3>
-                <p>No students have taken this quiz yet.</p>
-            </div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="results-table" id="resultsTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Student</th>
-                            <th>Email</th>
-                            <th>Score (%)</th>
-                            <th>Result</th>
-                            <th>Date</th>
-                        </thead>
-                    <tbody>
-                        <?php $counter = 1; ?>
-                        <?php foreach ($results as $result): ?>
-                        <tr>
-                            <td><?php echo $counter++; ?></td>
-                            <td class="student-cell">
-                                <strong><?php echo htmlspecialchars($result['first_name'] . ' ' . $result['last_name']); ?></strong>
-                            </td>
-                            <td><?php echo htmlspecialchars($result['email']); ?></td>
-                            <td class="score-cell <?php echo $result['score'] >= ($quiz['passing_score'] ?? 50) ? 'passed' : 'failed'; ?>">
-                                <?php echo number_format($result['score'], 0); ?>
-                            </td>
-                            <td>
-                                <?php if ($result['score'] >= ($quiz['passing_score'] ?? 50)): ?>
-                                    <span class="badge passed">Passed</span>
-                                <?php else: ?>
-                                    <span class="badge failed">Failed</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?php echo date('M d, Y H:i', strtotime($result['completed_at'])); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
-
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-exclamation-triangle"></i> Delete All Attempts</h3>
-            <span class="modal-close">&times;</span>
-        </div>
-        <div class="modal-body">
-            <p>Are you sure you want to delete <strong>ALL <?php echo count($results); ?> attempts</strong> for this quiz?</p>
-            <p class="warning-text">This action cannot be undone. First download the student scores and attempts cause when you delete, all the data will be permanently removed!</p>
-            <div class="confirm-input">
-                <label>Type <strong>"DELETE"</strong> to confirm:</label>
-                <input type="text" id="confirmDeleteInput" placeholder="DELETE" class="confirm-input-field">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel-modal">Cancel</button>
-            <button id="confirmDeleteBtn" class="btn-delete-confirm" disabled>
-                <i class="fas fa-trash-alt"></i> Delete All Attempts
-            </button>
-        </div>
-    </div>
-</div>
-
 <style>
 .results-container {
     max-width: 1400px;
@@ -664,6 +501,168 @@ $stats = $stats ?? [];
 }
 
 </style>
+
+<div class="results-container">
+    <div class="page-header">
+        <div>
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Quizzes
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-chart-bar"></i>
+                Quiz Results: <?php echo htmlspecialchars($quiz['title'] ?? ''); ?>
+            </h1>
+            <p class="page-subtitle">View student performance and statistics</p>
+        </div>
+        
+        <div class="download-actions">
+            <!-- <button onclick="downloadResults('csv')" class="btn-download csv">
+                <i class="fas fa-file-csv"></i> Download CSV
+            </button> -->
+            <button onclick="downloadResults('excel')" class="btn-download excel">
+                <i class="fas fa-file-excel"></i> Download Excel
+            </button>
+            <button onclick="confirmDeleteAttempts()" class="btn-download delete">
+                <i class="fas fa-trash-alt"></i> Delete All Attempts
+            </button>
+        </div>
+    </div>
+
+    <?php if (!empty($stats)): ?>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Total Attempts</span>
+                <span class="stat-value"><?php echo $stats['overall']['total_attempts'] ?? 0; ?></span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Unique Students</span>
+                <span class="stat-value"><?php echo $stats['overall']['unique_students'] ?? 0; ?></span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #f06724; ">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Average Score</span>
+                <span class="stat-value"><?php echo round($stats['overall']['average_score'] ?? 0, 1); ?>%</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #7f2677;">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Passing Rate</span>
+                <span class="stat-value"><?php echo round($stats['overall']['pass_rate'] ?? 0, 1); ?>%</span>
+            </div>
+        </div>
+    </div>
+
+    <?php if (!empty($stats['distribution'])): ?>
+    <div class="chart-card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-pie"></i> Score Distribution</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="distributionChart"></canvas>
+        </div>
+    </div>
+    <?php endif; ?>
+    <?php endif; ?>
+
+    <div class="results-card">
+        <div class="card-header">
+            <h3><i class="fas fa-list"></i> Student Attempts</h3>
+            <div class="header-actions">
+                <span class="result-count"><?php echo count($results); ?> attempts</span>
+                <button onclick="copyTableToClipboard()" class="btn-icon" title="Copy to clipboard">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+
+        <?php if (empty($results)): ?>
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No Results Yet</h3>
+                <p>No students have taken this quiz yet.</p>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="results-table" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>Score (%)</th>
+                            <th>Result</th>
+                            <th>Date</th>
+                        </thead>
+                    <tbody>
+                        <?php $counter = 1; ?>
+                        <?php foreach ($results as $result): ?>
+                        <tr>
+                            <td><?php echo $counter++; ?></td>
+                            <td class="student-cell">
+                                <strong><?php echo htmlspecialchars($result['first_name'] . ' ' . $result['last_name']); ?></strong>
+                            </td>
+                            <td><?php echo htmlspecialchars($result['email']); ?></td>
+                            <td class="score-cell <?php echo $result['score'] >= ($quiz['passing_score'] ?? 50) ? 'passed' : 'failed'; ?>">
+                                <?php echo number_format($result['score'], 0); ?>
+                            </td>
+                            <td>
+                                <?php if ($result['score'] >= ($quiz['passing_score'] ?? 50)): ?>
+                                    <span class="badge passed">Passed</span>
+                                <?php else: ?>
+                                    <span class="badge failed">Failed</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo date('M d, Y H:i', strtotime($result['completed_at'])); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Delete All Attempts</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <strong>ALL <?php echo count($results); ?> attempts</strong> for this quiz?</p>
+            <p class="warning-text">This action cannot be undone. First download the student scores and attempts cause when you delete, all the data will be permanently removed!</p>
+            <div class="confirm-input">
+                <label>Type <strong>"DELETE"</strong> to confirm:</label>
+                <input type="text" id="confirmDeleteInput" placeholder="DELETE" class="confirm-input-field">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal">Cancel</button>
+            <button id="confirmDeleteBtn" class="btn-delete-confirm" disabled>
+                <i class="fas fa-trash-alt"></i> Delete All Attempts
+            </button>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 

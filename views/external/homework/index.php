@@ -7,131 +7,6 @@ $stats = $stats ?? [];
 $currentStatus = $_GET['status'] ?? '';
 ?>
 
-<div class="student-homework-container">
-    <div class="page-header">
-        <h1 class="page-title">
-            <i class="fas fa-tasks"></i>
-            My Homework
-        </h1>
-        <p class="page-subtitle">View and submit your assignments</p>
-    </div>
-
-    <!-- Stats Overview -->
-    <div class="stats-overview">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: #f06724;">
-                <i class="fas fa-list"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value"><?php echo $stats['total'] ?? 0; ?></span>
-                <span class="stat-label">Total Assignments</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background: #f06724;">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value"><?php echo $stats['pending'] ?? 0; ?></span>
-                <span class="stat-label">Pending</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background: #f06724;">
-                <i class="fas fa-star"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value"><?php echo $stats['graded'] ?? 0; ?></span>
-                <span class="stat-label">Graded</span>
-            </div>
-        </div>
-    </div>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <div class="filter-tabs">
-        <a href="<?php echo BASE_URL; ?>/external/homework" class="filter-tab <?php echo empty($currentStatus) ? 'active' : ''; ?>">
-            <i class="fas fa-list"></i> All
-        </a>
-        <a href="<?php echo BASE_URL; ?>/external/homework?status=pending" class="filter-tab <?php echo $currentStatus === 'pending' ? 'active' : ''; ?>">
-            <i class="fas fa-clock"></i> Pending
-        </a>
-        <a href="<?php echo BASE_URL; ?>/external/homework?status=graded" class="filter-tab <?php echo $currentStatus === 'graded' ? 'active' : ''; ?>">
-            <i class="fas fa-star"></i> Graded
-        </a>
-    </div>
-
-    <?php if (empty($homeworks)): ?>
-        <div class="empty-state">
-            <i class="fas fa-tasks"></i>
-            <h3>No Homework Assigned</h3>
-            <p>You don't have any homework at the moment. Check back later!</p>
-        </div>
-    <?php else: ?>
-        <div class="homework-grid">
-            <?php foreach ($homeworks as $homework): 
-                $isLate = !$homework['submission_id'] && strtotime($homework['due_date']) < time();
-                $submissionStatus = $homework['submission_status'] ?? 'pending';
-                $statusClass = $submissionStatus === 'graded' ? 'graded' : ($submissionStatus === 'submitted' ? 'submitted' : ($isLate ? 'late' : 'pending'));
-                $isExpired = strtotime($homework['due_date']) < time();
-            ?>
-                <div class="homework-card status-<?php echo $statusClass; ?>">
-                    <div class="homework-header">
-                        <div class="homework-title">
-                            <i class="fas fa-file-alt"></i>
-                            <?php echo htmlspecialchars($homework['title']); ?>
-                        </div>
-                        <div class="homework-status">
-                            <?php if ($submissionStatus === 'graded'): ?>
-                                <span class="badge graded">Graded</span>
-                            <?php elseif ($submissionStatus === 'submitted'): ?>
-                                <span class="badge submitted">Submitted</span>
-                            <?php elseif ($isLate): ?>
-                                <span class="badge late">Late</span>
-                            <?php else: ?>
-                                <span class="badge pending">Pending</span>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    
-                    <div class="homework-meta">
-                        <span><i class="fas fa-book"></i> <?php echo htmlspecialchars($homework['subject_name']); ?></span>
-                        <span><i class="fas fa-calendar-alt"></i> Due: <?php echo date('M d, Y h:i A', strtotime($homework['due_date'])); ?></span>
-                    </div>
-                    
-                    <p class="homework-description">
-                        <?php echo substr(htmlspecialchars($homework['description'] ?? ''), 0, 120); ?>
-                    </p>
-                    
-                    <?php if ($submissionStatus === 'graded' && isset($homework['grade'])): ?>
-                        <div class="grade-info">
-                            <span class="grade-label">Grade:</span>
-                            <span class="grade-value"><?php echo $homework['grade']; ?>%</span>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <a href="<?php echo BASE_URL; ?>/external/homework/view/<?php echo $homework['id']; ?>" class="btn-view">
-                        <?php echo $submissionStatus === 'graded' ? 'View Feedback' : ($submissionStatus === 'submitted' ? 'View Submission' : 'View / Submit Homework'); ?>
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-</div>
-
 <style>
 .student-homework-container {
     max-width: 1400px;
@@ -153,7 +28,6 @@ $currentStatus = $_GET['status'] ?? '';
     font-size: 0.95rem;
 }
 
-/* Stats Overview */
 .stats-overview {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -199,7 +73,6 @@ $currentStatus = $_GET['status'] ?? '';
     color: #555;
 }
 
-/* Filter Tabs */
 .filter-tabs {
     display: flex;
     gap: 10px;
@@ -237,7 +110,6 @@ $currentStatus = $_GET['status'] ?? '';
     background: #F1F5F9;
 }
 
-/* Homework Grid */
 .homework-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
@@ -388,5 +260,129 @@ $currentStatus = $_GET['status'] ?? '';
     }
 }
 </style>
+
+<div class="student-homework-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-tasks"></i>
+            My Homework
+        </h1>
+        <p class="page-subtitle">View and submit your assignments</p>
+    </div>
+
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #f06724;">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value"><?php echo $stats['total'] ?? 0; ?></span>
+                <span class="stat-label">Total Assignments</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #f06724;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value"><?php echo $stats['pending'] ?? 0; ?></span>
+                <span class="stat-label">Pending</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #f06724;">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value"><?php echo $stats['graded'] ?? 0; ?></span>
+                <span class="stat-label">Graded</span>
+            </div>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="filter-tabs">
+        <a href="<?php echo BASE_URL; ?>/external/homework" class="filter-tab <?php echo empty($currentStatus) ? 'active' : ''; ?>">
+            <i class="fas fa-list"></i> All
+        </a>
+        <a href="<?php echo BASE_URL; ?>/external/homework?status=pending" class="filter-tab <?php echo $currentStatus === 'pending' ? 'active' : ''; ?>">
+            <i class="fas fa-clock"></i> Pending
+        </a>
+        <a href="<?php echo BASE_URL; ?>/external/homework?status=graded" class="filter-tab <?php echo $currentStatus === 'graded' ? 'active' : ''; ?>">
+            <i class="fas fa-star"></i> Graded
+        </a>
+    </div>
+
+    <?php if (empty($homeworks)): ?>
+        <div class="empty-state">
+            <i class="fas fa-tasks"></i>
+            <h3>No Homework Assigned</h3>
+            <p>You don't have any homework at the moment. Check back later!</p>
+        </div>
+    <?php else: ?>
+        <div class="homework-grid">
+            <?php foreach ($homeworks as $homework): 
+                $isLate = !$homework['submission_id'] && strtotime($homework['due_date']) < time();
+                $submissionStatus = $homework['submission_status'] ?? 'pending';
+                $statusClass = $submissionStatus === 'graded' ? 'graded' : ($submissionStatus === 'submitted' ? 'submitted' : ($isLate ? 'late' : 'pending'));
+                $isExpired = strtotime($homework['due_date']) < time();
+            ?>
+                <div class="homework-card status-<?php echo $statusClass; ?>">
+                    <div class="homework-header">
+                        <div class="homework-title">
+                            <i class="fas fa-file-alt"></i>
+                            <?php echo htmlspecialchars($homework['title']); ?>
+                        </div>
+                        <div class="homework-status">
+                            <?php if ($submissionStatus === 'graded'): ?>
+                                <span class="badge graded">Graded</span>
+                            <?php elseif ($submissionStatus === 'submitted'): ?>
+                                <span class="badge submitted">Submitted</span>
+                            <?php elseif ($isLate): ?>
+                                <span class="badge late">Late</span>
+                            <?php else: ?>
+                                <span class="badge pending">Pending</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <div class="homework-meta">
+                        <span><i class="fas fa-book"></i> <?php echo htmlspecialchars($homework['subject_name']); ?></span>
+                        <span><i class="fas fa-calendar-alt"></i> Due: <?php echo date('M d, Y h:i A', strtotime($homework['due_date'])); ?></span>
+                    </div>
+                    
+                    <p class="homework-description">
+                        <?php echo substr(htmlspecialchars($homework['description'] ?? ''), 0, 120); ?>
+                    </p>
+                    
+                    <?php if ($submissionStatus === 'graded' && isset($homework['grade'])): ?>
+                        <div class="grade-info">
+                            <span class="grade-label">Grade:</span>
+                            <span class="grade-value"><?php echo $homework['grade']; ?>%</span>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <a href="<?php echo BASE_URL; ?>/external/homework/view/<?php echo $homework['id']; ?>" class="btn-view">
+                        <?php echo $submissionStatus === 'graded' ? 'View Feedback' : ($submissionStatus === 'submitted' ? 'View Submission' : 'View / Submit Homework'); ?>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>

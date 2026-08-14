@@ -19,96 +19,6 @@ $attemptIdValue = $attemptId;
 $endTime = time() + $timeLimitSeconds;
 ?>
 
-<div class="quiz-take-container">
-    <div class="sticky-timer-bar" id="stickyTimerBar">
-        <div class="sticky-timer-content">
-            <div class="sticky-timer-info">
-                <i class="fas fa-hourglass-half"></i>
-                <span id="stickyTimerDisplay">Loading...</span>
-            </div>
-            <div class="sticky-progress-info">
-                <i class="fas fa-check-circle"></i>
-                <span id="stickyAnsweredCount">0</span> of <?php echo count($questions); ?> Answered
-            </div>
-        </div>
-    </div>
-
-    <div class="quiz-header">
-        <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
-        
-        <div class="quiz-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            <div>
-                <strong>Important Notice:</strong>
-                <p>Your answers are saved automatically. Do NOT refresh or close the browser.</p>
-            </div>
-        </div>
-        
-        <div class="quiz-stats">
-            <div class="stat">
-                <i class="fas fa-question-circle"></i>
-                <span><?php echo count($questions); ?> Questions</span>
-            </div>
-            <div class="stat">
-                <i class="fas fa-hourglass-half"></i>
-                <span id="timerDisplay">Loading...</span>
-            </div>
-            <div class="stat" id="answeredStat">
-                <i class="fas fa-check-circle"></i>
-                <span id="answeredCount">0</span> Answered
-            </div>
-        </div>
-    </div>
-
-    <form id="quizForm" method="POST" action="<?php echo BASE_URL; ?>/external/take-quiz/<?php echo $quiz['id']; ?>">
-        <input type="hidden" name="attempt_id" value="<?php echo $attemptId; ?>">
-        <input type="hidden" id="quizEndTime" name="quiz_end_time" value="<?php echo $endTime; ?>">
-        
-        <div class="questions-list">
-            <?php foreach ($questions as $index => $question): ?>
-                <div class="question-item" data-question-id="<?php echo $question['id']; ?>">
-                    <div class="question-number">Question <?php echo $index + 1; ?> of <?php echo count($questions); ?></div>
-                    <div class="question-text"><?php echo htmlspecialchars($question['question_text']); ?></div>
-                    
-                    <div class="options">
-                        <?php 
-                        $options = $question['options'] ?? [];
-                        $letters = ['A', 'B', 'C', 'D'];
-                        if (empty($options)) {
-                            echo '<p class="error">No options available for this question.</p>';
-                        } else {
-                            foreach ($options as $optIndex => $option):
-                                $letter = $letters[$optIndex];
-                        ?>
-                            <label class="option">
-                                <input type="radio" 
-                                    name="answers[<?php echo $question['id']; ?>]" 
-                                    value="<?php echo $optIndex; ?>"
-                                    required>
-                                <span class="option-letter"><?php echo $letter; ?></span>
-                                <span class="option-text"><?php echo htmlspecialchars($option); ?></span>
-                            </label>
-                        <?php 
-                            endforeach;
-                        }
-                        ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        
-        <div class="quiz-footer">
-            <div class="timer-warning" id="timerWarning" style="display: none;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>Less than 1 minute remaining!</span>
-            </div>
-            <button type="submit" class="btn-submit" id="submitBtn" disabled>
-                <i class="fas fa-check-circle"></i> Submit Quiz
-            </button>
-        </div>
-    </form>
-</div>
-
 <style>
 .quiz-take-container {
     max-width: 900px;
@@ -401,6 +311,96 @@ $endTime = time() + $timeLimitSeconds;
     #stickyTimerDisplay, #stickyAnsweredCount { font-size: 0.95rem; padding: 2px 8px; }
 }
 </style>
+
+<div class="quiz-take-container">
+    <div class="sticky-timer-bar" id="stickyTimerBar">
+        <div class="sticky-timer-content">
+            <div class="sticky-timer-info">
+                <i class="fas fa-hourglass-half"></i>
+                <span id="stickyTimerDisplay">Loading...</span>
+            </div>
+            <div class="sticky-progress-info">
+                <i class="fas fa-check-circle"></i>
+                <span id="stickyAnsweredCount">0</span> of <?php echo count($questions); ?> Answered
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-header">
+        <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
+        
+        <div class="quiz-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Important Notice:</strong>
+                <p>Your answers are saved automatically. Do NOT refresh or close the browser.</p>
+            </div>
+        </div>
+        
+        <div class="quiz-stats">
+            <div class="stat">
+                <i class="fas fa-question-circle"></i>
+                <span><?php echo count($questions); ?> Questions</span>
+            </div>
+            <div class="stat">
+                <i class="fas fa-hourglass-half"></i>
+                <span id="timerDisplay">Loading...</span>
+            </div>
+            <div class="stat" id="answeredStat">
+                <i class="fas fa-check-circle"></i>
+                <span id="answeredCount">0</span> Answered
+            </div>
+        </div>
+    </div>
+
+    <form id="quizForm" method="POST" action="<?php echo BASE_URL; ?>/external/take-quiz/<?php echo $quiz['id']; ?>">
+        <input type="hidden" name="attempt_id" value="<?php echo $attemptId; ?>">
+        <input type="hidden" id="quizEndTime" name="quiz_end_time" value="<?php echo $endTime; ?>">
+        
+        <div class="questions-list">
+            <?php foreach ($questions as $index => $question): ?>
+                <div class="question-item" data-question-id="<?php echo $question['id']; ?>">
+                    <div class="question-number">Question <?php echo $index + 1; ?> of <?php echo count($questions); ?></div>
+                    <div class="question-text"><?php echo htmlspecialchars($question['question_text']); ?></div>
+                    
+                    <div class="options">
+                        <?php 
+                        $options = $question['options'] ?? [];
+                        $letters = ['A', 'B', 'C', 'D'];
+                        if (empty($options)) {
+                            echo '<p class="error">No options available for this question.</p>';
+                        } else {
+                            foreach ($options as $optIndex => $option):
+                                $letter = $letters[$optIndex];
+                        ?>
+                            <label class="option">
+                                <input type="radio" 
+                                    name="answers[<?php echo $question['id']; ?>]" 
+                                    value="<?php echo $optIndex; ?>"
+                                    required>
+                                <span class="option-letter"><?php echo $letter; ?></span>
+                                <span class="option-text"><?php echo htmlspecialchars($option); ?></span>
+                            </label>
+                        <?php 
+                            endforeach;
+                        }
+                        ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="quiz-footer">
+            <div class="timer-warning" id="timerWarning" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Less than 1 minute remaining!</span>
+            </div>
+            <button type="submit" class="btn-submit" id="submitBtn" disabled>
+                <i class="fas fa-check-circle"></i> Submit Quiz
+            </button>
+        </div>
+    </form>
+</div>
 
 <script>
 const QUIZ_STORAGE_KEY = 'quiz_state_' + <?php echo $quizId; ?> + '_' + <?php echo $attemptId; ?>;

@@ -9,114 +9,6 @@ $subjects = $subjects ?? [];
 $allSubjects = $allSubjects ?? [];
 ?>
 
-<div class="edit-homework-container">
-    <div class="page-header">
-        <a href="<?php echo BASE_URL; ?>/teacher/homework" class="back-link">
-            <i class="fas fa-arrow-left"></i> <span>Back to Homework</span>
-        </a>
-        <h1 class="page-title">
-            <i class="fas fa-edit"></i>
-            Edit Homework
-        </h1>
-        <p class="page-subtitle">Update homework details for your students</p>
-    </div>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <form method="POST" enctype="multipart/form-data" class="homework-form">
-        <div class="form-card">
-            <div class="form-group">
-                <label for="title">Homework Title <span class="required">*</span></label>
-                <input type="text" id="title" name="title" required value="<?php echo htmlspecialchars($homework['title'] ?? ''); ?>" placeholder="e.g., Mathematics Assignment 1">
-            </div>
-
-            <div class="form-grid-2x">
-                <div class="form-group">
-                    <label for="class_id">Class <span class="required">*</span></label>
-                    <div class="select-wrapper">
-                        <select id="class_id" name="class_id" required onchange="filterSubjects()">
-                            <option value="">Select Class</option>
-                            <?php foreach ($classes as $class): ?>
-                                <option value="<?php echo $class['id']; ?>" <?php echo (($homework['class_id'] ?? '') == $class['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($class['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="subject_id">Subject <span class="required">*</span></label>
-                    <div class="select-wrapper">
-                        <select id="subject_id" name="subject_id" required>
-                            <option value="">Select Subject</option>
-                            <?php foreach ($allSubjects as $subject): ?>
-                                <option value="<?php echo $subject['id']; ?>" 
-                                        data-class="<?php echo $subject['class_id']; ?>"
-                                        <?php echo (($homework['subject_id'] ?? '') == $subject['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($subject['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" name="description" rows="5" placeholder="Provide clear instructions or additional information..."><?php echo htmlspecialchars($homework['description'] ?? ''); ?></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="due_date">Due Date <span class="required">*</span></label>
-                <input type="datetime-local" id="due_date" name="due_date" required value="<?php echo !empty($homework['due_date']) ? date('Y-m-d\TH:i', strtotime($homework['due_date'])) : ''; ?>">
-            </div>
-
-            <?php if (!empty($homework['attachments'])): ?>
-                <div class="form-group">
-                    <label>Current Attachments</label>
-                    <div class="current-attachments">
-                        <?php foreach ($homework['attachments'] as $attachment): ?>
-                            <div class="attachment-item" id="attachment-row-<?php echo $attachment['id']; ?>">
-                                <div class="attachment-meta">
-                                    <i class="fas fa-paperclip"></i>
-                                    <span class="file-name"><?php echo htmlspecialchars($attachment['file_name']); ?></span>
-                                    <span class="file-size">(<?php echo round($attachment['file_size'] / 1024, 2); ?> KB)</span>
-                                </div>
-                                <button type="button" onclick="deleteAttachment(<?php echo $attachment['id']; ?>)" class="delete-attachment" aria-label="Delete attachment">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <div class="form-group">
-                <label>Add New Attachments (PDFs Preferably)</label>
-                <div class="file-dropzone">
-                    <input type="file" id="new_attachments" name="new_attachments[]" multiple class="file-input" onchange="updateFileLabel()">
-                    <div class="dropzone-text">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <span id="file-input-label">Tap to browse or upload documents</span>
-                        <small class="form-hint">Upload should not exceed 5MB per file</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <a href="<?php echo BASE_URL; ?>/teacher/homework" class="btn-secondary">Cancel</a>
-                <button type="submit" class="btn-primary">Save Changes</button>
-            </div>
-        </div>
-    </form>
-</div>
-
 <style>
 :root {
     --primary-color: #7f2677;
@@ -455,6 +347,114 @@ $allSubjects = $allSubjects ?? [];
     color: #991b1b;
 }
 </style>
+
+<div class="edit-homework-container">
+    <div class="page-header">
+        <a href="<?php echo BASE_URL; ?>/teacher/homework" class="back-link">
+            <i class="fas fa-arrow-left"></i> <span>Back to Homework</span>
+        </a>
+        <h1 class="page-title">
+            <i class="fas fa-edit"></i>
+            Edit Homework
+        </h1>
+        <p class="page-subtitle">Update homework details for your students</p>
+    </div>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" enctype="multipart/form-data" class="homework-form">
+        <div class="form-card">
+            <div class="form-group">
+                <label for="title">Homework Title <span class="required">*</span></label>
+                <input type="text" id="title" name="title" required value="<?php echo htmlspecialchars($homework['title'] ?? ''); ?>" placeholder="e.g., Mathematics Assignment 1">
+            </div>
+
+            <div class="form-grid-2x">
+                <div class="form-group">
+                    <label for="class_id">Class <span class="required">*</span></label>
+                    <div class="select-wrapper">
+                        <select id="class_id" name="class_id" required onchange="filterSubjects()">
+                            <option value="">Select Class</option>
+                            <?php foreach ($classes as $class): ?>
+                                <option value="<?php echo $class['id']; ?>" <?php echo (($homework['class_id'] ?? '') == $class['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($class['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject_id">Subject <span class="required">*</span></label>
+                    <div class="select-wrapper">
+                        <select id="subject_id" name="subject_id" required>
+                            <option value="">Select Subject</option>
+                            <?php foreach ($allSubjects as $subject): ?>
+                                <option value="<?php echo $subject['id']; ?>" 
+                                        data-class="<?php echo $subject['class_id']; ?>"
+                                        <?php echo (($homework['subject_id'] ?? '') == $subject['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($subject['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="5" placeholder="Provide clear instructions or additional information..."><?php echo htmlspecialchars($homework['description'] ?? ''); ?></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="due_date">Due Date <span class="required">*</span></label>
+                <input type="datetime-local" id="due_date" name="due_date" required value="<?php echo !empty($homework['due_date']) ? date('Y-m-d\TH:i', strtotime($homework['due_date'])) : ''; ?>">
+            </div>
+
+            <?php if (!empty($homework['attachments'])): ?>
+                <div class="form-group">
+                    <label>Current Attachments</label>
+                    <div class="current-attachments">
+                        <?php foreach ($homework['attachments'] as $attachment): ?>
+                            <div class="attachment-item" id="attachment-row-<?php echo $attachment['id']; ?>">
+                                <div class="attachment-meta">
+                                    <i class="fas fa-paperclip"></i>
+                                    <span class="file-name"><?php echo htmlspecialchars($attachment['file_name']); ?></span>
+                                    <span class="file-size">(<?php echo round($attachment['file_size'] / 1024, 2); ?> KB)</span>
+                                </div>
+                                <button type="button" onclick="deleteAttachment(<?php echo $attachment['id']; ?>)" class="delete-attachment" aria-label="Delete attachment">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <div class="form-group">
+                <label>Add New Attachments (PDFs Preferably)</label>
+                <div class="file-dropzone">
+                    <input type="file" id="new_attachments" name="new_attachments[]" multiple class="file-input" onchange="updateFileLabel()">
+                    <div class="dropzone-text">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span id="file-input-label">Tap to browse or upload documents</span>
+                        <small class="form-hint">Upload should not exceed 5MB per file</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="<?php echo BASE_URL; ?>/teacher/homework" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </form>
+</div>
 
 <script>
 function filterSubjects() {

@@ -8,88 +8,6 @@ $subjectsByClass = $subjectsByClass ?? [];
 $allSubjects = $allSubjects ?? [];
 ?>
 
-<div class="create-homework-container">
-    <div class="page-header">
-        <div>
-            <a href="<?php echo BASE_URL; ?>/teacher/homework" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Homework
-            </a>
-            <h1 class="page-title">
-                <i class="fas fa-plus-circle"></i>
-                Create New Homework
-            </h1>
-            <p class="page-subtitle">Assign homework to your students</p>
-        </div>
-    </div>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['info'])): ?>
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i>
-            <span><?php echo $_SESSION['info']; unset($_SESSION['info']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <form method="POST" enctype="multipart/form-data" class="homework-form">
-        <div class="form-card">
-            <div class="form-group">
-                <label for="title">Homework Title <span class="required">*</span></label>
-                <input type="text" id="title" name="title" required placeholder="e.g., Mathematics Assignment 1">
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="class_id">Class <span class="required">*</span></label>
-                    <select id="class_id" name="class_id" required onchange="filterSubjects()">
-                        <option value="">Select Class</option>
-                        <?php foreach ($classes as $class): ?>
-                            <option value="<?php echo $class['id']; ?>"><?php echo htmlspecialchars($class['name']); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="subject_id">Subject <span class="required">*</span></label>
-                    <select id="subject_id" name="subject_id" required>
-                        <option value="">Select Subject</option>
-                        <?php foreach ($allSubjects as $subject): ?>
-                            <option value="<?php echo $subject['id']; ?>" data-class="<?php echo $subject['class_id']; ?>">
-                                <?php echo htmlspecialchars($subject['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" name="description" rows="4" placeholder="Provide instructions or additional information..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="due_date">Due Date <span class="required">*</span></label>
-                <input type="datetime-local" id="due_date" name="due_date" required>
-            </div>
-
-            <div class="form-group">
-                <label for="attachments">Attachments</label>
-                <input type="file" id="attachments" name="attachments[]" multiple class="file-input">
-                <small class="form-hint">Upload should not exceed 5MB per file</small>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">Create Homework</button>
-            </div>
-        </div>
-    </form>
-</div>
-
 <style>
 .create-homework-container {
     max-width: 800px;
@@ -209,6 +127,88 @@ $allSubjects = $allSubjects ?? [];
     }
 }
 </style>
+
+<div class="create-homework-container">
+    <div class="page-header">
+        <div>
+            <a href="<?php echo BASE_URL; ?>/teacher/homework" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Homework
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-plus-circle"></i>
+                Create New Homework
+            </h1>
+            <p class="page-subtitle">Assign homework to your students</p>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['info'])): ?>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <span><?php echo $_SESSION['info']; unset($_SESSION['info']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" enctype="multipart/form-data" class="homework-form">
+        <div class="form-card">
+            <div class="form-group">
+                <label for="title">Homework Title <span class="required">*</span></label>
+                <input type="text" id="title" name="title" required placeholder="e.g., Mathematics Assignment 1">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="class_id">Class <span class="required">*</span></label>
+                    <select id="class_id" name="class_id" required onchange="filterSubjects()">
+                        <option value="">Select Class</option>
+                        <?php foreach ($classes as $class): ?>
+                            <option value="<?php echo $class['id']; ?>"><?php echo htmlspecialchars($class['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject_id">Subject <span class="required">*</span></label>
+                    <select id="subject_id" name="subject_id" required>
+                        <option value="">Select Subject</option>
+                        <?php foreach ($allSubjects as $subject): ?>
+                            <option value="<?php echo $subject['id']; ?>" data-class="<?php echo $subject['class_id']; ?>">
+                                <?php echo htmlspecialchars($subject['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" placeholder="Provide instructions or additional information..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="due_date">Due Date <span class="required">*</span></label>
+                <input type="datetime-local" id="due_date" name="due_date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="attachments">Attachments</label>
+                <input type="file" id="attachments" name="attachments[]" multiple class="file-input">
+                <small class="form-hint">Upload should not exceed 5MB per file</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Create Homework</button>
+            </div>
+        </div>
+    </form>
+</div>
 
 <script>
 function filterSubjects() {

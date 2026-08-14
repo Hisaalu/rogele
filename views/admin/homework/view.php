@@ -7,206 +7,6 @@ $homework    = $homework ?? [];
 $submissions = $submissions ?? [];
 ?>
 
-<div class="admin-view-container">
-
-    <div class="view-header-card">
-        <div class="header-main">
-            <div class="title-area">
-                <span class="category-badge">
-                    <i class="fas fa-book" aria-hidden="true"></i> <?php echo htmlspecialchars($homework['subject_name'] ?? 'General Subject'); ?>
-                </span>
-                <h1 class="page-title"><?php echo htmlspecialchars($homework['title'] ?? 'Homework Details'); ?></h1>
-                <p class="teacher-info">
-                    <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i> Assigned by <strong><?php echo htmlspecialchars($homework['teacher_name'] ?? 'Unknown Teacher'); ?></strong>
-                </p>
-            </div>
-            
-            <div class="header-actions">
-                <?php 
-                    $dueDate   = !empty($homework['due_date']) ? strtotime($homework['due_date']) : 0;
-                    $isExpired = $dueDate > 0 && $dueDate < time();
-                    $isActive  = !empty($homework['is_active']);
-                ?>
-                <?php if (!$isActive): ?>
-                    <span class="status-pill status-disabled"><i class="fas fa-ban" aria-hidden="true"></i> Disabled</span>
-                <?php elseif ($isExpired): ?>
-                    <span class="status-pill status-expired"><i class="fas fa-clock" aria-hidden="true"></i> Expired</span>
-                <?php else: ?>
-                    <span class="status-pill status-active"><i class="fas fa-check-circle" aria-hidden="true"></i> Active</span>
-                <?php endif; ?>
-
-                <a href="<?php echo BASE_URL; ?>/admin/homework/toggle-status/<?php echo urlencode($homework['id'] ?? ''); ?>" 
-                   class="btn-action-outline" 
-                   onclick="return confirm('Toggle status for this assignment?')">
-                    <i class="fas <?php echo $isActive ? 'fa-eye-slash' : 'fa-eye'; ?>" aria-hidden="true"></i>
-                    <?php echo $isActive ? 'Disable' : 'Enable'; ?>
-                </a>
-                <a href="<?php echo BASE_URL; ?>/admin/homework/delete/<?php echo urlencode($homework['id'] ?? ''); ?>" 
-                   class="btn-action-danger" 
-                   onclick="return confirm('Are you sure you want to delete this assignment?')">
-                    <i class="fas fa-trash-alt" aria-hidden="true"></i> Delete
-                </a>
-            </div>
-        </div>
-
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-icon purple"><i class="fas fa-school" aria-hidden="true"></i></div>
-                <div class="metric-data">
-                    <span class="metric-label">Target Class</span>
-                    <span class="metric-value"><?php echo htmlspecialchars($homework['class_name'] ?? 'N/A'); ?></span>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-icon orange"><i class="fas fa-calendar-alt" aria-hidden="true"></i></div>
-                <div class="metric-data">
-                    <span class="metric-label">Due Date</span>
-                    <span class="metric-value">
-                        <?php echo $dueDate ? date('M d, Y', $dueDate) : 'No Due Date'; ?>
-                    </span>
-                    <small class="metric-subtext">
-                        <?php echo $dueDate ? date('h:i A', $dueDate) : ''; ?>
-                    </small>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-icon blue"><i class="fas fa-file-invoice" aria-hidden="true"></i></div>
-                <div class="metric-data">
-                    <span class="metric-label">Submissions Received</span>
-                    <span class="metric-value"><?php echo count($submissions); ?></span>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-icon green"><i class="fas fa-clock" aria-hidden="true"></i></div>
-                <div class="metric-data">
-                    <span class="metric-label">Created Date</span>
-                    <span class="metric-value">
-                        <?php echo !empty($homework['created_at']) ? date('M d, Y', strtotime($homework['created_at'])) : 'N/A'; ?>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="content-grid">
-        <div class="main-content-card">
-            <h3 class="card-section-title"><i class="fas fa-align-left" aria-hidden="true"></i> Assignment Description</h3>
-            <div class="description-body">
-                <?php echo nl2br(htmlspecialchars($homework['description'] ?? 'No description provided for this assignment.')); ?>
-            </div>
-
-            <?php if (!empty($homework['file_path'])): ?>
-                <div class="attachment-section">
-                    <div class="attachment-info">
-                        <i class="fas fa-paperclip" aria-hidden="true"></i>
-                        <div>
-                            <strong>Teacher Attachment</strong>
-                            <p>Reference files uploaded for student download.</p>
-                        </div>
-                    </div>
-                    <a href="<?php echo BASE_URL . '/' . htmlspecialchars(ltrim($homework['file_path'], '/')); ?>" target="_blank" rel="noopener noreferrer" class="btn-download">
-                        <i class="fas fa-download" aria-hidden="true"></i> View File
-                    </a>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <div class="table-card">
-            <div class="table-card-header">
-                <h3><i class="fas fa-users-cog" aria-hidden="true"></i> Student Submissions</h3>
-                <span class="badge-counter"><?php echo count($submissions); ?> Total</span>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Submitted On</th>
-                            <th>Status</th>
-                            <th>Score</th>
-                            <th>Attachment</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($submissions)): ?>
-                            <tr>
-                                <td colspan="5" class="empty-state">
-                                    <i class="fas fa-folder-open" aria-hidden="true"></i>
-                                    <p>No student submissions found for this assignment yet.</p>
-                                </td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($submissions as $sub): ?>
-                                <tr>
-                                    <td>
-                                        <div class="student-avatar-cell">
-                                            <div class="avatar-circle">
-                                                <?php echo htmlspecialchars(strtoupper(substr($sub['first_name'] ?? 'S', 0, 1))); ?>
-                                            </div>
-                                            <div>
-                                                <strong><?php echo htmlspecialchars(trim(($sub['first_name'] ?? '') . ' ' . ($sub['last_name'] ?? 'Student'))); ?></strong>
-                                                <?php if (!empty($sub['text_answer'])): ?>
-                                                    <br><small class="text-muted" style="font-style: italic;">"<?php echo htmlspecialchars(mb_strimwidth($sub['text_answer'], 0, 40, '...')); ?>"</small>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="time-cell">
-                                            <?php $subTime = !empty($sub['submitted_at']) ? strtotime($sub['submitted_at']) : 0; ?>
-                                            <span><?php echo $subTime ? date('M d, Y', $subTime) : 'N/A'; ?></span>
-                                            <small><?php echo $subTime ? date('h:i A', $subTime) : ''; ?></small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <?php 
-                                            $subStatus = strtolower($sub['status'] ?? 'submitted');
-                                            $statusClass = $subStatus === 'graded' ? 'sub-graded' : ($subStatus === 'late' ? 'sub-disabled' : 'sub-pending');
-                                        ?>
-                                        <span class="sub-badge <?php echo $statusClass; ?>">
-                                            <?php echo htmlspecialchars(ucfirst($subStatus)); ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <strong class="score-text">
-                                            <?php echo isset($sub['grade']) && $sub['grade'] !== '' && $sub['grade'] !== null ? htmlspecialchars((string)$sub['grade']) : '<span class="text-muted">--</span>'; ?>
-                                        </strong>
-                                    </td>
-                                    <td>
-                                        <?php if (!empty($sub['files']) && is_array($sub['files'])): ?>
-                                            <div class="attachment-list">
-                                                <?php foreach ($sub['files'] as $file): ?>
-                                                    <?php
-                                                        $cleanSubName = basename($file['file_path'] ?? ''); 
-                                                        $officialSubmissionUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . rawurlencode($cleanSubName);
-                                                        $fileName = $file['file_name'] ?? $cleanSubName;
-                                                        $fileSize = isset($file['file_size']) ? round($file['file_size'] / 1024, 1) : 0;
-                                                    ?>
-                                                    <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" rel="noopener noreferrer" class="attachment-btn" title="<?php echo htmlspecialchars($fileName); ?>">
-                                                        <i class="fas fa-paperclip" aria-hidden="true"></i>
-                                                        <span class="file-name"><?php echo htmlspecialchars($fileName); ?></span>
-                                                        <span class="file-size"><?php echo $fileSize; ?> KB</span>
-                                                    </a>
-                                                <?php endforeach; ?>
-                                            </div>
-                                        <?php else: ?>
-                                            <span class="text-muted"><i class="fas fa-minus" aria-hidden="true"></i> No Attachment</span>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -714,5 +514,205 @@ $submissions = $submissions ?? [];
     }
 }
 </style>
+
+<div class="admin-view-container">
+
+    <div class="view-header-card">
+        <div class="header-main">
+            <div class="title-area">
+                <span class="category-badge">
+                    <i class="fas fa-book" aria-hidden="true"></i> <?php echo htmlspecialchars($homework['subject_name'] ?? 'General Subject'); ?>
+                </span>
+                <h1 class="page-title"><?php echo htmlspecialchars($homework['title'] ?? 'Homework Details'); ?></h1>
+                <p class="teacher-info">
+                    <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i> Assigned by <strong><?php echo htmlspecialchars($homework['teacher_name'] ?? 'Unknown Teacher'); ?></strong>
+                </p>
+            </div>
+            
+            <div class="header-actions">
+                <?php 
+                    $dueDate   = !empty($homework['due_date']) ? strtotime($homework['due_date']) : 0;
+                    $isExpired = $dueDate > 0 && $dueDate < time();
+                    $isActive  = !empty($homework['is_active']);
+                ?>
+                <?php if (!$isActive): ?>
+                    <span class="status-pill status-disabled"><i class="fas fa-ban" aria-hidden="true"></i> Disabled</span>
+                <?php elseif ($isExpired): ?>
+                    <span class="status-pill status-expired"><i class="fas fa-clock" aria-hidden="true"></i> Expired</span>
+                <?php else: ?>
+                    <span class="status-pill status-active"><i class="fas fa-check-circle" aria-hidden="true"></i> Active</span>
+                <?php endif; ?>
+
+                <a href="<?php echo BASE_URL; ?>/admin/homework/toggle-status/<?php echo urlencode($homework['id'] ?? ''); ?>" 
+                   class="btn-action-outline" 
+                   onclick="return confirm('Toggle status for this assignment?')">
+                    <i class="fas <?php echo $isActive ? 'fa-eye-slash' : 'fa-eye'; ?>" aria-hidden="true"></i>
+                    <?php echo $isActive ? 'Disable' : 'Enable'; ?>
+                </a>
+                <a href="<?php echo BASE_URL; ?>/admin/homework/delete/<?php echo urlencode($homework['id'] ?? ''); ?>" 
+                   class="btn-action-danger" 
+                   onclick="return confirm('Are you sure you want to delete this assignment?')">
+                    <i class="fas fa-trash-alt" aria-hidden="true"></i> Delete
+                </a>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon purple"><i class="fas fa-school" aria-hidden="true"></i></div>
+                <div class="metric-data">
+                    <span class="metric-label">Target Class</span>
+                    <span class="metric-value"><?php echo htmlspecialchars($homework['class_name'] ?? 'N/A'); ?></span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon orange"><i class="fas fa-calendar-alt" aria-hidden="true"></i></div>
+                <div class="metric-data">
+                    <span class="metric-label">Due Date</span>
+                    <span class="metric-value">
+                        <?php echo $dueDate ? date('M d, Y', $dueDate) : 'No Due Date'; ?>
+                    </span>
+                    <small class="metric-subtext">
+                        <?php echo $dueDate ? date('h:i A', $dueDate) : ''; ?>
+                    </small>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon blue"><i class="fas fa-file-invoice" aria-hidden="true"></i></div>
+                <div class="metric-data">
+                    <span class="metric-label">Submissions Received</span>
+                    <span class="metric-value"><?php echo count($submissions); ?></span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon green"><i class="fas fa-clock" aria-hidden="true"></i></div>
+                <div class="metric-data">
+                    <span class="metric-label">Created Date</span>
+                    <span class="metric-value">
+                        <?php echo !empty($homework['created_at']) ? date('M d, Y', strtotime($homework['created_at'])) : 'N/A'; ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <div class="main-content-card">
+            <h3 class="card-section-title"><i class="fas fa-align-left" aria-hidden="true"></i> Assignment Description</h3>
+            <div class="description-body">
+                <?php echo nl2br(htmlspecialchars($homework['description'] ?? 'No description provided for this assignment.')); ?>
+            </div>
+
+            <?php if (!empty($homework['file_path'])): ?>
+                <div class="attachment-section">
+                    <div class="attachment-info">
+                        <i class="fas fa-paperclip" aria-hidden="true"></i>
+                        <div>
+                            <strong>Teacher Attachment</strong>
+                            <p>Reference files uploaded for student download.</p>
+                        </div>
+                    </div>
+                    <a href="<?php echo BASE_URL . '/' . htmlspecialchars(ltrim($homework['file_path'], '/')); ?>" target="_blank" rel="noopener noreferrer" class="btn-download">
+                        <i class="fas fa-download" aria-hidden="true"></i> View File
+                    </a>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3><i class="fas fa-users-cog" aria-hidden="true"></i> Student Submissions</h3>
+                <span class="badge-counter"><?php echo count($submissions); ?> Total</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Submitted On</th>
+                            <th>Status</th>
+                            <th>Score</th>
+                            <th>Attachment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($submissions)): ?>
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                                    <p>No student submissions found for this assignment yet.</p>
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($submissions as $sub): ?>
+                                <tr>
+                                    <td>
+                                        <div class="student-avatar-cell">
+                                            <div class="avatar-circle">
+                                                <?php echo htmlspecialchars(strtoupper(substr($sub['first_name'] ?? 'S', 0, 1))); ?>
+                                            </div>
+                                            <div>
+                                                <strong><?php echo htmlspecialchars(trim(($sub['first_name'] ?? '') . ' ' . ($sub['last_name'] ?? 'Student'))); ?></strong>
+                                                <?php if (!empty($sub['text_answer'])): ?>
+                                                    <br><small class="text-muted" style="font-style: italic;">"<?php echo htmlspecialchars(mb_strimwidth($sub['text_answer'], 0, 40, '...')); ?>"</small>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="time-cell">
+                                            <?php $subTime = !empty($sub['submitted_at']) ? strtotime($sub['submitted_at']) : 0; ?>
+                                            <span><?php echo $subTime ? date('M d, Y', $subTime) : 'N/A'; ?></span>
+                                            <small><?php echo $subTime ? date('h:i A', $subTime) : ''; ?></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                            $subStatus = strtolower($sub['status'] ?? 'submitted');
+                                            $statusClass = $subStatus === 'graded' ? 'sub-graded' : ($subStatus === 'late' ? 'sub-disabled' : 'sub-pending');
+                                        ?>
+                                        <span class="sub-badge <?php echo $statusClass; ?>">
+                                            <?php echo htmlspecialchars(ucfirst($subStatus)); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong class="score-text">
+                                            <?php echo isset($sub['grade']) && $sub['grade'] !== '' && $sub['grade'] !== null ? htmlspecialchars((string)$sub['grade']) : '<span class="text-muted">--</span>'; ?>
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($sub['files']) && is_array($sub['files'])): ?>
+                                            <div class="attachment-list">
+                                                <?php foreach ($sub['files'] as $file): ?>
+                                                    <?php
+                                                        $cleanSubName = basename($file['file_path'] ?? ''); 
+                                                        $officialSubmissionUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/submissions/" . rawurlencode($cleanSubName);
+                                                        $fileName = $file['file_name'] ?? $cleanSubName;
+                                                        $fileSize = isset($file['file_size']) ? round($file['file_size'] / 1024, 1) : 0;
+                                                    ?>
+                                                    <a href="<?php echo htmlspecialchars($officialSubmissionUrl); ?>" target="_blank" rel="noopener noreferrer" class="attachment-btn" title="<?php echo htmlspecialchars($fileName); ?>">
+                                                        <i class="fas fa-paperclip" aria-hidden="true"></i>
+                                                        <span class="file-name"><?php echo htmlspecialchars($fileName); ?></span>
+                                                        <span class="file-size"><?php echo $fileSize; ?> KB</span>
+                                                    </a>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="text-muted"><i class="fas fa-minus" aria-hidden="true"></i> No Attachment</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>

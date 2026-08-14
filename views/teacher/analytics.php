@@ -8,6 +8,338 @@ $quizPerformance = $quizPerformance ?? [];
 $lessonViews = $lessonViews ?? [];
 ?>
 
+<style>
+.analytics-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    background-color: #7f2677;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-subtitle {
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.time-range-select {
+    padding: 10px 20px;
+    border: 2px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: white;
+    cursor: pointer;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: white;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    display: block;
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.2;
+}
+
+.charts-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.chart-header h3 {
+    color: #000;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chart-header h3 i {
+    color: #f06724;
+}
+
+.chart-filter {
+    padding: 6px 12px;
+    border: 2px solid #E2E8F0;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    background: white;
+    cursor: pointer;
+}
+
+.chart-body {
+    height: 300px;
+    position: relative;
+}
+
+.chart-header {
+    overflow-x: auto;
+}
+
+.performance-section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+    color: #000;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.performance-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.performance-table th {
+    background: #F8FAFC;
+    color: #000;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 15px;
+    text-align: left;
+    border-bottom: 2px solid #E2E8F0;
+}
+
+.performance-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #F1F5F9;
+    color: #000;
+    font-weight: 300;
+}
+
+.performance-table tr:hover td {
+    background: #F8FAFC;
+}
+
+.quiz-title {
+    font-weight: 600;
+    color: #000;
+}
+
+.number-cell {
+    font-weight: 600;
+    color: #f06724;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: #F0FDF4;
+    color: #166534;
+}
+
+.badge-warning {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.badge-danger {
+    background: #FEF2F2;
+    color: #B91C1C;
+}
+
+.btn-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: #7f2677;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.btn-view:hover {
+    background: #f06724;
+}
+
+.lessons-section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.lessons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.lesson-stat-card {
+    background: #F8FAFC;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.lesson-stat-card h4 {
+    color: #000;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+.lesson-stat-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #555;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+}
+
+.lesson-stat-meta i {
+    color: #f06724;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #E2E8F0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #f06724; 
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: #000;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    grid-column: 1 / -1;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #f06724;
+    margin-bottom: 15px;
+}
+
+.empty-state p {
+    color: #000;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .charts-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .lessons-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+
 <div class="analytics-container">
     <div class="page-header">
         <div>
@@ -27,7 +359,6 @@ $lessonViews = $lessonViews ?? [];
         </div>
     </div>
 
-    <!-- Overview Stats -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon" style="background-color: #f06724;">
@@ -424,338 +755,5 @@ window.addEventListener('resize', function() {
     }
 });
 </script>
-
-<style>
-.analytics-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 30px 20px;
-}
-
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.page-title {
-    font-size: 2rem;
-    font-weight: 700;
-    background-color: #7f2677;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.page-subtitle {
-    color: #555;
-    font-size: 0.95rem;
-}
-
-.time-range-select {
-    padding: 10px 20px;
-    border: 2px solid #E2E8F0;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    background: white;
-    cursor: pointer;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: white;
-    border-radius: 16px;
-    padding: 25px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-}
-
-.stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    color: white;
-}
-
-.stat-content {
-    flex: 1;
-}
-
-.stat-label {
-    display: block;
-    color: #555;
-    font-size: 0.9rem;
-    margin-bottom: 5px;
-}
-
-.stat-value {
-    display: block;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #000;
-    line-height: 1.2;
-}
-
-.charts-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-    gap: 25px;
-    margin-bottom: 40px;
-}
-
-.chart-card {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-}
-
-.chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.chart-header h3 {
-    color: #000;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.chart-header h3 i {
-    color: #f06724;
-}
-
-.chart-filter {
-    padding: 6px 12px;
-    border: 2px solid #E2E8F0;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    background: white;
-    cursor: pointer;
-}
-
-.chart-body {
-    height: 300px;
-    position: relative;
-}
-
-.chart-header {
-    overflow-x: auto;
-}
-
-.performance-section {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    margin-bottom: 40px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-}
-
-.section-title {
-    color: #000;
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-}
-
-.table-responsive {
-    overflow-x: auto;
-}
-
-.performance-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.performance-table th {
-    background: #F8FAFC;
-    color: #000;
-    font-weight: 600;
-    font-size: 0.9rem;
-    padding: 15px;
-    text-align: left;
-    border-bottom: 2px solid #E2E8F0;
-}
-
-.performance-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #F1F5F9;
-    color: #000;
-    font-weight: 300;
-}
-
-.performance-table tr:hover td {
-    background: #F8FAFC;
-}
-
-.quiz-title {
-    font-weight: 600;
-    color: #000;
-}
-
-.number-cell {
-    font-weight: 600;
-    color: #f06724;
-}
-
-.badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 30px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.badge-success {
-    background: #F0FDF4;
-    color: #166534;
-}
-
-.badge-warning {
-    background: #FEF3C7;
-    color: #92400E;
-}
-
-.badge-danger {
-    background: #FEF2F2;
-    color: #B91C1C;
-}
-
-.btn-view {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 12px;
-    background: #7f2677;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    transition: all 0.3s ease;
-}
-
-.btn-view:hover {
-    background: #f06724;
-}
-
-.lessons-section {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-}
-
-.lessons-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.lesson-stat-card {
-    background: #F8FAFC;
-    border-radius: 12px;
-    padding: 20px;
-}
-
-.lesson-stat-card h4 {
-    color: #000;
-    font-size: 0.95rem;
-    margin-bottom: 10px;
-}
-
-.lesson-stat-meta {
-    display: flex;
-    justify-content: space-between;
-    color: #555;
-    font-size: 0.85rem;
-    margin-bottom: 15px;
-}
-
-.lesson-stat-meta i {
-    color: #f06724;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 6px;
-    background: #E2E8F0;
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background-color: #f06724; 
-    border-radius: 3px;
-    transition: width 0.3s ease;
-}
-
-.empty-message {
-    text-align: center;
-    padding: 40px;
-    color: #000;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    grid-column: 1 / -1;
-}
-
-.empty-state i {
-    font-size: 3rem;
-    color: #f06724;
-    margin-bottom: 15px;
-}
-
-.empty-state p {
-    color: #000;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .charts-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .lessons-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-</style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

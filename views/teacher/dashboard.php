@@ -3,7 +3,6 @@
 $pageTitle = 'Teacher Dashboard | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 
-// Get statistics from controller
 $totalLessons = $totalLessons ?? 0;
 $totalQuizzes = $totalQuizzes ?? 0;
 $recentLessons = $recentLessons ?? [];
@@ -17,7 +16,6 @@ $classPerformance = $classPerformance ?? [
 ?>
 
 <div class="teacher-dashboard">
-    <!-- Welcome Banner -->
     <div class="welcome-banner">
         <div class="welcome-content">
             <h1 class="welcome-title">
@@ -37,7 +35,6 @@ $classPerformance = $classPerformance ?? [
         </div>
     </div>
 
-    <!-- Quick Stats Grid -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon" style="background-color: #f06724;">
@@ -80,7 +77,6 @@ $classPerformance = $classPerformance ?? [
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="quick-actions">
         <h2 class="section-title">Quick Actions</h2>
         <div class="actions-grid">
@@ -130,9 +126,7 @@ $classPerformance = $classPerformance ?? [
         </div>
     </div>
 
-    <!-- Recent Activity & Upcoming -->
     <div class="activity-section">
-        <!-- Recent Lessons -->
         <div class="recent-card">
             <div class="card-header">
                 <h3><i class="fas fa-book-open"></i> Recent Lessons</h3>
@@ -147,7 +141,6 @@ $classPerformance = $classPerformance ?? [
                     </div>
                 <?php else: ?>
                     <?php 
-                    // Show only the last 5 lessons
                     $displayLessons = array_slice($recentLessons, 0, 4);
                     foreach ($displayLessons as $lesson): 
                     ?>
@@ -171,7 +164,6 @@ $classPerformance = $classPerformance ?? [
             </div>
         </div>
 
-        <!-- Recent Quizzes -->
         <div class="recent-card">
             <div class="card-header">
                 <h3><i class="fas fa-pencil-alt"></i> Recent Quizzes</h3>
@@ -186,7 +178,6 @@ $classPerformance = $classPerformance ?? [
                     </div>
                 <?php else: ?>
                     <?php 
-                    // Show only the last 5 quizzes
                     $displayQuizzes = array_slice($recentQuizzes, 0, 4);
                     foreach ($displayQuizzes as $quiz): 
                     ?>
@@ -217,7 +208,6 @@ $classPerformance = $classPerformance ?? [
     padding: 30px 20px;
 }
 
-/* Welcome Banner */
 .welcome-banner {
     background-color: #7f2677;
     border-radius: 20px;
@@ -265,7 +255,6 @@ $classPerformance = $classPerformance ?? [
     font-size: 1.2rem;
 }
 
-/* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -329,7 +318,6 @@ $classPerformance = $classPerformance ?? [
     gap: 4px;
 }
 
-/* Section Title */
 .section-title {
     color: #000;
     font-size: 1.3rem;
@@ -337,7 +325,6 @@ $classPerformance = $classPerformance ?? [
     margin-bottom: 20px;
 }
 
-/* Quick Actions */
 .quick-actions {
     margin-bottom: 40px;
 }
@@ -405,7 +392,6 @@ $classPerformance = $classPerformance ?? [
     transform: translateX(5px);
 }
 
-/* Performance Section */
 .performance-section {
     margin-bottom: 40px;
 }

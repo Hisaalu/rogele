@@ -7,98 +7,6 @@ $question = $question ?? [];
 $quiz = $quiz ?? [];
 ?>
 
-<div class="edit-question-container">
-    <div class="page-header">
-        <div>
-            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Quiz
-            </a>
-            <h1 class="page-title">
-                <i class="fas fa-edit"></i>
-                Edit Question
-            </h1>
-            <p class="page-subtitle">Editing question for: <?php echo htmlspecialchars($quiz['title']); ?></p>
-        </div>
-    </div>
-
-    <!-- Alert Messages -->
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <div class="form-card">
-        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/quizzes/edit-question/<?php echo $question['id']; ?>">
-            <div class="form-group">
-                <label for="question">Question Text <span class="required">*</span></label>
-                <textarea id="question" name="question" rows="3" required><?php echo htmlspecialchars($question['question'] ?? ''); ?></textarea>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="option_a">Option A <span class="required">*</span></label>
-                    <input type="text" id="option_a" name="option_a" value="<?php echo htmlspecialchars($question['option_a'] ?? ''); ?>" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="option_b">Option B <span class="required">*</span></label>
-                    <input type="text" id="option_b" name="option_b" value="<?php echo htmlspecialchars($question['option_b'] ?? ''); ?>" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="option_c">Option C</label>
-                    <input type="text" id="option_c" name="option_c" value="<?php echo htmlspecialchars($question['option_c'] ?? ''); ?>">
-                </div>
-
-                <div class="form-group">
-                    <label for="option_d">Option D</label>
-                    <input type="text" id="option_d" name="option_d" value="<?php echo htmlspecialchars($question['option_d'] ?? ''); ?>">
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="correct_answer">Correct Answer <span class="required">*</span></label>
-                    <select id="correct_answer" name="correct_answer" required>
-                        <option value="">Select correct answer</option>
-                        <option value="A" <?php echo ($question['correct_answer'] ?? '') == 'A' ? 'selected' : ''; ?>>A</option>
-                        <option value="B" <?php echo ($question['correct_answer'] ?? '') == 'B' ? 'selected' : ''; ?>>B</option>
-                        <option value="C" <?php echo ($question['correct_answer'] ?? '') == 'C' ? 'selected' : ''; ?>>C</option>
-                        <option value="D" <?php echo ($question['correct_answer'] ?? '') == 'D' ? 'selected' : ''; ?>>D</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="points">Points</label>
-                    <input type="number" id="points" name="points" value="<?php echo $question['points'] ?? 1; ?>" min="1" max="10">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="explanation">Explanation (Optional)</label>
-                <textarea id="explanation" name="explanation" rows="2" placeholder="Explain why this answer is correct..."><?php echo htmlspecialchars($question['explanation'] ?? ''); ?></textarea>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-save"></i> Update Question
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <style>
 .edit-question-container {
     max-width: 800px;
@@ -244,7 +152,6 @@ $quiz = $quiz ?? [];
     color: white;
 }
 
-/* Alerts */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -292,5 +199,96 @@ $quiz = $quiz ?? [];
     }
 }
 </style>
+
+<div class="edit-question-container">
+    <div class="page-header">
+        <div>
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/edit/<?php echo $quiz['id']; ?>" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Quiz
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-edit"></i>
+                Edit Question
+            </h1>
+            <p class="page-subtitle">Editing question for: <?php echo htmlspecialchars($quiz['title']); ?></p>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="form-card">
+        <form method="POST" action="<?php echo BASE_URL; ?>/teacher/quizzes/edit-question/<?php echo $question['id']; ?>">
+            <div class="form-group">
+                <label for="question">Question Text <span class="required">*</span></label>
+                <textarea id="question" name="question" rows="3" required><?php echo htmlspecialchars($question['question'] ?? ''); ?></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="option_a">Option A <span class="required">*</span></label>
+                    <input type="text" id="option_a" name="option_a" value="<?php echo htmlspecialchars($question['option_a'] ?? ''); ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="option_b">Option B <span class="required">*</span></label>
+                    <input type="text" id="option_b" name="option_b" value="<?php echo htmlspecialchars($question['option_b'] ?? ''); ?>" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="option_c">Option C</label>
+                    <input type="text" id="option_c" name="option_c" value="<?php echo htmlspecialchars($question['option_c'] ?? ''); ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="option_d">Option D</label>
+                    <input type="text" id="option_d" name="option_d" value="<?php echo htmlspecialchars($question['option_d'] ?? ''); ?>">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="correct_answer">Correct Answer <span class="required">*</span></label>
+                    <select id="correct_answer" name="correct_answer" required>
+                        <option value="">Select correct answer</option>
+                        <option value="A" <?php echo ($question['correct_answer'] ?? '') == 'A' ? 'selected' : ''; ?>>A</option>
+                        <option value="B" <?php echo ($question['correct_answer'] ?? '') == 'B' ? 'selected' : ''; ?>>B</option>
+                        <option value="C" <?php echo ($question['correct_answer'] ?? '') == 'C' ? 'selected' : ''; ?>>C</option>
+                        <option value="D" <?php echo ($question['correct_answer'] ?? '') == 'D' ? 'selected' : ''; ?>>D</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="points">Points</label>
+                    <input type="number" id="points" name="points" value="<?php echo $question['points'] ?? 1; ?>" min="1" max="10">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="explanation">Explanation (Optional)</label>
+                <textarea id="explanation" name="explanation" rows="2" placeholder="Explain why this answer is correct..."><?php echo htmlspecialchars($question['explanation'] ?? ''); ?></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Update Question
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

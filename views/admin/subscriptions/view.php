@@ -8,331 +8,6 @@ $userHistory = $userHistory ?? [];
 $paymentHistory = $paymentHistory ?? [];
 ?>
 
-<div class="subscription-view-container">
-    <header class="page-header">
-        <div>
-            <h1 class="page-title">
-                <i class="fas fa-credit-card" aria-hidden="true"></i>
-                Subscription Details
-            </h1>
-            <p class="page-subtitle">View and manage subscription #<?php echo htmlspecialchars($subscription['id'] ?? 'N/A'); ?></p>
-        </div>
-    </header>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success" role="status">
-            <i class="fas fa-check-circle" aria-hidden="true"></i>
-            <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error" role="alert">
-            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
-            <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
-            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
-        </div>
-    <?php endif; ?>
-
-    <div class="details-grid">
-        <section class="info-card subscription-info">
-            <div class="card-header">
-                <h2><i class="fas fa-info-circle" aria-hidden="true"></i> Subscription Information</h2>
-                
-                <form action="<?php echo BASE_URL; ?>/admin/subscriptions/update-status" method="POST" class="status-update-form">
-                    <input type="hidden" name="subscription_id" value="<?php echo htmlspecialchars($subscription['id'] ?? 0); ?>">
-                    <select name="status" onchange="this.form.submit()" class="status-select <?php echo htmlspecialchars($subscription['status'] ?? 'pending'); ?>" aria-label="Update Subscription Status">
-                        <?php 
-                        $statuses = ['active', 'expired', 'pending', 'cancelled'];
-                        foreach ($statuses as $st): ?>
-                            <option value="<?php echo $st; ?>" <?php echo (($subscription['status'] ?? 'pending') === $st) ? 'selected' : ''; ?>>
-                                <?php echo ucfirst($st); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </form>
-            </div>
-            
-            <div class="info-content">
-                <div class="info-row">
-                    <span class="info-label">Subscription ID:</span>
-                    <span class="info-value">#<?php echo htmlspecialchars($subscription['id'] ?? 'N/A'); ?></span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Plan Type:</span>
-                    <span class="info-value plan-badge <?php echo htmlspecialchars($subscription['plan_type'] ?? ''); ?>">
-                        <?php echo htmlspecialchars(ucfirst($subscription['plan_type'] ?? 'N/A')); ?>
-                        <?php if (!empty($subscription['is_upgrade'])): ?>
-                            <i class="fas fa-arrow-up" title="Upgraded" aria-hidden="true"></i>
-                        <?php endif; ?>
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Amount:</span>
-                    <span class="info-value amount">UGX <?php echo number_format($subscription['amount'] ?? 0); ?></span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Start Date:</span>
-                    <span class="info-value">
-                        <?php echo !empty($subscription['start_date']) ? date('F j, Y', strtotime($subscription['start_date'])) : 'N/A'; ?>
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">End Date:</span>
-                    <?php 
-                    $isExpired = !empty($subscription['end_date']) && strtotime($subscription['end_date']) < time();
-                    ?>
-                    <span class="info-value <?php echo $isExpired ? 'expired' : ''; ?>">
-                        <?php echo !empty($subscription['end_date']) ? date('F j, Y', strtotime($subscription['end_date'])) : 'N/A'; ?>
-                        <?php if ($isExpired): ?>
-                            <span class="expired-label">(Expired)</span>
-                        <?php endif; ?>
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Auto Renew:</span>
-                    <span class="info-value">
-                        <?php if (!empty($subscription['auto_renew'])): ?>
-                            <span class="badge-success"><i class="fas fa-check" aria-hidden="true"></i> Enabled</span>
-                        <?php else: ?>
-                            <span class="badge-warning"><i class="fas fa-times" aria-hidden="true"></i> Disabled</span>
-                        <?php endif; ?>
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Payment Method:</span>
-                    <span class="info-value">
-                        <i class="fas fa-<?php echo ($subscription['payment_method'] ?? 'mobile_money') === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>" aria-hidden="true"></i>
-                        <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $subscription['payment_method'] ?? 'unknown'))); ?>
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Transaction ID:</span>
-                    <span class="info-value transaction-id"><?php echo htmlspecialchars($subscription['transaction_id'] ?? 'N/A'); ?></span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Created At:</span>
-                    <span class="info-value">
-                        <?php echo !empty($subscription['created_at']) ? date('F j, Y h:i A', strtotime($subscription['created_at'])) : 'N/A'; ?>
-                    </span>
-                </div>
-            </div>
-        </section>
-
-        <section class="info-card user-info-card">
-            <div class="card-header">
-                <h2><i class="fas fa-user" aria-hidden="true"></i> User Information</h2>
-            </div>
-            
-            <div class="info-content">
-                <div class="user-avatar">
-                    <div class="avatar-placeholder">
-                        <?php 
-                        $firstInitial = strtoupper(substr($subscription['first_name'] ?? 'U', 0, 1));
-                        $lastInitial = strtoupper(substr($subscription['last_name'] ?? 'S', 0, 1));
-                        echo htmlspecialchars($firstInitial . $lastInitial);
-                        ?>
-                    </div>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Name:</span>
-                    <span class="info-value">
-                        <?php echo htmlspecialchars(trim(($subscription['first_name'] ?? '') . ' ' . ($subscription['last_name'] ?? ''))); ?>
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Email:</span>
-                    <span class="info-value">
-                        <?php if (!empty($subscription['email'])): ?>
-                            <a href="mailto:<?php echo htmlspecialchars($subscription['email']); ?>">
-                                <?php echo htmlspecialchars($subscription['email']); ?>
-                            </a>
-                        <?php else: ?>
-                            N/A
-                        <?php endif; ?>
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Phone:</span>
-                    <span class="info-value"><?php echo htmlspecialchars($subscription['phone'] ?? 'N/A'); ?></span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">User Role:</span>
-                    <span class="info-value">
-                        <span class="role-badge role-<?php echo htmlspecialchars($subscription['user_role'] ?? 'external'); ?>">
-                            <?php echo htmlspecialchars(ucfirst($subscription['user_role'] ?? 'external')); ?>
-                        </span>
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">User ID:</span>
-                    <span class="info-value">#<?php echo htmlspecialchars($subscription['user_id'] ?? 'N/A'); ?></span>
-                </div>
-                
-                <?php if (!empty($subscription['user_id'])): ?>
-                <div class="user-actions">
-                    <a href="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo urlencode($subscription['user_id']); ?>" class="btn-view-user">
-                        <i class="fas fa-user-edit" aria-hidden="true"></i> View User Profile
-                    </a>
-                </div>
-                <?php endif; ?>
-            </div>
-        </section>
-    </div>
-
-    <?php if (!empty($subscription['is_upgrade'])): ?>
-    <section class="upgrade-info-card">
-        <div class="card-header">
-            <h2><i class="fas fa-arrow-up" aria-hidden="true"></i> Upgrade Information</h2>
-        </div>
-        
-        <div class="upgrade-details">
-            <div class="upgrade-item">
-                <span class="upgrade-label">Upgraded From:</span>
-                <span class="upgrade-value"><?php echo htmlspecialchars(ucfirst($subscription['upgraded_from'] ?? 'N/A')); ?></span>
-            </div>
-            
-            <div class="upgrade-item">
-                <span class="upgrade-label">Upgraded At:</span>
-                <span class="info-value">
-                    <?php echo !empty($subscription['created_at']) ? date('F j, Y h:i A', strtotime($subscription['created_at'])) : 'N/A'; ?>
-                </span>
-            </div>
-            
-            <div class="upgrade-item">
-                <span class="upgrade-label">Original Subscription ID:</span>
-                <span class="upgrade-value">
-                    <?php if (!empty($subscription['original_subscription_id'])): ?>
-                        <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($subscription['original_subscription_id']); ?>">
-                            #<?php echo htmlspecialchars($subscription['original_subscription_id']); ?>
-                        </a>
-                    <?php else: ?>
-                        N/A
-                    <?php endif; ?>
-                </span>
-            </div>
-        </div>
-    </section>
-    <?php endif; ?>
-
-    <?php if (!empty($paymentHistory) && is_array($paymentHistory)): ?>
-        <section class="payment-history-card">
-            <div class="card-header">
-                <h2><i class="fas fa-history" aria-hidden="true"></i> Payment History</h2>
-                <span class="payment-count"><?php echo count($paymentHistory); ?> payment(s)</span>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="payment-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th>Payment Method</th>
-                            <th>Transaction ID</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($paymentHistory as $payment): ?>
-                        <?php if (is_array($payment)): ?>
-                        <tr>
-                            <td><?php echo !empty($payment['created_at']) ? date('M d, Y h:i A', strtotime($payment['created_at'])) : 'N/A'; ?></td>
-                            <td class="amount-cell">UGX <?php echo number_format($payment['amount'] ?? 0); ?></td>
-                            <td>
-                                <?php 
-                                $method = $payment['payment_method'] ?? 'mobile_money';
-                                $icon = $method === 'mobile_money' ? 'mobile-alt' : 'credit-card';
-                                ?>
-                                <i class="fas fa-<?php echo $icon; ?>" aria-hidden="true"></i>
-                                <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $method))); ?>
-                            </td>
-                            <td class="transaction-id"><?php echo htmlspecialchars($payment['transaction_id'] ?? 'N/A'); ?></td>
-                            <td>
-                                <span class="status-badge <?php echo htmlspecialchars($payment['status'] ?? 'unknown'); ?>">
-                                    <?php echo htmlspecialchars(ucfirst($payment['status'] ?? 'Unknown')); ?>
-                                </span>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    <?php else: ?>
-    <div class="info-message">
-        <i class="fas fa-info-circle" aria-hidden="true"></i>
-        <p>No payment history found for this subscription.</p>
-    </div>
-    <?php endif; ?>
-
-    <?php if (!empty($userHistory) && is_array($userHistory)): ?>
-    <section class="user-history-card">
-        <div class="card-header">
-            <h2><i class="fas fa-list" aria-hidden="true"></i> User's Subscription History</h2>
-        </div>
-        
-        <div class="table-responsive">
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Plan</th>
-                        <th>Amount</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($userHistory as $history): 
-                        if (!is_array($history) || ($history['id'] ?? 0) == ($subscription['id'] ?? 0)) continue;
-                    ?>
-                    <tr>
-                        <td>#<?php echo htmlspecialchars($history['id'] ?? ''); ?></td>
-                        <td>
-                            <span class="plan-badge <?php echo htmlspecialchars($history['plan_type'] ?? ''); ?>">
-                                <?php echo htmlspecialchars(ucfirst($history['plan_type'] ?? '')); ?>
-                            </span>
-                        </td>
-                        <td class="amount-cell">UGX <?php echo number_format($history['amount'] ?? 0); ?></td>
-                        <td><?php echo !empty($history['start_date']) ? date('M d, Y', strtotime($history['start_date'])) : 'N/A'; ?></td>
-                        <td><?php echo !empty($history['end_date']) ? date('M d, Y', strtotime($history['end_date'])) : 'N/A'; ?></td>
-                        <td>
-                            <span class="status-badge <?php echo htmlspecialchars($history['status'] ?? ''); ?>">
-                                <?php echo htmlspecialchars(ucfirst($history['status'] ?? '')); ?>
-                            </span>
-                        </td>
-                        <td>
-                            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($history['id'] ?? ''); ?>" class="btn-view-small" title="View Details">
-                                <i class="fas fa-eye" aria-hidden="true"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </section>
-    <?php endif; ?>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -816,5 +491,330 @@ $paymentHistory = $paymentHistory ?? [];
     }
 }
 </style>
+
+<div class="subscription-view-container">
+    <header class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-credit-card" aria-hidden="true"></i>
+                Subscription Details
+            </h1>
+            <p class="page-subtitle">View and manage subscription #<?php echo htmlspecialchars($subscription['id'] ?? 'N/A'); ?></p>
+        </div>
+    </header>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success" role="status">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error" role="alert">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+            <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
+        </div>
+    <?php endif; ?>
+
+    <div class="details-grid">
+        <section class="info-card subscription-info">
+            <div class="card-header">
+                <h2><i class="fas fa-info-circle" aria-hidden="true"></i> Subscription Information</h2>
+                
+                <form action="<?php echo BASE_URL; ?>/admin/subscriptions/update-status" method="POST" class="status-update-form">
+                    <input type="hidden" name="subscription_id" value="<?php echo htmlspecialchars($subscription['id'] ?? 0); ?>">
+                    <select name="status" onchange="this.form.submit()" class="status-select <?php echo htmlspecialchars($subscription['status'] ?? 'pending'); ?>" aria-label="Update Subscription Status">
+                        <?php 
+                        $statuses = ['active', 'expired', 'pending', 'cancelled'];
+                        foreach ($statuses as $st): ?>
+                            <option value="<?php echo $st; ?>" <?php echo (($subscription['status'] ?? 'pending') === $st) ? 'selected' : ''; ?>>
+                                <?php echo ucfirst($st); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </form>
+            </div>
+            
+            <div class="info-content">
+                <div class="info-row">
+                    <span class="info-label">Subscription ID:</span>
+                    <span class="info-value">#<?php echo htmlspecialchars($subscription['id'] ?? 'N/A'); ?></span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Plan Type:</span>
+                    <span class="info-value plan-badge <?php echo htmlspecialchars($subscription['plan_type'] ?? ''); ?>">
+                        <?php echo htmlspecialchars(ucfirst($subscription['plan_type'] ?? 'N/A')); ?>
+                        <?php if (!empty($subscription['is_upgrade'])): ?>
+                            <i class="fas fa-arrow-up" title="Upgraded" aria-hidden="true"></i>
+                        <?php endif; ?>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Amount:</span>
+                    <span class="info-value amount">UGX <?php echo number_format($subscription['amount'] ?? 0); ?></span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Start Date:</span>
+                    <span class="info-value">
+                        <?php echo !empty($subscription['start_date']) ? date('F j, Y', strtotime($subscription['start_date'])) : 'N/A'; ?>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">End Date:</span>
+                    <?php 
+                    $isExpired = !empty($subscription['end_date']) && strtotime($subscription['end_date']) < time();
+                    ?>
+                    <span class="info-value <?php echo $isExpired ? 'expired' : ''; ?>">
+                        <?php echo !empty($subscription['end_date']) ? date('F j, Y', strtotime($subscription['end_date'])) : 'N/A'; ?>
+                        <?php if ($isExpired): ?>
+                            <span class="expired-label">(Expired)</span>
+                        <?php endif; ?>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Auto Renew:</span>
+                    <span class="info-value">
+                        <?php if (!empty($subscription['auto_renew'])): ?>
+                            <span class="badge-success"><i class="fas fa-check" aria-hidden="true"></i> Enabled</span>
+                        <?php else: ?>
+                            <span class="badge-warning"><i class="fas fa-times" aria-hidden="true"></i> Disabled</span>
+                        <?php endif; ?>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Payment Method:</span>
+                    <span class="info-value">
+                        <i class="fas fa-<?php echo ($subscription['payment_method'] ?? 'mobile_money') === 'mobile_money' ? 'mobile-alt' : 'credit-card'; ?>" aria-hidden="true"></i>
+                        <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $subscription['payment_method'] ?? 'unknown'))); ?>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Transaction ID:</span>
+                    <span class="info-value transaction-id"><?php echo htmlspecialchars($subscription['transaction_id'] ?? 'N/A'); ?></span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Created At:</span>
+                    <span class="info-value">
+                        <?php echo !empty($subscription['created_at']) ? date('F j, Y h:i A', strtotime($subscription['created_at'])) : 'N/A'; ?>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section class="info-card user-info-card">
+            <div class="card-header">
+                <h2><i class="fas fa-user" aria-hidden="true"></i> User Information</h2>
+            </div>
+            
+            <div class="info-content">
+                <div class="user-avatar">
+                    <div class="avatar-placeholder">
+                        <?php 
+                        $firstInitial = strtoupper(substr($subscription['first_name'] ?? 'U', 0, 1));
+                        $lastInitial = strtoupper(substr($subscription['last_name'] ?? 'S', 0, 1));
+                        echo htmlspecialchars($firstInitial . $lastInitial);
+                        ?>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">
+                        <?php echo htmlspecialchars(trim(($subscription['first_name'] ?? '') . ' ' . ($subscription['last_name'] ?? ''))); ?>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">
+                        <?php if (!empty($subscription['email'])): ?>
+                            <a href="mailto:<?php echo htmlspecialchars($subscription['email']); ?>">
+                                <?php echo htmlspecialchars($subscription['email']); ?>
+                            </a>
+                        <?php else: ?>
+                            N/A
+                        <?php endif; ?>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value"><?php echo htmlspecialchars($subscription['phone'] ?? 'N/A'); ?></span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">User Role:</span>
+                    <span class="info-value">
+                        <span class="role-badge role-<?php echo htmlspecialchars($subscription['user_role'] ?? 'external'); ?>">
+                            <?php echo htmlspecialchars(ucfirst($subscription['user_role'] ?? 'external')); ?>
+                        </span>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">User ID:</span>
+                    <span class="info-value">#<?php echo htmlspecialchars($subscription['user_id'] ?? 'N/A'); ?></span>
+                </div>
+                
+                <?php if (!empty($subscription['user_id'])): ?>
+                <div class="user-actions">
+                    <a href="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo urlencode($subscription['user_id']); ?>" class="btn-view-user">
+                        <i class="fas fa-user-edit" aria-hidden="true"></i> View User Profile
+                    </a>
+                </div>
+                <?php endif; ?>
+            </div>
+        </section>
+    </div>
+
+    <?php if (!empty($subscription['is_upgrade'])): ?>
+    <section class="upgrade-info-card">
+        <div class="card-header">
+            <h2><i class="fas fa-arrow-up" aria-hidden="true"></i> Upgrade Information</h2>
+        </div>
+        
+        <div class="upgrade-details">
+            <div class="upgrade-item">
+                <span class="upgrade-label">Upgraded From:</span>
+                <span class="upgrade-value"><?php echo htmlspecialchars(ucfirst($subscription['upgraded_from'] ?? 'N/A')); ?></span>
+            </div>
+            
+            <div class="upgrade-item">
+                <span class="upgrade-label">Upgraded At:</span>
+                <span class="info-value">
+                    <?php echo !empty($subscription['created_at']) ? date('F j, Y h:i A', strtotime($subscription['created_at'])) : 'N/A'; ?>
+                </span>
+            </div>
+            
+            <div class="upgrade-item">
+                <span class="upgrade-label">Original Subscription ID:</span>
+                <span class="upgrade-value">
+                    <?php if (!empty($subscription['original_subscription_id'])): ?>
+                        <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($subscription['original_subscription_id']); ?>">
+                            #<?php echo htmlspecialchars($subscription['original_subscription_id']); ?>
+                        </a>
+                    <?php else: ?>
+                        N/A
+                    <?php endif; ?>
+                </span>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <?php if (!empty($paymentHistory) && is_array($paymentHistory)): ?>
+        <section class="payment-history-card">
+            <div class="card-header">
+                <h2><i class="fas fa-history" aria-hidden="true"></i> Payment History</h2>
+                <span class="payment-count"><?php echo count($paymentHistory); ?> payment(s)</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="payment-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Transaction ID</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($paymentHistory as $payment): ?>
+                        <?php if (is_array($payment)): ?>
+                        <tr>
+                            <td><?php echo !empty($payment['created_at']) ? date('M d, Y h:i A', strtotime($payment['created_at'])) : 'N/A'; ?></td>
+                            <td class="amount-cell">UGX <?php echo number_format($payment['amount'] ?? 0); ?></td>
+                            <td>
+                                <?php 
+                                $method = $payment['payment_method'] ?? 'mobile_money';
+                                $icon = $method === 'mobile_money' ? 'mobile-alt' : 'credit-card';
+                                ?>
+                                <i class="fas fa-<?php echo $icon; ?>" aria-hidden="true"></i>
+                                <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $method))); ?>
+                            </td>
+                            <td class="transaction-id"><?php echo htmlspecialchars($payment['transaction_id'] ?? 'N/A'); ?></td>
+                            <td>
+                                <span class="status-badge <?php echo htmlspecialchars($payment['status'] ?? 'unknown'); ?>">
+                                    <?php echo htmlspecialchars(ucfirst($payment['status'] ?? 'Unknown')); ?>
+                                </span>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    <?php else: ?>
+    <div class="info-message">
+        <i class="fas fa-info-circle" aria-hidden="true"></i>
+        <p>No payment history found for this subscription.</p>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!empty($userHistory) && is_array($userHistory)): ?>
+    <section class="user-history-card">
+        <div class="card-header">
+            <h2><i class="fas fa-list" aria-hidden="true"></i> User's Subscription History</h2>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Plan</th>
+                        <th>Amount</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($userHistory as $history): 
+                        if (!is_array($history) || ($history['id'] ?? 0) == ($subscription['id'] ?? 0)) continue;
+                    ?>
+                    <tr>
+                        <td>#<?php echo htmlspecialchars($history['id'] ?? ''); ?></td>
+                        <td>
+                            <span class="plan-badge <?php echo htmlspecialchars($history['plan_type'] ?? ''); ?>">
+                                <?php echo htmlspecialchars(ucfirst($history['plan_type'] ?? '')); ?>
+                            </span>
+                        </td>
+                        <td class="amount-cell">UGX <?php echo number_format($history['amount'] ?? 0); ?></td>
+                        <td><?php echo !empty($history['start_date']) ? date('M d, Y', strtotime($history['start_date'])) : 'N/A'; ?></td>
+                        <td><?php echo !empty($history['end_date']) ? date('M d, Y', strtotime($history['end_date'])) : 'N/A'; ?></td>
+                        <td>
+                            <span class="status-badge <?php echo htmlspecialchars($history['status'] ?? ''); ?>">
+                                <?php echo htmlspecialchars(ucfirst($history['status'] ?? '')); ?>
+                            </span>
+                        </td>
+                        <td>
+                            <a href="<?php echo BASE_URL; ?>/admin/subscriptions/view/<?php echo urlencode($history['id'] ?? ''); ?>" class="btn-view-small" title="View Details">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <?php endif; ?>
+</div>
 
 <?php require_once __DIR__ . '/../../layouts/footer.php'; ?>

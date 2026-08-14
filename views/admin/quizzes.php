@@ -12,145 +12,6 @@ $teacherFilter = $_GET['teacher'] ?? '';
 $statusFilter  = $_GET['status'] ?? '';
 ?>
 
-<div class="admin-quizzes-container">
-    <header class="page-header">
-        <div class="header-text">
-            <h1 class="page-title">
-                <i class="fas fa-pencil-alt" aria-hidden="true"></i>
-                <span>Manage Quizzes</span>
-            </h1>
-            <p class="page-subtitle">View, review, and moderate all quizzes on the platform</p>
-        </div>
-    </header>
-
-    <section class="filters-section">
-        <form method="GET" class="filters-form" id="filterForm">
-            <div class="search-box">
-                <i class="fas fa-search" aria-hidden="true"></i>
-                <input 
-                    type="text" 
-                    name="search" 
-                    placeholder="Search quizzes by title..." 
-                    value="<?php echo htmlspecialchars($search); ?>"
-                    aria-label="Search quizzes"
-                >
-            </div>
-            
-            <div class="filter-group">
-                <select name="teacher" aria-label="Filter by teacher">
-                    <option value="">All Teachers</option>
-                    <?php foreach ($teachers as $teacher): ?>
-                        <option value="<?php echo htmlspecialchars($teacher['id'] ?? ''); ?>" <?php echo $teacherFilter == ($teacher['id'] ?? '') ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars(($teacher['first_name'] ?? '') . ' ' . ($teacher['last_name'] ?? '')); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <select name="status" aria-label="Filter by status">
-                    <option value="">All Statuses</option>
-                    <option value="published" <?php echo $statusFilter === 'published' ? 'selected' : ''; ?>>Published</option>
-                    <option value="draft" <?php echo $statusFilter === 'draft' ? 'selected' : ''; ?>>Draft</option>
-                </select>
-            </div>
-            
-            <div class="filter-actions">
-                <button type="submit" class="btn-filter">Apply Filters</button>
-                <a href="<?php echo BASE_URL; ?>/admin/quizzes" class="btn-clear">Reset</a>
-            </div>
-        </form>
-    </section>
-
-    <main class="table-card">
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Teacher</th>
-                        <th>Class</th>
-                        <th>Subject</th>
-                        <th class="text-center">Questions</th>
-                        <th class="text-center">Attempts</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th class="text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($quizzes)): ?>
-                        <tr>
-                            <td colspan="9" class="empty-message">
-                                <i class="fas fa-clipboard-list" aria-hidden="true"></i>
-                                <p>No quizzes found</p>
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($quizzes as $quiz): ?>
-                        <tr>
-                            <td class="title-cell">
-                                <span class="quiz-title">
-                                    <?php echo htmlspecialchars($quiz['title'] ?? 'Untitled Quiz'); ?>
-                                </span>
-                            </td>
-                            <td><?php echo htmlspecialchars($quiz['teacher_name'] ?? 'Unknown'); ?></td>
-                            <td><span class="meta-tag"><?php echo htmlspecialchars($quiz['class_name'] ?? 'N/A'); ?></span></td>
-                            <td><span class="meta-tag"><?php echo htmlspecialchars($quiz['subject_name'] ?? 'N/A'); ?></span></td>
-                            <td class="text-center">
-                                <span class="count-badge questions"><?php echo htmlspecialchars((string)($quiz['question_count'] ?? 0)); ?></span>
-                            </td>
-                            <td class="text-center">
-                                <span class="count-badge attempts"><?php echo htmlspecialchars((string)($quiz['attempt_count'] ?? 0)); ?></span>
-                            </td>
-                            <td>
-                                <span class="status-badge <?php echo !empty($quiz['is_published']) ? 'published' : 'draft'; ?>">
-                                    <?php echo !empty($quiz['is_published']) ? 'Published' : 'Draft'; ?>
-                                </span>
-                            </td>
-                            <td class="date-cell">
-                                <?php echo !empty($quiz['created_at']) ? date('M d, Y', strtotime($quiz['created_at'])) : 'N/A'; ?>
-                            </td>
-                            <td class="actions-cell">
-                                <a href="<?php echo BASE_URL; ?>/admin/quizzes/view/<?php echo $quiz['id']; ?>" class="action-btn view" title="View Quiz Details">
-                                    <i class="fas fa-eye" aria-hidden="true"></i>
-                                </a>
-                                <a href="<?php echo BASE_URL; ?>/admin/quizzes/delete/<?php echo $quiz['id']; ?>" class="action-btn delete" title="Delete Quiz" onclick="return confirm('Are you sure you want to delete this quiz? All associated questions and results will be lost.')">
-                                    <i class="fas fa-trash" aria-hidden="true"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <?php if (!empty($quizzes) && $totalPages > 1): ?>
-            <nav class="pagination" aria-label="Quizzes pagination">
-                <?php if ($currentPage > 1): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/quizzes?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Previous Page">
-                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/quizzes?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" 
-                       class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-
-                <?php if ($currentPage < $totalPages): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/quizzes?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Next Page">
-                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
-            </nav>
-        <?php endif; ?>
-    </main>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -518,5 +379,144 @@ $statusFilter  = $_GET['status'] ?? '';
     }
 }
 </style>
+
+<div class="admin-quizzes-container">
+    <header class="page-header">
+        <div class="header-text">
+            <h1 class="page-title">
+                <i class="fas fa-pencil-alt" aria-hidden="true"></i>
+                <span>Manage Quizzes</span>
+            </h1>
+            <p class="page-subtitle">View, review, and moderate all quizzes on the platform</p>
+        </div>
+    </header>
+
+    <section class="filters-section">
+        <form method="GET" class="filters-form" id="filterForm">
+            <div class="search-box">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search quizzes by title..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                    aria-label="Search quizzes"
+                >
+            </div>
+            
+            <div class="filter-group">
+                <select name="teacher" aria-label="Filter by teacher">
+                    <option value="">All Teachers</option>
+                    <?php foreach ($teachers as $teacher): ?>
+                        <option value="<?php echo htmlspecialchars($teacher['id'] ?? ''); ?>" <?php echo $teacherFilter == ($teacher['id'] ?? '') ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars(($teacher['first_name'] ?? '') . ' ' . ($teacher['last_name'] ?? '')); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <select name="status" aria-label="Filter by status">
+                    <option value="">All Statuses</option>
+                    <option value="published" <?php echo $statusFilter === 'published' ? 'selected' : ''; ?>>Published</option>
+                    <option value="draft" <?php echo $statusFilter === 'draft' ? 'selected' : ''; ?>>Draft</option>
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">Apply Filters</button>
+                <a href="<?php echo BASE_URL; ?>/admin/quizzes" class="btn-clear">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <main class="table-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Teacher</th>
+                        <th>Class</th>
+                        <th>Subject</th>
+                        <th class="text-center">Questions</th>
+                        <th class="text-center">Attempts</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($quizzes)): ?>
+                        <tr>
+                            <td colspan="9" class="empty-message">
+                                <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+                                <p>No quizzes found</p>
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($quizzes as $quiz): ?>
+                        <tr>
+                            <td class="title-cell">
+                                <span class="quiz-title">
+                                    <?php echo htmlspecialchars($quiz['title'] ?? 'Untitled Quiz'); ?>
+                                </span>
+                            </td>
+                            <td><?php echo htmlspecialchars($quiz['teacher_name'] ?? 'Unknown'); ?></td>
+                            <td><span class="meta-tag"><?php echo htmlspecialchars($quiz['class_name'] ?? 'N/A'); ?></span></td>
+                            <td><span class="meta-tag"><?php echo htmlspecialchars($quiz['subject_name'] ?? 'N/A'); ?></span></td>
+                            <td class="text-center">
+                                <span class="count-badge questions"><?php echo htmlspecialchars((string)($quiz['question_count'] ?? 0)); ?></span>
+                            </td>
+                            <td class="text-center">
+                                <span class="count-badge attempts"><?php echo htmlspecialchars((string)($quiz['attempt_count'] ?? 0)); ?></span>
+                            </td>
+                            <td>
+                                <span class="status-badge <?php echo !empty($quiz['is_published']) ? 'published' : 'draft'; ?>">
+                                    <?php echo !empty($quiz['is_published']) ? 'Published' : 'Draft'; ?>
+                                </span>
+                            </td>
+                            <td class="date-cell">
+                                <?php echo !empty($quiz['created_at']) ? date('M d, Y', strtotime($quiz['created_at'])) : 'N/A'; ?>
+                            </td>
+                            <td class="actions-cell">
+                                <a href="<?php echo BASE_URL; ?>/admin/quizzes/view/<?php echo $quiz['id']; ?>" class="action-btn view" title="View Quiz Details">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </a>
+                                <a href="<?php echo BASE_URL; ?>/admin/quizzes/delete/<?php echo $quiz['id']; ?>" class="action-btn delete" title="Delete Quiz" onclick="return confirm('Are you sure you want to delete this quiz? All associated questions and results will be lost.')">
+                                    <i class="fas fa-trash" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php if (!empty($quizzes) && $totalPages > 1): ?>
+            <nav class="pagination" aria-label="Quizzes pagination">
+                <?php if ($currentPage > 1): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/quizzes?page=<?php echo $currentPage - 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Previous Page">
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                    </a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/quizzes?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" 
+                       class="page-link <?php echo $i == $currentPage ? 'active' : ''; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/quizzes?page=<?php echo $currentPage + 1; ?>&search=<?php echo urlencode($search); ?>&teacher=<?php echo urlencode($teacherFilter); ?>&status=<?php echo urlencode($statusFilter); ?>" class="page-link" aria-label="Next Page">
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                <?php endif; ?>
+            </nav>
+        <?php endif; ?>
+    </main>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

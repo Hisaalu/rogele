@@ -3,42 +3,6 @@ $pageTitle = 'Payment Successful | ROGELE';
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 
-<div class="success-container">
-    <div class="success-card">
-        <div class="success-icon">
-            <i class="fas fa-check-circle"></i>
-        </div>
-        
-        <h1>Payment Successful! </h1>
-        <p class="success-message">Your subscription has been activated.</p>
-        
-        <div class="payment-summary">
-            <h3>Payment Summary</h3>
-            
-            <div class="summary-item">
-                <span class="summary-label">Plan:</span>
-                <span class="summary-value"><?php echo ucfirst($planType ?? 'Premium'); ?></span>
-            </div>
-            
-            <div class="summary-item">
-                <span class="summary-label">Amount Paid:</span>
-                <span class="summary-value amount">UGX <?php echo number_format($amount ?? 0); ?></span>
-            </div>
-        </div>
-        
-        <div class="action-buttons">
-            <a href="<?php echo BASE_URL; ?>/external/dashboard" class="btn-primary">
-                <i class="fas fa-tachometer-alt"></i>
-                Go to Dashboard
-            </a>
-            <a href="<?php echo BASE_URL; ?>/external/materials" class="btn-secondary">
-                <i class="fas fa-book-open"></i>
-                Start Learning
-            </a>
-        </div>
-    </div>
-</div>
-
 <style>
 .success-container {
     min-height: 70vh;
@@ -146,5 +110,41 @@ require_once __DIR__ . '/../layouts/header.php';
     color: #1E293B;
 }
 </style>
+
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        
+        <h1>Payment Successful! </h1>
+        <p class="success-message">Your subscription has been activated.</p>
+        
+        <div class="payment-summary">
+            <h3>Payment Summary</h3>
+            
+            <div class="summary-item">
+                <span class="summary-label">Plan:</span>
+                <span class="summary-value"><?php echo ucfirst($planType ?? 'Premium'); ?></span>
+            </div>
+            
+            <div class="summary-item">
+                <span class="summary-label">Amount Paid:</span>
+                <span class="summary-value amount">UGX <?php echo number_format($amount ?? 0); ?></span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="<?php echo BASE_URL; ?>/external/dashboard" class="btn-primary">
+                <i class="fas fa-tachometer-alt"></i>
+                Go to Dashboard
+            </a>
+            <a href="<?php echo BASE_URL; ?>/external/materials" class="btn-secondary">
+                <i class="fas fa-book-open"></i>
+                Start Learning
+            </a>
+        </div>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

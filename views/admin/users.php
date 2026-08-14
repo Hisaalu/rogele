@@ -10,187 +10,6 @@ $users  = $users ?? [];
 $totalPages = $totalPages ?? 1;
 ?>
 
-<div class="users-container">
-    <header class="page-header">
-        <div class="header-text">
-            <h1 class="page-title">
-                <i class="fas fa-users-cog" aria-hidden="true"></i>
-                <span>Manage Users</span>
-            </h1>
-            <p class="page-subtitle">View, edit, suspend, and manage all users on ROGELE</p>
-        </div>
-        <a href="<?php echo BASE_URL; ?>/admin/users/create" class="btn-primary">
-            <i class="fas fa-user-plus" aria-hidden="true"></i>
-            <span>Add New User</span>
-        </a>
-    </header>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success" role="alert">
-            <i class="fas fa-check-circle" aria-hidden="true"></i>
-            <div class="alert-content">
-                <strong>Success!</strong>
-                <p><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></p>
-            </div>
-            <button type="button" class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error" role="alert">
-            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
-            <div class="alert-content">
-                <strong>Error!</strong>
-                <p><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></p>
-            </div>
-            <button type="button" class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
-        </div>
-    <?php endif; ?>
-
-    <section class="filters-card">
-        <form method="GET" class="filters-form" id="filterForm">
-            <div class="search-box">
-                <i class="fas fa-search" aria-hidden="true"></i>
-                <input 
-                    type="text" 
-                    name="search" 
-                    placeholder="Search by name, email, or ID..." 
-                    value="<?php echo htmlspecialchars($search); ?>"
-                    aria-label="Search users"
-                >
-            </div>
-            
-            <div class="filter-group">
-                <select name="role" onchange="this.form.submit()" aria-label="Filter by role">
-                    <option value="">All Roles</option>
-                    <option value="admin" <?php echo $role === 'admin' ? 'selected' : ''; ?>>Administrators</option>
-                    <option value="teacher" <?php echo $role === 'teacher' ? 'selected' : ''; ?>>Teachers</option>
-                    <option value="learner" <?php echo $role === 'learner' ? 'selected' : ''; ?>>Learners</option>
-                    <option value="external" <?php echo $role === 'external' ? 'selected' : ''; ?>>External Users</option>
-                </select>
-            </div>
-            
-            <div class="filter-actions">
-                <button type="submit" class="btn-filter">Apply Filters</button>
-                <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-reset">Reset</a>
-            </div>
-        </form>
-    </section>
-
-    <main class="table-card">
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Joined</th>
-                        <th class="text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($users)): ?>
-                        <tr>
-                            <td colspan="6" class="empty-message">
-                                <i class="fas fa-users" aria-hidden="true"></i>
-                                <p>No users found</p>
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($users as $user): ?>
-                        <tr>
-                            <td class="user-cell">
-                                <div class="user-avatar">
-                                    <?php if (!empty($user['profile_photo'])): ?>
-                                        <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($user['profile_photo']); ?>" alt="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>">
-                                    <?php else: ?>
-                                        <div class="avatar-placeholder" style="background-color: #f06724;">
-                                            <?php 
-                                            $initial1 = strtoupper(substr($user['first_name'] ?? 'U', 0, 1));
-                                            $initial2 = strtoupper(substr($user['last_name'] ?? 'S', 0, 1));
-                                            echo $initial1 . $initial2;
-                                            ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="user-info">
-                                    <div class="user-name"><?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')); ?></div>
-                                    <div class="user-meta">ID: <?php echo htmlspecialchars($user['id'] ?? ''); ?></div>
-                                </div>
-                            </td>
-                            <td class="email-cell"><?php echo htmlspecialchars($user['email'] ?? ''); ?></td>
-                            <td>
-                                <span class="role-badge role-<?php echo htmlspecialchars($user['role'] ?? 'default'); ?>">
-                                    <?php echo ucfirst(htmlspecialchars($user['role'] ?? '')); ?>
-                                </span>
-                            </td>
-                            <td>
-                                <?php if (!empty($user['is_suspended'])): ?>
-                                    <span class="status-badge suspended">Suspended</span>
-                                <?php elseif (isset($user['is_active']) && !$user['is_active']): ?>
-                                    <span class="status-badge inactive">Inactive</span>
-                                <?php else: ?>
-                                    <span class="status-badge active">Active</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="date-cell">
-                                <?php echo !empty($user['created_at']) ? date('M d, Y', strtotime($user['created_at'])) : 'N/A'; ?>
-                            </td>
-                            <td class="actions-cell">
-                                <a href="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo $user['id']; ?>" class="action-btn edit" title="Edit User">
-                                    <i class="fas fa-edit" aria-hidden="true"></i>
-                                </a>
-                                
-                                <?php if (!empty($user['is_suspended'])): ?>
-                                    <a href="<?php echo BASE_URL; ?>/admin/users/activate/<?php echo $user['id']; ?>" class="action-btn activate" title="Activate User" onclick="return confirm('Activate this user?')">
-                                        <i class="fas fa-check-circle" aria-hidden="true"></i>
-                                    </a>
-                                <?php else: ?>
-                                    <a href="<?php echo BASE_URL; ?>/admin/users/suspend/<?php echo $user['id']; ?>" class="action-btn suspend" title="Suspend User" onclick="return confirm('Suspend this user? They will not be able to log in.')">
-                                        <i class="fas fa-ban" aria-hidden="true"></i>
-                                    </a>
-                                <?php endif; ?>
-
-                                <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] != $user['id']): ?>
-                                    <a href="<?php echo BASE_URL; ?>/admin/users/delete/<?php echo $user['id']; ?>" class="action-btn delete" title="Delete User" onclick="return confirmDelete(<?php echo $user['id']; ?>, '<?php echo addslashes(htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))); ?>')">
-                                        <i class="fas fa-trash" aria-hidden="true"></i>
-                                    </a>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <?php if (!empty($users) && $totalPages > 1): ?>
-            <nav class="pagination" aria-label="Users pagination">
-                <?php if ($page > 1): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/users?page=<?php echo $page - 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link" aria-label="Previous Page">
-                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/users?page=<?php echo $i; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" 
-                    class="page-link <?php echo $i == $page ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-
-                <?php if ($page < $totalPages): ?>
-                    <a href="<?php echo BASE_URL; ?>/admin/users?page=<?php echo $page + 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link" aria-label="Next Page">
-                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
-            </nav>
-        <?php endif; ?>
-    </main>
-</div>
-
 <style>
 :root {
     --primary-purple: #7f2677;
@@ -674,6 +493,187 @@ $totalPages = $totalPages ?? 1;
     }
 }
 </style>
+
+<div class="users-container">
+    <header class="page-header">
+        <div class="header-text">
+            <h1 class="page-title">
+                <i class="fas fa-users-cog" aria-hidden="true"></i>
+                <span>Manage Users</span>
+            </h1>
+            <p class="page-subtitle">View, edit, suspend, and manage all users on ROGELE</p>
+        </div>
+        <a href="<?php echo BASE_URL; ?>/admin/users/create" class="btn-primary">
+            <i class="fas fa-user-plus" aria-hidden="true"></i>
+            <span>Add New User</span>
+        </a>
+    </header>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <div class="alert-content">
+                <strong>Success!</strong>
+                <p><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></p>
+            </div>
+            <button type="button" class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error" role="alert">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <div class="alert-content">
+                <strong>Error!</strong>
+                <p><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></p>
+            </div>
+            <button type="button" class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
+        </div>
+    <?php endif; ?>
+
+    <section class="filters-card">
+        <form method="GET" class="filters-form" id="filterForm">
+            <div class="search-box">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search by name, email, or ID..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                    aria-label="Search users"
+                >
+            </div>
+            
+            <div class="filter-group">
+                <select name="role" onchange="this.form.submit()" aria-label="Filter by role">
+                    <option value="">All Roles</option>
+                    <option value="admin" <?php echo $role === 'admin' ? 'selected' : ''; ?>>Administrators</option>
+                    <option value="teacher" <?php echo $role === 'teacher' ? 'selected' : ''; ?>>Teachers</option>
+                    <option value="learner" <?php echo $role === 'learner' ? 'selected' : ''; ?>>Learners</option>
+                    <option value="external" <?php echo $role === 'external' ? 'selected' : ''; ?>>External Users</option>
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">Apply Filters</button>
+                <a href="<?php echo BASE_URL; ?>/admin/users" class="btn-reset">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <main class="table-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($users)): ?>
+                        <tr>
+                            <td colspan="6" class="empty-message">
+                                <i class="fas fa-users" aria-hidden="true"></i>
+                                <p>No users found</p>
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($users as $user): ?>
+                        <tr>
+                            <td class="user-cell">
+                                <div class="user-avatar">
+                                    <?php if (!empty($user['profile_photo'])): ?>
+                                        <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($user['profile_photo']); ?>" alt="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>">
+                                    <?php else: ?>
+                                        <div class="avatar-placeholder" style="background-color: #f06724;">
+                                            <?php 
+                                            $initial1 = strtoupper(substr($user['first_name'] ?? 'U', 0, 1));
+                                            $initial2 = strtoupper(substr($user['last_name'] ?? 'S', 0, 1));
+                                            echo $initial1 . $initial2;
+                                            ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-name"><?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')); ?></div>
+                                    <div class="user-meta">ID: <?php echo htmlspecialchars($user['id'] ?? ''); ?></div>
+                                </div>
+                            </td>
+                            <td class="email-cell"><?php echo htmlspecialchars($user['email'] ?? ''); ?></td>
+                            <td>
+                                <span class="role-badge role-<?php echo htmlspecialchars($user['role'] ?? 'default'); ?>">
+                                    <?php echo ucfirst(htmlspecialchars($user['role'] ?? '')); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <?php if (!empty($user['is_suspended'])): ?>
+                                    <span class="status-badge suspended">Suspended</span>
+                                <?php elseif (isset($user['is_active']) && !$user['is_active']): ?>
+                                    <span class="status-badge inactive">Inactive</span>
+                                <?php else: ?>
+                                    <span class="status-badge active">Active</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="date-cell">
+                                <?php echo !empty($user['created_at']) ? date('M d, Y', strtotime($user['created_at'])) : 'N/A'; ?>
+                            </td>
+                            <td class="actions-cell">
+                                <a href="<?php echo BASE_URL; ?>/admin/users/edit/<?php echo $user['id']; ?>" class="action-btn edit" title="Edit User">
+                                    <i class="fas fa-edit" aria-hidden="true"></i>
+                                </a>
+                                
+                                <?php if (!empty($user['is_suspended'])): ?>
+                                    <a href="<?php echo BASE_URL; ?>/admin/users/activate/<?php echo $user['id']; ?>" class="action-btn activate" title="Activate User" onclick="return confirm('Activate this user?')">
+                                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?php echo BASE_URL; ?>/admin/users/suspend/<?php echo $user['id']; ?>" class="action-btn suspend" title="Suspend User" onclick="return confirm('Suspend this user? They will not be able to log in.')">
+                                        <i class="fas fa-ban" aria-hidden="true"></i>
+                                    </a>
+                                <?php endif; ?>
+
+                                <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] != $user['id']): ?>
+                                    <a href="<?php echo BASE_URL; ?>/admin/users/delete/<?php echo $user['id']; ?>" class="action-btn delete" title="Delete User" onclick="return confirmDelete(<?php echo $user['id']; ?>, '<?php echo addslashes(htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))); ?>')">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php if (!empty($users) && $totalPages > 1): ?>
+            <nav class="pagination" aria-label="Users pagination">
+                <?php if ($page > 1): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/users?page=<?php echo $page - 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link" aria-label="Previous Page">
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                    </a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/users?page=<?php echo $i; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" 
+                    class="page-link <?php echo $i == $page ? 'active' : ''; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($page < $totalPages): ?>
+                    <a href="<?php echo BASE_URL; ?>/admin/users?page=<?php echo $page + 1; ?>&role=<?php echo urlencode($role); ?>&search=<?php echo urlencode($search); ?>" class="page-link" aria-label="Next Page">
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                <?php endif; ?>
+            </nav>
+        <?php endif; ?>
+    </main>
+</div>
 
 <script>
 function confirmDelete(userId, userName) {

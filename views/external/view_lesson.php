@@ -9,6 +9,44 @@ if (!isset($lesson)) {
 }
 ?>
 
+<style>
+    .material-item:hover {
+        background: #F1F5F9;
+    }
+
+    .bookmark-btn {
+        background: white;
+        border: 2px solid #E2E8F0;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #666;
+        font-size: 1.2rem;
+    }
+
+    .bookmark-btn:hover {
+        border-color: #f06724;
+        color: #f06724;
+        transform: scale(1.1);
+    }
+
+    .bookmark-btn.bookmarked {
+        background: #f06724;
+        border-color: #f06724;
+        color: white;
+    }
+
+    .bookmark-btn.bookmarked:hover {
+        background: #e05a1a;
+        border-color: #e05a1a;
+    }
+</style>
+
 <div style="padding: 40px 20px; max-width: 1000px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <a href="<?php echo BASE_URL; ?>/external/materials" style="color: #000; text-decoration: none;">
@@ -88,44 +126,6 @@ function getYoutubeId($url) {
     return $matches[1] ?? '';
 }
 ?>
-
-<style>
-    .material-item:hover {
-        background: #F1F5F9;
-    }
-
-    .bookmark-btn {
-        background: white;
-        border: 2px solid #E2E8F0;
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: #666;
-        font-size: 1.2rem;
-    }
-
-    .bookmark-btn:hover {
-        border-color: #f06724;
-        color: #f06724;
-        transform: scale(1.1);
-    }
-
-    .bookmark-btn.bookmarked {
-        background: #f06724;
-        border-color: #f06724;
-        color: white;
-    }
-
-    .bookmark-btn.bookmarked:hover {
-        background: #e05a1a;
-        border-color: #e05a1a;
-    }
-</style>
 
 <script>
 function toggleBookmark(lessonId, buttonElement) {

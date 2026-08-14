@@ -9,218 +9,6 @@ $selectedClass = $_GET['class_id'] ?? '';
 $search = $_GET['search'] ?? '';
 ?>
 
-<div class="students-container">
-    <!-- Header -->
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">
-                <i class="fas fa-users"></i>
-                My Students
-            </h1>
-            <p class="page-subtitle">View and track your students' progress</p>
-        </div>
-        
-        <!-- Quick Stats -->
-        <?php if (!empty($students)): ?>
-        <div class="quick-stats">
-            <div class="quick-stat-card">
-                <div class="quick-stat-icon">
-                    <i class="fas fa-user-graduate"></i>
-                </div>
-                <div class="quick-stat-info">
-                    <span class="quick-stat-label">Total Students</span>
-                    <span class="quick-stat-value"><?php echo count($students); ?></span>
-                </div>
-            </div>
-            <div class="quick-stat-card">
-                <div class="quick-stat-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="quick-stat-info">
-                    <span class="quick-stat-label">Avg. Performance</span>
-                    <span class="quick-stat-value">
-                        <?php 
-                        $avgScores = array_filter(array_column($students, 'avg_score'));
-                        echo !empty($avgScores) ? round(array_sum($avgScores) / count($avgScores), 1) . '%' : '0%';
-                        ?>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-    </div>
-
-    <!-- Alert Messages -->
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
-        </div>
-    <?php endif; ?>
-
-    <!-- Filters Section -->
-    <div class="filters-section">
-        <form method="GET" class="filters-form">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input 
-                    type="text" 
-                    name="search" 
-                    placeholder="Search students by name or email..." 
-                    value="<?php echo htmlspecialchars($search); ?>"
-                >
-            </div>
-
-            <div class="filter-group">
-                <select name="class_id">
-                    <option value="">All Classes</option>
-                    <?php foreach ($classes as $class): ?>
-                        <option value="<?php echo $class['id']; ?>" 
-                            <?php echo ($selectedClass == $class['id']) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($class['name']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-filter">
-                <i class="fas fa-filter"></i> Filter
-            </button>
-            
-            <?php if ($search || $selectedClass): ?>
-                <a href="<?php echo BASE_URL; ?>/teacher/students" class="btn-clear">
-                    <i class="fas fa-times"></i> Clear
-                </a>
-            <?php endif; ?>
-        </form>
-    </div>
-
-    <!-- Students Grid -->
-    <?php if (empty($students)): ?>
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="fas fa-users-slash"></i>
-            </div>
-            <h3>No Students Found</h3>
-            <p>You don't have any students assigned to your classes yet.</p>
-            <p class="empty-hint">Students will appear here once they register and select your class.</p>
-        </div>
-    <?php else: ?>
-        <div class="students-grid">
-            <?php foreach ($students as $student): 
-                $quizzesTaken = $student['quizzes_taken'] ?? 0;
-                $avgScore = $student['avg_score'] ?? 0;
-                $lessonsViewed = $student['lessons_viewed'] ?? 0;
-                $scoreClass = $avgScore >= 70 ? 'high' : ($avgScore >= 50 ? 'medium' : 'low');
-                $performanceLevel = $avgScore >= 80 ? 'Excellent' : ($avgScore >= 60 ? 'Good' : ($avgScore >= 40 ? 'Average' : 'Needs Improvement'));
-            ?>
-                <div class="student-card">
-                    <div class="student-avatar">
-                        <?php if (!empty($student['profile_photo'])): ?>
-                            <img src="<?php echo BASE_URL; ?>/<?php echo $student['profile_photo']; ?>" alt="<?php echo $student['first_name']; ?>">
-                        <?php else: ?>
-                            <div class="avatar-placeholder">
-                                <?php 
-                                $initial = strtoupper(substr($student['first_name'] ?? 'S', 0, 2));
-                                echo $initial;
-                                ?>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($avgScore >= 80): ?>
-                            <div class="student-badge top-performer" title="Top Performer">
-                                <i class="fas fa-crown"></i>
-                            </div>
-                        <?php elseif ($avgScore >= 60): ?>
-                            <div class="student-badge good-performer" title="Good Performer">
-                                <i class="fas fa-star"></i>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="student-info">
-                        <h3 class="student-name">
-                            <?php 
-                                $full_name = $student['first_name'] . ' ' . $student['last_name'];
-                                $formatted_name = mb_convert_case($full_name, MB_CASE_TITLE, "UTF-8"); 
-                                echo htmlspecialchars($formatted_name); 
-                            ?>
-                        </h3>
-                        
-                        <div class="student-role">
-                            <?php if (($student['role'] ?? '') == 'learner'): ?>
-                                <span class="role-badge learner">
-                                    <i class="fas fa-user-graduate"></i> Student
-                                </span>
-                            <?php else: ?>
-                                <span class="role-badge external">
-                                    Student
-                                </span>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <p class="student-class">
-                            <i class="fas fa-graduation-cap"></i>
-                            <?php echo $student['class_name'] ?? 'No Class'; ?>
-                        </p>
-                        <p class="student-email">
-                            <i class="fas fa-envelope"></i>
-                            <?php echo htmlspecialchars($student['email']); ?>
-                        </p>
-                        
-                        <!-- Performance Bar -->
-                        <div class="performance-bar">
-                            <div class="performance-label">
-                                <span>Performance: <?php echo $performanceLevel; ?></span>
-                                <span><?php echo number_format($avgScore, 1); ?>%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: <?php echo $avgScore; ?>%; background: <?php echo $avgScore >= 70 ? '#10B981' : ($avgScore >= 50 ? '#F59E0B' : '#EF4444'); ?>"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="student-stats">
-                            <div class="stat">
-                                <span class="stat-label">
-                                    <i class="fas fa-pencil-alt"></i> Quizzes Taken
-                                </span>
-                                <span class="stat-value"><?php echo number_format($quizzesTaken); ?></span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-label">
-                                    <i class="fas fa-chart-line"></i> Avg. Score
-                                </span>
-                                <span class="stat-value <?php echo $scoreClass; ?>">
-                                    <?php echo number_format($avgScore, 1); ?>%
-                                </span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-label">
-                                    <i class="fas fa-book-open"></i> Lessons
-                                </span>
-                                <span class="stat-value">NA</span>
-                            </div>
-                        </div>
-                        
-                        <div class="student-actions">
-                            <a href="<?php echo BASE_URL; ?>/teacher/students/progress/<?php echo $student['id']; ?>" class="btn-view">
-                                <i class="fas fa-chart-line"></i> View Progress
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-</div>
-
 <style>
 .students-container {
     max-width: 1400px;
@@ -228,7 +16,6 @@ $search = $_GET['search'] ?? '';
     padding: 30px 20px;
 }
 
-/* Page Header */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -255,7 +42,6 @@ $search = $_GET['search'] ?? '';
     font-size: 0.95rem;
 }
 
-/* Quick Stats */
 .quick-stats {
     display: flex;
     gap: 15px;
@@ -300,7 +86,6 @@ $search = $_GET['search'] ?? '';
     color: #000;
 }
 
-/* Alerts */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -334,7 +119,6 @@ $search = $_GET['search'] ?? '';
     }
 }
 
-/* Filters Section */
 .filters-section {
     background: white;
     border-radius: 16px;
@@ -425,7 +209,6 @@ $search = $_GET['search'] ?? '';
     background: #f06724;
 }
 
-/* Students Grid */
 .students-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
@@ -555,7 +338,6 @@ $search = $_GET['search'] ?? '';
     color: #f06724;
 }
 
-/* Performance Bar */
 .performance-bar {
     margin: 15px 0;
     padding: 10px;
@@ -584,7 +366,6 @@ $search = $_GET['search'] ?? '';
     transition: width 0.3s ease;
 }
 
-/* Student Stats */
 .student-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -656,7 +437,6 @@ $search = $_GET['search'] ?? '';
     box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -696,7 +476,6 @@ $search = $_GET['search'] ?? '';
     color: #555;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .page-header {
         flex-direction: column;
@@ -732,6 +511,212 @@ $search = $_GET['search'] ?? '';
 }
 
 </style>
+
+<div class="students-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-users"></i>
+                My Students
+            </h1>
+            <p class="page-subtitle">View and track your students' progress</p>
+        </div>
+        
+        <?php if (!empty($students)): ?>
+        <div class="quick-stats">
+            <div class="quick-stat-card">
+                <div class="quick-stat-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="quick-stat-info">
+                    <span class="quick-stat-label">Total Students</span>
+                    <span class="quick-stat-value"><?php echo count($students); ?></span>
+                </div>
+            </div>
+            <div class="quick-stat-card">
+                <div class="quick-stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="quick-stat-info">
+                    <span class="quick-stat-label">Avg. Performance</span>
+                    <span class="quick-stat-value">
+                        <?php 
+                        $avgScores = array_filter(array_column($students, 'avg_score'));
+                        echo !empty($avgScores) ? round(array_sum($avgScores) / count($avgScores), 1) . '%' : '0%';
+                        ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="filters-section">
+        <form method="GET" class="filters-form">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search students by name or email..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                >
+            </div>
+
+            <div class="filter-group">
+                <select name="class_id">
+                    <option value="">All Classes</option>
+                    <?php foreach ($classes as $class): ?>
+                        <option value="<?php echo $class['id']; ?>" 
+                            <?php echo ($selectedClass == $class['id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($class['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+            
+            <?php if ($search || $selectedClass): ?>
+                <a href="<?php echo BASE_URL; ?>/teacher/students" class="btn-clear">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            <?php endif; ?>
+        </form>
+    </div>
+
+    <?php if (empty($students)): ?>
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-users-slash"></i>
+            </div>
+            <h3>No Students Found</h3>
+            <p>You don't have any students assigned to your classes yet.</p>
+            <p class="empty-hint">Students will appear here once they register and select your class.</p>
+        </div>
+    <?php else: ?>
+        <div class="students-grid">
+            <?php foreach ($students as $student): 
+                $quizzesTaken = $student['quizzes_taken'] ?? 0;
+                $avgScore = $student['avg_score'] ?? 0;
+                $lessonsViewed = $student['lessons_viewed'] ?? 0;
+                $scoreClass = $avgScore >= 70 ? 'high' : ($avgScore >= 50 ? 'medium' : 'low');
+                $performanceLevel = $avgScore >= 80 ? 'Excellent' : ($avgScore >= 60 ? 'Good' : ($avgScore >= 40 ? 'Average' : 'Needs Improvement'));
+            ?>
+                <div class="student-card">
+                    <div class="student-avatar">
+                        <?php if (!empty($student['profile_photo'])): ?>
+                            <img src="<?php echo BASE_URL; ?>/<?php echo $student['profile_photo']; ?>" alt="<?php echo $student['first_name']; ?>">
+                        <?php else: ?>
+                            <div class="avatar-placeholder">
+                                <?php 
+                                $initial = strtoupper(substr($student['first_name'] ?? 'S', 0, 2));
+                                echo $initial;
+                                ?>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($avgScore >= 80): ?>
+                            <div class="student-badge top-performer" title="Top Performer">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                        <?php elseif ($avgScore >= 60): ?>
+                            <div class="student-badge good-performer" title="Good Performer">
+                                <i class="fas fa-star"></i>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="student-info">
+                        <h3 class="student-name">
+                            <?php 
+                                $full_name = $student['first_name'] . ' ' . $student['last_name'];
+                                $formatted_name = mb_convert_case($full_name, MB_CASE_TITLE, "UTF-8"); 
+                                echo htmlspecialchars($formatted_name); 
+                            ?>
+                        </h3>
+                        
+                        <div class="student-role">
+                            <?php if (($student['role'] ?? '') == 'learner'): ?>
+                                <span class="role-badge learner">
+                                    <i class="fas fa-user-graduate"></i> Student
+                                </span>
+                            <?php else: ?>
+                                <span class="role-badge external">
+                                    Student
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <p class="student-class">
+                            <i class="fas fa-graduation-cap"></i>
+                            <?php echo $student['class_name'] ?? 'No Class'; ?>
+                        </p>
+                        <p class="student-email">
+                            <i class="fas fa-envelope"></i>
+                            <?php echo htmlspecialchars($student['email']); ?>
+                        </p>
+                        
+                        <div class="performance-bar">
+                            <div class="performance-label">
+                                <span>Performance: <?php echo $performanceLevel; ?></span>
+                                <span><?php echo number_format($avgScore, 1); ?>%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: <?php echo $avgScore; ?>%; background: <?php echo $avgScore >= 70 ? '#10B981' : ($avgScore >= 50 ? '#F59E0B' : '#EF4444'); ?>"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="student-stats">
+                            <div class="stat">
+                                <span class="stat-label">
+                                    <i class="fas fa-pencil-alt"></i> Quizzes Taken
+                                </span>
+                                <span class="stat-value"><?php echo number_format($quizzesTaken); ?></span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">
+                                    <i class="fas fa-chart-line"></i> Avg. Score
+                                </span>
+                                <span class="stat-value <?php echo $scoreClass; ?>">
+                                    <?php echo number_format($avgScore, 1); ?>%
+                                </span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">
+                                    <i class="fas fa-book-open"></i> Lessons
+                                </span>
+                                <span class="stat-value">NA</span>
+                            </div>
+                        </div>
+                        
+                        <div class="student-actions">
+                            <a href="<?php echo BASE_URL; ?>/teacher/students/progress/<?php echo $student['id']; ?>" class="btn-view">
+                                <i class="fas fa-chart-line"></i> View Progress
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
