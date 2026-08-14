@@ -456,7 +456,7 @@ $selectedClass = $_GET['class_id'] ?? '';
         justify-content: center;
     }
 }
-</style
+</style>
 
 <div class="quizzes-container">
     <div class="page-header">
