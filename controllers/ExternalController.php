@@ -277,10 +277,10 @@ class ExternalController {
         
         $data = [
             'first_name' => trim($_POST['first_name'] ?? ''),
-            'last_name' => trim($_POST['last_name'] ?? ''),
-            'email' => trim($_POST['email'] ?? ''),
-            'phone' => trim($_POST['phone'] ?? ''),
-            'class_id' => !empty($_POST['class_id']) ? (int)$_POST['class_id'] : null
+            'last_name'  => trim($_POST['last_name'] ?? ''),
+            'email'      => trim($_POST['email'] ?? ''),
+            'phone'      => trim($_POST['phone'] ?? ''),
+            'class_id'   => !empty($_POST['class_id']) ? (int)$_POST['class_id'] : null
         ];
         
         $errors = $this->validateRequiredFields($data, ['first_name', 'last_name', 'email']);
@@ -297,6 +297,21 @@ class ExternalController {
         if ($result['success']) {
             $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
             $_SESSION['user_email'] = $data['email'];
+
+            $userName = trim($data['first_name'] . ' ' . $data['last_name']);
+            $message = !empty($userName) 
+                ? "{$userName} updated their profile." 
+                : "User #{$userId} updated their profile.";
+
+            require_once __DIR__ . '/../models/Notification.php';
+            
+            Notification::create(
+                'user',                                     
+                'Profile Updated',                         
+                $message,                               
+                BASE_URL . '/admin/users/edit/' . $userId 
+            );
+
             $this->redirectWithSuccess('Profile updated successfully!', BASE_URL . '/external/profile');
         } else {
             $this->redirectWithError($result['error'] ?? 'Failed to update profile', BASE_URL . '/external/profile');

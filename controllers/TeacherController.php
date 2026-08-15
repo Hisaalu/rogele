@@ -533,6 +533,21 @@ class TeacherController {
         if ($result['success']) {
             $_SESSION['user_name'] = $firstName . ' ' . $lastName;
             $_SESSION['user_email'] = $email;
+
+            $userName = trim($data['first_name'] . ' ' . $data['last_name']);
+            $message = !empty($userName) 
+                ? "{$userName} updated their profile." 
+                : "User #{$userId} updated their profile.";
+
+            require_once __DIR__ . '/../models/Notification.php';
+            
+            Notification::create(
+                'user',                                     
+                'Profile Updated',                         
+                $message,                               
+                BASE_URL . '/admin/users/edit/' . $userId 
+            );
+
             $_SESSION['success'] = 'Profile updated successfully!';
         } else {
             $_SESSION['error'] = $result['error'] ?? 'Failed to update profile. Please try again.';

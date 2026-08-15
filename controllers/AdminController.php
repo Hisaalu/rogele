@@ -189,6 +189,21 @@ class AdminController {
         
         if ($result['success']) {
             $this->setUserSession($data);
+
+            $userName = trim($data['first_name'] . ' ' . $data['last_name']);
+            $message = !empty($userName) 
+                ? "{$userName} updated their profile." 
+                : "User #{$userId} updated their profile.";
+
+            require_once __DIR__ . '/../models/Notification.php';
+            
+            Notification::create(
+                'user',                                     
+                'Profile Updated',                         
+                $message,                               
+                BASE_URL . '/admin/users/edit/' . $userId 
+            );
+
             $this->redirectWithSuccess('Profile updated successfully!', BASE_URL . '/admin/profile');
         } else {
             $this->redirectWithError($result['error'] ?? 'Failed to update profile.', BASE_URL . '/admin/profile');

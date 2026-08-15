@@ -322,6 +322,21 @@ class AuthController {
         
         if ($result['success']) {
             $this->userModel->clearResetToken($user['id']);
+
+            $userName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+            $message = !empty($userName) 
+                ? "{$userName} changed their password via email." 
+                : "User #{$user['id']} changed their password via email.";
+
+            require_once __DIR__ . '/../models/Notification.php';
+            
+            Notification::create(
+                'user',                                     
+                'Password Changed',                         
+                $message,                               
+                BASE_URL . '/admin/users/edit/' . $user['id'] 
+            );
+
             $this->redirectWithSuccess('Your password has been reset successfully!', BASE_URL . '/login');
         } else {
             $this->redirectWithError('Failed to reset password. Please try again.', BASE_URL . '/reset-password?token=' . urlencode($token));

@@ -539,7 +539,7 @@ class User {
     
     public function changePassword($userId, $currentPassword, $newPassword) {
         try {
-            $query = "SELECT password FROM users WHERE id = :id";
+            $query = "SELECT password, first_name, last_name FROM users WHERE id = :id";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([':id' => $userId]);
             $user = $stmt->fetch();
@@ -559,8 +559,20 @@ class User {
                 ':password' => $hashedPassword,
                 ':id' => $userId
             ]);
-            
+
             if ($result) {
+                $userName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+                $message = !empty($userName) ? "{$userName} changed their password." : "User #{$userId} changed their password.";
+
+                require_once __DIR__ . '/Notification.php';
+                
+                Notification::create(
+                    'user',                                     
+                    'Password Changed',                         
+                    $message,                               
+                    BASE_URL . '/admin/users/edit/' . $userId 
+                );
+
                 $this->logActivity($userId, 'PASSWORD_CHANGE', 'User changed password!');
                 return ['success' => true, 'message' => 'Password changed successfully!'];
             }
