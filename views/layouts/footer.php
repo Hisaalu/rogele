@@ -263,8 +263,8 @@
 
     <style>
         .site-footer {
-            background: linear-gradient(rgba(33, 37, 41, 0.75), rgba(33, 37, 41, 0.95)), 
-                        url('<?php echo BASE_URL; ?>/public/images/footer-bg.jpg') no-repeat center center / cover;
+            background: linear-gradient( rgba(33, 37, 41, 0.82),rgba(33, 37, 41, 0.97)), 
+            url('<?php echo BASE_URL; ?>/public/images/footer-bg.jpeg') no-repeat center center / cover;
             color: #fff;
             padding: 60px 0 20px;
             width: 100%;
