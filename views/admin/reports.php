@@ -117,7 +117,6 @@ body {
     background: var(--primary-purple-dark);
 }
 
-/* Enhanced Responsive Control Bar */
 .control-bar {
     background: var(--surface-card);
     border: 1px solid var(--border-color);
@@ -191,7 +190,8 @@ body {
 }
 
 .form-control-custom:focus {
-    border-color: var(--primary-purple);
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 2px rgba(240, 103, 36, 0.2);
 }
 
 .kpi-grid {
@@ -396,7 +396,68 @@ body {
 .text-right { text-align: right; }
 .fw-bold { font-weight: 700; }
 
-/* Dedicated Media Queries for Fine-Tuned Responsiveness */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+.modal-backdrop.active {
+    display: flex;
+}
+
+.modal-content-box {
+    background: var(--surface-card);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 800px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header-custom {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body-custom {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-close-btn:hover {
+    color: var(--primary-purple);
+}
+
 @media (max-width: 992px) {
     .control-bar {
         flex-direction: column;
@@ -570,7 +631,7 @@ body {
         <div class="card-box">
             <div class="card-box-header">
                 <h3 class="card-box-title"><i class="fas fa-history"></i> Live Activity Audit Log</h3>
-                <a href="<?= htmlspecialchars($baseUrl); ?>/admin/reports?type=activity" class="action-btn" style="padding: 4px 10px; font-size: 0.75rem;">View Full Log</a>
+                <button type="button" onclick="openLogModal()" class="action-btn" style="padding: 4px 10px; font-size: 0.75rem;">View Full Log</button>
             </div>
             <div class="feed-list">
                 <?php if (empty($recentActivity)): ?>
@@ -713,6 +774,43 @@ body {
     <?php endif; ?>
 </div>
 
+<div id="auditLogModal" class="modal-backdrop" onclick="closeLogModal(event)">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+        <div class="modal-header-custom">
+            <h3 class="card-box-title"><i class="fas fa-history"></i> Full Activity Audit Log</h3>
+            <button type="button" class="modal-close-btn" onclick="closeLogModal()">&times;</button>
+        </div>
+        <div class="modal-body-custom">
+            <div class="feed-list">
+                <?php if (empty($recentActivity)): ?>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">No activity recorded for this period.</p>
+                <?php else: ?>
+                    <?php 
+                    $actionIcons = [
+                        'LOGIN' => 'sign-in-alt',
+                        'REGISTRATION' => 'user-plus',
+                        'QUIZ_ATTEMPT' => 'pen-to-square'
+                    ];
+                    foreach ($recentActivity as $activity): 
+                        $icon = $actionIcons[$activity['action'] ?? ''] ?? 'bell';
+                    ?>
+                        <div class="feed-item">
+                            <div class="feed-icon"><i class="fas fa-<?= $icon; ?>"></i></div>
+                            <div class="feed-content">
+                                <p class="feed-text">
+                                    <strong><?= htmlspecialchars(($activity['first_name'] ?? '') . ' ' . ($activity['last_name'] ?? '')); ?></strong>
+                                    <?= htmlspecialchars($activity['description'] ?? ''); ?>
+                                </p>
+                                <span class="feed-time"><i class="far fa-clock"></i> <?= date('M d, Y H:i', strtotime($activity['created_at'] ?? 'now')); ?></span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 <?php if ($type === 'overview'): ?>
 document.addEventListener('DOMContentLoaded', function() {
@@ -830,6 +928,22 @@ function exportCSV() {
     downloadLink.click();
     document.body.removeChild(downloadLink);
 }
+
+function openLogModal() {
+    document.getElementById('auditLogModal').classList.add('active');
+    document.body.style.overflow = 'hidden'; 
+}
+
+function closeLogModal(event) {
+    document.getElementById('auditLogModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeLogModal();
+    }
+});
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

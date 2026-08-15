@@ -592,7 +592,7 @@ $recentActivity = $recentActivity ?? [];
         <section class="dashboard-card">
             <div class="card-header">
                 <h3><i class="fas fa-history" aria-hidden="true"></i> Recent Activity</h3>
-                <a href="<?php echo BASE_URL; ?>/admin/reports?type=activity" class="view-all">View All</a>
+                <a href="<?php echo BASE_URL; ?>/admin/reports" class="view-all">View All</a>
             </div>
             <div class="card-body">
                 <?php if (empty($recentActivity)): ?>

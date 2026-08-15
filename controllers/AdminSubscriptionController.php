@@ -8,7 +8,7 @@ class AdminSubscriptionController {
     private $subscriptionModel;
     private $userModel;
     private $settingsModel;
-    private $itemsPerPage = 20;
+    private $itemsPerPage = 10;
     
     public function __construct() {
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {

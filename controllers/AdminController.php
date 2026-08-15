@@ -378,8 +378,8 @@ class AdminController {
         $totalLearners = count($this->userModel->getAllUsers('learner', 0, 0));
         $totalExternal = count($this->userModel->getAllUsers('external', 0, 0));
         $totalAdmins = count($this->userModel->getAllUsers('admin', 0, 0));
-        $recentUsers = $this->userModel->getAllUsers(null, 10, 0);       
-        $recentActivity = $this->reportModel->getRecentActivity(10);       
+        $recentUsers = $this->userModel->getAllUsers(null, 200, 0);       
+        $recentActivity = $this->reportModel->getRecentActivity(200);       
         $userGrowthData = $this->reportModel->getUserGrowthData($days);
         $revenueData = $this->reportModel->getRevenueData($days);
         $activeToday = $this->userModel->getActiveToday();
