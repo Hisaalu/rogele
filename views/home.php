@@ -896,7 +896,7 @@ body {
     <section class="how-it-works" id="how-it-works">
         <div class="container">
             <div class="section-header">
-                <span class="section-subtitle">Simple Process</span>
+                <span class="section-subtitle">Getting Started</span>
                 <h2 class="section-title">Start Learning in <span>3 Easy Steps</span></h2>
                 <p class="section-description">
                     Get started with our platform with a few clicks
@@ -937,7 +937,7 @@ body {
     <section class="features-section" id="about">
         <div class="container">
             <div class="section-header">
-                <span class="section-subtitle">Why Choose Us</span>
+                <span class="section-subtitle">Why ROGELE?</span>
                 <h2 class="section-title">Everything You Need For <span>Quality Education</span></h2>
                 <p class="section-description">
                     Our platform provides comprehensive learning tools for students, teachers, and beyond
@@ -977,7 +977,7 @@ body {
                 <span class="section-subtitle">Pricing Plans</span>
                 <h2 class="section-title">Choose Your <span>Learning Path</span></h2>
                 <p class="section-description">
-                    Select the perfect plan for your educational journey
+                    Start for free (1 Month) and scale as you grow
                 </p>
             </div>
 
@@ -1058,8 +1058,8 @@ body {
     <section class="classes-section">
         <div class="container">
             <div class="section-header">
-                <span class="section-subtitle">Our Classes</span>
-                <h2 class="section-title">From <span>Primary 1 to 7</span></h2>
+                <span class="section-subtitle">Our Classes & Clubs</span>
+                <h2 class="section-title">From <span>Primary 1 to 7 & Clubs</span></h2>
                 <p class="section-description">
                     Comprehensive curriculum for every class level
                 </p>
