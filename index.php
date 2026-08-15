@@ -181,12 +181,17 @@ $routes = [
     '/admin/homework/delete/{id}' => 'AdminHomeworkController@delete',
     '/admin/api/notifications'      => 'AdminController@getNotificationsApi',
     '/admin/api/notifications/read' => 'AdminController@markNotificationsReadApi',
+    '/admin/classes-subjects' => 'AdminController@classesAndSubjects',
+    '/admin/classes/create' => 'AdminController@createClass',
+    '/admin/classes/update/{id}' => 'AdminController@updateClass',
+    '/admin/classes/delete/{id}' => 'AdminController@deleteClass',
+    '/admin/subjects/create' => 'AdminController@createSubject',
+    '/admin/subjects/update/{id}' => 'AdminController@updateSubject',
+    '/admin/subjects/delete/{id}' => 'AdminController@deleteSubject',
 ];
 
-// Route matching
 $matched = false;
 
-// Check for exact match
 if (isset($routes[$request])) {
     $action = $routes[$request];
     list($controllerName, $methodName) = explode('@', $action);
@@ -208,7 +213,6 @@ if (isset($routes[$request])) {
     }
 }
 
-// Check for parameterized routes
 if (!$matched) {
     foreach ($routes as $route => $action) {
         if (strpos($route, '{') !== false) {
@@ -239,7 +243,6 @@ if (!$matched) {
     }
 }
 
-// If no route matched
 if (!$matched) {
     header("HTTP/1.0 404 Not Found");
     echo "<h1>404 - Page Not Found</h1>";

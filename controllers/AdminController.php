@@ -8,6 +8,7 @@ require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../models/Lesson.php'; 
 require_once __DIR__ . '/../models/Classes.php';
 require_once __DIR__ . '/../models/Notification.php';
+require_once __DIR__ . '/../models/Subject.php';
 
 class AdminController {
     private $userModel;
@@ -17,6 +18,7 @@ class AdminController {
     private $settingsModel;
     private $lessonModel;
     private $classModel;
+    private $subjectModel;
     private $itemsPerPage = 10;
     private $lessonsPerPage = 15;
     private $quizzesPerPage = 15;
@@ -37,6 +39,7 @@ class AdminController {
         $this->settingsModel = new Settings();
         $this->lessonModel = new Lesson();
         $this->classModel = new Classes();
+        $this->subjectModel = new Subject();
     }
     
     // ==================== HELPER METHODS ====================
@@ -660,6 +663,117 @@ class AdminController {
         
         echo json_encode(['status' => 'success']);
         exit;
+    }
+
+    public function classesAndSubjects() {
+        $hideFooter = true;
+        $classes = $this->classModel->getAll();
+        $subjects = $this->subjectModel->getAll();
+        $teachers = $this->userModel->getAllUsers('teacher');
+
+        require_once __DIR__ . '/../views/admin/classes_subjects.php';
+    }
+
+    public function createClass() {
+        if ($this->isPostRequest()) {
+            $data = [
+                'name' => $this->sanitize($_POST['name'] ?? ''),
+                'level' => (int)($_POST['level'] ?? 1),
+                'description' => $this->sanitize($_POST['description'] ?? ''),
+                'is_active' => isset($_POST['is_active']) ? 1 : 0
+            ];
+
+            if (empty($data['name'])) {
+                $this->redirectWithError('Class name is required', BASE_URL . '/admin/classes-subjects');
+            }
+
+            $result = $this->classModel->create($data);
+            if ($result['success']) {
+                $this->redirectWithSuccess('Class added successfully', BASE_URL . '/admin/classes-subjects');
+            } else {
+                $this->redirectWithError($result['error'], BASE_URL . '/admin/classes-subjects');
+            }
+        }
+    }
+
+    public function updateClass($classId) {
+        if ($this->isPostRequest()) {
+            $data = [
+                'name' => $this->sanitize($_POST['name'] ?? ''),
+                'level' => (int)($_POST['level'] ?? 1),
+                'description' => $this->sanitize($_POST['description'] ?? ''),
+                'is_active' => isset($_POST['is_active']) ? 1 : 0
+            ];
+
+            $result = $this->classModel->update($classId, $data);
+            if ($result['success']) {
+                $this->redirectWithSuccess('Class updated successfully', BASE_URL . '/admin/classes-subjects');
+            } else {
+                $this->redirectWithError($result['error'], BASE_URL . '/admin/classes-subjects');
+            }
+        }
+    }
+
+    public function deleteClass($classId) {
+        $result = $this->classModel->delete($classId);
+        if ($result['success']) {
+            $this->redirectWithSuccess('Class deleted successfully', BASE_URL . '/admin/classes-subjects');
+        } else {
+            $this->redirectWithError($result['error'], BASE_URL . '/admin/classes-subjects');
+        }
+    }
+
+    public function createSubject() {
+        if ($this->isPostRequest()) {
+            $data = [
+                'class_id' => (int)($_POST['class_id'] ?? 0),
+                'teacher_id' => !empty($_POST['teacher_id']) ? (int)$_POST['teacher_id'] : null,
+                'name' => $this->sanitize($_POST['name'] ?? ''),
+                'code' => $this->sanitize($_POST['code'] ?? ''),
+                'description' => $this->sanitize($_POST['description'] ?? ''),
+                'is_active' => isset($_POST['is_active']) ? 1 : 0
+            ];
+
+            if (empty($data['name']) || empty($data['class_id'])) {
+                $this->redirectWithError('Subject name and class assignment are required', BASE_URL . '/admin/classes-subjects');
+            }
+
+            $result = $this->subjectModel->create($data);
+            if ($result['success']) {
+                $this->redirectWithSuccess('Subject assigned successfully', BASE_URL . '/admin/classes-subjects');
+            } else {
+                $this->redirectWithError($result['error'], BASE_URL . '/admin/classes-subjects');
+            }
+        }
+    }
+
+    public function updateSubject($subjectId) {
+        if ($this->isPostRequest()) {
+            $data = [
+                'class_id' => (int)($_POST['class_id'] ?? 0),
+                'teacher_id' => !empty($_POST['teacher_id']) ? (int)$_POST['teacher_id'] : null,
+                'name' => $this->sanitize($_POST['name'] ?? ''),
+                'code' => $this->sanitize($_POST['code'] ?? ''),
+                'description' => $this->sanitize($_POST['description'] ?? ''),
+                'is_active' => isset($_POST['is_active']) ? 1 : 0
+            ];
+
+            $result = $this->subjectModel->update($subjectId, $data);
+            if ($result['success']) {
+                $this->redirectWithSuccess('Subject updated successfully', BASE_URL . '/admin/classes-subjects');
+            } else {
+                $this->redirectWithError($result['error'], BASE_URL . '/admin/classes-subjects');
+            }
+        }
+    }
+
+    public function deleteSubject($subjectId) {
+        $result = $this->subjectModel->delete($subjectId);
+        if ($result['success']) {
+            $this->redirectWithSuccess('Subject removed successfully', BASE_URL . '/admin/classes-subjects');
+        } else {
+            $this->redirectWithError($result['error'], BASE_URL . '/admin/classes-subjects');
+        }
     }
 }
 ?>

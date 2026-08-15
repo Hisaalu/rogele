@@ -877,6 +877,12 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
             <div class="menu-group-label">Academics & Content</div>
             <div class="menu-node-wrapper">
+                <a href="<?php echo BASE_URL; ?>/admin/classes-subjects" class="menu-anchor-item <?php echo $isActive('classes-subjects'); ?>">
+                    <i class="fas fa-layer-group anchor-icon"></i>
+                    <span class="anchor-label-text">Classes & Subjects</span>
+                </a>
+            </div>
+            <div class="menu-node-wrapper">
                 <a href="<?php echo BASE_URL; ?>/admin/lessons" class="menu-anchor-item <?php echo ($isActive('lessons') || $isActive('view_lesson')) ? 'active' : ''; ?>">
                     <i class="fas fa-book-open anchor-icon"></i>
                     <span class="anchor-label-text">Lessons</span>
