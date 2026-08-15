@@ -314,7 +314,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
         .profile-dropdown-card a:hover {
             background: var(--bg-light);
-            color: var(--primary);
+            color: var(--accent);
         }
 
         .profile-dropdown-card a i {

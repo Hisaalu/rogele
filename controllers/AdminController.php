@@ -201,7 +201,7 @@ class AdminController {
                 'user',                                     
                 'Profile Updated',                         
                 $message,                               
-                BASE_URL . '/admin/users/edit/' . $userId 
+                BASE_URL . '/admin/profile'
             );
 
             $this->redirectWithSuccess('Profile updated successfully!', BASE_URL . '/admin/profile');

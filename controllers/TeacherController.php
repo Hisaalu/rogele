@@ -537,7 +537,7 @@ class TeacherController {
             $userName = trim($data['first_name'] . ' ' . $data['last_name']);
             $message = !empty($userName) 
                 ? "{$userName} updated their profile." 
-                : "User #{$userId} updated their profile.";
+                : "User #{$teacherId} updated their profile.";
 
             require_once __DIR__ . '/../models/Notification.php';
             
@@ -545,7 +545,7 @@ class TeacherController {
                 'user',                                     
                 'Profile Updated',                         
                 $message,                               
-                BASE_URL . '/admin/users/edit/' . $userId 
+                BASE_URL . '/admin/users/edit/' . $teacherId 
             );
 
             $_SESSION['success'] = 'Profile updated successfully!';
