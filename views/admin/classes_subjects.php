@@ -4,50 +4,68 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 ?>
 
 <style>
-.management-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+:root {
+    --primary: #000;
+    --accent: #f06724;
+    --accent-purple: #7f2677;
+    --accent-hover: #d95318;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    --border-color: #e2e8f0;
 }
 
-@media (max-width: 992px) {
-    .management-grid {
-        grid-template-columns: 1fr;
-    }
+.management-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    width: 100%;
 }
 
 .card-box {
     background: #ffffff;
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .card-header-flex {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     margin-bottom: 16px;
+    flex-wrap: wrap;
 }
 
 .card-header-flex h3 {
     font-size: 1.1rem;
-    color: var(--primary);
+    color: var(--accent-purple);
     font-weight: 700;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .btn-primary-sm {
     background: var(--accent);
     color: #ffffff;
     border: none;
-    padding: 8px 14px;
+    padding: 10px 16px;
     border-radius: 6px;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.2s ease;
+    min-height: 40px; 
 }
 
 .btn-primary-sm:hover {
@@ -59,16 +77,30 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     border: none;
     color: #555;
     cursor: pointer;
-    padding: 4px;
-    font-size: 0.9rem;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    min-height: 36px;
 }
 
 .action-btn:hover {
-    color: var(--primary);
+    color: var(--accent-purple);
+    background-color: #f1f5f9;
 }
 
 .action-btn.delete:hover {
     color: #ef4444;
+    background-color: #fee2e2;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
@@ -76,11 +108,12 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     border-collapse: collapse;
     margin-top: 10px;
     font-size: 0.85rem;
+    white-space: nowrap;
 }
 
 .data-table th,
 .data-table td {
-    padding: 10px;
+    padding: 12px 10px;
     border-bottom: 1px solid #f1f5f9;
     text-align: left;
 }
@@ -92,10 +125,11 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 }
 
 .badge-status {
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 12px;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
+    display: inline-block;
 }
 
 .badge-active {
@@ -116,6 +150,8 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     z-index: 1200;
     align-items: center;
     justify-content: center;
+    padding: 16px;
+    overflow-y: auto;
 }
 
 .modal.show {
@@ -127,7 +163,10 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     width: 100%;
     max-width: 480px;
     border-radius: 10px;
-    padding: 20px;
+    padding: 24px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .modal-header {
@@ -137,23 +176,30 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     margin-bottom: 16px;
 }
 
+.modal-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--primary);
+}
+
 .form-group {
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .form-group label {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 
 .form-control {
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -166,6 +212,32 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(240, 103, 36, 0.15);
 }
+
+@media (max-width: 1024px) {
+    .management-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-box {
+        padding: 16px;
+    }
+
+    .card-header-flex {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-primary-sm {
+        width: 100%;
+    }
+
+    .modal-content {
+        padding: 16px;
+    }
+}
 </style>
 
 <div class="management-grid">
@@ -177,45 +249,47 @@ require_once __DIR__ . '/../layouts/admin_header.php';
             </button>
         </div>
 
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Level</th>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($classes)): ?>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <td colspan="4" style="text-align: center;">No classes/clubs found.</td>
+                        <th>Level</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
-                <?php else: ?>
-                    <?php foreach ($classes as $c): ?>
+                </thead>
+                <tbody>
+                    <?php if (empty($classes)): ?>
                         <tr>
-                            <td><?= htmlspecialchars($c['level'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
-                            <td><strong><?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?></strong></td>
-                            <td>
-                                <span class="badge-status <?= $c['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
-                                    <?= $c['is_active'] ? 'Active' : 'Disabled' ?>
-                                </span>
-                            </td>
-                            <td>
-                                <button class="action-btn" onclick='editClass(<?= json_encode($c, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <a href="<?= BASE_URL ?>/admin/classes/delete/<?= $c['id'] ?>" 
-                                   class="action-btn delete" 
-                                   onclick="return confirm('Delete class?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
+                            <td colspan="4" style="text-align: center;">No classes/clubs found.</td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php else: ?>
+                        <?php foreach ($classes as $c): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($c['level'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><strong><?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?></strong></td>
+                                <td>
+                                    <span class="badge-status <?= $c['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
+                                        <?= $c['is_active'] ? 'Active' : 'Disabled' ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="action-btn" onclick='editClass(<?= json_encode($c, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="<?= BASE_URL ?>/admin/classes/delete/<?= $c['id'] ?>" 
+                                       class="action-btn delete" 
+                                       onclick="return confirm('Delete class?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="card-box">
@@ -226,46 +300,48 @@ require_once __DIR__ . '/../layouts/admin_header.php';
             </button>
         </div>
 
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Subject</th>
-                    <th>Class</th>
-                    <th>Teacher</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($subjects)): ?>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <td colspan="4" style="text-align: center;">No subjects found.</td>
+                        <th>Subject</th>
+                        <th>Class</th>
+                        <th>Teacher</th>
+                        <th>Actions</th>
                     </tr>
-                <?php else: ?>
-                    <?php foreach ($subjects as $s): ?>
+                </thead>
+                <tbody>
+                    <?php if (empty($subjects)): ?>
                         <tr>
-                            <td>
-                                <strong><?= htmlspecialchars($s['name'], ENT_QUOTES, 'UTF-8', false) ?></strong> 
-                                (<?= htmlspecialchars($s['code'] ?? 'N/A', ENT_QUOTES, 'UTF-8', false) ?>)
-                            </td>
-                            <td><?= htmlspecialchars($s['class_name'] ?? 'Unassigned', ENT_QUOTES, 'UTF-8') ?></td>
-                            <td>
-                                <?= htmlspecialchars(trim(($s['first_name'] ?? 'Unassigned') . ' ' . ($s['last_name'] ?? '')), ENT_QUOTES, 'UTF-8') ?>
-                            </td>
-                            <td>
-                                <button class="action-btn" onclick='editSubject(<?= json_encode($s, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <a href="<?= BASE_URL ?>/admin/subjects/delete/<?= $s['id'] ?>" 
-                                   class="action-btn delete" 
-                                   onclick="return confirm('Delete subject?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
+                            <td colspan="4" style="text-align: center;">No subjects found.</td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php else: ?>
+                        <?php foreach ($subjects as $s): ?>
+                            <tr>
+                                <td>
+                                    <strong><?= htmlspecialchars($s['name'], ENT_QUOTES, 'UTF-8', false) ?></strong> 
+                                    (<?= htmlspecialchars($s['code'] ?? 'N/A', ENT_QUOTES, 'UTF-8', false) ?>)
+                                </td>
+                                <td><?= htmlspecialchars($s['class_name'] ?? 'Unassigned', ENT_QUOTES, 'UTF-8') ?></td>
+                                <td>
+                                    <?= htmlspecialchars(trim(($s['first_name'] ?? 'Unassigned') . ' ' . ($s['last_name'] ?? '')), ENT_QUOTES, 'UTF-8') ?>
+                                </td>
+                                <td>
+                                    <button class="action-btn" onclick='editSubject(<?= json_encode($s, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="<?= BASE_URL ?>/admin/subjects/delete/<?= $s['id'] ?>" 
+                                       class="action-btn delete" 
+                                       onclick="return confirm('Delete subject?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -424,6 +500,12 @@ function openModal(id) {
 function closeModal(id) {
     document.getElementById(id).classList.remove('show');
 }
+
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.classList.remove('show');
+    }
+};
 
 function editClass(data) {
     document.getElementById('editClassForm').action = `<?= BASE_URL ?>/admin/classes/update/${data.id}`;
