@@ -678,7 +678,7 @@ class AdminController {
         if ($this->isPostRequest()) {
             $data = [
                 'name' => $this->sanitize($_POST['name'] ?? ''),
-                'level' => (int)($_POST['level'] ?? 1),
+                'level' => $this->sanitize($_POST['level'] ?? ''),
                 'description' => $this->sanitize($_POST['description'] ?? ''),
                 'is_active' => isset($_POST['is_active']) ? 1 : 0
             ];
@@ -700,7 +700,7 @@ class AdminController {
         if ($this->isPostRequest()) {
             $data = [
                 'name' => $this->sanitize($_POST['name'] ?? ''),
-                'level' => (int)($_POST['level'] ?? 1),
+                'level' => $this->sanitize($_POST['level'] ?? ''),
                 'description' => $this->sanitize($_POST['description'] ?? ''),
                 'is_active' => isset($_POST['is_active']) ? 1 : 0
             ];

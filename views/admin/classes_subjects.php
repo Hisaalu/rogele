@@ -282,7 +282,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
             </div>
             <div class="form-group">
                 <label>Level Code/Number</label>
-                <input type="text" name="level" class="form-control" placeholder="e.g. P7" required>
+                <input type="text" name="level" class="form-control" placeholder="e.g. P7 or 0 for Club" required>
             </div>
             <div class="form-group">
                 <label>Description</label>
