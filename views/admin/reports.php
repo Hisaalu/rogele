@@ -10,7 +10,7 @@ $days = filter_input(INPUT_GET, 'days', FILTER_VALIDATE_INT) ?: 30;
 
 $totalUsers = (int)($totalUsers ?? 0);
 $totalTeachers = (int)($totalTeachers ?? 0);
-$totalLearners = (int)($totalLearners ?? 0);
+$totalAdmins = (int)($totalAdmins ?? 0);
 $totalExternal = (int)($totalExternal ?? 0);
 $recentUsers = $recentUsers ?? [];
 $recentActivity = $recentActivity ?? [];
@@ -531,10 +531,10 @@ body {
 
         <div class="kpi-card">
             <div class="kpi-top">
-                <span class="kpi-title">Enrolled Learners</span>
+                <span class="kpi-title">Admins</span>
                 <div class="kpi-icon blue"><i class="fas fa-user-graduate"></i></div>
             </div>
-            <div class="kpi-value"><?= number_format($totalLearners); ?></div>
+            <div class="kpi-value"><?= number_format($totalAdmins); ?></div>
         </div>
 
         <div class="kpi-card">

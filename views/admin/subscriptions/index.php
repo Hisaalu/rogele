@@ -201,8 +201,8 @@ $exportUrl = BASE_URL . '/admin/subscriptions/export' . ($queryString ? '?' . $q
 .filter-group select:focus,
 .filter-group input:focus {
     outline: none;
-    border-color: var(--primary-purple);
-    box-shadow: 0 0 0 3px rgba(127, 38, 119, 0.15);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(127, 88, 38, 0.15);
 }
 
 .filter-group select,

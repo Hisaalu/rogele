@@ -148,7 +148,7 @@ class AdminController {
         
         $totalUsers = count($this->userModel->getAllUsers(null, 0, 0));
         $totalTeachers = count($this->userModel->getAllUsers('teacher', 0, 0));
-        $totalLearners = count($this->userModel->getAllUsers('learner', 0, 0));
+        $totalAdmins = count($this->userModel->getAllUsers('admin', 0, 0));
         $totalExternal = count($this->userModel->getAllUsers('external', 0, 0));
         
         $recentUsers = $this->userModel->getAllUsers(null, 5, 0);

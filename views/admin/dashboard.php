@@ -6,6 +6,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 $totalUsers     = $totalUsers ?? 0;
 $totalTeachers  = $totalTeachers ?? 0;
 $totalLearners  = $totalLearners ?? 0;
+$totalAdmins    = $totalAdmins ?? 0;
 $totalExternal  = $totalExternal ?? 0;
 $recentUsers    = $recentUsers ?? [];
 $recentActivity = $recentActivity ?? [];
@@ -486,8 +487,8 @@ $recentActivity = $recentActivity ?? [];
                 <i class="fas fa-user-graduate" aria-hidden="true"></i>
             </div>
             <div class="stat-content">
-                <span class="stat-value"><?php echo number_format($totalLearners); ?></span>
-                <span class="stat-label">Learners</span>
+                <span class="stat-value"><?php echo number_format($totalAdmins); ?></span>
+                <span class="stat-label">Admins</span>
             </div>
         </article>
 
