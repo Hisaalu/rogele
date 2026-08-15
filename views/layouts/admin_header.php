@@ -13,15 +13,26 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title><?php echo htmlspecialchars($pageTitle ?? 'Admin Panel', ENT_QUOTES, 'UTF-8'); ?> - ROGELE Platform</title>
-    <base href="<?php echo htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8'); ?>/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title><?php echo isset($pageTitle) ? $pageTitle : SITE_NAME; ?></title>
+    <base href="<?php echo BASE_URL; ?>/">
+    
+    <meta name="description" content="Rays of Grace E-Learning Environment - Quality education for Primary 1 to Primary 7 students. Interactive lessons, quizzes, and progress tracking.">
+    <meta name="keywords" content="e-learning, primary education, online learning, uganda education, rays of grace, Hisaalu Nelson">
+    <meta name="author" content="Hisaalu Nelson | Rays of Grace Junior School">
+    
+    <meta property="og:title" content="<?php echo SITE_NAME; ?>">
+    <meta property="og:description" content="Quality education for every child, anywhere, anytime.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?php echo BASE_URL; ?>">
+    
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
+    <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/YOUR-KIT-ID.css">
     
     <style>
         :root {
