@@ -76,12 +76,30 @@ session_set_cookie_params([
 require_once __DIR__ . '/DatabaseSessionHandler.php';
 
 try {
-    $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
-    $sessionPdo = new PDO($dsn, DB_USER, DB_PASS, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    $host = explode(':', DB_HOST)[0];
+    $dsn = "mysql:host={$host};port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+    
+    $options = [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_PERSISTENT => true
-    ]);
+        PDO::ATTR_PERSISTENT         => true,
+        PDO::ATTR_TIMEOUT            => 5,
+    ];
+
+    if (getenv('RENDER')) {
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+        $options[PDO::MYSQL_ATTR_SSL_CA] = '/etc/ssl/certs/ca-certificates.crt';
+    } else {
+        if (file_exists('/etc/ssl/certs/ca-certificates.crt')) {
+            $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+            $options[PDO::MYSQL_ATTR_SSL_CA] = '/etc/ssl/certs/ca-certificates.crt';
+        } elseif (file_exists('/etc/pki/tls/certs/ca-bundle.crt')) {
+            $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+            $options[PDO::MYSQL_ATTR_SSL_CA] = '/etc/pki/tls/certs/ca-bundle.crt';
+        }
+    }
+
+    $sessionPdo = new PDO($dsn, DB_USER, DB_PASS, $options);
 
     $handler = new DatabaseSessionHandler($sessionPdo);
     session_set_save_handler($handler, true);
