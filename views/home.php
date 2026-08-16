@@ -688,6 +688,83 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
+.faq-section {
+    padding: 80px 0;
+    background: white;
+    width: 100%;
+}
+
+.faq-container {
+    max-width: 800px;
+    margin: 50px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.faq-item {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: var(--primary-orange);
+}
+
+.faq-item[open] {
+    border-color: var(--primary-orange);
+    box-shadow: 0 10px 25px rgba(240, 103, 36, 0.08);
+}
+
+.faq-question {
+    padding: 22px 28px;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #000;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+.faq-question::-webkit-details-marker {
+    display: none;
+}
+
+.faq-icon {
+    font-size: 0.9rem;
+    color: var(--primary-orange);
+    transition: transform 0.3s ease;
+}
+
+.faq-item[open] .faq-icon {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    padding: 0 28px 22px 28px;
+    color: #555;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 480px) {
+    .faq-question {
+        padding: 18px 20px;
+        font-size: 1rem;
+    }
+    
+    .faq-answer {
+        padding: 0 20px 18px 20px;
+        font-size: 0.9rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .classes-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1105,6 +1182,66 @@ body {
                         <a href="<?php echo BASE_URL; ?>/login" class="btn-secondary">Explore Upper Section</a>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section" id="faq">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Got Questions about ROGELE?</span>
+                <h2 class="section-title">Frequently Asked <span>Questions</span></h2>
+                <p class="section-description">
+                    Find quick answers to common questions about ROGELE subscription, classes, and learning features.
+                </p>
+            </div>
+
+            <div class="faq-container">
+                <details class="faq-item animate-fade-in">
+                    <summary class="faq-question">
+                        <span>How does the 1-month free trial work?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        When you sign up for a new account, you automatically receive 1 month of complimentary full 
+                        access to all features, interactive lessons, homeworks and quizzes across all class levels 
+                        without any commitment.
+                    </div>
+                </details>
+
+                <details class="faq-item animate-fade-in delay-1">
+                    <summary class="faq-question">
+                        <span>Can I switch subscription plans later?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        Yes, you can upgrade or change your plan at any time. Simply click Manage Plan on the dashboard 
+                        to visit the subscriptions page and select the plan (Monthly, Termly, or Yearly) that best fits
+                        your needs.
+                    </div>
+                </details>
+
+                <details class="faq-item animate-fade-in delay-2">
+                    <summary class="faq-question">
+                        <span>Can I access ROGELE on mobile phones and tablets?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        ROGELE is fully responsive and optimized for all web browsers, smartphones, tablets, and 
+                        computers, allowing your child to learn anytime, anywhere.
+                    </div>
+                </details>
+
+                <details class="faq-item animate-fade-in delay-3">
+                    <summary class="faq-question">
+                        <span>How do parents and teachers track student progress?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        Our built-in analytics dashboard automatically records quiz scores, homework completion rates, 
+                        and lesson activities, allowing parents and teachers to monitor academic growth easily.
+                    </div>
+                </details>
             </div>
         </div>
     </section>

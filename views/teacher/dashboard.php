@@ -15,192 +15,6 @@ $classPerformance = $classPerformance ?? [
 ];
 ?>
 
-<div class="teacher-dashboard">
-    <div class="welcome-banner">
-        <div class="welcome-content">
-            <h1 class="welcome-title">
-                Welcome back, Tr. <span class="teacher-name">
-                    <?php 
-                        $fullName = $_SESSION['user_name'] ?? 'Teacher';
-                        $firstName = explode(' ', trim($fullName))[0];
-                        echo htmlspecialchars($firstName); 
-                    ?>
-                </span>!
-            </h1>
-            <p class="welcome-subtitle">Here's what's happening with your classes today</p>
-        </div>
-        <div class="date-display">
-            <i class="fas fa-calendar-alt"></i>
-            <span><?php echo date('l, F j, Y'); ?></span>
-        </div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: #f06724;">
-                <i class="fas fa-book-open"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Total Lessons</span>
-                <span class="stat-value"><?php echo number_format($totalLessons); ?></span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: #f06724;">
-                <i class="fas fa-pencil-alt"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Total Quizzes</span>
-                <span class="stat-value"><?php echo number_format($totalQuizzes); ?></span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: #f06724;">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Total Students</span>
-                <span class="stat-value"><?php echo number_format($totalStudents); ?></span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: #f06724;">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Avg. Score</span>
-                <span class="stat-value"><?php echo $classPerformance['avg_score']; ?>%</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="quick-actions">
-        <h2 class="section-title">Quick Actions</h2>
-        <div class="actions-grid">
-            <a href="<?php echo BASE_URL; ?>/teacher/lessons/create" class="action-card">
-                <div class="action-icon">
-                    <i class="fas fa-plus-circle"></i>
-                </div>
-                <div class="action-content">
-                    <h3>Create New Lesson</h3>
-                    <p>Add new learning materials for your students</p>
-                </div>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-
-            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="action-card">
-                <div class="action-icon">
-                    <i class="fas fa-plus-circle"></i>
-                </div>
-                <div class="action-content">
-                    <h3>Create New Quiz</h3>
-                    <p>Design a new quiz for your class</p>
-                </div>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-
-            <a href="<?php echo BASE_URL; ?>/teacher/students" class="action-card">
-                <div class="action-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="action-content">
-                    <h3>View Students</h3>
-                    <p>See all your students and their progress</p>
-                </div>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-
-            <a href="<?php echo BASE_URL; ?>/teacher/analytics" class="action-card">
-                <div class="action-icon">
-                    <i class="fas fa-chart-bar"></i>
-                </div>
-                <div class="action-content">
-                    <h3>Analytics</h3>
-                    <p>View detailed performance insights</p>
-                </div>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-
-    <div class="activity-section">
-        <div class="recent-card">
-            <div class="card-header">
-                <h3><i class="fas fa-book-open"></i> Recent Lessons</h3>
-                <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="card-body">
-                <?php if (empty($recentLessons)): ?>
-                    <div class="empty-state">
-                        <i class="fas fa-book"></i>
-                        <p>No lessons created yet</p>
-                        <a href="<?php echo BASE_URL; ?>/teacher/lessons/create" class="btn-create">Create Your First Lesson</a>
-                    </div>
-                <?php else: ?>
-                    <?php 
-                    $displayLessons = array_slice($recentLessons, 0, 4);
-                    foreach ($displayLessons as $lesson): 
-                    ?>
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: rgba(139, 92, 246, 0.1);">
-                            <i class="fas fa-book" style="color: #f06724;"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4><?php echo htmlspecialchars($lesson['title']); ?></h4>
-                            <p class="activity-meta">
-                                <span><i class="fas fa-clock"></i> <?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></span>
-                                <span><i class="fas fa-eye"></i> <?php echo $lesson['views'] ?? 0; ?> views</span>
-                            </p>
-                        </div>
-                        <div class="activity-status <?php echo $lesson['is_published'] ? 'published' : 'draft'; ?>">
-                            <?php echo $lesson['is_published'] ? 'Published' : 'Draft'; ?>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <div class="recent-card">
-            <div class="card-header">
-                <h3><i class="fas fa-pencil-alt"></i> Recent Quizzes</h3>
-                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="card-body">
-                <?php if (empty($recentQuizzes)): ?>
-                    <div class="empty-state">
-                        <i class="fas fa-pencil-alt"></i>
-                        <p>No quizzes created yet</p>
-                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-create">Create Your First Quiz</a>
-                    </div>
-                <?php else: ?>
-                    <?php 
-                    $displayQuizzes = array_slice($recentQuizzes, 0, 4);
-                    foreach ($displayQuizzes as $quiz): 
-                    ?>
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: rgba(249, 115, 22, 0.1);">
-                            <i class="fas fa-pencil-alt" style="color: #F97316;"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4><?php echo htmlspecialchars($quiz['title']); ?></h4>
-                            <p class="activity-meta">
-                                <span><i class="fas fa-clock"></i> <?php echo date('M d, Y', strtotime($quiz['created_at'])); ?></span>
-                                <span><i class="fas fa-users"></i> <?php echo $quiz['attempt_count'] ?? 0; ?> attempts</span>
-                            </p>
-                        </div>
-                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="btn-view">View Results</a>
-                    </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
 .teacher-dashboard {
     max-width: 1400px;
@@ -684,12 +498,196 @@ $classPerformance = $classPerformance ?? [
 
 </style>
 
-<!-- Chart.js -->
+<div class="teacher-dashboard">
+    <div class="welcome-banner">
+        <div class="welcome-content">
+            <h1 class="welcome-title">
+                Welcome back, Tr. <span class="teacher-name">
+                    <?php 
+                        $fullName = $_SESSION['user_name'] ?? 'Teacher';
+                        $firstName = explode(' ', trim($fullName))[0];
+                        echo htmlspecialchars($firstName); 
+                    ?>
+                </span>!
+            </h1>
+            <p class="welcome-subtitle">Here's what's happening with your classes today</p>
+        </div>
+        <div class="date-display">
+            <i class="fas fa-calendar-alt"></i>
+            <span><?php echo date('l, F j, Y'); ?></span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #f06724;">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Total Lessons</span>
+                <span class="stat-value"><?php echo number_format($totalLessons); ?></span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #f06724;">
+                <i class="fas fa-pencil-alt"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Total Quizzes</span>
+                <span class="stat-value"><?php echo number_format($totalQuizzes); ?></span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #f06724;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Total Students</span>
+                <span class="stat-value"><?php echo number_format($totalStudents); ?></span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #f06724;">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Avg. Score</span>
+                <span class="stat-value"><?php echo $classPerformance['avg_score']; ?>%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="actions-grid">
+            <a href="<?php echo BASE_URL; ?>/teacher/lessons/create" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="action-content">
+                    <h3>Create New Lesson</h3>
+                    <p>Add new learning materials for your students</p>
+                </div>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+
+            <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="action-content">
+                    <h3>Create New Quiz</h3>
+                    <p>Design a new quiz for your class</p>
+                </div>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+
+            <a href="<?php echo BASE_URL; ?>/teacher/students" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="action-content">
+                    <h3>View Students</h3>
+                    <p>See all your students and their progress</p>
+                </div>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+
+            <a href="<?php echo BASE_URL; ?>/teacher/analytics" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="action-content">
+                    <h3>Analytics</h3>
+                    <p>View detailed performance insights</p>
+                </div>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="activity-section">
+        <div class="recent-card">
+            <div class="card-header">
+                <h3><i class="fas fa-book-open"></i> Recent Lessons</h3>
+                <a href="<?php echo BASE_URL; ?>/teacher/lessons" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="card-body">
+                <?php if (empty($recentLessons)): ?>
+                    <div class="empty-state">
+                        <i class="fas fa-book"></i>
+                        <p>No lessons created yet</p>
+                        <a href="<?php echo BASE_URL; ?>/teacher/lessons/create" class="btn-create">Create Your First Lesson</a>
+                    </div>
+                <?php else: ?>
+                    <?php 
+                    $displayLessons = array_slice($recentLessons, 0, 4);
+                    foreach ($displayLessons as $lesson): 
+                    ?>
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: rgba(139, 92, 246, 0.1);">
+                            <i class="fas fa-book" style="color: #f06724;"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4><?php echo htmlspecialchars($lesson['title']); ?></h4>
+                            <p class="activity-meta">
+                                <span><i class="fas fa-clock"></i> <?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></span>
+                                <span><i class="fas fa-eye"></i> <?php echo $lesson['views'] ?? 0; ?> views</span>
+                            </p>
+                        </div>
+                        <div class="activity-status <?php echo $lesson['is_published'] ? 'published' : 'draft'; ?>">
+                            <?php echo $lesson['is_published'] ? 'Published' : 'Draft'; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="recent-card">
+            <div class="card-header">
+                <h3><i class="fas fa-pencil-alt"></i> Recent Quizzes</h3>
+                <a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="card-body">
+                <?php if (empty($recentQuizzes)): ?>
+                    <div class="empty-state">
+                        <i class="fas fa-pencil-alt"></i>
+                        <p>No quizzes created yet</p>
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/create" class="btn-create">Create Your First Quiz</a>
+                    </div>
+                <?php else: ?>
+                    <?php 
+                    $displayQuizzes = array_slice($recentQuizzes, 0, 4);
+                    foreach ($displayQuizzes as $quiz): 
+                    ?>
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: rgba(249, 115, 22, 0.1);">
+                            <i class="fas fa-pencil-alt" style="color: #F97316;"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4><?php echo htmlspecialchars($quiz['title']); ?></h4>
+                            <p class="activity-meta">
+                                <span><i class="fas fa-clock"></i> <?php echo date('M d, Y', strtotime($quiz['created_at'])); ?></span>
+                                <span><i class="fas fa-users"></i> <?php echo $quiz['attempt_count'] ?? 0; ?> attempts</span>
+                            </p>
+                        </div>
+                        <a href="<?php echo BASE_URL; ?>/teacher/quizzes/results/<?php echo $quiz['id']; ?>" class="btn-view">View Results</a>
+                    </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Sample data - replace with actual data from controller
     const scoresCtx = document.getElementById('scoresChart').getContext('2d');
     new Chart(scoresCtx, {
         type: 'bar',
