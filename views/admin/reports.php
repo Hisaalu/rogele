@@ -539,7 +539,7 @@ body {
     <div class="analytics-header">
         <div>
             <h1 class="page-title"><i class="fas fa-chart-line anchor-icon"></i> Executive Data Analytics</h1>
-            <p class="page-subtitle">Real-time performance metrics for descision making</p>
+            <p class="page-subtitle">Real-time performance metrics and institutional intelligence</p>
         </div>
         <div class="header-actions">
             <button onclick="window.print()" class="action-btn"><i class="fas fa-print"></i> Print Report</button>
