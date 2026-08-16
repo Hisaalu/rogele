@@ -13,6 +13,8 @@ $lessonViews = $lessonViews ?? [];
     max-width: 1400px;
     margin: 0 auto;
     padding: 30px 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .page-header {
@@ -52,7 +54,7 @@ $lessonViews = $lessonViews ?? [];
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -76,6 +78,7 @@ $lessonViews = $lessonViews ?? [];
     justify-content: center;
     font-size: 1.8rem;
     color: white;
+    flex-shrink: 0;
 }
 
 .stat-content {
@@ -97,11 +100,13 @@ $lessonViews = $lessonViews ?? [];
     line-height: 1.2;
 }
 
+/* RESPONSIVE FIX: Allow grid item to collapse below 450px */
 .charts-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
     gap: 25px;
     margin-bottom: 40px;
+    width: 100%;
 }
 
 .chart-card {
@@ -109,6 +114,9 @@ $lessonViews = $lessonViews ?? [];
     border-radius: 20px;
     padding: 25px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    min-width: 0; /* Prevents CSS Grid item overflow */
+    box-sizing: border-box;
 }
 
 .chart-header {
@@ -126,6 +134,7 @@ $lessonViews = $lessonViews ?? [];
     display: flex;
     align-items: center;
     gap: 8px;
+    margin: 0;
 }
 
 .chart-header h3 i {
@@ -141,13 +150,12 @@ $lessonViews = $lessonViews ?? [];
     cursor: pointer;
 }
 
+/* RESPONSIVE FIX: Chart body sizing */
 .chart-body {
-    height: 300px;
     position: relative;
-}
-
-.chart-header {
-    overflow-x: auto;
+    height: 320px;
+    width: 100%;
+    max-width: 100%;
 }
 
 .performance-section {
@@ -166,6 +174,7 @@ $lessonViews = $lessonViews ?? [];
 
 .table-responsive {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .performance-table {
@@ -253,7 +262,7 @@ $lessonViews = $lessonViews ?? [];
 
 .lessons-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     margin-top: 20px;
 }
@@ -320,24 +329,20 @@ $lessonViews = $lessonViews ?? [];
 }
 
 @media (max-width: 768px) {
+    .analytics-container {
+        padding: 15px 10px;
+    }
     .page-header {
         flex-direction: column;
         align-items: flex-start;
     }
-    
-    .charts-row {
-        grid-template-columns: 1fr;
+    .chart-card {
+        padding: 15px;
     }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .lessons-grid {
-        grid-template-columns: 1fr;
+    .chart-body {
+        height: 260px;
     }
 }
-
 </style>
 
 <div class="analytics-container">
@@ -415,20 +420,6 @@ $lessonViews = $lessonViews ?? [];
                 <canvas id="quizPerformanceChart"></canvas>
             </div>
         </div>
-
-        <!-- <div class="chart-card">
-            <div class="chart-header">
-                <h3><i class="fas fa-eye"></i> Lesson Views</h3>
-                <select class="chart-filter" onchange="filterLessonChart(this.value)">
-                    <option value="7">Last 7 days</option>
-                    <option value="30" selected>Last 30 days</option>
-                    <option value="90">Last 90 days</option>
-                </select>
-            </div>
-            <div class="chart-body">
-                <canvas id="lessonViewsChart"></canvas>
-            </div>
-        </div> -->
     </div>
 
     <div class="performance-section">
@@ -506,23 +497,24 @@ $lessonViews = $lessonViews ?? [];
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 let quizChart = null;
 let lessonChart = null;
-let currentQuizDays = 30;
-let currentLessonDays = 30;
 
 document.addEventListener('DOMContentLoaded', function() {
     loadQuizChart(30);
-    loadLessonChart(30);
+    // Safe check if element exists before loading
+    if (document.getElementById('lessonViewsChart')) {
+        loadLessonChart(30);
+    }
 });
 
 function loadQuizChart(days) {
-    currentQuizDays = days;
-    const ctx = document.getElementById('quizPerformanceChart').getContext('2d');
+    const canvas = document.getElementById('quizPerformanceChart');
+    if (!canvas) return;
     
+    const ctx = canvas.getContext('2d');
     ctx.canvas.style.opacity = '0.5';
     
     if (quizChart) {
@@ -540,8 +532,8 @@ function loadQuizChart(days) {
                         label: 'Average Score',
                         data: data.scores,
                         borderColor: '#7f2677',
-                        borderWidth: 1,
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        backgroundColor: 'rgba(127, 38, 119, 0.1)',
                         tension: 0.4,
                         fill: true,
                         yAxisID: 'y'
@@ -549,7 +541,7 @@ function loadQuizChart(days) {
                         label: 'Attempts',
                         data: data.attempts,
                         borderColor: '#F97316',
-                        borderWidth: 1,
+                        borderWidth: 2,
                         backgroundColor: 'rgba(249, 115, 22, 0.1)',
                         tension: 0.4,
                         fill: true,
@@ -598,7 +590,7 @@ function loadQuizChart(days) {
                             max: 100,
                             title: {
                                 display: true,
-                                text: 'AverageScore (%)',
+                                text: 'Average Score (%)',
                                 color: '#000'
                             },
                             grid: {
@@ -623,10 +615,7 @@ function loadQuizChart(days) {
                             },
                             ticks: {
                                 color: '#000',
-                                stepSize: 1,
-                                callback: function(value) {
-                                    return value;
-                                }
+                                stepSize: 1
                             }
                         },
                         x: {
@@ -652,9 +641,10 @@ function loadQuizChart(days) {
 }
 
 function loadLessonChart(days) {
-    currentLessonDays = days;
-    const ctx = document.getElementById('lessonViewsChart').getContext('2d');
-    
+    const canvas = document.getElementById('lessonViewsChart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
     ctx.canvas.style.opacity = '0.5';
     
     if (lessonChart) {
@@ -681,50 +671,14 @@ function loadLessonChart(days) {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: '#000',
-                            titleColor: '#F1F5F9',
-                            bodyColor: '#F1F5F9',
-                            padding: 12,
-                            cornerRadius: 8,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.raw + ' views';
-                                }
-                            }
-                        }
+                        legend: { display: false }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: '#E2E8F0'
-                            },
-                            ticks: {
-                                color: '#000',
-                                stepSize: 1,
-                                callback: function(value) {
-                                    return value;
-                                }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#000',
-                                maxRotation: 45,
-                                minRotation: 45
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
+                        y: { beginAtZero: true },
+                        x: { grid: { display: false } }
                     }
                 }
             });
-            
             ctx.canvas.style.opacity = '1';
         })
         .catch(error => {
@@ -747,12 +701,8 @@ function refreshAnalytics() {
 }
 
 window.addEventListener('resize', function() {
-    if (quizChart) {
-        quizChart.resize();
-    }
-    if (lessonChart) {
-        lessonChart.resize();
-    }
+    if (quizChart) quizChart.resize();
+    if (lessonChart) lessonChart.resize();
 });
 </script>
 
