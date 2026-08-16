@@ -1,19 +1,13 @@
 <?php
 // File: /config/config.php
+
 $envPath = __DIR__ . '/../.env';
 if (file_exists($envPath)) {
-    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if (empty($line) || strpos($line, '#') === 0) continue;
-        
-        if (strpos($line, '=') !== false) {
-            list($name, $value) = explode('=', $line, 2);
-            $name = trim($name);
-            $value = trim($value, " \t\n\r\0\x0B\"'");
-            
+    $envVars = parse_ini_file($envPath, false, INI_SCANNER_RAW);
+    if ($envVars !== false) {
+        foreach ($envVars as $name => $value) {
             if (getenv($name) === false) {
-                putenv("$name=$value");
+                putenv("{$name}={$value}");
                 $_ENV[$name] = $value;
                 $_SERVER[$name] = $value;
             }
@@ -21,10 +15,11 @@ if (file_exists($envPath)) {
     }
 }
 
+define('ROOT_PATH', dirname(__DIR__));
+
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-define('ROOT_PATH', dirname(__DIR__));
 ini_set('error_log', ROOT_PATH . '/logs/error.log');
 
 date_default_timezone_set('Africa/Kampala');
@@ -41,23 +36,19 @@ $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
 
 if (getenv('APP_URL')) {
     $appUrl = getenv('APP_URL');
-}
-elseif ($detectedHost) {
+} elseif ($detectedHost) {
     $scheme = $isHttps ? 'https://' : 'http://';
     $appUrl = $scheme . $detectedHost;
-} 
-
-elseif (getenv('RENDER') && getenv('RENDER_EXTERNAL_URL')) {
+} elseif (getenv('RENDER') && getenv('RENDER_EXTERNAL_URL')) {
     $appUrl = getenv('RENDER_EXTERNAL_URL');
-}
-else {
+} else {
     $appUrl = 'http://localhost/rogele-pay';
 }
 
 define('BASE_URL', rtrim($appUrl, '/'));
 define('SITE_NAME', getenv('APP_NAME') ?: 'ROGELE');
 
-define('MAX_FILE_SIZE', 10485760);
+define('MAX_FILE_SIZE', 10485760); 
 define('ALLOWED_EXTENSIONS', ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'mp4', 'jpg', 'jpeg', 'png']);
 define('UPLOAD_PATH', ROOT_PATH . '/public/uploads/');
 
@@ -68,18 +59,13 @@ define('SUBSCRIPTION_PLANS', [
     'yearly'  => 120000
 ]);
 
-if (getenv('RENDER')) {
-    $sessionSavePath = '/tmp/php_sessions';
-    if (!is_dir($sessionSavePath)) {
-        mkdir($sessionSavePath, 0777, true);
-    }
-    ini_set('session.save_path', $sessionSavePath);
-}
-
 $isRender = !empty(getenv('RENDER')) || (strpos($detectedHost, 'onrender.com') !== false);
 $isSecure = $isHttps || $isRender;
 
+ini_set('session.gc_maxlifetime', 1800);
+
 session_set_cookie_params([
+    'lifetime' => 0,
     'path'     => '/',
     'domain'   => '', 
     'secure'   => $isSecure,
@@ -87,12 +73,22 @@ session_set_cookie_params([
     'samesite' => 'Lax'
 ]);
 
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', $isSecure ? 1 : 0); 
-ini_set('session.cookie_samesite', 'Lax');
+require_once __DIR__ . '/DatabaseSessionHandler.php';
+
+try {
+    $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+    $sessionPdo = new PDO($dsn, DB_USER, DB_PASS, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_PERSISTENT => true
+    ]);
+
+    $handler = new DatabaseSessionHandler($sessionPdo);
+    session_set_save_handler($handler, true);
+} catch (PDOException $e) {
+    error_log("Failed to register DatabaseSessionHandler: " . $e->getMessage());
+}
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-?>
