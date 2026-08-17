@@ -640,7 +640,7 @@ if (!empty($quizzes)) {
                             <div class="progress-header">
                                 <span>Your best score: <strong><?php echo $bestScore; ?>%</strong></span>
                                 <?php if ($remainingAttempts > 0 && !$hasInProgress): ?>
-                                <span><?php echo $remainingAttempts; ?> attempt(s) left</span>
+                                <span><?php echo $remainingAttempts; ?> attempts left</span>
                                 <?php endif; ?>
                             </div>
                             <div class="progress-bar">
@@ -690,7 +690,7 @@ if (!empty($quizzes)) {
                             </a>
                             <?php if ($attemptCount > 0): ?>
                                 <div class="attempts-badge">
-                                    <i class="fas fa-redo-alt"></i> <?php echo $remainingAttempts; ?> attempt(s) remaining
+                                    <i class="fas fa-redo-alt"></i> <?php echo $remainingAttempts; ?> attempts remaining
                                 </div>
                             <?php endif; ?>
                             
