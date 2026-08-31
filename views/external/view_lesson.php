@@ -46,7 +46,6 @@ if (!isset($lesson)) {
         border-color: #e05a1a;
     }
 
-    /* Download Action Badge & Animated Left-Pointing Finger */
     .download-action-badge {
         display: inline-flex;
         align-items: center;
@@ -153,7 +152,7 @@ if (!isset($lesson)) {
                     <span style="color: #64748B; font-size: 0.9rem;"><?php echo round($material['file_size'] / 1024, 2); ?> KB</span>
                     <div class="download-action-badge">
                         <i class="fas fa-hand-point-left pointer-finger-icon"></i>
-                        <span>Download</span>
+                        <span>Click to download</span>
                     </div>
                 </a>
             <?php endforeach; ?>

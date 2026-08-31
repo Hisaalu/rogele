@@ -618,7 +618,7 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
                             </div>
                             <div class="hw-download-action">
                                 <i class="fas fa-hand-point-left hw-pointer-icon"></i>
-                                <span>Download</span>
+                                <span>Click to download</span>
                             </div>
                         </a>
                     <?php endforeach; ?>
