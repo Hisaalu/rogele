@@ -607,6 +607,10 @@ $submissions = $submissions ?? [];
             </div>
 
             <?php if (!empty($homework['file_path'])): ?>
+                <?php 
+                    $cleanHomeworkName = basename($homework['file_path']);
+                    $officialHomeworkUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/homework/" . rawurlencode($cleanHomeworkName);
+                ?>
                 <div class="attachment-section">
                     <div class="attachment-info">
                         <i class="fas fa-paperclip" aria-hidden="true"></i>
@@ -615,7 +619,7 @@ $submissions = $submissions ?? [];
                             <p>Reference files uploaded for student download.</p>
                         </div>
                     </div>
-                    <a href="<?php echo BASE_URL . '/' . htmlspecialchars(ltrim($homework['file_path'], '/')); ?>" target="_blank" rel="noopener noreferrer" class="btn-download">
+                    <a href="<?php echo htmlspecialchars($officialHomeworkUrl); ?>" target="_blank" rel="noopener noreferrer" class="btn-download">
                         <i class="fas fa-download" aria-hidden="true"></i> View File
                     </a>
                 </div>

@@ -366,7 +366,11 @@ if (!function_exists('getYoutubeId')) {
                 <h3 class="section-title"><i class="fas fa-paperclip" aria-hidden="true"></i> Learning Materials</h3>
                 <div class="materials-list">
                     <?php foreach ($lesson['materials'] as $material): ?>
-                        <a href="<?php echo BASE_URL; ?>/public/<?php echo htmlspecialchars(ltrim($material['file_path'] ?? '', '/')); ?>" 
+                        <?php 
+                            $cleanMaterialName = basename($material['file_path'] ?? '');
+                            $officialMaterialUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . rawurlencode($cleanMaterialName);
+                        ?>
+                        <a href="<?php echo htmlspecialchars($officialMaterialUrl); ?>" 
                            target="_blank" 
                            rel="noopener noreferrer" 
                            class="material-item">
