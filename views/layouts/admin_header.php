@@ -151,7 +151,6 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             width: 36px;
             height: 36px;
             object-fit: contain;
-            border-radius: 6px;
         }
 
         .brand-text-wrapper {
@@ -779,8 +778,8 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             <button class="menu-toggle-btn" id="menuToggleDesktop" aria-label="Toggle Navigation Side Drawer" title="Collapse/Expand Menu">
                 <i class="fas fa-bars"></i>
             </button>
-            <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="brand-logo-details">
-                <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="Logo" onerror="this.style.display='none';">
+            <a href="<?php echo BASE_URL; ?>" class="brand-logo-details">
+                <img src="<?php echo BASE_URL; ?>/public/images/logo.jpg" alt="Logo" onerror="this.style.display='none';">
                 <div class="brand-text-wrapper">
                     <span class="brand-title">RAYS OF GRACE</span>
                     <span class="brand-subtitle">E-Learning Environment</span>
