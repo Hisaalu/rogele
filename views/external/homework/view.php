@@ -138,6 +138,7 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
     color: #555;
     font-size: 0.95rem;
     border: 1px solid #edf2f7;
+    word-break: break-word;
 }
 
 .hw-attachments-grid {
@@ -178,6 +179,7 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
     flex-direction: column;
     overflow: hidden;
     flex-grow: 1;
+    min-width: 0; /* Enables truncation in flexbox */
 }
 
 .hw-file-name {
@@ -230,6 +232,15 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
     }
     50% {
         transform: translateX(-4px);
+    }
+}
+
+@keyframes fingerPointDown {
+    0%, 100% {
+        transform: translateY(0) rotate(90deg);
+    }
+    50% {
+        transform: translateY(4px) rotate(90deg);
     }
 }
 
@@ -536,8 +547,39 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
 }
 
 @media (max-width: 640px) {
-    .hw-section { padding: 20px; }
+    .hw-container { padding: 20px 12px; }
+    .hw-section { padding: 20px 16px; }
     .hw-grid { grid-template-columns: 1fr; }
+    .hw-title { font-size: 1.5rem; }
+    .hw-attachments-grid { grid-template-columns: 1fr; }
+    
+    .hw-attachment-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .hw-file-info {
+        width: 100%;
+    }
+
+    .hw-file-name {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .hw-download-action {
+        width: 100%;
+        justify-content: center;
+        padding: 8px 12px;
+        box-sizing: border-box;
+    }
+
+    .hw-pointer-icon {
+        transform: rotate(90deg);
+        animation: fingerPointDown 1.2s infinite ease-in-out;
+    }
+
     .hw-submission-header { flex-direction: column; align-items: flex-start; }
     .hw-btn-danger-outline { width: 100%; text-align: center; }
 }

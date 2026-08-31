@@ -10,6 +10,13 @@ if (!isset($lesson)) {
 ?>
 
 <style>
+    .material-card-container {
+        background: white; 
+        border-radius: 20px; 
+        padding: 40px; 
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
     .material-item:hover {
         background: #F1F5F9;
     }
@@ -46,6 +53,40 @@ if (!isset($lesson)) {
         border-color: #e05a1a;
     }
 
+    .material-card-link {
+        display: flex; 
+        align-items: center; 
+        gap: 15px; 
+        padding: 15px; 
+        background: #F8FAFC; 
+        border-radius: 10px; 
+        text-decoration: none; 
+        color: #1E293B; 
+        transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .material-file-info {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        min-width: 0; 
+    }
+
+    .material-file-name {
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        word-break: break-word;
+    }
+
+    .material-file-size {
+        color: #64748B; 
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
     .download-action-badge {
         display: inline-flex;
         align-items: center;
@@ -58,6 +99,7 @@ if (!isset($lesson)) {
         font-weight: 700;
         white-space: nowrap;
         transition: all 0.2s ease;
+        align-self: center;
     }
 
     a.material-card-link:hover .download-action-badge {
@@ -81,6 +123,49 @@ if (!isset($lesson)) {
         }
         50% {
             transform: translateX(-4px);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .material-card-container {
+            padding: 20px 15px;
+        }
+
+        .material-card-link {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .material-file-info {
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .material-file-name {
+            white-space: normal;
+            width: 100%;
+        }
+
+        .download-action-badge {
+            width: 100%;
+            justify-content: center;
+            padding: 8px 12px;
+        }
+
+        .pointer-finger-icon {
+            transform: rotate(90deg);
+            animation: fingerPointDown 1.2s infinite ease-in-out;
+        }
+    }
+
+    @keyframes fingerPointDown {
+        0%, 100% {
+            transform: translateY(0) rotate(90deg);
+        }
+        50% {
+            transform: translateY(4px) rotate(90deg);
         }
     }
 </style>
@@ -137,7 +222,7 @@ if (!isset($lesson)) {
     </div>
     
     <?php if (!empty($lesson['materials'])): ?>
-    <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+    <div class="material-card-container">
         <h2 style="color: #000; margin-bottom: 20px;">Downloadable Materials</h2>
         <div style="display: grid; gap: 15px;">
             <?php foreach ($lesson['materials'] as $material): ?>
@@ -145,11 +230,12 @@ if (!isset($lesson)) {
                     $cleanMaterialName = basename($material['file_path']);
                     $officialMaterialUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . $cleanMaterialName;
                 ?>
-                <a href="<?php echo htmlspecialchars($officialMaterialUrl); ?>" target="_blank" download class="material-card-link"
-                   style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #F8FAFC; border-radius: 10px; text-decoration: none; color: #1E293B; transition: background 0.3s ease, border-color 0.3s ease;">
-                    <i class="fas fa-file-pdf" style="color: #F97316; font-size: 1.5rem;"></i>
-                    <span style="flex: 1; font-weight: 600;"><?php echo htmlspecialchars($material['file_name']); ?></span>
-                    <span style="color: #64748B; font-size: 0.9rem;"><?php echo round($material['file_size'] / 1024, 2); ?> KB</span>
+                <a href="<?php echo htmlspecialchars($officialMaterialUrl); ?>" target="_blank" download class="material-card-link">
+                    <div class="material-file-info">
+                        <i class="fas fa-file-pdf" style="color: #F97316; font-size: 1.5rem; flex-shrink: 0;"></i>
+                        <span class="material-file-name"><?php echo htmlspecialchars($material['file_name']); ?></span>
+                        <span class="material-file-size"><?php echo round($material['file_size'] / 1024, 2); ?> KB</span>
+                    </div>
                     <div class="download-action-badge">
                         <i class="fas fa-hand-point-left pointer-finger-icon"></i>
                         <span>Click to download</span>

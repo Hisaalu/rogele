@@ -74,11 +74,12 @@ if (!function_exists('getYoutubeId')) {
     font-weight: 700;
     margin: 0 0 16px 0;
     line-height: 1.3;
+    word-break: break-word;
 }
 
 .lesson-meta {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: clamp(12px, 2vw, 20px);
     margin-bottom: 16px;
 }
@@ -89,10 +90,12 @@ if (!function_exists('getYoutubeId')) {
     gap: 8px;
     color: var(--text-dark);
     font-size: 0.9rem;
+    word-break: break-word;
 }
 
 .meta-item i {
     color: var(--accent-orange);
+    flex-shrink: 0;
 }
 
 .meta-item strong {
@@ -149,6 +152,7 @@ if (!function_exists('getYoutubeId')) {
     border: 1px solid #F1F5F9;
     font-size: 0.95rem;
     word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .video-wrapper {
@@ -186,17 +190,19 @@ if (!function_exists('getYoutubeId')) {
     transition: var(--transition);
     font-weight: 500;
     font-size: 0.9rem;
+    min-height: 48px;
 }
 
 .material-item:hover {
     background: #F1F5F9;
     border-color: var(--accent-orange);
-    transform: translateX(4px);
+    transform: translateY(-1px);
 }
 
 .material-item i:first-child {
     color: var(--accent-orange);
     font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
 .material-item span {
@@ -209,6 +215,7 @@ if (!function_exists('getYoutubeId')) {
 .material-item .download-icon {
     color: var(--text-muted);
     font-size: 0.9rem;
+    flex-shrink: 0;
 }
 
 .admin-actions {
@@ -235,6 +242,7 @@ if (!function_exists('getYoutubeId')) {
     border: none;
     cursor: pointer;
     white-space: nowrap;
+    min-height: 48px;
 }
 
 .btn-approve {
@@ -273,20 +281,42 @@ if (!function_exists('getYoutubeId')) {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    min-height: 48px;
 }
 
-@media (max-width: 600px) {
+/* Mobile Responsiveness Enhancements */
+@media (max-width: 640px) {
+    .view-lesson-container {
+        padding: 12px 10px;
+    }
+
+    .lesson-card {
+        padding: 16px;
+        border-radius: var(--radius-md);
+    }
+
     .lesson-meta {
-        flex-direction: column;
-        gap: 8px;
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
 
     .admin-actions {
         flex-direction: column;
+        gap: 10px;
     }
 
     .btn-action {
         width: 100%;
+        flex: 1 1 auto;
+    }
+
+    .material-item {
+        padding: 12px;
+    }
+
+    .material-item span {
+        white-space: normal;
+        word-break: break-word;
     }
 }
 </style>
@@ -308,19 +338,19 @@ if (!function_exists('getYoutubeId')) {
             <div class="lesson-meta">
                 <span class="meta-item">
                     <i class="fas fa-user" aria-hidden="true"></i>
-                    <strong>Teacher:</strong> <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Unknown'); ?>
+                    <span><strong>Teacher:</strong> <?php echo htmlspecialchars($lesson['teacher_name'] ?? 'Unknown'); ?></span>
                 </span>
                 <span class="meta-item">
                     <i class="fas fa-graduation-cap" aria-hidden="true"></i>
-                    <strong>Class:</strong> <?php echo htmlspecialchars($lesson['class_name'] ?? 'All Levels'); ?>
+                    <span><strong>Class:</strong> <?php echo htmlspecialchars($lesson['class_name'] ?? 'All Levels'); ?></span>
                 </span>
                 <span class="meta-item">
                     <i class="fas fa-book" aria-hidden="true"></i>
-                    <strong>Subject:</strong> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?>
+                    <span><strong>Subject:</strong> <?php echo htmlspecialchars($lesson['subject_name'] ?? 'General'); ?></span>
                 </span>
                 <span class="meta-item">
                     <i class="fas fa-calendar" aria-hidden="true"></i>
-                    <strong>Created:</strong> <?php echo !empty($lesson['created_at']) ? date('M d, Y h:i A', strtotime($lesson['created_at'])) : 'N/A'; ?>
+                    <span><strong>Created:</strong> <?php echo !empty($lesson['created_at']) ? date('M d, Y h:i A', strtotime($lesson['created_at'])) : 'N/A'; ?></span>
                 </span>
             </div>
 
