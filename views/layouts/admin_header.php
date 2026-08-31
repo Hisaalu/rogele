@@ -14,7 +14,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title><?php echo isset($pageTitle) ? $pageTitle : SITE_NAME; ?></title>
+    <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') : SITE_NAME; ?></title>
     <base href="<?php echo BASE_URL; ?>/">
     
     <meta name="description" content="Rays of Grace E-Learning Environment - Quality education for Primary 1 to Primary 7 students. Interactive lessons, quizzes, and progress tracking.">
@@ -30,33 +30,36 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
     <link rel="shortcut icon" type="image/png" href="<?php echo BASE_URL; ?>/public/images/logo.png">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://use.typekit.net/YOUR-KIT-ID.css">
     
     <style>
         :root {
-            --primary: #7f2677;
-            --primary-dark: #5c1856;
-            --primary-light: #9a3391;
+            --primary: #5c1856;
+            --primary-dark: #451041;
+            --primary-light: #7f2677;
             --accent: #f06724;
             --accent-hover: #d8571a;
-            --dark: #000;
-            --gray-900: #000;
-            --gray-700: #555;
+            
+            --dark: #0f172a;
+            --gray-900: #0f172a;
+            --gray-700: #475569;
+            --gray-500: #64748b;
             --gray-300: #cbd5e1;
             --gray-100: #f1f5f9;
             --bg-light: #f8fafc;
             --white: #ffffff;
             
-            --sidebar-width: 260px;
+            --sidebar-width: 280px;
             --sidebar-mini-width: 72px;
-            --navbar-height: 64px;
+            --navbar-height: 70px;
             --transition-speed: 0.25s;
             --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
         }
 
         *, *::before, *::after {
@@ -71,6 +74,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             color: var(--dark);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .admin-layout {
@@ -88,7 +92,6 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             left: 0;
             right: 0;
             z-index: 1000;
-            border-bottom: 1px solid #e2e8f0;
             box-shadow: var(--shadow-sm);
         }
 
@@ -102,6 +105,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             gap: 12px;
             transition: width var(--transition-speed) var(--transition-curve);
             flex-shrink: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         body.sidebar-collapsed .navbar-brand-block {
@@ -111,23 +115,23 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         }
 
         .menu-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.25);
             color: var(--white);
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 8px;
             transition: all 0.2s ease;
             flex-shrink: 0;
         }
 
         .menu-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .brand-logo-details {
@@ -144,8 +148,8 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         }
 
         .brand-logo-details img {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             object-fit: contain;
             border-radius: 6px;
         }
@@ -156,8 +160,8 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         }
 
         .brand-title {
-            font-size: 0.85rem;
-            font-weight: 700;
+            font-size: 0.88rem;
+            font-weight: 800;
             color: var(--white);
             letter-spacing: 0.5px;
             line-height: 1.2;
@@ -165,55 +169,43 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         }
 
         .brand-subtitle {
-            font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.75);
-            font-weight: 500;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
         }
 
         .navbar-right-block {
             flex: 1;
             padding: 0 24px;
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
             background: var(--white);
             min-width: 0;
-        }
-
-        .mobile-brand-wrapper {
-            display: none;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .mobile-brand-wrapper img {
-            height: 30px;
-            width: auto;
-            object-fit: contain;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .admin-top-navbar .header-actions {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            gap: 16px !important;
-            margin-left: auto !important;
-            width: auto !important;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+            width: auto;
         }
 
         .header-action-btn {
             background: transparent;
             border: none;
             color: var(--gray-700);
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             position: relative;
-            transition: background 0.2s;
+            transition: background 0.2s, color 0.2s;
             flex-shrink: 0;
         }
 
@@ -227,7 +219,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             align-items: center;
             gap: 10px;
             cursor: pointer;
-            padding: 4px 8px 4px 4px;
+            padding: 4px 10px 4px 4px;
             border-radius: 30px;
             border: 1px solid var(--gray-300);
             background: var(--white);
@@ -239,6 +231,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
         .profile-trigger:hover {
             background: var(--bg-light);
+            border-color: #cbd5e1;
         }
 
         .admin-avatar {
@@ -260,7 +253,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             display: flex;
             flex-direction: column;
             text-align: left;
-            padding-right: 4px;
+            padding-right: 2px;
         }
 
         .admin-meta span {
@@ -272,7 +265,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
         .admin-meta small {
             font-size: 0.68rem;
-            color: var(--gray-700);
+            color: var(--gray-500);
         }
 
         .profile-dropdown-card {
@@ -309,7 +302,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             text-decoration: none;
             font-size: 0.85rem;
             font-weight: 500;
-            transition: background 0.15s ease;
+            transition: background 0.15s ease, color 0.15s ease;
         }
 
         .profile-dropdown-card a:hover {
@@ -386,6 +379,12 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             background: none;
             border: none;
             font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .mark-read-btn:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
         }
 
         .notification-list {
@@ -437,14 +436,14 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         .notification-content p {
             font-size: 0.8rem;
             color: var(--gray-900);
-            line-height: 1.3;
+            line-height: 1.35;
             margin-bottom: 3px;
             word-wrap: break-word;
         }
 
         .notification-content small {
             font-size: 0.68rem;
-            color: var(--gray-700);
+            color: var(--gray-500);
         }
 
         .notification-badge-count {
@@ -452,7 +451,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             top: 2px;
             right: 2px;
             background: var(--accent);
-            color: #fff;
+            color: var(--white);
             font-size: 0.65rem;
             font-weight: 700;
             border-radius: 10px;
@@ -463,7 +462,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
         .admin-sidebar {
             width: var(--sidebar-width);
-            background: var(--primary-dark);
+            background: var(--primary);
             position: fixed;
             top: var(--navbar-height);
             bottom: 0;
@@ -480,7 +479,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
         .sidebar-scroll-container {
             flex: 1;
-            padding: 16px 10px;
+            padding: 16px 12px;
             overflow-y: auto;
             -ms-overflow-style: none; 
             scrollbar-width: none; 
@@ -491,11 +490,11 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         }
 
         .menu-group-label {
-            font-size: 0.65rem;
+            font-size: 0.68rem;
             text-transform: uppercase;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.4);
-            letter-spacing: 1px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.8px;
             padding: 16px 12px 6px 12px;
             white-space: nowrap;
             overflow: hidden;
@@ -513,12 +512,12 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         .menu-anchor-item {
             display: flex;
             align-items: center;
-            padding: 10px 12px;
-            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 14px;
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 300;
             font-size: 0.88rem;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.2s ease;
             cursor: pointer;
             width: 100%;
@@ -530,19 +529,19 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
         .menu-anchor-item:hover {
             color: var(--white);
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .menu-anchor-item.active {
             background: var(--accent);
             color: var(--white);
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(240, 103, 36, 0.3);
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(240, 103, 36, 0.35);
         }
 
         .menu-anchor-item i.anchor-icon {
-            width: 20px;
-            font-size: 1rem;
+            width: 22px;
+            font-size: 1.05rem;
             text-align: center;
             margin-right: 12px;
             flex-shrink: 0;
@@ -559,7 +558,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
 
         .carat-indicator {
             margin-left: auto;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             opacity: 0.7;
             transition: transform 0.2s ease;
         }
@@ -666,36 +665,41 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         }
 
         @media (max-width: 992px) {
-            .navbar-brand-block,
-            .admin-meta {
-                display: none;
+            .navbar-brand-block {
+                width: 100%;
+                background: var(--primary);
+                padding: 0 16px;
+                justify-content: flex-start;
             }
 
             .navbar-right-block {
-                padding: 0 16px;
-            }
-
-            .mobile-brand-wrapper {
-                display: flex;
-            }
-
-            .mobile-menu-btn {
+                position: absolute;
+                right: 0;
+                height: 100%;
                 background: transparent;
                 border: none;
-                color: var(--gray-700);
-                font-size: 1.25rem;
-                cursor: pointer;
-                width: 36px;
-                height: 36px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 6px;
-                transition: background 0.2s;
             }
 
-            .mobile-menu-btn:hover {
-                background: var(--gray-100);
+            .header-action-btn {
+                color: var(--white);
+            }
+
+            .header-action-btn:hover {
+                background: rgba(255, 255, 255, 0.15);
+                color: var(--white);
+            }
+            
+            .admin-meta, 
+            .profile-trigger span, 
+            .profile-trigger small, 
+            .profile-trigger .fa-chevron-down {
+                display: none;
+            }
+            
+            .profile-trigger {
+                border: none;
+                background: transparent;
+                padding: 0;
             }
 
             .admin-sidebar {
@@ -716,12 +720,9 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             }
 
             .admin-sidebar .anchor-label-text,
-            .admin-sidebar .carat-indicator {
-                display: inline-block !important;
-            }
-
+            .admin-sidebar .carat-indicator,
             .admin-sidebar .menu-group-label {
-                display: block !important;
+                display: inline-block !important;
             }
 
             .admin-sidebar .menu-anchor-item i.anchor-icon {
@@ -739,13 +740,12 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         }
 
         @media (max-width: 576px) {
-            .profile-trigger {
-                border: none;
-                padding: 0;
+            .brand-title {
+                font-size: 0.8rem;
             }
 
-            .profile-trigger .fa-chevron-down {
-                display: none;
+            .brand-subtitle {
+                font-size: 0.65rem;
             }
 
             .notification-dropdown-card {
@@ -755,11 +755,12 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
                 right: 12px;
                 width: auto;
                 max-width: none;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                box-shadow: var(--shadow-lg);
             }
 
             .profile-dropdown-card {
-                right: -4px;
+                right: 16px;
+                top: calc(var(--navbar-height) + 6px);
             }
 
             .notification-list {
@@ -788,13 +789,6 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
         </div>
 
         <div class="navbar-right-block">
-            <div class="mobile-brand-wrapper">
-                <button class="mobile-menu-btn" id="menuToggleMobile" aria-label="Open Mobile Drawer">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="School Logo" onerror="this.style.display='none';">
-            </div>
-
             <div class="header-actions">
                 <div style="position: relative;">
                     <button class="header-action-btn" id="notifTrigger" title="Notifications" aria-label="View notifications">
@@ -896,7 +890,7 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             </div>
             <div class="menu-node-wrapper">
                 <a href="<?php echo BASE_URL; ?>/admin/homework" class="menu-anchor-item <?php echo $isActive('homework'); ?>">
-                    <i class="fas fa-tasks anchor-icon"></i>
+                    <i class="fas fa-list-check anchor-icon"></i>
                     <span class="anchor-label-text">Homework</span>
                 </a>
             </div>
@@ -941,12 +935,19 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
                     <span class="anchor-label-text">System Settings</span>
                 </a>
             </div>
+
+            <div class="menu-group-label">Accounts</div>
+            <div class="menu-node-wrapper">
+                <a href="<?php echo BASE_URL; ?>/logout" class="menu-anchor-item">
+                    <i class="fas fa-sign-out-alt anchor-icon"></i>
+                    <span class="anchor-label-text">Log Out</span>
+                </a>
+            </div>
         </div>
     </aside>
 
     <div class="admin-view-body">
         <div class="view-content-wrapper">
-            
             <div class="toast-container">
                 <?php if (!empty($_SESSION['success'])): ?>
                     <div class="alert-toast alert-success">
@@ -967,12 +968,16 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
             document.addEventListener('DOMContentLoaded', () => {
                 const BASE_URL = '<?php echo BASE_URL; ?>';
 
-                if (localStorage.getItem('admin_sidebar_collapsed') === 'true') {
+                if (localStorage.getItem('admin_sidebar_collapsed') === 'true' && window.innerWidth > 992) {
                     document.body.classList.add('sidebar-collapsed');
                 }
 
                 const profileTrigger = document.getElementById('profileTrigger');
                 const profileDropdown = document.getElementById('profileDropdown');
+                const notifTrigger = document.getElementById('notifTrigger');
+                const notifDropdown = document.getElementById('notifDropdown');
+                const menuToggleDesktop = document.getElementById('menuToggleDesktop');
+                const sidebarBackdrop = document.getElementById('sidebarBackdrop');
 
                 if (profileTrigger && profileDropdown) {
                     profileTrigger.addEventListener('click', (e) => {
@@ -982,22 +987,15 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
                     });
                 }
 
-                const menuToggleDesktop = document.getElementById('menuToggleDesktop');
                 if (menuToggleDesktop) {
                     menuToggleDesktop.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        document.body.classList.toggle('sidebar-collapsed');
-                        localStorage.setItem('admin_sidebar_collapsed', document.body.classList.contains('sidebar-collapsed'));
-                    });
-                }
-
-                const menuToggleMobile = document.getElementById('menuToggleMobile');
-                const sidebarBackdrop = document.getElementById('sidebarBackdrop');
-
-                if (menuToggleMobile) {
-                    menuToggleMobile.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        document.body.classList.add('sidebar-open');
+                        if (window.innerWidth <= 992) {
+                            document.body.classList.toggle('sidebar-open');
+                        } else {
+                            document.body.classList.toggle('sidebar-collapsed');
+                            localStorage.setItem('admin_sidebar_collapsed', document.body.classList.contains('sidebar-collapsed'));
+                        }
                     });
                 }
 
@@ -1027,8 +1025,6 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
                     }
                 });
 
-                const notifTrigger = document.getElementById('notifTrigger');
-                const notifDropdown = document.getElementById('notifDropdown');
                 const notifBadge = document.getElementById('notifBadge');
                 const notifList = document.getElementById('notifList');
                 const markAllReadBtn = document.getElementById('markAllReadBtn');
@@ -1067,9 +1063,9 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
                                 const unreadClass = item.is_read == 0 ? 'unread' : '';
                                 return `
                                     <a href="${item.link || '#'}" 
-                                    class="notification-item ${unreadClass}" 
-                                    data-id="${item.id}" 
-                                    data-unread="${item.is_read == 0}">
+                                       class="notification-item ${unreadClass}" 
+                                       data-id="${item.id}" 
+                                       data-unread="${item.is_read == 0}">
                                         <div class="notification-icon-box ${meta.class}">
                                             <i class="${meta.icon}"></i>
                                         </div>
@@ -1105,34 +1101,38 @@ $isActive = static function (string $route, bool $exact = false) use ($currentUr
                         }
                     });
                 }
-                
+
                 fetchNotifications();
-                notifList.addEventListener('click', async (e) => {
-                    const item = e.target.closest('.notification-item');
-                    if (!item) return;
+                
+                if (notifList) {
+                    notifList.addEventListener('click', async (e) => {
+                        const item = e.target.closest('.notification-item');
+                        if (!item) return;
 
-                    const notifId = item.getAttribute('data-id');
-                    const isUnread = item.getAttribute('data-unread') === 'true';
+                        const notifId = item.getAttribute('data-id');
+                        const isUnread = item.getAttribute('data-unread') === 'true';
 
-                    if (isUnread && notifId) {
-                        e.preventDefault();
-                        const targetUrl = item.getAttribute('href');
+                        if (isUnread && notifId) {
+                            e.preventDefault();
+                            const targetUrl = item.getAttribute('href');
 
-                        try {
-                            await fetch(`${BASE_URL}/admin/api/notifications/read`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ id: notifId })
-                            });
-                        } catch (err) {
-                            console.error('Failed to mark notification as read:', err);
-                        } finally {
-                            if (targetUrl && targetUrl !== '#') {
-                                window.location.href = targetUrl;
+                            try {
+                                await fetch(`${BASE_URL}/admin/api/notifications/read`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ id: notifId })
+                                });
+                            } catch (err) {
+                                console.error('Failed to mark notification as read:', err);
+                            } finally {
+                                if (targetUrl && targetUrl !== '#') {
+                                    window.location.href = targetUrl;
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
+
                 setInterval(fetchNotifications, 30000);
             });
             </script>
