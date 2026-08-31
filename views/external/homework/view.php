@@ -142,7 +142,7 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
 
 .hw-attachments-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 12px;
 }
 
@@ -150,30 +150,34 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 14px 16px;
     background: var(--hw-bg-light);
-    border: 1px solid var(--hw-border-color);
+    border: 2px solid var(--hw-border-color);
     border-radius: var(--hw-radius-md);
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
+    position: relative;
+    cursor: pointer;
 }
 
 .hw-attachment-card:hover {
     border-color: var(--hw-accent);
     background: #ffffff;
-    box-shadow: 0 4px 12px rgba(240, 103, 36, 0.08);
+    box-shadow: 0 6px 16px rgba(240, 103, 36, 0.12);
     transform: translateY(-2px);
 }
 
 .hw-file-icon {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     color: var(--hw-accent);
+    flex-shrink: 0;
 }
 
 .hw-file-info {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    flex-grow: 1;
 }
 
 .hw-file-name {
@@ -188,6 +192,45 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
 .hw-file-size {
     font-size: 0.75rem;
     color: var(--hw-text-muted);
+}
+
+.hw-download-action {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(240, 103, 36, 0.08);
+    padding: 6px 10px;
+    border-radius: 20px;
+    color: var(--hw-accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.hw-attachment-card:hover .hw-download-action {
+    background: var(--hw-accent);
+    color: #ffffff;
+}
+
+.hw-pointer-icon {
+    display: inline-block;
+    font-size: 0.95rem;
+    animation: fingerPointLeft 1.2s infinite ease-in-out;
+}
+
+.hw-attachment-card:hover .hw-pointer-icon {
+    animation-duration: 0.6s;
+}
+
+@keyframes fingerPointLeft {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-4px);
+    }
 }
 
 .hw-feedback-wrapper {
@@ -560,18 +603,22 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
 
         <?php if (!empty($homework['attachments'])): ?>
             <section class="hw-section">
-                <h2 class="hw-section-title"><i class="fas fa-paperclip"></i> Reference Attachments</h2>
+                <h2 class="hw-section-title"><i class="fas fa-paperclip"></i> Homework File</h2>
                 <div class="hw-attachments-grid">
                     <?php foreach ($homework['attachments'] as $attachment): ?>
                         <?php
                             $cleanFileName = basename($attachment['file_path']); 
                             $officialDownloadUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/homework/" . $cleanFileName;
                         ?>
-                        <a href="<?php echo htmlspecialchars($officialDownloadUrl); ?>" target="_blank" rel="noopener noreferrer" class="hw-attachment-card">
+                        <a href="<?php echo htmlspecialchars($officialDownloadUrl); ?>" download target="_blank" rel="noopener noreferrer" class="hw-attachment-card" title="Click to download attachment">
                             <div class="hw-file-icon"><i class="fas fa-file-download"></i></div>
                             <div class="hw-file-info">
                                 <span class="hw-file-name"><?php echo htmlspecialchars($attachment['file_name']); ?></span>
                                 <span class="hw-file-size"><?php echo round(($attachment['file_size'] ?? 0) / 1024, 2); ?> KB</span>
+                            </div>
+                            <div class="hw-download-action">
+                                <i class="fas fa-hand-point-left hw-pointer-icon"></i>
+                                <span>Download</span>
                             </div>
                         </a>
                     <?php endforeach; ?>
@@ -589,7 +636,7 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
                     </div>
                     <?php if (!empty($submission['feedback'])): ?>
                         <div class="hw-feedback-body">
-                            <strong></i> Teacher's Comment</strong>
+                            <strong>Teacher's Comment</strong>
                             <p><?php echo nl2br(htmlspecialchars($submission['feedback'])); ?></p>
                         </div>
                     <?php endif; ?>
@@ -657,7 +704,7 @@ $canDelete        = !empty($submission) && ($submission['status'] ?? '') !== 'gr
                     </div>
                     
                     <div class="hw-form-group">
-                        <label class="hw-input-label">Attach Files (Max 5MB per file)</label>
+                        <label class="hw-input-label">Attach Your Files (Max 5MB per file)</label>
                         <div class="hw-file-dropzone" onclick="document.getElementById('submission_files').click()">
                             <i class="fas fa-cloud-upload-alt hw-dropzone-icon"></i>
                             <p class="hw-dropzone-text">Click or drag files here to upload</p>

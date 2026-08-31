@@ -45,6 +45,45 @@ if (!isset($lesson)) {
         background: #e05a1a;
         border-color: #e05a1a;
     }
+
+    /* Download Action Badge & Animated Left-Pointing Finger */
+    .download-action-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(240, 103, 36, 0.08);
+        padding: 6px 12px;
+        border-radius: 20px;
+        color: #f06724;
+        font-size: 0.8rem;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    a.material-card-link:hover .download-action-badge {
+        background: #f06724;
+        color: #ffffff;
+    }
+
+    .pointer-finger-icon {
+        display: inline-block;
+        font-size: 0.95rem;
+        animation: fingerPointLeft 1.2s infinite ease-in-out;
+    }
+
+    a.material-card-link:hover .pointer-finger-icon {
+        animation-duration: 0.6s;
+    }
+
+    @keyframes fingerPointLeft {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        50% {
+            transform: translateX(-4px);
+        }
+    }
 </style>
 
 <div style="padding: 40px 20px; max-width: 1000px; margin: 0 auto;">
@@ -55,7 +94,7 @@ if (!isset($lesson)) {
         
         <?php if (isset($_SESSION['user_id'])): ?>
             <button class="bookmark-btn <?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'bookmarked' : ''; ?>" 
-                    onclick="toggleBookmark(<?php echo $lesson['id']; opacity: 1; ?>, this)"
+                    onclick="toggleBookmark(<?php echo (int)$lesson['id']; ?>, this)"
                     title="<?php echo isset($lesson['is_bookmarked']) && $lesson['is_bookmarked'] ? 'Remove from bookmarks' : 'Add to bookmarks'; ?>">
                 <i class="fas fa-bookmark"></i>
             </button>
@@ -107,17 +146,20 @@ if (!isset($lesson)) {
                     $cleanMaterialName = basename($material['file_path']);
                     $officialMaterialUrl = "https://docs.raysofgrace.ac.ug/rogele-platform/uploads/lessons/" . $cleanMaterialName;
                 ?>
-                <a href="<?php echo htmlspecialchars($officialMaterialUrl); ?>" target="_blank" download 
-                   style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #F8FAFC; border-radius: 10px; text-decoration: none; color: #1E293B; transition: background 0.3s ease;">
+                <a href="<?php echo htmlspecialchars($officialMaterialUrl); ?>" target="_blank" download class="material-card-link"
+                   style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #F8FAFC; border-radius: 10px; text-decoration: none; color: #1E293B; transition: background 0.3s ease, border-color 0.3s ease;">
                     <i class="fas fa-file-pdf" style="color: #F97316; font-size: 1.5rem;"></i>
-                    <span style="flex: 1;"><?php echo htmlspecialchars($material['file_name']); ?></span>
+                    <span style="flex: 1; font-weight: 600;"><?php echo htmlspecialchars($material['file_name']); ?></span>
                     <span style="color: #64748B; font-size: 0.9rem;"><?php echo round($material['file_size'] / 1024, 2); ?> KB</span>
-                    <i class="fas fa-download" style="color: #7f2677;"></i>
+                    <div class="download-action-badge">
+                        <i class="fas fa-hand-point-left pointer-finger-icon"></i>
+                        <span>Download</span>
+                    </div>
                 </a>
             <?php endforeach; ?>
         </div>
     </div>
-<?php endif; ?>
+    <?php endif; ?>
 </div>
 
 <?php
