@@ -1696,20 +1696,20 @@ class Quiz {
     }
 
     public function autoDraftExpiredQuizzes() {
-    try {
-        $sql = "UPDATE quizzes 
-                SET is_published = 0, 
-                    status = 'draft', 
-                    updated_at = NOW() 
-                WHERE is_published = 1 
-                  AND end_date IS NOT NULL 
-                  AND end_date < NOW()";
-        
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
-        $this->invalidateQuizCache();
-    } catch (PDOException $e) {
+        try {
+            $sql = "UPDATE quizzes 
+                    SET is_published = 0, 
+                        status = 'draft', 
+                        updated_at = NOW() 
+                    WHERE is_published = 1 
+                    AND end_date IS NOT NULL 
+                    AND end_date < NOW()";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            $this->invalidateQuizCache();
+        } catch (PDOException $e) {
+        }
     }
-}
 }
 ?>
