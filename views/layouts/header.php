@@ -691,7 +691,7 @@
             <nav class="navbar">
                 <a href="<?php echo BASE_URL; ?>/" class="logo">
                     <div class="logo-icon">
-                        <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="ROGELE" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'font-size: 1.8rem; color: white;\'></i>'; this.parentElement.style.background='linear-gradient(135deg, #f06724, #7f2677)'">
+                        <img src="<?php echo BASE_URL; ?>/public/images/logo.jpg" alt="ROGELE" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'font-size: 1.8rem; color: white;\'></i>'; this.parentElement.style.background='linear-gradient(135deg, #f06724, #7f2677)'">
                     </div>
                     <div class="logo-text">
                         <span class="logo-main">RAYS OF GRACE</span>
@@ -701,20 +701,47 @@
 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <div class="nav-menu">
-                        <ul class="nav-links">
-                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
-                            </a></li>
-                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>">
-                                <i class="fas fa-book-open"></i> Lessons
-                            </a></li>
-                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>">
-                                <i class="fas fa-pencil-alt"></i> Quizzes  
-                            </a></li>
-                            <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/homework" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'homework') !== false) ? 'active' : ''; ?>">
-                                <i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span>
-                            </a></li>
-                        </ul>
+
+                        <?php if ($_SESSION['user_role'] === 'teacher'): ?>
+                            <ul class="nav-links">
+                                <li><a href="<?php echo BASE_URL; ?>/teacher/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>">
+                                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                                </a></li>
+                                <li><a href="<?php echo BASE_URL; ?>/teacher/students" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'students') !== false ? 'active' : ''; ?>">
+                                    <i class="fas fa-users"></i> Students
+                                </a></li>
+                                <li><a href="<?php echo BASE_URL; ?>/teacher/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>">
+                                    <i class="fas fa-book-open"></i> Lessons
+                                </a></li>
+                                <li><a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>">
+                                    <i class="fas fa-pencil-alt"></i> Quizzes  
+                                </a></li>
+                                <li><a href="<?php echo BASE_URL; ?>/teacher/homework" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'homework') !== false) ? 'active' : ''; ?>">
+                                    <i class="fas fa-tasks"></i> Homework 
+                                    <!-- <span class="badge-new">New</span> -->
+                                </a></li>
+                            </ul>
+
+                        <?php elseif ($_SESSION['user_role'] === 'external'): ?>
+                            <ul class="nav-links">
+                                <li><a href="<?php echo BASE_URL; ?>/external/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>">
+                                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                                </a></li>
+                                <li><a href="<?php echo BASE_URL; ?>/external/subscription" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'subscription') !== false ? 'active' : ''; ?>">
+                                    <i class="fas fa-crown"></i> Subscription
+                                </a></li>
+                                <li><a href="<?php echo BASE_URL; ?>/external/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>">
+                                    <i class="fas fa-book-open"></i> Lessons
+                                </a></li>
+                                <li><a href="<?php echo BASE_URL; ?>/external/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>">
+                                    <i class="fas fa-pencil-alt"></i> Quizzes  
+                                </a></li>
+                                <li><a href="<?php echo BASE_URL; ?>/external/homework" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'homework') !== false) ? 'active' : ''; ?>">
+                                    <i class="fas fa-tasks"></i> Homework 
+                                    <!-- <span class="badge-new">New</span> -->
+                                </a></li>
+                            </ul>
+                        <?php endif; ?>
                         
                         <div class="user-menu">
                             <div class="user-dropdown">
@@ -804,15 +831,32 @@
                 </div>
             </div>
             <div class="mobile-menu-content">
-                <ul class="mobile-nav-links">
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>"><i class="fas fa-book-open"></i> Lessons</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/homework" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'homework') !== false ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span> </a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/profile" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'profile') !== false ? 'active' : ''; ?>"><i class="fas fa-user"></i> Profile</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/<?php echo $_SESSION['user_role']; ?>/settings" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'settings') !== false ? 'active' : ''; ?>"><i class="fas fa-cog"></i> Settings</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                </ul>
+
+                <?php if ($_SESSION['user_role'] === 'teacher'): ?>
+                    <ul class="mobile-nav-links">
+                        <li><a href="<?php echo BASE_URL; ?>/teacher/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/teacher/students" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'students') !== false ? 'active' : ''; ?>"><i class="fas fa-users"></i> Students</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/teacher/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>"><i class="fas fa-book-open"></i> Lessons</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/teacher/homework" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'homework') !== false ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span> </a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/teacher/profile" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'profile') !== false ? 'active' : ''; ?>"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/teacher/settings" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'settings') !== false ? 'active' : ''; ?>"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+
+                <?php elseif ($_SESSION['user_role'] === 'external'): ?>
+                    <ul class="mobile-nav-links">
+                        <li><a href="<?php echo BASE_URL; ?>/external/dashboard" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/external/subscription" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'subscription') !== false ? 'active' : ''; ?>"><i class="fas fa-crown"></i> Subscription</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/external/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>"><i class="fas fa-book-open"></i> Lessons</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/external/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/external/homework" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'homework') !== false ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span> </a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/external/profile" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'profile') !== false ? 'active' : ''; ?>"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/external/settings" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'settings') !== false ? 'active' : ''; ?>"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                <?php endif; ?>
+
             </div>
         <?php else: ?>
             <div class="mobile-menu-header">
@@ -866,11 +910,11 @@
         document.addEventListener("DOMContentLoaded", function() {
             const currentUrl = window.location.pathname;
             const currentHash = window.location.hash;
-            
             const navLinks = document.querySelectorAll('.nav-links a, .mobile-nav-links a');
 
             navLinks.forEach(link => {
                 const href = link.getAttribute('href');
+                if (!href) return;
 
                 if (href.startsWith('#')) {
                     if (currentHash === href) {
@@ -879,15 +923,13 @@
                     
                     link.addEventListener('click', function() {
                         navLinks.forEach(l => l.classList.remove('active'));
-                        
                         this.classList.add('active');
                     });
                     return;
                 }
 
                 try {
-                    const linkPath = new URL(link.href).pathname;
-
+                    const linkPath = new URL(link.href, window.location.origin).pathname;
                     if (currentUrl === linkPath && !currentHash) {
                         link.classList.add('active');
                     }
@@ -897,39 +939,42 @@
                     }
                 }
             });
-        });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const maxIdleTime = 1800000; // 30 minutes
-            // const maxIdleTime = 60000; // 1 minutes
-            let lastActivity = Date.now();
-            let sessionExpired = false;
+            if (typeof IS_LOGGED_IN !== 'undefined' && IS_LOGGED_IN) {
+                const maxIdleTime = 1800000;
+                let lastActivity = Date.now();
+                let isRedirecting = false;
 
-            function updateActivity() {
-                if (sessionExpired) {
+                const activityEvents = ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'];
+
+                function resetTimer() {
+                    if (isRedirecting) return;
+                    lastActivity = Date.now();
+                }
+
+                function triggerLogout() {
+                    isRedirecting = true;
+                    activityEvents.forEach(event => {
+                        document.removeEventListener(event, resetTimer);
+                    });
+
                     localStorage.setItem('showTimeoutAlert', '1');
                     window.location.href = BASE_URL + "/logout";
-                    return;
                 }
 
-                lastActivity = Date.now();
+                activityEvents.forEach(event => {
+                    document.addEventListener(event, resetTimer, { passive: true });
+                });
+
+                setInterval(function() {
+                    if (isRedirecting) return;
+
+                    if (Date.now() - lastActivity >= maxIdleTime) {
+                        triggerLogout();
+                    }
+                }, 10000);
             }
-
-            function checkIdle() {
-                const idle = Date.now() - lastActivity;
-
-                if (idle >= maxIdleTime) {
-                    sessionExpired = true;
-                }
-            }
-
-            ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(event => {
-                document.addEventListener(event, updateActivity, { passive: true });
-            });
-
-            setInterval(checkIdle, 30000);
         });
         </script>
         
         <!-- Page content will be included here -->
-    

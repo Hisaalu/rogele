@@ -133,10 +133,10 @@ $events = $events ?? [];
                     <i class="fas fa-crown" style="color: white; font-size: 1.5rem;"></i>
                 </div>
                 <div style="flex: 1; min-width: 200px;">
-                    <p style="color: #065F46; font-weight: 700; margin-bottom: 5px;">Active Subscription</p>
+                    <p style="color: #065F46; font-weight: 700; margin-bottom: 5px;">Subscribed.</p>
                     <p style="color: #047857;">You have full access to all premium features.</p>
                     <?php if ($subscriptionEndDate): ?>
-                        <p style="color: #047857; font-size: 0.85rem;">Valid until: <?php echo date('F j, Y', strtotime($subscriptionEndDate)); ?></p>
+                        <p style="color: #047857; font-size: 0.85rem;">Valid until: <?php echo date('F j, Y', strtotime($subscriptionEndDate)); ?>.</p>
                     <?php endif; ?>
                 </div>
                 <a href="<?php echo BASE_URL; ?>/external/subscription" style="background: #10B981; color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">
