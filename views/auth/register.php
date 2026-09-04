@@ -86,7 +86,7 @@ if (empty($classes)) {
         }
 
         .logo {
-            width: 100px;
+            width: 150px;
             height: auto;
             margin: 0 auto 16px;
             display: flex;
@@ -289,8 +289,8 @@ if (empty($classes)) {
                 padding: 32px 24px;
             }
             .logo {
-                width: 55px;
-                height: 55px;
+                width: 150px;
+                height: 150px;
             }
             .form-row {
                 grid-template-columns: 1fr;
@@ -330,8 +330,8 @@ if (empty($classes)) {
             <div class="logo-section">
                 <div class="logo">
                     <?php 
-                    $logoPath = BASE_URL . '/public/images/logo.png';
-                    $logoFile = __DIR__ . '/../../public/images/logo.png';
+                    $logoPath = BASE_URL . '/public/images/logo.jpg';
+                    $logoFile = __DIR__ . '/../../public/images/logo.jpg';
                     ?>
                     <?php if (file_exists($logoFile)): ?>
                         <img src="<?php echo $logoPath; ?>" alt="ROGELE Logo">

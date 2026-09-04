@@ -69,7 +69,7 @@ $token = $token ?? '';
         }
 
         .logo {
-            width: 70px;
+            width: 150px;
             height: auto;
             margin: 0 auto 16px;
             display: flex;
@@ -229,8 +229,8 @@ $token = $token ?? '';
             }
             
             .logo {
-                width: 55px;
-                height: 55px;
+                width: 150px;
+                height: 150px;
             }
             
             .logo-section h1 {
@@ -270,8 +270,8 @@ $token = $token ?? '';
         <div class="logo-section">
                 <div class="logo">
                     <?php 
-                    $logoPath = BASE_URL . '/public/images/logo.png';
-                    $logoFile = __DIR__ . '/../../public/images/logo.png';
+                    $logoPath = BASE_URL . '/public/images/logo.jpg';
+                    $logoFile = __DIR__ . '/../../public/images/logo.jpg';
                     ?>
                     <?php if (file_exists($logoFile)): ?>
                         <img src="<?php echo $logoPath; ?>" alt="ROGELE Logo">

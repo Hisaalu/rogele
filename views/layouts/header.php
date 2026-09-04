@@ -159,17 +159,6 @@
             color: #7f2677;
         }
 
-        .badge-new {
-            background-color: #10B981;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 999px;
-            margin-left: 8px;
-            letter-spacing: 0.8px;
-        }
-
         @keyframes badgePulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -718,7 +707,6 @@
                                 </a></li>
                                 <li><a href="<?php echo BASE_URL; ?>/teacher/homework" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'homework') !== false) ? 'active' : ''; ?>">
                                     <i class="fas fa-tasks"></i> Homework 
-                                    <!-- <span class="badge-new">New</span> -->
                                 </a></li>
                             </ul>
 
@@ -738,7 +726,6 @@
                                 </a></li>
                                 <li><a href="<?php echo BASE_URL; ?>/external/homework" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'homework') !== false) ? 'active' : ''; ?>">
                                     <i class="fas fa-tasks"></i> Homework 
-                                    <!-- <span class="badge-new">New</span> -->
                                 </a></li>
                             </ul>
                         <?php endif; ?>
@@ -838,7 +825,7 @@
                         <li><a href="<?php echo BASE_URL; ?>/teacher/students" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'students') !== false ? 'active' : ''; ?>"><i class="fas fa-users"></i> Students</a></li>
                         <li><a href="<?php echo BASE_URL; ?>/teacher/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>"><i class="fas fa-book-open"></i> Lessons</a></li>
                         <li><a href="<?php echo BASE_URL; ?>/teacher/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
-                        <li><a href="<?php echo BASE_URL; ?>/teacher/homework" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'homework') !== false ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span> </a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/teacher/homework" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'homework') !== false ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Homework </a></li>
                         <li><a href="<?php echo BASE_URL; ?>/teacher/profile" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'profile') !== false ? 'active' : ''; ?>"><i class="fas fa-user"></i> Profile</a></li>
                         <li><a href="<?php echo BASE_URL; ?>/teacher/settings" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'settings') !== false ? 'active' : ''; ?>"><i class="fas fa-cog"></i> Settings</a></li>
                         <li><a href="<?php echo BASE_URL; ?>/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -850,7 +837,7 @@
                         <li><a href="<?php echo BASE_URL; ?>/external/subscription" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'subscription') !== false ? 'active' : ''; ?>"><i class="fas fa-crown"></i> Subscription</a></li>
                         <li><a href="<?php echo BASE_URL; ?>/external/lessons" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'lessons') !== false ? 'active' : ''; ?>"><i class="fas fa-book-open"></i> Lessons</a></li>
                         <li><a href="<?php echo BASE_URL; ?>/external/quizzes" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'quizzes') !== false ? 'active' : ''; ?>"><i class="fas fa-pencil-alt"></i> Quizzes</a></li>
-                        <li><a href="<?php echo BASE_URL; ?>/external/homework" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'homework') !== false ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Homework <span class="badge-new">New</span> </a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/external/homework" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'homework') !== false ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Homework </a></li>
                         <li><a href="<?php echo BASE_URL; ?>/external/profile" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'profile') !== false ? 'active' : ''; ?>"><i class="fas fa-user"></i> Profile</a></li>
                         <li><a href="<?php echo BASE_URL; ?>/external/settings" class="<?php echo strpos($_SERVER['REQUEST_URI'], 'settings') !== false ? 'active' : ''; ?>"><i class="fas fa-cog"></i> Settings</a></li>
                         <li><a href="<?php echo BASE_URL; ?>/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
