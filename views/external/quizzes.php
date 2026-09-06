@@ -5,8 +5,6 @@ require_once __DIR__ . '/../layouts/header.php';
 
 $quizzes = $quizzes ?? [];
 $results = $results ?? [];
-
-// Optimize result grouping and statistics pre-calculation (O(N) single pass)
 $userResults = [];
 $quizStats = [];
 $totalScores = 0;
